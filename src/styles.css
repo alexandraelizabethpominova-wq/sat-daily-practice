@@ -11,7 +11,7 @@ nav>div{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 
 .card,.stat,.answer,.question-card{background:#fff;border:1px solid #e7eaf0;border-radius:20px;box-shadow:0 10px 30px rgba(16,24,40,.05)}
 .hero{display:grid;grid-template-columns:1.4fr .6fr;gap:36px;padding:48px;align-items:center}
-.hero h1,.results h1,.shell>h1{font-size:clamp(2.1rem,5vw,3.5rem);line-height:1.04;letter-spacing:-.04em;margin:10px 0 16px}
+.hero h1,.results h1,.shell>h1,.page-heading h1{font-size:clamp(2.1rem,5vw,3.5rem);line-height:1.04;letter-spacing:-.04em;margin:10px 0 16px}
 .hero p{color:#667085;line-height:1.7;max-width:680px}
 .hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
 .eyebrow{font-size:.76rem;text-transform:uppercase;letter-spacing:.12em;font-weight:800;color:#6558f5}
@@ -21,6 +21,7 @@ nav>div{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:20px 0}
 .stat{padding:18px;display:flex;flex-direction:column;gap:8px}
 .stat svg{color:#6558f5}.stat span{color:#667085}.stat b{font-size:1.6rem}
+.page-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:20px}.page-heading .eyebrow{margin:0}.empty-history{padding:28px;margin-top:20px}.empty-history h2{margin-top:0}.empty-history p{color:#667085;margin-bottom:0}
 
 .practice{padding:0 24px 40px}
 .practice-topbar{max-width:1280px;margin:auto;display:grid;grid-template-columns:auto minmax(260px,1fr) auto;align-items:center;gap:20px;position:sticky;top:0;z-index:20;background:rgba(246,247,251,.96);backdrop-filter:blur(14px);padding:14px 0 12px;border-bottom:1px solid #e7eaf0}
@@ -49,5 +50,5 @@ details{margin-top:14px;border-top:1px solid #eaecf0;padding-top:12px}summary{fo
 .row{display:grid;grid-template-columns:1fr auto auto;gap:16px;padding:13px 0;border-bottom:1px solid #eaecf0}
 
 @media(max-width:1050px){.practice-topbar{grid-template-columns:1fr;position:static}.question-nav{justify-content:space-between;flex-wrap:wrap}.practice-grid{grid-template-columns:1fr}.answer{position:static}.question-nav>span{order:-1;width:100%}}
-@media(max-width:900px){.hero{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.score{width:150px;height:150px}}
+@media(max-width:900px){.hero{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.score{width:150px;height:150px}.page-heading{align-items:flex-start;flex-direction:column}}
 @media(max-width:600px){.shell,.practice{padding-left:14px;padding-right:14px}.hero,.results{padding:28px}.uploads,.stats{grid-template-columns:1fr}nav{align-items:flex-start;flex-direction:column}.choices{grid-template-columns:repeat(2,1fr)}.review-head{flex-direction:column}.source-slice{padding:10px}}
