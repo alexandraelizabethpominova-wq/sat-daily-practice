@@ -1,5 +1,7 @@
 import {useEffect,useState} from 'react'
 import {GlobalWorkerOptions,getDocument,type PDFDocumentProxy,type PDFPageProxy} from 'pdfjs-dist'
+import {Maximize2,Minus,Plus} from 'lucide-react'
+import AlexIconButton from '../design-system/atoms/AlexIconButton'
 import {getQuestionImage,saveQuestionImage} from '../lib/questionImageStore'
 import {QUESTION_CROPS} from '../lib/questionCrops'
 import type {ModuleKey} from '../types'
@@ -56,7 +58,6 @@ async function explanationBounds(page:PDFPageProxy,scale:number,questionNumber:n
   const top=Math.max(0,current.y-28*scale)
   const bottom=Math.min(viewport.height,next?next.y-18*scale:viewport.height-12*scale)
 
-  // Explanations should keep the entire page width so wrapped lines are never clipped.
   return{left:0,right:viewport.width,top,bottom,viewport}
 }
 
@@ -67,12 +68,15 @@ function canvasToBlob(canvas:HTMLCanvasElement):Promise<Blob>{
 export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt}:{pdfKey:string;bytes:ArrayBuffer;page:number;questionNumber:number;alt:string}){
   const[src,setSrc]=useState('')
   const[error,setError]=useState('')
+  const[zoom,setZoom]=useState(1)
+  const isQuestion=pdfKey==='questions'
+
+  useEffect(()=>{setZoom(1)},[page,questionNumber,pdfKey])
 
   useEffect(()=>{
     let cancelled=false
     let objectUrl=''
     let renderTask:{cancel:()=>void;promise:Promise<void>}|null=null
-    // v4 intentionally invalidates older cached slices that could be horizontally clipped.
     const imageKey=`v4:${pdfKey}:${bytes.byteLength}:${page}:${questionNumber}`
 
     async function showBlob(blob:Blob){
@@ -92,7 +96,7 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt}:{pdfK
         let scale=1.8
         let left=0,right=0,top=0,bottom=0,viewport
 
-        if(pdfKey==='questions'){
+        if(isQuestion){
           scale=2.4
           viewport=pdfPage.getViewport({scale})
           const module=moduleForPage(page)
@@ -140,7 +144,20 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt}:{pdfK
     }
     render()
     return()=>{cancelled=true;try{renderTask?.cancel()}catch{};if(objectUrl)URL.revokeObjectURL(objectUrl)}
-  },[pdfKey,bytes,page,questionNumber])
+  },[pdfKey,bytes,page,questionNumber,isQuestion])
 
-  return <div className="source-slice" role="img" aria-label={alt}>{error?<div className="source-error">{error}</div>:src?<img src={src} alt={alt}/>:<div className="source-loading">Preparing question…</div>}</div>
+  return <div className={`source-slice ${isQuestion?'question-source':''}`} role="img" aria-label={alt}>
+    {isQuestion&&<div className="question-zoom-bar">
+      <span>Question view</span>
+      <div>
+        <AlexIconButton label="Zoom out" onClick={()=>setZoom(z=>Math.max(.7,+(z-.1).toFixed(2)))} disabled={zoom<=.7}><Minus size={17}/></AlexIconButton>
+        <span className="zoom-value">{Math.round(zoom*100)}%</span>
+        <AlexIconButton label="Zoom in" onClick={()=>setZoom(z=>Math.min(1.8,+(z+.1).toFixed(2)))} disabled={zoom>=1.8}><Plus size={17}/></AlexIconButton>
+        <AlexIconButton label="Fit question to screen" onClick={()=>setZoom(1)} disabled={zoom===1}><Maximize2 size={16}/></AlexIconButton>
+      </div>
+    </div>}
+    <div className="source-slice-content">
+      {error?<div className="source-error">{error}</div>:src?<img src={src} alt={alt} style={isQuestion?{transform:`scale(${zoom})`}:undefined}/>:<div className="source-loading">Preparing question…</div>}
+    </div>
+  </div>
 }
