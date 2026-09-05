@@ -47,13 +47,16 @@ async function explanationBounds(page:PDFPageProxy,scale:number,questionNumber:n
       if(isMarker(item.text,n)){markers.push({n,x:item.x,y:item.y});break}
     }
   }
+
   const currentCandidates=markers.filter(m=>m.n===questionNumber)
   if(!currentCandidates.length)return{left:0,right:viewport.width,top:0,bottom:viewport.height,viewport}
 
   const current=[...currentCandidates].sort((a,b)=>a.y-b.y||a.x-b.x)[0]
   const next=markers.filter(m=>m.n===questionNumber+1&&m.y>current.y+14*scale).sort((a,b)=>a.y-b.y)[0]
-  const top=Math.max(0,current.y-24*scale)
-  const bottom=Math.min(viewport.height,next?next.y-18*scale:viewport.height-20*scale)
+  const top=Math.max(0,current.y-28*scale)
+  const bottom=Math.min(viewport.height,next?next.y-18*scale:viewport.height-12*scale)
+
+  // Explanations should keep the entire page width so wrapped lines are never clipped.
   return{left:0,right:viewport.width,top,bottom,viewport}
 }
 
@@ -69,7 +72,8 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt}:{pdfK
     let cancelled=false
     let objectUrl=''
     let renderTask:{cancel:()=>void;promise:Promise<void>}|null=null
-    const imageKey=`v3:${pdfKey}:${bytes.byteLength}:${page}:${questionNumber}`
+    // v4 intentionally invalidates older cached slices that could be horizontally clipped.
+    const imageKey=`v4:${pdfKey}:${bytes.byteLength}:${page}:${questionNumber}`
 
     async function showBlob(blob:Blob){
       objectUrl=URL.createObjectURL(blob)
@@ -107,20 +111,26 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt}:{pdfK
 
         const full=document.createElement('canvas')
         const fullCtx=full.getContext('2d')!
-        full.width=Math.floor(viewport.width*dpr)
-        full.height=Math.floor(viewport.height*dpr)
+        full.width=Math.ceil(viewport.width*dpr)
+        full.height=Math.ceil(viewport.height*dpr)
         renderTask=pdfPage.render({canvasContext:fullCtx,viewport,transform:dpr===1?undefined:[dpr,0,0,dpr,0,0]}) as typeof renderTask
         await renderTask!.promise
         if(cancelled)return
 
-        const cssWidth=Math.max(1,right-left)
-        const cssHeight=Math.max(1,bottom-top)
+        const srcX=Math.max(0,Math.floor(left*dpr))
+        const srcY=Math.max(0,Math.floor(top*dpr))
+        const srcRight=Math.min(full.width,Math.ceil(right*dpr))
+        const srcBottom=Math.min(full.height,Math.ceil(bottom*dpr))
+        const srcWidth=Math.max(1,srcRight-srcX)
+        const srcHeight=Math.max(1,srcBottom-srcY)
+
         const out=document.createElement('canvas')
-        out.width=Math.floor(cssWidth*dpr)
-        out.height=Math.floor(cssHeight*dpr)
+        out.width=srcWidth
+        out.height=srcHeight
         const ctx=out.getContext('2d')!
         ctx.fillStyle='#fff';ctx.fillRect(0,0,out.width,out.height)
-        ctx.drawImage(full,Math.floor(left*dpr),Math.floor(top*dpr),Math.floor(cssWidth*dpr),Math.floor(cssHeight*dpr),0,0,out.width,out.height)
+        ctx.drawImage(full,srcX,srcY,srcWidth,srcHeight,0,0,out.width,out.height)
+
         const blob=await canvasToBlob(out)
         await saveQuestionImage(imageKey,blob)
         if(!cancelled)await showBlob(blob)
