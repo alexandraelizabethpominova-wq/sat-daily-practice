@@ -1,0 +1,6 @@
+const DB='sat-practice-pdfs', STORE='pdfs'
+export type PdfKind='questions'|'answers'
+function openDb():Promise<IDBDatabase>{return new Promise((resolve,reject)=>{const req=indexedDB.open(DB,1);req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains(STORE))req.result.createObjectStore(STORE)};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
+export async function savePdf(kind:PdfKind,file:File){const db=await openDb();const bytes=await file.arrayBuffer();await new Promise<void>((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(bytes,kind);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error)})}
+export async function getPdf(kind:PdfKind):Promise<ArrayBuffer|null>{const db=await openDb();return new Promise((resolve,reject)=>{const req=db.transaction(STORE,'readonly').objectStore(STORE).get(kind);req.onsuccess=()=>resolve(req.result??null);req.onerror=()=>reject(req.error)})}
+export async function clearPdfs(){const db=await openDb();await new Promise<void>((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).clear();tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error)})}
