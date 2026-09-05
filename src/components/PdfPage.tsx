@@ -7,7 +7,6 @@ const cache=new Map<string,PDFDocumentProxy>()
 
 async function loadPdf(key:string,bytes:ArrayBuffer){
   if(cache.has(key))return cache.get(key)!
-  // pdf.js transfers the typed array to its worker, so always give it a copy.
   const copy=bytes.slice(0)
   const doc=await getDocument({data:new Uint8Array(copy)}).promise
   cache.set(key,doc)
@@ -23,37 +22,53 @@ type Props={
   cropToQuestion?:boolean
 }
 
-type TextItemLike={str:string;transform:number[]}
+type TextItemLike={str:string;transform:number[];width?:number;height?:number}
 
 function isTextItem(item:unknown):item is TextItemLike{
   return !!item&&typeof item==='object'&&'str' in item&&'transform' in item
 }
 
+function startsWithQuestionNumber(text:string,n:number){
+  const s=text.trim()
+  // PDF text extraction may return "11", "11.", "11)" or "11  Question text...".
+  return new RegExp(`^${n}(?:\\s|[.)])`).test(`${s} `)
+}
+
 async function questionBounds(pdfPage:PDFPageProxy,scale:number,questionNumber:number){
   const viewport=pdfPage.getViewport({scale})
   const text=await pdfPage.getTextContent()
-  const items=text.items.filter(isTextItem)
-
-  const markers=items.map(item=>{
+  const items=text.items.filter(isTextItem).map(item=>{
     const [x,y]=viewport.convertToViewportPoint(item.transform[4],item.transform[5])
-    return{value:item.str.trim(),x,y}
-  }).filter(item=>item.x<viewport.width*.24)
+    return{text:item.str.trim(),x,y}
+  })
 
-  const current=markers
-    .filter(item=>item.value===String(questionNumber))
-    .sort((a,b)=>a.y-b.y)[0]
+  // SAT question numbers are positioned near the left edge.  Use a generous left
+  // threshold because PDF text coordinates vary between Reading/Writing and Math.
+  const leftItems=items.filter(item=>item.x<viewport.width*.38)
+  const currentCandidates=leftItems
+    .filter(item=>startsWithQuestionNumber(item.text,questionNumber))
+    .sort((a,b)=>a.y-b.y||a.x-b.x)
 
-  if(!current)return null
+  if(!currentCandidates.length)return null
 
-  const next=markers
-    .filter(item=>item.value===String(questionNumber+1)&&item.y>current.y+8)
-    .sort((a,b)=>a.y-b.y)[0]
+  // Prefer the left-most occurrence. This avoids matching numbers in the question body.
+  const minX=Math.min(...currentCandidates.map(x=>x.x))
+  const current=currentCandidates
+    .filter(x=>x.x<=minX+32*scale)
+    .sort((a,b)=>a.y-b.y)[0] ?? currentCandidates[0]
 
-  const padding=Math.max(16,18*scale)
-  const top=Math.max(0,current.y-padding)
-  const bottom=Math.min(viewport.height,next?next.y-padding:viewport.height-Math.max(16,24*scale))
-  if(bottom-top<80)return null
-  return{top,bottom,viewport}
+  const nextCandidates=leftItems
+    .filter(item=>startsWithQuestionNumber(item.text,questionNumber+1)&&item.y>current.y+12*scale)
+    .sort((a,b)=>a.y-b.y||a.x-b.x)
+
+  const next=nextCandidates[0]
+  const padTop=22*scale
+  const padBottom=18*scale
+  const top=Math.max(0,current.y-padTop)
+  const bottom=Math.min(viewport.height,next?next.y-padBottom:viewport.height-18*scale)
+
+  if(bottom-top<110*scale)return null
+  return{top,bottom}
 }
 
 export default function PdfPage({pdfKey,bytes,page,label,questionNumber,cropToQuestion=false}:Props){
@@ -89,7 +104,9 @@ export default function PdfPage({pdfKey,bytes,page,label,questionNumber,cropToQu
         let bottom=viewport.height
         if(cropToQuestion&&questionNumber){
           const bounds=await questionBounds(pdfPage,zoom,questionNumber)
-          if(bounds){top=bounds.top;bottom=bounds.bottom}
+          if(!bounds)throw new Error(`Could not isolate Question ${questionNumber} on this PDF page.`)
+          top=bounds.top
+          bottom=bounds.bottom
         }
 
         const canvas=canvasRef.current
