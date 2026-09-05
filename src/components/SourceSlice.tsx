@@ -1,6 +1,8 @@
 import {useEffect,useState} from 'react'
 import {GlobalWorkerOptions,getDocument,type PDFDocumentProxy,type PDFPageProxy} from 'pdfjs-dist'
 import {getQuestionImage,saveQuestionImage} from '../lib/questionImageStore'
+import {QUESTION_CROPS} from '../lib/questionCrops'
+import type {ModuleKey} from '../types'
 
 GlobalWorkerOptions.workerSrc=new URL('pdfjs-dist/build/pdf.worker.min.mjs',import.meta.url).toString()
 
@@ -22,8 +24,16 @@ function isMarker(text:string,n:number){
   return new RegExp(`^(?:Question\\s*)?${n}(?:\\s|[.)]|$)`,'i').test(s)
 }
 
+function moduleForPage(page:number):ModuleKey|null{
+  if(page>=4&&page<=17)return'rw1'
+  if(page>=18&&page<=30)return'rw2'
+  if(page>=34&&page<=39)return'math1'
+  if(page>=42&&page<=48)return'math2'
+  return null
+}
+
 type Marker={n:number;x:number;y:number}
-async function sliceBounds(page:PDFPageProxy,scale:number,questionNumber:number){
+async function explanationBounds(page:PDFPageProxy,scale:number,questionNumber:number){
   const viewport=page.getViewport({scale})
   const text=await page.getTextContent()
   const items=text.items.filter(isTextItem).map(item=>{
@@ -38,28 +48,17 @@ async function sliceBounds(page:PDFPageProxy,scale:number,questionNumber:number)
     }
   }
   const currentCandidates=markers.filter(m=>m.n===questionNumber)
-  if(!currentCandidates.length)return null
+  if(!currentCandidates.length)return{left:0,right:viewport.width,top:0,bottom:viewport.height,viewport}
 
-  // Prefer markers nearest a column edge. SAT pages commonly use two columns.
-  const current=[...currentCandidates].sort((a,b)=>a.x-b.x||a.y-b.y)[0]
-  const isRightColumn=current.x>viewport.width*.48
-  const gutter=viewport.width*.5
-  const left=isRightColumn?gutter+18*scale:Math.max(0,viewport.width*.055)
-  const right=isRightColumn?viewport.width-viewport.width*.055:gutter-18*scale
-
-  const sameColumn=(m:Marker)=>isRightColumn?m.x>viewport.width*.48:m.x<viewport.width*.48
-  const next=markers
-    .filter(m=>m.n>questionNumber&&sameColumn(m)&&m.y>current.y+14*scale)
-    .sort((a,b)=>a.y-b.y)[0]
-
+  const current=[...currentCandidates].sort((a,b)=>a.y-b.y||a.x-b.x)[0]
+  const next=markers.filter(m=>m.n===questionNumber+1&&m.y>current.y+14*scale).sort((a,b)=>a.y-b.y)[0]
   const top=Math.max(0,current.y-24*scale)
-  const bottom=Math.min(viewport.height,next?next.y-18*scale:viewport.height-24*scale)
-  if(bottom-top<100*scale)return null
-  return{left,right,top,bottom,viewport}
+  const bottom=Math.min(viewport.height,next?next.y-18*scale:viewport.height-20*scale)
+  return{left:0,right:viewport.width,top,bottom,viewport}
 }
 
 function canvasToBlob(canvas:HTMLCanvasElement):Promise<Blob>{
-  return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('Could not create question image.')),'image/png'))
+  return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('Could not create image.')),'image/png'))
 }
 
 export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt}:{pdfKey:string;bytes:ArrayBuffer;page:number;questionNumber:number;alt:string}){
@@ -70,7 +69,7 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt}:{pdfK
     let cancelled=false
     let objectUrl=''
     let renderTask:{cancel:()=>void;promise:Promise<void>}|null=null
-    const imageKey=`v2:${pdfKey}:${bytes.byteLength}:${page}:${questionNumber}`
+    const imageKey=`v3:${pdfKey}:${bytes.byteLength}:${page}:${questionNumber}`
 
     async function showBlob(blob:Blob){
       objectUrl=URL.createObjectURL(blob)
@@ -85,11 +84,26 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt}:{pdfK
 
         const doc=await loadPdf(pdfKey,bytes)
         const pdfPage=await doc.getPage(page)
-        const scale=1.8
-        const bounds=await sliceBounds(pdfPage,scale,questionNumber)
-        if(!bounds)throw new Error(`Could not isolate Question ${questionNumber}.`)
-        const {left,right,top,bottom,viewport}=bounds
         const dpr=window.devicePixelRatio||1
+        let scale=1.8
+        let left=0,right=0,top=0,bottom=0,viewport
+
+        if(pdfKey==='questions'){
+          scale=2.4
+          viewport=pdfPage.getViewport({scale})
+          const module=moduleForPage(page)
+          if(!module)throw new Error(`Question ${questionNumber} has an unsupported source page.`)
+          const crop=QUESTION_CROPS[module]?.[questionNumber]
+          if(!crop)throw new Error(`Question ${questionNumber} crop is not configured.`)
+          left=crop.x*scale
+          right=(crop.x+crop.width)*scale
+          top=crop.y*scale
+          bottom=(crop.y+crop.height)*scale
+        }else{
+          const bounds=await explanationBounds(pdfPage,scale,questionNumber)
+          viewport=bounds.viewport
+          ;({left,right,top,bottom}=bounds)
+        }
 
         const full=document.createElement('canvas')
         const fullCtx=full.getContext('2d')!
@@ -99,8 +113,8 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt}:{pdfK
         await renderTask!.promise
         if(cancelled)return
 
-        const cssWidth=right-left
-        const cssHeight=bottom-top
+        const cssWidth=Math.max(1,right-left)
+        const cssHeight=Math.max(1,bottom-top)
         const out=document.createElement('canvas')
         out.width=Math.floor(cssWidth*dpr)
         out.height=Math.floor(cssHeight*dpr)
@@ -110,7 +124,9 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt}:{pdfK
         const blob=await canvasToBlob(out)
         await saveQuestionImage(imageKey,blob)
         if(!cancelled)await showBlob(blob)
-      }catch(e){if(!cancelled)setError(e instanceof Error?e.message:'Unable to render question.')}
+      }catch(e){
+        if(!cancelled)setError(e instanceof Error?e.message:'Unable to render item.')
+      }
     }
     render()
     return()=>{cancelled=true;try{renderTask?.cancel()}catch{};if(objectUrl)URL.revokeObjectURL(objectUrl)}
