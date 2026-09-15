@@ -1,0 +1,21 @@
+.structured-question{padding:22px 26px 26px;background:#fff;min-height:420px}
+.structured-lines{max-width:900px;margin:0 auto;color:#10284f;font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;line-height:1.62}
+.structured-lines p{margin:0 0 1rem;white-space:pre-wrap}
+.structured-lines p:last-child{margin-bottom:0}
+.structured-explanation .structured-lines{font-family:inherit;font-size:.96rem;line-height:1.65;max-width:none;padding:12px 2px;color:#344054}
+.structured-loading{padding:52px 28px;text-align:center;color:#667085}
+.rich-math.inline{display:inline-block;margin:0 .08em}.rich-math.display{display:block;overflow-x:auto;margin:14px 0;text-align:center}
+.source-layout-details{margin-top:24px;border-top:1px solid #ebe7e1;padding-top:14px}
+.source-layout-details>summary{color:#475467;font-size:.85rem;font-family:inherit}
+.visual-fallback{margin-top:24px;border-top:1px solid #ebe7e1;padding-top:18px}
+.visual-fallback-label{font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:#667085;margin-bottom:8px}
+.structured-question .visual-fallback .question-source .source-slice-content,.structured-question .source-layout-details .question-source .source-slice-content{height:auto;min-height:180px;max-height:560px}
+.structured-question .visual-fallback .question-source img,.structured-question .source-layout-details .question-source img{max-height:520px;transform-origin:top center}
+.inline-review{margin-top:0;border:1px solid #e4e7ec;border-radius:10px;padding:12px;background:#fcfcfd;max-height:46vh;overflow:auto}
+.inline-review>summary{margin:0;font-size:.9rem}
+.inline-review[open]>summary{margin-bottom:10px}
+.structured-db-card{display:flex;justify-content:space-between;align-items:center;gap:24px;border:1px solid #d9e2ef;background:#f7faff;border-radius:14px;padding:18px 20px;margin:18px 0 22px}
+.structured-db-card>div:first-child{display:grid;gap:5px}.structured-db-card b{font-size:1rem}.structured-db-card span{font-size:.9rem;color:#475467}.structured-db-card small{font-size:.78rem;line-height:1.45;color:#667085;max-width:700px}
+.structured-db-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;flex:0 0 auto}
+.review-item .structured-question{min-height:0;padding:12px 4px}.review-item .structured-lines{font-size:.96rem;max-width:none}.review-item .structured-explanation .structured-lines{padding:8px 0}
+@media(max-width:800px){.structured-question{padding:18px 16px}.structured-db-card{align-items:flex-start;flex-direction:column}.structured-db-actions{justify-content:flex-start}.structured-lines{font-size:1rem}}
