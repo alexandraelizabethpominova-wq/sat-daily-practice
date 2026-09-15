@@ -1,4 +1,5 @@
 import {useEffect,useState} from 'react'
+import '../../structured.css'
 import SourceSlice from '../../components/SourceSlice'
 import AlexRichText from '../atoms/AlexRichText'
 import {ensureQuestionText} from '../../lib/pdfStructuredImport'
