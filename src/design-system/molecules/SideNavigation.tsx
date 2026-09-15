@@ -1,5 +1,5 @@
 import {Box,ButtonBase,IconButton,Stack,Tooltip,Typography} from '@mui/material'
-import {BookOpen,ChartNoAxesColumnIncreasing,ChevronLeft,ChevronRight,ClipboardList,Compass,Settings,Sparkles} from 'lucide-react'
+import {BarChart3,BookOpen,ChevronLeft,ChevronRight,ClipboardList,Compass,Settings,Sparkles} from 'lucide-react'
 import type {ReactNode} from 'react'
 
 type Item={key:string;label:string;active?:boolean;onClick:()=>void;icon?:ReactNode}
@@ -18,7 +18,7 @@ const defaultIcon=(label:string)=>{
   if(label==='Study Plan')return <Compass size={19}/>
   if(label==='Practice Tests')return <ClipboardList size={19}/>
   if(label==='Question Bank')return <BookOpen size={19}/>
-  if(label==='Performance')return <ChartNoAxesColumnIncreasing size={19}/>
+  if(label==='Performance')return <BarChart3 size={19}/>
   if(label==='Resources')return <BookOpen size={19}/>
   return <Settings size={19}/>
 }
