@@ -2,6 +2,13 @@
 .structured-lines{max-width:900px;margin:0 auto;color:#10284f;font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;line-height:1.62}
 .structured-lines p{margin:0 0 1rem;white-space:pre-wrap}
 .structured-lines p:last-child{margin-bottom:0}
+.structured-choice-table{display:grid;grid-template-columns:30px max-content;align-items:start;gap:8px;margin:18px 0 24px}
+.structured-choice-label{font-weight:700;line-height:1.35;padding-top:3px}
+.structured-choice-table table{border-collapse:collapse;font-family:Georgia,'Times New Roman',serif;font-size:1rem;line-height:1.25;background:#fff}
+.structured-choice-table th,.structured-choice-table td{min-width:46px;padding:6px 12px;text-align:center;border:1px solid #667085;font-weight:400}
+.structured-choice-table th:first-child{min-width:62px;font-style:italic;font-weight:400}
+.structured-choice-table tr:first-child th{font-style:normal}
+.structured-choice-table tr:first-child th:first-child{font-style:italic}
 .structured-explanation .structured-lines{font-family:inherit;font-size:.96rem;line-height:1.65;max-width:none;padding:12px 2px;color:#344054}
 .structured-loading{padding:52px 28px;text-align:center;color:#667085}
 .rich-math.inline{display:inline-block;margin:0 .08em}.rich-math.display{display:block;overflow-x:auto;margin:14px 0;text-align:center}
@@ -18,4 +25,4 @@
 .structured-db-card>div:first-child{display:grid;gap:5px}.structured-db-card b{font-size:1rem}.structured-db-card span{font-size:.9rem;color:#475467}.structured-db-card small{font-size:.78rem;line-height:1.45;color:#667085;max-width:700px}
 .structured-db-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;flex:0 0 auto}
 .review-item .structured-question{min-height:0;padding:12px 4px}.review-item .structured-lines{font-size:.96rem;max-width:none}.review-item .structured-explanation .structured-lines{padding:8px 0}
-@media(max-width:800px){.structured-question{padding:18px 16px}.structured-db-card{align-items:flex-start;flex-direction:column}.structured-db-actions{justify-content:flex-start}.structured-lines{font-size:1rem}}
+@media(max-width:800px){.structured-question{padding:18px 16px}.structured-db-card{align-items:flex-start;flex-direction:column}.structured-db-actions{justify-content:flex-start}.structured-lines{font-size:1rem}.structured-choice-table{grid-template-columns:26px max-content;gap:6px}.structured-choice-table th,.structured-choice-table td{min-width:40px;padding:5px 9px}}
