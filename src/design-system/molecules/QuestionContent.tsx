@@ -1,7 +1,7 @@
 import {useEffect,useState} from 'react'
 import '../../structured.css'
 import SourceSlice from '../../components/SourceSlice'
-import AlexRichText from '../atoms/AlexRichText'
+import StructuredQuestionLines from './StructuredQuestionLines'
 import {ensureQuestionText} from '../../lib/pdfStructuredImport'
 import type {StoredQuestionContent} from '../../lib/questionContentStore'
 import type {PracticeQuestion} from '../../types'
@@ -31,7 +31,7 @@ export default function QuestionContent({question,bytes,alt}:Props){
 
   return <div className="structured-question">
     <div className="structured-lines">
-      {content.questionLines.map((line,index)=><p key={`${question.id}-${index}`}><AlexRichText text={line}/></p>)}
+      <StructuredQuestionLines lines={content.questionLines}/>
     </div>
     {content.needsVisual?(
       <div className="visual-fallback">
