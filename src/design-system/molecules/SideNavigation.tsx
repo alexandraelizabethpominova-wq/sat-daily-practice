@@ -30,9 +30,9 @@ function NavItem({item,collapsed}:{item:Item;collapsed:boolean}){
 
 export default function SideNavigation({brand='SAT',primary,secondary=[],footer='Alex',collapsed=false,onToggleCollapsed,onFooterClick}:Props){
   const width=collapsed?76:244
-  return <Box component="aside" sx={{width,minWidth:width,minHeight:'100vh',bgcolor:'#08275B',color:'#fff',display:'flex',flexDirection:'column',px:collapsed?1:1.5,py:2.2,position:'sticky',top:0,height:'100vh',transition:'width .18s ease,min-width .18s ease',zIndex:30}}>
+  return <Box component="aside" sx={{width,minWidth:width,minHeight:'100vh',bgcolor:'#08275B',color:'#fff',display:'flex',flexDirection:'column',px:collapsed?1:1.5,py:2.2,position:'sticky',top:0,height:'100vh',transition:'width .18s ease, min-width .18s ease',zIndex:30}}>
     <Box sx={{display:'flex',alignItems:'center',gap:.5,mb:1.2}}>
-      <ButtonBase onClick={primary[0]?.onClick} aria-label={brand} sx={{justifyContent:collapsed?'center':'flex-start',gap:1.1,color:'#fff',fontWeight:850,px:collapsed?.8:1.2,py:1.1,borderRadius:1.5,flex:1,minWidth:0}}><Sparkles size={18} color="#C9FF98"/>{!collapsed&&<Typography component="span" sx={{fontWeight:850}}>{brand}</Typography>}</ButtonBase>
+      <ButtonBase onClick={primary[0]?.onClick} aria-label={brand} sx={{justifyContent:collapsed?'center':'flex-start',gap:1.1,color:'#fff',fontWeight:850,px:collapsed?0.8:1.2,py:1.1,borderRadius:1.5,flex:1,minWidth:0}}><Sparkles size={18} color="#C9FF98"/>{!collapsed&&<Typography component="span" sx={{fontWeight:850}}>{brand}</Typography>}</ButtonBase>
       {onToggleCollapsed&&<Tooltip title={collapsed?'Expand menu':'Collapse menu'} placement="right"><IconButton onClick={onToggleCollapsed} size="small" aria-label={collapsed?'Expand menu':'Collapse menu'} sx={{color:'#DCE7F7',width:30,height:30}}>{collapsed?<ChevronRight size={17}/>:<ChevronLeft size={17}/>}</IconButton></Tooltip>}
     </Box>
     <Stack spacing=.45>
