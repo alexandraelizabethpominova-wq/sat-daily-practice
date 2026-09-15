@@ -30,7 +30,7 @@ export default function PracticeOptionCard({title,description,icon,actions}:Prop
           <Typography component="b" sx={{fontSize:15.5,fontWeight:750,color:'#08275B'}}>{item.title}</Typography>
           {item.detail&&<Typography component="small" sx={{fontSize:12.5,color:'#687386',lineHeight:1.45}}>{item.detail}</Typography>}
         </Stack>
-        <Box sx={{flex:'0 0 auto'}}>{item.action}</Box>
+        <Box sx={{flex:'0 0 auto',alignSelf:'flex-end'}}>{item.action}</Box>
       </Paper>)}
     </Stack>
   </Paper>
