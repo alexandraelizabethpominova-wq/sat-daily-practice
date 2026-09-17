@@ -21,6 +21,8 @@ export default function QuestionBankReview({questionsPdf}:Props){
   const[search,setSearch]=useState('')
   const[bank,setBank]=useState<PracticeQuestion[]>(QUESTION_BANK)
   const[selectedId,setSelectedId]=useState(()=>QUESTION_BANK.find(question=>question.subject==='math')?.id??QUESTION_BANK[0]?.id??'')
+  const hasQuestionsPdf=Boolean(questionsPdf?.byteLength)
+  const validQuestionsPdf=hasQuestionsPdf?questionsPdf:null
 
   useEffect(()=>{
     let cancelled=false
@@ -61,7 +63,7 @@ export default function QuestionBankReview({questionsPdf}:Props){
       </div>
     </header>
 
-    {!questionsPdf&&<section className="question-bank-empty">
+    {!hasQuestionsPdf&&<section className="question-bank-empty">
       <h2>Shared Question Bank</h2>
       <p>The question list is available without a local PDF. Source comparison and visual-only figures appear when the source PDF is available.</p>
     </section>}
@@ -87,19 +89,19 @@ export default function QuestionBankReview({questionsPdf}:Props){
       {selected&&<section className="question-bank-viewer">
         <div className="question-bank-viewer-header">
           <div><span>{selected.subject==='math'?'Math':'Reading & Writing'}</span><h2>{questionLabel(selected)}</h2></div>
-          <AlexText component="span" sx={{fontSize:12,color:'#667085'}}>{questionsPdf?`PDF page ${selected.sourcePage}`:'Shared bank'}</AlexText>
+          <AlexText component="span" sx={{fontSize:12,color:'#667085'}}>{hasQuestionsPdf?`PDF page ${selected.sourcePage}`:'Shared bank'}</AlexText>
         </div>
         <div className="question-bank-compare">
           <article className="question-bank-pane text-pane">
             <div className="question-bank-pane-label">Text reconstruction</div>
-            <QuestionContent question={selected} bytes={questionsPdf} alt={`${questionLabel(selected)} text`} showOriginalLayout={false} reflowProse/>
+            <QuestionContent question={selected} bytes={validQuestionsPdf} alt={`${questionLabel(selected)} text`} showOriginalLayout={false} reflowProse/>
           </article>
-          {questionsPdf?<article className="question-bank-pane pdf-pane">
+          {hasQuestionsPdf&&validQuestionsPdf?<article className="question-bank-pane pdf-pane">
             <div className="question-bank-pane-label">Original PDF</div>
-            <SourceSlice pdfKey="questions" bytes={questionsPdf} page={selected.sourcePage} questionNumber={selected.number} alt={`${questionLabel(selected)} original PDF`}/>
+            <SourceSlice pdfKey="questions" bytes={validQuestionsPdf} page={selected.sourcePage} questionNumber={selected.number} alt={`${questionLabel(selected)} original PDF`}/>
           </article>:<article className="question-bank-pane pdf-pane">
             <div className="question-bank-pane-label">Original PDF</div>
-            <p className="question-bank-no-results">Optional source comparison is unavailable in this browser.</p>
+            <p className="question-bank-no-results">Source PDF is not available on this device. Add it in Resources to enable the original-PDF comparison.</p>
           </article>}
         </div>
       </section>}
