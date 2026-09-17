@@ -3,24 +3,19 @@ import '../../structured.css'
 import SourceSlice from '../../components/SourceSlice'
 import StructuredQuestionLines from './StructuredQuestionLines'
 import {ensureQuestionText} from '../../lib/pdfStructuredImport'
+import {verifiedMathContent} from '../../lib/verifiedMathQuestions'
 import type {StoredQuestionContent} from '../../lib/questionContentStore'
 import type {PracticeQuestion} from '../../types'
 
-type Props={question:PracticeQuestion;bytes:ArrayBuffer;alt:string}
+type Props={question:PracticeQuestion;bytes:ArrayBuffer;alt:string;showOriginalLayout?:boolean}
 
-export default function QuestionContent({question,bytes,alt}:Props){
+export default function QuestionContent({question,bytes,alt,showOriginalLayout=true}:Props){
   const[content,setContent]=useState<StoredQuestionContent|null>(null)
   const[error,setError]=useState('')
-
-  // Math notation, tables, graphs, diagrams, fractions, radicals, and superscripts
-  // are not reliably preserved by PDF text extraction. Until each math question
-  // has a verified semantic/KaTeX representation, render the exact source crop.
-  // This keeps the question faithful to the supplied practice material while the
-  // answer controls and scoring remain fully interactive HTML controls.
-  const useExactMathSource=question.subject==='math'
+  const verified=question.subject==='math'?verifiedMathContent(question.id):undefined
 
   useEffect(()=>{
-    if(useExactMathSource){
+    if(verified){
       setContent(null)
       setError('')
       return
@@ -35,17 +30,21 @@ export default function QuestionContent({question,bytes,alt}:Props){
       if(!cancelled)setError(reason instanceof Error?reason.message:'Unable to read this question as text.')
     })
     return()=>{cancelled=true}
-  },[question,bytes,useExactMathSource])
+  },[question,bytes,verified])
 
-  if(useExactMathSource){
-    return <div className="verified-math-source">
-      <SourceSlice
-        pdfKey="questions"
-        bytes={bytes}
-        page={question.sourcePage}
-        questionNumber={question.number}
-        alt={alt}
-      />
+  if(verified){
+    return <div className="structured-question verified-math-question">
+      <div className="structured-lines verified-math-lines">
+        <StructuredQuestionLines lines={verified.lines}/>
+      </div>
+      {verified.needsVisual&&<div className="visual-fallback">
+        <div className="visual-fallback-label">Graph or diagram from the source material</div>
+        <SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={`${alt} visual`}/>
+      </div>}
+      {!verified.needsVisual&&showOriginalLayout&&<details className="source-layout-details">
+        <summary>View original layout</summary>
+        <SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={alt}/>
+      </details>}
     </div>
   }
 
@@ -63,7 +62,7 @@ export default function QuestionContent({question,bytes,alt}:Props){
         <div className="visual-fallback-label">Figure from the source material</div>
         <SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={`${alt} figure`}/>
       </div>
-    ):(
+    ):(showOriginalLayout&&
       <details className="source-layout-details">
         <summary>View original layout</summary>
         <SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={alt}/>
