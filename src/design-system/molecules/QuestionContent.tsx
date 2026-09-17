@@ -5,6 +5,7 @@ import SourceSlice from '../../components/SourceSlice'
 import StructuredQuestionLines from './StructuredQuestionLines'
 import {ensureQuestionText} from '../../lib/pdfStructuredImport'
 import {getQuestionContent,type StoredQuestionContent} from '../../lib/questionContentStore'
+import {loadSharedQuestionContent} from '../../lib/sharedQuestionBank'
 import {verifiedMathContent} from '../../lib/verifiedMathQuestions'
 import {questionVisualSpec} from '../../lib/questionVisuals'
 import type {PracticeQuestion} from '../../types'
@@ -35,14 +36,29 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
     let cancelled=false
     setContent(null)
     setError('')
-    const load=bytes?ensureQuestionText(question,bytes):getQuestionContent(question.id)
-    load.then(result=>{
-      if(cancelled)return
-      if(result)setContent(result)
-      else setError('Question text is being restored to the shared bank.')
-    }).catch(reason=>{
-      if(!cancelled)setError(reason instanceof Error?reason.message:'Unable to read this question as text.')
-    })
+    void (async()=>{
+      try{
+        const shared=await loadSharedQuestionContent(question.id)
+        if(shared){
+          if(!cancelled)setContent({
+            questionId:shared.questionId,
+            questionLines:shared.questionLines,
+            explanationLines:shared.explanationLines,
+            questionMode:'text',
+            explanationMode:shared.explanationLines.length?'text':'image-fallback',
+            needsVisual:shared.needsVisual,
+            importedAt:new Date().toISOString(),
+          })
+          return
+        }
+        const local=bytes?await ensureQuestionText(question,bytes):await getQuestionContent(question.id)
+        if(cancelled)return
+        if(local)setContent(local)
+        else setError('Question text is not available in this browser yet.')
+      }catch(reason){
+        if(!cancelled)setError(reason instanceof Error?reason.message:'Unable to read this question as text.')
+      }
+    })()
     return()=>{cancelled=true}
   },[question,bytes,verified])
 
@@ -51,7 +67,7 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
       <div className="structured-lines verified-math-lines">
         {verified.needsVisual&&visual?<LinesWithSourceVisual question={question} bytes={bytes} lines={verified.lines} alt={alt}/>:<StructuredQuestionLines lines={verified.lines}/>} 
       </div>
-      {verified.needsVisual&&!bytes&&<div className="visual-fallback"><div className="visual-fallback-label">Source figure will appear when the shared source asset is available.</div></div>}
+      {verified.needsVisual&&!bytes&&<div className="visual-fallback"><div className="visual-fallback-label">Source figure will appear when the source asset is available.</div></div>}
       {verified.needsVisual&&bytes&&!visual&&<div className="visual-fallback"><div className="visual-fallback-label">Figure from the source material</div><SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={`${alt} visual`}/></div>}
       {!verified.needsVisual&&showOriginalLayout&&bytes&&<details className="source-layout-details"><summary>View original layout</summary><SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={alt}/></details>}
     </div>
@@ -59,7 +75,7 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
 
   if(error||content?.questionMode==='image-fallback'){
     if(bytes)return <SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={alt}/>
-    return <div className="structured-loading">{error||'Question text is being restored to the shared bank.'}</div>
+    return <div className="structured-loading">{error||'Question text is not available in this browser yet.'}</div>
   }
   if(!content)return <div className="structured-loading">Preparing text question…</div>
 
@@ -67,6 +83,6 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
     <div className="structured-lines">
       {content.needsVisual&&visual?<LinesWithSourceVisual question={question} bytes={bytes} lines={content.questionLines} alt={alt} reflowProse={reflowProse}/>:<StructuredQuestionLines lines={content.questionLines} reflowProse={reflowProse}/>} 
     </div>
-    {content.needsVisual&&!bytes?<div className="visual-fallback"><div className="visual-fallback-label">Source figure will appear when the shared source asset is available.</div></div>:content.needsVisual&&!visual&&bytes?<div className="visual-fallback"><div className="visual-fallback-label">Figure from the source material</div><SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={`${alt} figure`}/></div>:(showOriginalLayout&&!content.needsVisual&&bytes&&<details className="source-layout-details"><summary>View original layout</summary><SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={alt}/></details>)}
+    {content.needsVisual&&!bytes?<div className="visual-fallback"><div className="visual-fallback-label">Source figure will appear when the source asset is available.</div></div>:content.needsVisual&&!visual&&bytes?<div className="visual-fallback"><div className="visual-fallback-label">Figure from the source material</div><SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={`${alt} figure`}/></div>:(showOriginalLayout&&!content.needsVisual&&bytes&&<details className="source-layout-details"><summary>View original layout</summary><SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={alt}/></details>)}
   </div>
 }
