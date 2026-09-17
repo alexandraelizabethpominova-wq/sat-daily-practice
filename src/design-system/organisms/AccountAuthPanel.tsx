@@ -4,15 +4,18 @@ import AlexStack from '../atoms/AlexStack'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
 import AuthCredentialsForm from '../molecules/AuthCredentialsForm'
-import {isSupabaseConfigured,signInWithPassword,signOut,signUpWithPassword} from '../../lib/supabase'
+import UserProfileForm from '../molecules/UserProfileForm'
+import {EMPTY_USER_PROFILE,isSupabaseConfigured,saveUserProfile,signInWithPassword,signOut,signUpWithPassword,type UserProfile} from '../../lib/supabase'
 
 type Props={
   email:string|null
+  profile?:UserProfile|null
+  onProfileSaved?:(profile:UserProfile)=>void
 }
 
 const messageFromError=(error:unknown)=>error instanceof Error?error.message:'Something went wrong. Please try again.'
 
-export default function AccountAuthPanel({email}:Props){
+export default function AccountAuthPanel({email,profile=EMPTY_USER_PROFILE,onProfileSaved}:Props){
   const[mode,setMode]=useState<'signin'|'signup'>('signin')
   const[busy,setBusy]=useState(false)
   const[message,setMessage]=useState('')
@@ -30,6 +33,21 @@ export default function AccountAuthPanel({email}:Props){
         await signInWithPassword(nextEmail,password)
         setMessage('Signed in. Your practice history will sync automatically.')
       }
+    }catch(nextError){
+      setError(messageFromError(nextError))
+    }finally{
+      setBusy(false)
+    }
+  }
+
+  async function saveProfile(nextProfile:UserProfile){
+    setBusy(true)
+    setError('')
+    setMessage('')
+    try{
+      const saved=await saveUserProfile(nextProfile)
+      onProfileSaved?.(saved)
+      setMessage('Profile saved.')
     }catch(nextError){
       setError(messageFromError(nextError))
     }finally{
@@ -55,12 +73,16 @@ export default function AccountAuthPanel({email}:Props){
     <AlexStack spacing={2.25}>
       <AlexStack spacing={.5}>
         <AlexText component="p" sx={{fontSize:12,fontWeight:800,letterSpacing:'.08em',textTransform:'uppercase',color:'text.secondary',m:0}}>Account & sync</AlexText>
-        <AlexText component="h2" sx={{fontSize:24,fontWeight:850,m:0}}>Keep your SAT history across devices</AlexText>
-        <AlexText sx={{fontSize:14,color:'text.secondary'}}>Sign in with the same account on each device to back up and restore completed practice sessions.</AlexText>
+        <AlexText component="h2" sx={{fontSize:24,fontWeight:850,m:0}}>{email?'Your account':'Keep your SAT history across devices'}</AlexText>
+        <AlexText sx={{fontSize:14,color:'text.secondary'}}>{email?'Manage your profile and account details.':'Sign in with the same account on each device to back up and restore completed practice sessions.'}</AlexText>
       </AlexStack>
 
-      {!isSupabaseConfigured?<AlexText role="alert" sx={{color:'error.main'}}>Supabase is not configured for this build.</AlexText>:email?<AlexStack spacing={1.5}>
-        <AlexText><b>Signed in as:</b> {email}</AlexText>
+      {!isSupabaseConfigured?<AlexText role="alert" sx={{color:'error.main'}}>Supabase is not configured for this build.</AlexText>:email?<AlexStack spacing={2.25}>
+        <AlexSurface variant="outlined" sx={{p:2,borderRadius:2}}>
+          <AlexText sx={{fontSize:12,color:'text.secondary',mb:.25}}>Signed in as</AlexText>
+          <AlexText sx={{fontWeight:750}}>{email}</AlexText>
+        </AlexSurface>
+        <UserProfileForm profile={profile??EMPTY_USER_PROFILE} busy={busy} onSave={saveProfile}/>
         {error&&<AlexText role="alert" sx={{fontSize:13,color:'error.main'}}>{error}</AlexText>}
         {message&&<AlexText role="status" sx={{fontSize:13,color:'success.main'}}>{message}</AlexText>}
         <AlexButton tone="secondary" disabled={busy} onClick={logout} sx={{alignSelf:'flex-start'}}>Sign out</AlexButton>
