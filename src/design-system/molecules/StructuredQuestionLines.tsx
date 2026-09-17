@@ -49,18 +49,19 @@ function tableHeaderText(value:string){
   return /^[A-Za-z](?:\([A-Za-z]\))?$/.test(value)?`$${value}$`:value
 }
 
+function isTableValueRow(row:string[]){
+  return row.length>=3&&row.slice(1).filter(isNumericCell).length>=2
+}
+
 function ChoiceTable({label,rows}:{label:string;rows:string[][]}){
   return <div className="structured-choice-table">
     <div className="structured-choice-label">{label})</div>
     <table aria-label={`Choice ${label}`}>
       <tbody>
         {rows.map((row,rowIndex)=><tr key={`${label}-${rowIndex}`}>
-          {row.map((cell,columnIndex)=>{
-            const Tag=rowIndex===0||columnIndex===0?'th':'td'
-            return <Tag key={`${label}-${rowIndex}-${columnIndex}`} scope={Tag==='th'?(rowIndex===0?'col':'row'):undefined}>
-              <AlexRichText text={cell}/>
-            </Tag>
-          })}
+          {row.map((cell,columnIndex)=>columnIndex===0
+            ?<th key={`${label}-${rowIndex}-${columnIndex}`} scope="row"><AlexRichText text={tableHeaderText(cell)}/></th>
+            :<td key={`${label}-${rowIndex}-${columnIndex}`}><AlexRichText text={cell}/></td>)}
         </tr>)}
       </tbody>
     </table>
@@ -104,6 +105,52 @@ function dataTableAt(lines:string[],start:number){
   const headers=rowLength===header.length+1?['',...header]:header
   if(headers.length!==rowLength)return null
   return {headers,rows,nextIndex:index}
+}
+
+function parseInlineChoiceTable(value:string){
+  const match=cleanPdfMathArtifacts(value).match(/^([A-D])[.)]\s+(.+)$/i)
+  if(!match)return null
+  const label=match[1].toUpperCase()
+  const body=match[2].replace(/\$/g,'')
+  const parts=body.split(';').map(part=>part.trim()).filter(Boolean)
+  if(parts.length<2)return null
+
+  const rows=parts.map(part=>{
+    const row=part.match(/^([^:]+):\s*(.+)$/)
+    if(!row)return null
+    const values=row[2].split(',').map(value=>value.trim()).filter(Boolean)
+    if(values.length<2)return null
+    return [row[1].trim(),...values]
+  })
+  if(rows.some(row=>!row))return null
+  const typedRows=rows as string[][]
+  const width=typedRows[0].length
+  if(typedRows.some(row=>row.length!==width))return null
+  return {label,rows:typedRows,nextIndex:1}
+}
+
+function choiceTableAt(lines:string[],start:number){
+  const inline=parseInlineChoiceTable(lines[start])
+  if(inline)return {...inline,nextIndex:start+inline.nextIndex}
+
+  const first=cleanPdfMathArtifacts(lines[start])
+  const match=first.match(/^([A-D])[.)]\s+(.+)$/i)
+  if(!match)return null
+  const firstRow=tableCells(match[2])
+  if(!firstRow||!isTableValueRow(firstRow))return null
+
+  const rows=[firstRow]
+  let index=start+1
+  while(index<lines.length&&rows.length<4){
+    const next=cleanPdfMathArtifacts(lines[index])
+    if(isChoiceStart(next))break
+    const row=tableCells(next)
+    if(!row||row.length!==firstRow.length||!isTableValueRow(row))break
+    rows.push(row)
+    index++
+  }
+  if(rows.length<2)return null
+  return {label:match[1].toUpperCase(),rows,nextIndex:index}
 }
 
 function consumeChoice(lines:string[],start:number){
@@ -154,6 +201,14 @@ export function reflowProseLines(lines:string[]){
       continue
     }
 
+    const optionTable=choiceTableAt(lines,index)
+    if(optionTable){
+      flush()
+      for(let row=index;row<optionTable.nextIndex;row++)result.push(cleanPdfMathArtifacts(lines[row]))
+      index=optionTable.nextIndex
+      continue
+    }
+
     const choice=consumeChoice(lines,index)
     if(choice){
       flush()
@@ -198,11 +253,18 @@ export default function StructuredQuestionLines({lines,reflowProse=false}:{lines
       continue
     }
 
+    const optionTable=choiceTableAt(sourceLines,index)
+    if(optionTable){
+      output.push(<ChoiceTable key={`choice-table-${index}`} label={optionTable.label} rows={optionTable.rows}/>)
+      index=optionTable.nextIndex
+      continue
+    }
+
     const label=choiceLabel(line)
     if(label&&index+2<sourceLines.length){
       const first=tableCells(sourceLines[index+1])
       const second=tableCells(sourceLines[index+2])
-      if(first&&second&&first.length===second.length){
+      if(first&&second&&first.length===second.length&&isTableValueRow(first)&&isTableValueRow(second)){
         output.push(<ChoiceTable key={`choice-table-${index}`} label={label} rows={[first,second]}/>)
         index+=3
         continue
