@@ -10,6 +10,7 @@ import AlexStatusChip from './design-system/atoms/AlexStatusChip'
 import AlexTextField from './design-system/atoms/AlexTextField'
 import AppSidebarLayout from './design-system/organisms/AppSidebarLayout'
 import PracticeTestsDashboard from './design-system/organisms/PracticeTestsDashboard'
+import QuestionBankReview from './design-system/organisms/QuestionBankReview'
 import {answerLabel,matchesAnswer} from './lib/answerCompare'
 import {QUESTION_BANK,moduleLabel,questionsForMode} from './lib/questionBank'
 import {clearQuestionContent,countQuestionContent} from './lib/questionContentStore'
@@ -39,7 +40,7 @@ function choose(settings:Settings,attempts:Attempt[]){
   }).sort((a,b)=>b.score-a.score).slice(0,settings.questionsPerSession).map(item=>item.q)
 }
 
-type View='study'|'home'|'practice'|'results'|'stats'|'settings'|'sources'
+type View='study'|'home'|'practice'|'results'|'stats'|'settings'|'sources'|'question-bank'
 type SidebarKey='study'|'practice-tests'|'question-bank'|'performance'|'resources'
 
 export default function App(){
@@ -136,7 +137,7 @@ export default function App(){
   }
 
   function withSidebar(active:SidebarKey,content:ReactNode,background='#fff'){
-    return <AppSidebarLayout active={active} collapsed={sidebarCollapsed} onToggleCollapsed={()=>setSidebarCollapsed(value=>!value)} onStudyPlan={()=>setView('study')} onPracticeTests={()=>setView('home')} onQuestionBank={()=>setView('settings')} onPerformance={()=>setView('stats')} onResources={()=>setView('sources')} onSettings={()=>setView('settings')} contentBackground={background}>{content}</AppSidebarLayout>
+    return <AppSidebarLayout active={active} collapsed={sidebarCollapsed} onToggleCollapsed={()=>setSidebarCollapsed(value=>!value)} onStudyPlan={()=>setView('study')} onPracticeTests={()=>setView('home')} onQuestionBank={()=>setView('question-bank')} onPerformance={()=>setView('stats')} onResources={()=>setView('sources')} onSettings={()=>setView('settings')} contentBackground={background}>{content}</AppSidebarLayout>
   }
 
   if(view==='practice'&&current&&qpdf){
@@ -155,7 +156,9 @@ export default function App(){
 
   if(view==='stats')return withSidebar('performance',<main className="shell"><div className="page-heading"><div><p className="eyebrow">Performance</p><h1>Your practice trends</h1></div>{attempts.length>0&&<AlexButton tone="secondary" onClick={resetHistory}>Clear history & start fresh</AlexButton>}</div><div className="stats"><Stat icon={<Target/>} label="Accuracy" value={attempts.length?`${accuracy}%`:'—'}/><Stat icon={<Clock3/>} label="Avg. time" value={attempts.length?fmt(avg):'—'}/><Stat icon={<BookOpen/>} label="Sessions" value={String(sessions.length)}/><Stat icon={<BarChart3/>} label="Questions seen" value={`${new Set(attempts.map(a=>a.questionId)).size}/${QUESTION_BANK.length}`}/></div>{attempts.length===0&&<section className="card empty-history"><h2>Fresh start</h2><p>No practice history is stored yet. Your next session will begin building new statistics.</p></section>}</main>)
 
-  if(view==='settings')return withSidebar('question-bank',<main className="shell"><div className="page-heading"><div><p className="eyebrow">Question Bank</p><h1>Practice setup</h1></div></div><section className="card settings settings-grid"><div className="settings-field"><AlexDropdown id="practice-subject" label="Subject" value={settings.mode} options={[{value:'both',label:'English + Math'},{value:'english',label:'English only'},{value:'math',label:'Math only'}]} onChange={mode=>setSettings({...settings,mode})}/></div><div className="settings-field"><AlexNumberField label="Questions per session" value={settings.questionsPerSession} min={3} max={30} onChange={questionsPerSession=>setSettings({...settings,questionsPerSession})}/></div><div className="settings-actions"><AlexButton onClick={()=>beginPractice(settings.mode)}>Start with these settings</AlexButton><AlexButton tone="secondary" onClick={resetHistory}>Clear history & start fresh</AlexButton></div><p className="muted">Questions are selected adaptively from your uploaded SAT source. History is used to prioritize unseen and weaker questions.</p></section></main>)
+  if(view==='question-bank')return withSidebar('question-bank',<QuestionBankReview questionsPdf={qpdf}/>,'#F7F6F2')
+
+  if(view==='settings')return withSidebar('question-bank',<main className="shell"><div className="page-heading"><div><p className="eyebrow">Settings</p><h1>Practice setup</h1></div></div><section className="card settings settings-grid"><div className="settings-field"><AlexDropdown id="practice-subject" label="Subject" value={settings.mode} options={[{value:'both',label:'English + Math'},{value:'english',label:'English only'},{value:'math',label:'Math only'}]} onChange={mode=>setSettings({...settings,mode})}/></div><div className="settings-field"><AlexNumberField label="Questions per session" value={settings.questionsPerSession} min={3} max={30} onChange={questionsPerSession=>setSettings({...settings,questionsPerSession})}/></div><div className="settings-actions"><AlexButton onClick={()=>beginPractice(settings.mode)}>Start with these settings</AlexButton><AlexButton tone="secondary" onClick={resetHistory}>Clear history & start fresh</AlexButton></div><p className="muted">Questions are selected adaptively from your uploaded SAT source. History is used to prioritize unseen and weaker questions.</p></section></main>)
 
   if(view==='sources')return withSidebar('resources',<main className="shell"><div className="page-heading"><div><p className="eyebrow">Resources</p><h1>Manage sources</h1></div></div><section className="card sources"><p>Question and explanation text is extracted from the PDFs you add here and stored in a local browser database. Practice uses text first; the original PDF crop is only used when a figure or extraction fallback is needed.</p><div className="uploads"><label><Upload/><b>{qpdf?'Replace question source':'Add question source'}</b><span>{qpdf?'Ready for text import':'Required for practice questions'}</span><input type="file" accept="application/pdf" onChange={event=>upload('questions',event.target.files?.[0])}/></label><label><Upload/><b>{apdf?'Replace explanation source':'Add explanation source'}</b><span>{apdf?'Ready for text import':'Add for walkthroughs and review'}</span><input type="file" accept="application/pdf" onChange={event=>upload('answers',event.target.files?.[0])}/></label></div><div className="structured-db-card"><div><b>Local question database</b><span>{contentCount}/{QUESTION_BANK.length} questions imported</span><small>Text stays in this browser. Formulas can be stored as LaTeX and are rendered with KaTeX; source images remain a fallback for visual-only material.</small></div><div className="structured-db-actions"><AlexButton disabled={!qpdf||!apdf||Boolean(importProgress)} onClick={buildTextDatabase}>{importProgress?`Importing ${importProgress}`:'Build text database'}</AlexButton>{contentCount>0&&<AlexButton tone="secondary" onClick={async()=>{await clearQuestionContent();setContentCount(0)}}>Clear text database</AlexButton>}</div></div>{(qpdf||apdf)&&<AlexButton tone="secondary" onClick={async()=>{await clearPdfs();await clearQuestionContent();setQpdf(null);setApdf(null);setContentCount(0)}}>Clear sources</AlexButton>}</section></main>)
 
