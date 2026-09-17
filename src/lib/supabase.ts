@@ -1,4 +1,4 @@
-import {createClient} from '@supabase/supabase-js'
+import {createClient,type User} from '@supabase/supabase-js'
 import type {Attempt,SessionSummary} from '../types'
 
 const url=import.meta.env.VITE_SUPABASE_URL as string|undefined
@@ -7,35 +7,42 @@ const publishableKey=(import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY??import.meta
 export const supabase=url&&publishableKey?createClient(url,publishableKey):null
 export const isSupabaseConfigured=Boolean(supabase)
 
-export type AuthChangeEvent='SIGNED_IN'|'SIGNED_OUT'|'INITIAL_SESSION'|'TOKEN_REFRESHED'|'USER_UPDATED'|'PASSWORD_RECOVERY'|'MFA_CHALLENGE_VERIFIED'
+export type AuthUser={id:string;email:string|null}
 
-export async function getSignedInEmail(){
+const toAuthUser=(user:User|null):AuthUser|null=>user?{id:user.id,email:user.email??null}:null
+
+export async function getCurrentAuthUser():Promise<AuthUser|null>{
   if(!supabase)return null
-  const {data,error}=await supabase.auth.getSession()
-  if(error)throw error
-  return data.session?.user.email??null
+  const {data,error}=await supabase.auth.getUser()
+  if(error){
+    if(error.name==='AuthSessionMissingError')return null
+    throw error
+  }
+  return toAuthUser(data.user)
 }
 
-export function subscribeToAuth(callback:(event:AuthChangeEvent,email:string|null)=>void){
+export function subscribeToAuth(callback:(user:AuthUser|null)=>void){
   if(!supabase)return()=>{}
-  const {data}=supabase.auth.onAuthStateChange((event,session)=>{
-    callback(event as AuthChangeEvent,session?.user.email??null)
-  })
+  const {data}=supabase.auth.onAuthStateChange((_event,session)=>callback(toAuthUser(session?.user??null)))
   return()=>data.subscription.unsubscribe()
 }
 
 export async function signUpWithPassword(email:string,password:string){
   if(!supabase)throw new Error('Supabase is not configured.')
-  const {data,error}=await supabase.auth.signUp({email,password})
+  const {data,error}=await supabase.auth.signUp({
+    email:email.trim(),
+    password,
+    options:{emailRedirectTo:window.location.origin},
+  })
   if(error)throw error
-  return {email:data.user?.email??email,needsEmailConfirmation:!data.session}
+  return {user:toAuthUser(data.user),needsEmailConfirmation:!data.session}
 }
 
 export async function signInWithPassword(email:string,password:string){
   if(!supabase)throw new Error('Supabase is not configured.')
-  const {data,error}=await supabase.auth.signInWithPassword({email,password})
+  const {data,error}=await supabase.auth.signInWithPassword({email:email.trim(),password})
   if(error)throw error
-  return data.user.email??email
+  return toAuthUser(data.user)
 }
 
 export async function signOut(){
@@ -45,13 +52,8 @@ export async function signOut(){
 }
 
 async function currentUserId(){
-  if(!supabase)return null
-  const {data,error}=await supabase.auth.getUser()
-  if(error){
-    if(error.name==='AuthSessionMissingError')return null
-    throw error
-  }
-  return data.user?.id??null
+  const user=await getCurrentAuthUser()
+  return user?.id??null
 }
 
 function attemptRow(a:Attempt,userId:string){
@@ -81,23 +83,6 @@ function sessionRow(s:SessionSummary,userId:string){
     mode:s.mode,
     question_count:s.questionCount,
   }
-}
-
-export async function syncAttempt(a:Attempt){
-  if(!supabase)return false
-  const userId=await currentUserId()
-  if(!userId)return false
-  const {data:session,error:sessionError}=await supabase
-    .from('sat_sessions')
-    .select('id')
-    .eq('id',a.sessionId)
-    .eq('user_id',userId)
-    .maybeSingle()
-  if(sessionError)throw sessionError
-  if(!session)return false
-  const {error}=await supabase.from('sat_attempts').upsert(attemptRow(a,userId))
-  if(error)throw error
-  return true
 }
 
 export async function syncSession(s:SessionSummary){
