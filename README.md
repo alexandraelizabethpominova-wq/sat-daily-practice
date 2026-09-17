@@ -15,6 +15,8 @@ A React + TypeScript SAT practice app with adaptive sessions, performance tracki
 
 Math questions use verified semantic text and KaTeX for formulas and symbols. Graphs, diagrams, and other source visuals are rendered from the PDF with responsive crops so the complete visual remains visible. Reading & Writing questions use structured text extraction with PDF fallbacks where needed.
 
+Source visual crops include a small clamped safety margin before rasterization, and the resulting images scale to the available question width without a fixed-height crop. The visual cache is versioned so rendering changes do not leave stale clipped images in the browser.
+
 ## Design system
 
 The UI follows an atomic design structure under `src/design-system`:
@@ -23,7 +25,7 @@ The UI follows an atomic design structure under `src/design-system`:
 - `molecules` compose atoms into reusable UI patterns.
 - `organisms` compose atoms and molecules into page-level features such as the sidebar layout and Question Bank review.
 
-Molecules, organisms, and technical UI components do not import MUI directly. An architecture regression test enforces that MUI is consumed through the wrapper atoms.
+Molecules, organisms, and technical UI components do not import MUI directly. An architecture regression test enforces that MUI is consumed through the wrapper atoms. Wrapper atoms that need to participate in MUI composition forward refs to their underlying MUI element.
 
 ## Development
 
