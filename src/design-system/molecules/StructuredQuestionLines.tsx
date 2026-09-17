@@ -2,6 +2,8 @@ import type {ReactNode} from 'react'
 import AlexRichText from '../atoms/AlexRichText'
 
 const SUPERSCRIPTS:Record<string,string>={'2':'²','3':'³'}
+const FULL_CHOICE=/^[A-D][.)]\s+\S/i
+const QUESTION_STEM=/^(Which|What|How|Why|According to|Based on|As used in|The student wants|To which|Which finding|Which quotation|Which choice|Which statement|Which response)\b/i
 
 function cleanPdfMathArtifacts(value:string){
   let text=value
@@ -98,18 +100,75 @@ function dataTableAt(lines:string[],start:number){
   return {headers,rows,nextIndex:index}
 }
 
-export default function StructuredQuestionLines({lines}:{lines:string[]}){
-  const output:ReactNode[]=[]
+export function reflowProseLines(lines:string[]){
+  const result:string[]=[]
   let index=0
+  let paragraph:string[]=[]
+  const flush=()=>{
+    if(paragraph.length){
+      result.push(paragraph.join(' ').replace(/\s+/g,' ').trim())
+      paragraph=[]
+    }
+  }
 
   while(index<lines.length){
     const line=cleanPdfMathArtifacts(lines[index])
+    if(!line||isPdfDecoration(line)){
+      flush()
+      index++
+      continue
+    }
+
+    const table=dataTableAt(lines,index)
+    if(table){
+      flush()
+      for(let row=index;row<table.nextIndex;row++)result.push(cleanPdfMathArtifacts(lines[row]))
+      index=table.nextIndex
+      continue
+    }
+
+    const standaloneChoice=choiceLabel(line)
+    if(standaloneChoice&&index+2<lines.length){
+      const first=tableCells(lines[index+1])
+      const second=tableCells(lines[index+2])
+      if(first&&second&&first.length===second.length){
+        flush()
+        result.push(line,cleanPdfMathArtifacts(lines[index+1]),cleanPdfMathArtifacts(lines[index+2]))
+        index+=3
+        continue
+      }
+    }
+
+    if(FULL_CHOICE.test(line)||/^\$\$/.test(line)){
+      flush()
+      result.push(line)
+      index++
+      continue
+    }
+
+    if(QUESTION_STEM.test(line)&&paragraph.length)flush()
+    paragraph.push(line)
+    if(/[?]$/.test(line))flush()
+    index++
+  }
+
+  flush()
+  return result
+}
+
+export default function StructuredQuestionLines({lines,reflowProse=false}:{lines:string[];reflowProse?:boolean}){
+  const sourceLines=reflowProse?reflowProseLines(lines):lines
+  const output:ReactNode[]=[]
+  let index=0
+
+  while(index<sourceLines.length){
+    const line=cleanPdfMathArtifacts(sourceLines[index])
     if(!line||isPdfDecoration(line)){
       index++
       continue
     }
 
-    const dataTable=dataTableAt(lines,index)
+    const dataTable=dataTableAt(sourceLines,index)
     if(dataTable){
       output.push(<DataTable key={`data-table-${index}`} headers={dataTable.headers} rows={dataTable.rows}/>)
       index=dataTable.nextIndex
@@ -117,9 +176,9 @@ export default function StructuredQuestionLines({lines}:{lines:string[]}){
     }
 
     const label=choiceLabel(line)
-    if(label&&index+2<lines.length){
-      const first=tableCells(lines[index+1])
-      const second=tableCells(lines[index+2])
+    if(label&&index+2<sourceLines.length){
+      const first=tableCells(sourceLines[index+1])
+      const second=tableCells(sourceLines[index+2])
       if(first&&second&&first.length===second.length){
         output.push(<ChoiceTable key={`choice-table-${index}`} label={label} rows={[first,second]}/>)
         index+=3
