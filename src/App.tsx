@@ -110,7 +110,6 @@ export default function App(){
   }
 
   function beginPractice(nextMode:SubjectMode=settings.mode){
-    if(!qpdf){setView('sources');return}
     const nextSettings={...settings,mode:nextMode}
     setSettings(nextSettings)
     setQs(choosePracticeQuestions(nextSettings,attempts))
@@ -217,7 +216,7 @@ export default function App(){
     >{content}</AppSidebarLayout>
   }
 
-  if(view==='practice'&&current&&qpdf){
+  if(view==='practice'&&current){
     return withSidebar('practice-tests',<main className="practice">
       <PracticeSessionHeader
         moduleLabel={moduleLabel(current.module)}
@@ -262,7 +261,7 @@ export default function App(){
             if(!question)return null
             return <article className="review-item" key={attempt.id}>
               <div className="review-head"><div><b>{index+1}. {moduleLabel(attempt.module)} · Q{attempt.questionNumber}</b><span>{attempt.correct?'Correct':'Review'} · {formatDuration(attempt.elapsedMs)}</span></div><div><span>Your answer: <b>{attempt.selectedAnswer||'—'}</b></span><span>Accepted: <b>{answerLabel(question)}</b></span></div></div>
-              {qpdf&&<details><summary>Review question</summary><QuestionContent question={question} bytes={qpdf} alt={`${moduleLabel(question.module)} question ${question.number}`}/></details>}
+              <details><summary>Review question</summary><QuestionContent question={question} bytes={qpdf} alt={`${moduleLabel(question.module)} question ${question.number}`}/></details>
               {apdf?<details><summary>Show walkthrough and explanation</summary><ExplanationContent question={question} bytes={apdf}/></details>:<p className="muted">Add the answer-explanations source in Resources to review explanations here.</p>}
             </article>
           })}
@@ -287,16 +286,16 @@ export default function App(){
       <div className="settings-field"><AlexDropdown id="practice-subject" label="Subject" value={settings.mode} options={[{value:'both',label:'English + Math'},{value:'english',label:'English only'},{value:'math',label:'Math only'}]} onChange={mode=>setSettings({...settings,mode})}/></div>
       <div className="settings-field"><AlexNumberField label="Questions per session" value={settings.questionsPerSession} min={3} max={30} onChange={questionsPerSession=>setSettings({...settings,questionsPerSession})}/></div>
       <div className="settings-actions"><AlexButton onClick={()=>beginPractice(settings.mode)}>Start with these settings</AlexButton><AlexButton tone="secondary" onClick={resetHistory}>Clear history & start fresh</AlexButton></div>
-      <p className="muted">Questions are selected adaptively from your uploaded SAT source. History is used to prioritize unseen and weaker questions.</p>
+      <p className="muted">Questions are selected adaptively from the available SAT question bank. History is used to prioritize unseen and weaker questions.</p>
     </section>
   </main>)
 
   if(view==='sources')return withSidebar('resources',<main className="shell">
     <div className="page-heading"><div><p className="eyebrow">Resources</p><h1>Manage sources</h1></div></div>
     <section className="card sources">
-      <p>Question and explanation text is extracted from the PDFs you add here and stored in a local browser database. Practice uses verified text for Math, with source images reserved for graphs, diagrams, and other visual-only material.</p>
+      <p>Practice Test 4 question text and source visuals can load from the official SAT source automatically. You can still add a local copy here to override it. Answer explanations remain optional.</p>
       <div className="uploads">
-        <label><Upload/><b>{qpdf?'Replace question source':'Add question source'}</b><span>{qpdf?'Ready for practice':'Required for practice questions'}</span><input type="file" accept="application/pdf" onChange={event=>upload('questions',event.target.files?.[0])}/></label>
+        <label><Upload/><b>{qpdf?'Replace question source':'Add question source'}</b><span>{qpdf?'Ready for question visuals':'Optional local override'}</span><input type="file" accept="application/pdf" onChange={event=>upload('questions',event.target.files?.[0])}/></label>
         <label><Upload/><b>{apdf?'Replace explanation source':'Add explanation source'}</b><span>{apdf?'Ready for text import':'Add for walkthroughs and review'}</span><input type="file" accept="application/pdf" onChange={event=>upload('answers',event.target.files?.[0])}/></label>
       </div>
       <div className="structured-db-card"><div><b>Local question database</b><span>{contentCount}/{QUESTION_BANK.length} questions imported</span><small>Text stays in this browser. Formulas can be stored as LaTeX and rendered with KaTeX; verified source layouts remain the accuracy fallback.</small></div><div className="structured-db-actions"><AlexButton disabled={!qpdf||!apdf||Boolean(importProgress)} onClick={buildTextDatabase}>{importProgress?`Importing ${importProgress}`:'Build text database'}</AlexButton>{contentCount>0&&<AlexButton tone="secondary" onClick={async()=>{await clearQuestionContent();setContentCount(0)}}>Clear text database</AlexButton>}</div></div>
