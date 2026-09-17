@@ -14,6 +14,19 @@ export const QUESTION_VISUALS:Record<string,QuestionVisualSpec>={
   'math2-24':{afterLine:0,crop:{x:.07,y:.11,width:.86,height:.35}},
 }
 
+/**
+ * Give source visuals a small safety margin before rendering. PDF artwork often extends a
+ * few pixels beyond the text-derived crop, especially labels on diagrams. Keeping the
+ * expansion here (rather than in CSS) guarantees the actual raster contains the full visual.
+ */
+export function expandNormalizedCrop(crop:NormalizedCrop,paddingX=.03,paddingY=.015):NormalizedCrop{
+  const x=Math.max(0,crop.x-paddingX)
+  const y=Math.max(0,crop.y-paddingY)
+  const right=Math.min(1,crop.x+crop.width+paddingX)
+  const bottom=Math.min(1,crop.y+crop.height+paddingY)
+  return{x,y,width:right-x,height:bottom-y}
+}
+
 export function questionVisualSpec(questionId:string){
   return QUESTION_VISUALS[questionId]
 }
