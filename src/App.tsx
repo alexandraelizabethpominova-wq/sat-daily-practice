@@ -25,7 +25,7 @@ import type {Attempt,PracticeQuestion,SessionSummary,Settings,SubjectMode} from 
 const uid=()=>crypto.randomUUID()
 
 type View='study'|'home'|'practice'|'results'|'stats'|'settings'|'sources'|'question-bank'
-type SidebarKey='study'|'practice-tests'|'question-bank'|'performance'|'resources'
+type SidebarKey='study'|'practice-tests'|'practice-setup'|'question-bank'|'performance'|'resources'
 
 export default function App(){
   const[settings,setSettings]=useState<Settings>(()=>getSettings())
@@ -162,6 +162,7 @@ export default function App(){
       onToggleCollapsed={()=>setSidebarCollapsed(value=>!value)}
       onStudyPlan={()=>setView('study')}
       onPracticeTests={()=>setView('home')}
+      onPracticeSetup={()=>setView('settings')}
       onQuestionBank={()=>setView('question-bank')}
       onPerformance={()=>setView('stats')}
       onResources={()=>setView('sources')}
@@ -229,8 +230,8 @@ export default function App(){
 
   if(view==='question-bank')return withSidebar('question-bank',<QuestionBankReview questionsPdf={qpdf}/>,'#F7F6F2')
 
-  if(view==='settings')return withSidebar('question-bank',<main className="shell">
-    <div className="page-heading"><div><p className="eyebrow">Settings</p><h1>Practice setup</h1></div></div>
+  if(view==='settings')return withSidebar('practice-setup',<main className="shell">
+    <div className="page-heading"><div><p className="eyebrow">Practice Setup</p><h1>Practice setup</h1></div></div>
     <section className="card settings settings-grid">
       <div className="settings-field"><AlexDropdown id="practice-subject" label="Subject" value={settings.mode} options={[{value:'both',label:'English + Math'},{value:'english',label:'English only'},{value:'math',label:'Math only'}]} onChange={mode=>setSettings({...settings,mode})}/></div>
       <div className="settings-field"><AlexNumberField label="Questions per session" value={settings.questionsPerSession} min={3} max={30} onChange={questionsPerSession=>setSettings({...settings,questionsPerSession})}/></div>
