@@ -36,13 +36,17 @@ function tableCells(value:string){
   const text=cleanPdfMathArtifacts(value).trim()
   if(!text||/[.!?]$/.test(text))return null
   const cells=text.split(/\s+/).filter(Boolean)
-  if(cells.length<3||cells.length>7)return null
+  if(cells.length<2||cells.length>7)return null
   if(cells.some(cell=>cell.length>18))return null
   return cells
 }
 
 function isNumericCell(value:string){
   return /^[-−+]?\d+(?:[.,]\d+)?%?$/.test(value)||/^[-−+]?\d+\/\d+$/.test(value)
+}
+
+function tableHeaderText(value:string){
+  return /^[A-Za-z](?:\([A-Za-z]\))?$/.test(value)?`$${value}$`:value
 }
 
 function ChoiceTable({label,rows}:{label:string;rows:string[][]}){
@@ -67,13 +71,11 @@ function DataTable({headers,rows}:{headers:string[];rows:string[][]}){
   return <div className="structured-data-table-wrap">
     <table className="structured-data-table">
       <thead>
-        <tr>{headers.map((header,index)=><th key={`header-${index}`} scope="col"><AlexRichText text={header}/></th>)}</tr>
+        <tr>{headers.map((header,index)=><th key={`header-${index}`} scope="col"><AlexRichText text={tableHeaderText(header)}/></th>)}</tr>
       </thead>
       <tbody>
         {rows.map((row,rowIndex)=><tr key={`row-${rowIndex}`}>
-          {row.map((cell,columnIndex)=>columnIndex===0
-            ?<th key={`cell-${rowIndex}-${columnIndex}`} scope="row"><AlexRichText text={cell}/></th>
-            :<td key={`cell-${rowIndex}-${columnIndex}`}><AlexRichText text={cell}/></td>)}
+          {row.map((cell,columnIndex)=><td key={`cell-${rowIndex}-${columnIndex}`}><AlexRichText text={cell}/></td>)}
         </tr>)}
       </tbody>
     </table>
