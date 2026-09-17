@@ -5,6 +5,44 @@ const url=import.meta.env.VITE_SUPABASE_URL as string|undefined
 const publishableKey=(import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY??import.meta.env.VITE_SUPABASE_ANON_KEY) as string|undefined
 
 export const supabase=url&&publishableKey?createClient(url,publishableKey):null
+export const isSupabaseConfigured=Boolean(supabase)
+
+export type AuthChangeEvent='SIGNED_IN'|'SIGNED_OUT'|'INITIAL_SESSION'|'TOKEN_REFRESHED'|'USER_UPDATED'|'PASSWORD_RECOVERY'|'MFA_CHALLENGE_VERIFIED'
+
+export async function getSignedInEmail(){
+  if(!supabase)return null
+  const {data,error}=await supabase.auth.getSession()
+  if(error)throw error
+  return data.session?.user.email??null
+}
+
+export function subscribeToAuth(callback:(event:AuthChangeEvent,email:string|null)=>void){
+  if(!supabase)return()=>{}
+  const {data}=supabase.auth.onAuthStateChange((event,session)=>{
+    callback(event as AuthChangeEvent,session?.user.email??null)
+  })
+  return()=>data.subscription.unsubscribe()
+}
+
+export async function signUpWithPassword(email:string,password:string){
+  if(!supabase)throw new Error('Supabase is not configured.')
+  const {data,error}=await supabase.auth.signUp({email,password})
+  if(error)throw error
+  return {email:data.user?.email??email,needsEmailConfirmation:!data.session}
+}
+
+export async function signInWithPassword(email:string,password:string){
+  if(!supabase)throw new Error('Supabase is not configured.')
+  const {data,error}=await supabase.auth.signInWithPassword({email,password})
+  if(error)throw error
+  return data.user.email??email
+}
+
+export async function signOut(){
+  if(!supabase)return
+  const {error}=await supabase.auth.signOut()
+  if(error)throw error
+}
 
 async function currentUserId(){
   if(!supabase)return null
