@@ -1,13 +1,8 @@
 import {questionsForMode} from './questionBank'
+import {buildPerformanceAnalytics,type PerformanceAnalytics} from './performanceAnalytics'
 import type {Attempt,PracticeQuestion,SessionSummary,Settings} from '../types'
 
-export type PerformanceSummary={
-  accuracy:number
-  averageMs:number
-  sessions:number
-  questionsSeen:number
-  totalQuestions:number
-}
+export type PerformanceSummary=PerformanceAnalytics
 
 export type SessionMetrics={
   accuracy:number
@@ -47,14 +42,7 @@ export function choosePracticeQuestions(settings:Settings,attempts:Attempt[],ran
 }
 
 export function summarizePerformance(attempts:Attempt[],sessions:SessionSummary[],totalQuestions:number):PerformanceSummary{
-  const correct=attempts.filter(attempt=>attempt.correct).length
-  return {
-    accuracy:attempts.length?Math.round(100*correct/attempts.length):0,
-    averageMs:attempts.length?attempts.reduce((sum,attempt)=>sum+attempt.elapsedMs,0)/attempts.length:0,
-    sessions:sessions.length,
-    questionsSeen:new Set(attempts.map(attempt=>attempt.questionId)).size,
-    totalQuestions,
-  }
+  return buildPerformanceAnalytics(attempts,sessions,totalQuestions)
 }
 
 export function summarizeSession(attempts:Attempt[]):SessionMetrics{
