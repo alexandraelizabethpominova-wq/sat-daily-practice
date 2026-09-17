@@ -7,23 +7,15 @@ import AlexText from '../atoms/AlexText'
 import QuestionContent from '../molecules/QuestionContent'
 import SourceSlice from '../../components/SourceSlice'
 import {QUESTION_BANK,moduleLabel} from '../../lib/questionBank'
-import type {ModuleKey,PracticeQuestion} from '../../types'
+import {groupQuestionsByModule} from '../../lib/questionBankGroups'
+import type {PracticeQuestion} from '../../types'
 
 type Props={questionsPdf:ArrayBuffer|null}
 
 type ModuleFilter='all'|'math1'|'math2'|'rw1'|'rw2'
 
-const MODULE_ORDER:ModuleKey[]=['rw1','rw2','math1','math2']
-
 function questionLabel(question:PracticeQuestion){
   return `${moduleLabel(question.module)} · Q${question.number}`
-}
-
-export function groupQuestionsByModule(questions:PracticeQuestion[]){
-  return MODULE_ORDER.flatMap(module=>{
-    const items=questions.filter(question=>question.module===module)
-    return items.length?[{module,items}]:[]
-  })
 }
 
 export default function QuestionBankReview({questionsPdf}:Props){
