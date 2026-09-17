@@ -7,14 +7,23 @@ import AlexText from '../atoms/AlexText'
 import QuestionContent from '../molecules/QuestionContent'
 import SourceSlice from '../../components/SourceSlice'
 import {QUESTION_BANK,moduleLabel} from '../../lib/questionBank'
-import type {PracticeQuestion} from '../../types'
+import type {ModuleKey,PracticeQuestion} from '../../types'
 
 type Props={questionsPdf:ArrayBuffer|null}
 
 type ModuleFilter='all'|'math1'|'math2'|'rw1'|'rw2'
 
+const MODULE_ORDER:ModuleKey[]=['rw1','rw2','math1','math2']
+
 function questionLabel(question:PracticeQuestion){
   return `${moduleLabel(question.module)} · Q${question.number}`
+}
+
+export function groupQuestionsByModule(questions:PracticeQuestion[]){
+  return MODULE_ORDER.flatMap(module=>{
+    const items=questions.filter(question=>question.module===module)
+    return items.length?[{module,items}]:[]
+  })
 }
 
 export default function QuestionBankReview({questionsPdf}:Props){
@@ -31,6 +40,7 @@ export default function QuestionBankReview({questionsPdf}:Props){
     })
   },[moduleFilter,search])
 
+  const groupedQuestions=useMemo(()=>groupQuestionsByModule(questions),[questions])
   const selected=QUESTION_BANK.find(question=>question.id===selectedId)??questions[0]
 
   return <main className="question-bank-page">
@@ -66,18 +76,25 @@ export default function QuestionBankReview({questionsPdf}:Props){
       <p>The Question Bank needs the question source in Resources so it can show the original PDF beside the text reconstruction.</p>
     </section>:<div className="question-bank-workspace">
       <aside className="question-bank-list" aria-label="Questions">
-        <div className="question-bank-list-header"><b>{questions.length} questions</b><span>Choose one to review</span></div>
+        <div className="question-bank-list-header"><b>{questions.length} questions</b><span>Select a question</span></div>
         <div className="question-bank-list-scroll">
-          {questions.map(question=><AlexButtonBase
-            key={question.id}
-            className={question.id===selected?.id?'question-bank-row active':'question-bank-row'}
-            onClick={()=>setSelectedId(question.id)}
-            aria-pressed={question.id===selected?.id}
-          >
-            <span>{question.subject==='math'?'Math':'Reading & Writing'}</span>
-            <b>Question {question.number}</b>
-            <small>{moduleLabel(question.module)}</small>
-          </AlexButtonBase>)}
+          {groupedQuestions.map(group=><section className="question-bank-group" key={group.module}>
+            <div className="question-bank-group-title">
+              <span>{moduleLabel(group.module)}</span>
+              <small>{group.items.length}</small>
+            </div>
+            <div className="question-bank-group-items">
+              {group.items.map(question=><AlexButtonBase
+                key={question.id}
+                className={question.id===selected?.id?'question-bank-row active':'question-bank-row'}
+                onClick={()=>setSelectedId(question.id)}
+                aria-pressed={question.id===selected?.id}
+                aria-label={`${moduleLabel(question.module)} Question ${question.number}`}
+              >
+                Question {question.number}
+              </AlexButtonBase>)}
+            </div>
+          </section>)}
           {!questions.length&&<p className="question-bank-no-results">No questions match this filter.</p>}
         </div>
       </aside>
