@@ -67,7 +67,7 @@ export default function PerformanceDashboard({summary,hasHistory,onClearHistory,
             indexBy="section"
             margin={{top:10,right:20,bottom:52,left:54}}
             padding={0.36}
-            maxValue={100}
+            valueScale={{type:'linear',min:0,max:100}}
             colors={['#6558F5']}
             borderRadius={5}
             enableGridY
@@ -150,7 +150,7 @@ export default function PerformanceDashboard({summary,hasHistory,onClearHistory,
             layout="horizontal"
             margin={{top:10,right:34,bottom:48,left:92}}
             padding={0.28}
-            maxValue={100}
+            valueScale={{type:'linear',min:0,max:100}}
             colors={['#6558F5']}
             borderRadius={4}
             enableLabel
