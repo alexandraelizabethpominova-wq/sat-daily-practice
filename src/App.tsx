@@ -11,6 +11,7 @@ import PerformanceDashboard from './design-system/organisms/PerformanceDashboard
 import PracticeAnswerPanel from './design-system/organisms/PracticeAnswerPanel'
 import PracticeSessionHeader from './design-system/organisms/PracticeSessionHeader'
 import PracticeTestsDashboard from './design-system/organisms/PracticeTestsDashboard'
+import QuestionBankReview from './design-system/organisms/QuestionBankReview'
 import {answerLabel,matchesAnswer} from './lib/answerCompare'
 import {clearPdfs,getPdf,savePdf} from './lib/pdfStore'
 import {clearQuestionContent,countQuestionContent} from './lib/questionContentStore'
@@ -23,8 +24,8 @@ import type {Attempt,PracticeQuestion,SessionSummary,Settings,SubjectMode} from 
 
 const uid=()=>crypto.randomUUID()
 
-type View='study'|'home'|'practice'|'results'|'stats'|'settings'|'sources'
-type SidebarKey='study'|'practice-tests'|'question-bank'|'performance'|'resources'
+type View='study'|'home'|'practice'|'results'|'stats'|'settings'|'sources'|'question-bank'
+type SidebarKey='study'|'practice-tests'|'practice-setup'|'question-bank'|'performance'|'resources'
 
 export default function App(){
   const[settings,setSettings]=useState<Settings>(()=>getSettings())
@@ -58,7 +59,7 @@ export default function App(){
       try{
         const cloud=await loadCloudHistory()
         if(!cloud||cancelled)return
-        const mergeById=<T extends {id:string}>(local:T[],remote:T[])=>{
+        const mergeById=<T extends {id:string},>(local:T[],remote:T[])=>{
           const merged=new Map<string,T>()
           remote.forEach(item=>merged.set(item.id,item))
           local.forEach(item=>merged.set(item.id,item))
@@ -193,7 +194,8 @@ export default function App(){
       onToggleCollapsed={()=>setSidebarCollapsed(value=>!value)}
       onStudyPlan={()=>setView('study')}
       onPracticeTests={()=>setView('home')}
-      onQuestionBank={()=>setView('settings')}
+      onPracticeSetup={()=>setView('settings')}
+      onQuestionBank={()=>setView('question-bank')}
       onPerformance={()=>setView('stats')}
       onResources={()=>setView('sources')}
       onSettings={()=>setView('settings')}
@@ -258,8 +260,10 @@ export default function App(){
 
   if(view==='stats')return withSidebar('performance',<main className="shell"><PerformanceDashboard summary={performance} hasHistory={attempts.length>0} onClearHistory={resetHistory}/></main>)
 
-  if(view==='settings')return withSidebar('question-bank',<main className="shell">
-    <div className="page-heading"><div><p className="eyebrow">Question Bank</p><h1>Practice setup</h1></div></div>
+  if(view==='question-bank')return withSidebar('question-bank',<QuestionBankReview questionsPdf={qpdf}/>,'#F7F6F2')
+
+  if(view==='settings')return withSidebar('practice-setup',<main className="shell">
+    <div className="page-heading"><div><p className="eyebrow">Practice Setup</p><h1>Practice setup</h1></div></div>
     <section className="card settings settings-grid">
       <div className="settings-field"><AlexDropdown id="practice-subject" label="Subject" value={settings.mode} options={[{value:'both',label:'English + Math'},{value:'english',label:'English only'},{value:'math',label:'Math only'}]} onChange={mode=>setSettings({...settings,mode})}/></div>
       <div className="settings-field"><AlexNumberField label="Questions per session" value={settings.questionsPerSession} min={3} max={30} onChange={questionsPerSession=>setSettings({...settings,questionsPerSession})}/></div>
@@ -271,7 +275,7 @@ export default function App(){
   if(view==='sources')return withSidebar('resources',<main className="shell">
     <div className="page-heading"><div><p className="eyebrow">Resources</p><h1>Manage sources</h1></div></div>
     <section className="card sources">
-      <p>Question and explanation text is extracted from the PDFs you add here and stored in a local browser database. Reading & Writing uses structured text when reliable; Math keeps the verified source layout to protect equations, graphs, tables, and diagrams.</p>
+      <p>Question and explanation text is extracted from the PDFs you add here and stored in a local browser database. Practice uses verified text for Math, with source images reserved for graphs, diagrams, and other visual-only material.</p>
       <div className="uploads">
         <label><Upload/><b>{qpdf?'Replace question source':'Add question source'}</b><span>{qpdf?'Ready for practice':'Required for practice questions'}</span><input type="file" accept="application/pdf" onChange={event=>upload('questions',event.target.files?.[0])}/></label>
         <label><Upload/><b>{apdf?'Replace explanation source':'Add explanation source'}</b><span>{apdf?'Ready for text import':'Add for walkthroughs and review'}</span><input type="file" accept="application/pdf" onChange={event=>upload('answers',event.target.files?.[0])}/></label>

@@ -1,65 +1,70 @@
 # SAT Daily Practice
 
-A React + TypeScript study app for daily SAT practice using your own SAT practice-test PDFs locally in the browser.
+A React + TypeScript SAT practice app with adaptive sessions, performance tracking, source-PDF review, a structured Question Bank, and optional authenticated Supabase persistence.
 
-## Features
+## Main areas
 
-- Choose **English**, **Math**, or **Both** for each session.
-- Configure the number of questions per session.
-- Daily question selection prioritizes unseen questions and questions you previously missed.
-- Tracks accuracy, time per question, average time, sessions completed, and unique questions seen.
-- End-of-session analysis highlights accuracy, average time, missed questions, and the slowest questions.
-- Optional official explanations using the uploaded SAT answer-explanation PDF.
-- Multiple-choice questions are auto-graded.
-- Student-produced-response math questions show the official answer and let you self-mark.
-- Local-first storage with optional authenticated Supabase persistence.
+- **Study Plan** — overview of practice progress and suggested next steps.
+- **Practice Tests** — start mixed, Reading & Writing, or Math practice.
+- **Practice Setup** — configure subject and questions per session without mixing setup controls into the Question Bank.
+- **Question Bank** — review reconstructed question text beside the original PDF source.
+- **Performance** — review practice accuracy and history.
+- **Resources** — manage the question and answer PDFs and build the local text database.
 
-## Copyright / PDF handling
+## Question rendering
 
-The SAT PDFs are **not committed to this repository**. Upload the question PDF and answer-explanation PDF inside the app. They are stored locally in IndexedDB and rendered in the browser with `pdfjs-dist`.
+Math questions use verified semantic text and KaTeX for formulas and symbols. Graphs, diagrams, and other source visuals are rendered from the PDF with responsive crops so the complete visual remains visible. Reading & Writing questions use structured text extraction with PDF fallbacks where needed.
 
-`.gitignore` excludes `*.pdf` so copyrighted test PDFs are not accidentally committed.
+Source visual crops include a small clamped safety margin before rasterization, and the resulting images scale to the available question width without a fixed-height crop. The visual cache is versioned so rendering changes do not leave stale clipped images in the browser.
 
-## Tech stack
+## Design system
 
-- React 18
-- TypeScript
-- Vite
-- `pdfjs-dist`
-- `lucide-react`
-- Optional Supabase
+The UI follows an atomic design structure under `src/design-system`:
 
-## Run locally
+- `atoms` wrap MUI primitives (for example `AlexButtonBase`, `AlexDropdown`, and `AlexTextField`).
+- `molecules` compose atoms into reusable UI patterns.
+- `organisms` compose atoms and molecules into page-level features such as the sidebar layout and Question Bank review.
+
+Molecules, organisms, and technical UI components do not import MUI directly. An architecture regression test enforces that MUI is consumed through the wrapper atoms. Wrapper atoms that need to participate in MUI composition forward refs to their underlying MUI element.
+
+## Development
 
 ```bash
 npm install
 npm run dev
 ```
 
-Then open the local Vite URL shown in your terminal.
+Run the full regression suite and production build with:
+
+```bash
+npm test
+npm run build
+```
+
+GitHub Actions runs unit tests before the TypeScript/Vite production build on pushes to `main`, `ui/**`, and pull requests.
 
 ## Supabase persistence
 
-Database schema changes are versioned under `supabase/migrations/`. Do not paste `schema.sql` into the Supabase SQL editor or make production schema changes manually unless you are intentionally creating a migration to capture them afterward.
+Database schema changes are versioned under `supabase/migrations/`. The migration files are the schema source of truth; avoid making production schema changes manually without capturing them in a migration.
 
-Copy `.env.example` to `.env` and add your project URL and publishable key:
+For local development, create `.env.local` with the project URL and publishable key:
 
 ```bash
 VITE_SUPABASE_URL=...
 VITE_SUPABASE_PUBLISHABLE_KEY=...
 ```
 
-The app remains local-first. When a Supabase Auth session exists, completed practice sessions and attempts are backed up to Supabase, cloud history is merged into the local browser history on startup, and clearing history also clears the authenticated user's cloud rows. Cross-device persistence therefore requires Supabase Auth sign-in for the same user on each device.
+The app remains local-first. When a Supabase Auth session exists, completed practice sessions and attempts are backed up to Supabase, cloud history is merged into local browser history on startup, and clearing history also clears the authenticated user's cloud rows. Cross-device persistence requires signing in as the same Supabase Auth user on each device.
 
-## Automated migrations from GitHub
+## Automated Supabase migrations
 
 `.github/workflows/supabase-migrations.yml` applies pending migrations whenever migration files are merged to `main`.
 
-Add these encrypted GitHub Actions repository secrets before relying on the workflow:
+The repository needs these encrypted GitHub Actions secrets:
 
 - `SUPABASE_ACCESS_TOKEN`
 - `SUPABASE_DB_PASSWORD`
 
 The workflow links to the `sat practice` Supabase project, runs `supabase db push --dry-run`, and then applies pending migrations with `supabase db push`.
 
-Alternatively, Supabase's native GitHub integration can deploy the same `supabase/migrations/` directory. If using the native integration, set the repository working directory to `.` and enable **Deploy to production** for `main`; do not run both deployment mechanisms unless you intentionally want redundant deployment checks.
+Supabase's native GitHub integration can deploy the same `supabase/migrations/` directory as an alternative. Avoid enabling both deployment paths unintentionally.
