@@ -40,7 +40,7 @@ export default function QuestionBankReview({questionsPdf}:Props){
       <div>
         <p className="eyebrow">Question Bank</p>
         <h1>Review source questions</h1>
-        <p>Compare the reconstructed text with the original PDF question side by side.</p>
+        <p>Browse the full question list and compare reconstructed text with the original PDF whenever the source is available.</p>
       </div>
       <div className="question-bank-filters">
         <AlexDropdown
@@ -63,10 +63,12 @@ export default function QuestionBankReview({questionsPdf}:Props){
       </div>
     </header>
 
-    {!questionsPdf?<section className="question-bank-empty">
-      <h2>Add the practice-test PDF first</h2>
-      <p>The Question Bank needs the question source in Resources so it can show the original PDF beside the text reconstruction.</p>
-    </section>:<div className="question-bank-workspace">
+    {!questionsPdf&&<section className="question-bank-empty">
+      <h2>Question Bank restored</h2>
+      <p>The text bank remains available without a PDF. Add the question source in Resources only when you want the original-PDF comparison or source figures.</p>
+    </section>}
+
+    <div className="question-bank-workspace">
       <aside className="question-bank-list" aria-label="Questions">
         <div className="question-bank-list-header"><b>{questions.length} questions</b><span>Select a question</span></div>
         <div className="question-bank-list-scroll">
@@ -94,19 +96,22 @@ export default function QuestionBankReview({questionsPdf}:Props){
       {selected&&<section className="question-bank-viewer">
         <div className="question-bank-viewer-header">
           <div><span>{selected.subject==='math'?'Math':'Reading & Writing'}</span><h2>{questionLabel(selected)}</h2></div>
-          <AlexText component="span" sx={{fontSize:12,color:'#667085'}}>PDF page {selected.sourcePage}</AlexText>
+          <AlexText component="span" sx={{fontSize:12,color:'#667085'}}>{questionsPdf?`PDF page ${selected.sourcePage}`:'Text view'}</AlexText>
         </div>
-        <div className="question-bank-compare">
+        <div className={questionsPdf?'question-bank-compare':'question-bank-compare no-pdf'}>
           <article className="question-bank-pane text-pane">
             <div className="question-bank-pane-label">Text reconstruction</div>
             <QuestionContent question={selected} bytes={questionsPdf} alt={`${questionLabel(selected)} text`} showOriginalLayout={false} reflowProse/>
           </article>
-          <article className="question-bank-pane pdf-pane">
+          {questionsPdf?<article className="question-bank-pane pdf-pane">
             <div className="question-bank-pane-label">Original PDF</div>
             <SourceSlice pdfKey="questions" bytes={questionsPdf} page={selected.sourcePage} questionNumber={selected.number} alt={`${questionLabel(selected)} original PDF`}/>
-          </article>
+          </article>:<article className="question-bank-pane pdf-pane">
+            <div className="question-bank-pane-label">Original PDF</div>
+            <div className="question-bank-no-results">Add the question PDF in Resources to compare this question with the original source.</div>
+          </article>}
         </div>
       </section>}
-    </div>}
+    </div>
   </main>
 }
