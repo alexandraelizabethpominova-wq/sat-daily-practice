@@ -24,6 +24,15 @@ function failed(message:string,error:unknown):CloudResult{
   return {status:'failed',message}
 }
 
+function attemptRow(attempt:Attempt,userId:string){
+  return {
+    id:attempt.id,user_id:userId,session_id:attempt.sessionId,question_id:attempt.questionId,subject:attempt.subject,
+    module:attempt.module,question_number:attempt.questionNumber,selected_answer:attempt.selectedAnswer,
+    correct_answer:attempt.correctAnswer,correct:attempt.correct,self_graded:attempt.selfGraded??false,
+    elapsed_ms:attempt.elapsedMs,created_at:attempt.createdAt,
+  }
+}
+
 export async function getCloudUser(){return currentUser()}
 
 export function subscribeToCloudAuth(onChange:(user:User|null)=>void){
@@ -44,26 +53,18 @@ export async function signOutCloud():Promise<CloudResult>{
   return error?failed('Could not sign out of Supabase.',error):{status:'ok'}
 }
 
-export async function syncSessionStart(input:{id:string;startedAt:string;mode:SubjectMode;questionCount:number}):Promise<CloudResult>{
-  if(!supabase)return {status:'skipped'}
-  const user=await currentUser()
-  if(!user)return {status:'skipped',message:'Sign in to enable cloud sync.'}
-  const {error}=await supabase.from('sat_sessions').upsert({
-    id:input.id,user_id:user.id,started_at:input.startedAt,ended_at:null,mode:input.mode,question_count:input.questionCount,
-  })
-  return error?failed('Could not create the cloud practice session.',error):{status:'ok'}
-}
-
 export async function syncAttempt(attempt:Attempt):Promise<CloudResult>{
   if(!supabase)return {status:'skipped'}
   const user=await currentUser()
   if(!user)return {status:'skipped',message:'Sign in to enable cloud sync.'}
-  const {error}=await supabase.from('sat_attempts').upsert({
-    id:attempt.id,user_id:user.id,session_id:attempt.sessionId,question_id:attempt.questionId,subject:attempt.subject,
-    module:attempt.module,question_number:attempt.questionNumber,selected_answer:attempt.selectedAnswer,
-    correct_answer:attempt.correctAnswer,correct:attempt.correct,self_graded:attempt.selfGraded??false,
-    elapsed_ms:attempt.elapsedMs,created_at:attempt.createdAt,
-  })
+
+  // The current UI creates the durable session record only when practice finishes.
+  // Avoid noisy FK errors for in-progress sessions; syncSession backs up all attempts on completion.
+  const {data:session,error:sessionError}=await supabase.from('sat_sessions').select('id').eq('id',attempt.sessionId).eq('user_id',user.id).maybeSingle()
+  if(sessionError)return failed('Could not check the cloud practice session.',sessionError)
+  if(!session)return {status:'skipped',message:'Attempt will sync when the session is completed.'}
+
+  const {error}=await supabase.from('sat_attempts').upsert(attemptRow(attempt,user.id))
   return error?failed('Could not sync this answer to Supabase.',error):{status:'ok'}
 }
 
@@ -71,10 +72,16 @@ export async function syncSession(session:SessionSummary):Promise<CloudResult>{
   if(!supabase)return {status:'skipped'}
   const user=await currentUser()
   if(!user)return {status:'skipped',message:'Sign in to enable cloud sync.'}
-  const {error}=await supabase.from('sat_sessions').upsert({
+  const {error:sessionError}=await supabase.from('sat_sessions').upsert({
     id:session.id,user_id:user.id,started_at:session.startedAt,ended_at:session.endedAt,mode:session.mode,question_count:session.questionCount,
   })
-  return error?failed('Could not finalize the cloud practice session.',error):{status:'ok'}
+  if(sessionError)return failed('Could not finalize the cloud practice session.',sessionError)
+
+  if(session.attempts.length){
+    const {error:attemptError}=await supabase.from('sat_attempts').upsert(session.attempts.map(attempt=>attemptRow(attempt,user.id)))
+    if(attemptError)return failed('The session synced, but its answers could not be backed up.',attemptError)
+  }
+  return {status:'ok'}
 }
 
 export async function loadCloudHistory():Promise<CloudHistory|null>{
@@ -113,12 +120,12 @@ export async function syncLocalHistory(sessions:SessionSummary[],attempts:Attemp
     if(error)return failed('Could not back up local sessions to Supabase.',error)
   }
   if(attempts.length){
-    const {error}=await supabase.from('sat_attempts').upsert(attempts.map(attempt=>({
-      id:attempt.id,user_id:user.id,session_id:attempt.sessionId,question_id:attempt.questionId,subject:attempt.subject,module:attempt.module,
-      question_number:attempt.questionNumber,selected_answer:attempt.selectedAnswer,correct_answer:attempt.correctAnswer,
-      correct:attempt.correct,self_graded:attempt.selfGraded??false,elapsed_ms:attempt.elapsedMs,created_at:attempt.createdAt,
-    })))
-    if(error)return failed('Could not back up local attempts to Supabase.',error)
+    const completedSessionIds=new Set(sessions.map(session=>session.id))
+    const completedAttempts=attempts.filter(attempt=>completedSessionIds.has(attempt.sessionId))
+    if(completedAttempts.length){
+      const {error}=await supabase.from('sat_attempts').upsert(completedAttempts.map(attempt=>attemptRow(attempt,user.id)))
+      if(error)return failed('Could not back up local attempts to Supabase.',error)
+    }
   }
   return {status:'ok'}
 }
