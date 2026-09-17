@@ -41,8 +41,8 @@ describe('practice summaries',()=>{
   const attempts=[attempt('math1-1',true,0),attempt('math1-2',false,1),attempt('math1-1',true,2)]
   const sessions:SessionSummary[]=[{id:'s1',startedAt:'2026-01-01T00:00:00.000Z',endedAt:'2026-01-01T00:01:00.000Z',mode:'math',questionCount:3,attempts}]
 
-  it('preserves main performance metrics',()=>{
-    expect(summarizePerformance(attempts,sessions,120)).toEqual({accuracy:67,averageMs:2000,sessions:1,questionsSeen:2,totalQuestions:120})
+  it('preserves main performance metrics while allowing analytics detail',()=>{
+    expect(summarizePerformance(attempts,sessions,120)).toMatchObject({accuracy:67,averageMs:2000,sessions:1,questionsSeen:2,totalQuestions:120})
   })
 
   it('summarizes the current session',()=>{
