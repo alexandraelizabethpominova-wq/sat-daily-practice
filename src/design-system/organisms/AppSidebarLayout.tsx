@@ -2,7 +2,7 @@ import type {ReactNode} from 'react'
 import AlexBox from '../atoms/AlexBox'
 import SideNavigation from '../molecules/SideNavigation'
 
-type NavKey='study'|'practice-tests'|'question-bank'|'performance'|'resources'
+type NavKey='study'|'practice-tests'|'practice-setup'|'question-bank'|'performance'|'resources'
 
 type Props={
   active:NavKey
@@ -10,6 +10,7 @@ type Props={
   onToggleCollapsed:()=>void
   onStudyPlan:()=>void
   onPracticeTests:()=>void
+  onPracticeSetup:()=>void
   onQuestionBank:()=>void
   onPerformance:()=>void
   onResources:()=>void
@@ -18,7 +19,7 @@ type Props={
   contentBackground?:string
 }
 
-export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onStudyPlan,onPracticeTests,onQuestionBank,onPerformance,onResources,onSettings,children,contentBackground='#FFFFFF'}:Props){
+export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onStudyPlan,onPracticeTests,onPracticeSetup,onQuestionBank,onPerformance,onResources,onSettings,children,contentBackground='#FFFFFF'}:Props){
   return <AlexBox sx={{minHeight:'100vh',display:'flex',bgcolor:contentBackground,color:'#08275B'}}>
     <SideNavigation
       collapsed={collapsed}
@@ -27,6 +28,7 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onS
       primary={[
         {key:'study',label:'Study Plan',active:active==='study',onClick:onStudyPlan},
         {key:'practice-tests',label:'Practice Tests',active:active==='practice-tests',onClick:onPracticeTests},
+        {key:'practice-setup',label:'Practice Setup',active:active==='practice-setup',onClick:onPracticeSetup},
         {key:'question-bank',label:'Question Bank',active:active==='question-bank',onClick:onQuestionBank},
         {key:'performance',label:'Performance',active:active==='performance',onClick:onPerformance},
       ]}
