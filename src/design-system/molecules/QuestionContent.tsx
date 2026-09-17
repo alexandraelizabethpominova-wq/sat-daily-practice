@@ -4,16 +4,16 @@ import QuestionVisualSlice from '../../components/QuestionVisualSlice'
 import SourceSlice from '../../components/SourceSlice'
 import StructuredQuestionLines from './StructuredQuestionLines'
 import {ensureQuestionText} from '../../lib/pdfStructuredImport'
+import {getQuestionContent,type StoredQuestionContent} from '../../lib/questionContentStore'
 import {verifiedMathContent} from '../../lib/verifiedMathQuestions'
 import {questionVisualSpec} from '../../lib/questionVisuals'
-import type {StoredQuestionContent} from '../../lib/questionContentStore'
 import type {PracticeQuestion} from '../../types'
 
-type Props={question:PracticeQuestion;bytes:ArrayBuffer;alt:string;showOriginalLayout?:boolean;reflowProse?:boolean}
+type Props={question:PracticeQuestion;bytes:ArrayBuffer|null;alt:string;showOriginalLayout?:boolean;reflowProse?:boolean}
 
-function LinesWithSourceVisual({question,bytes,lines,alt,reflowProse=false}:{question:PracticeQuestion;bytes:ArrayBuffer;lines:string[];alt:string;reflowProse?:boolean}){
+function LinesWithSourceVisual({question,bytes,lines,alt,reflowProse=false}:{question:PracticeQuestion;bytes:ArrayBuffer|null;lines:string[];alt:string;reflowProse?:boolean}){
   const visual=questionVisualSpec(question.id)
-  if(!visual)return <StructuredQuestionLines lines={lines} reflowProse={reflowProse}/>
+  if(!visual||!bytes)return <StructuredQuestionLines lines={lines} reflowProse={reflowProse}/>
 
   const split=Math.max(0,Math.min(lines.length,visual.afterLine+1))
   const before=lines.slice(0,split)
@@ -42,8 +42,11 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
     let cancelled=false
     setContent(null)
     setError('')
-    ensureQuestionText(question,bytes).then(result=>{
-      if(!cancelled)setContent(result)
+    const load=bytes?ensureQuestionText(question,bytes):getQuestionContent(question.id)
+    load.then(result=>{
+      if(cancelled)return
+      if(result)setContent(result)
+      else setError('This text has not been imported on this device yet.')
     }).catch(reason=>{
       if(!cancelled)setError(reason instanceof Error?reason.message:'Unable to read this question as text.')
     })
@@ -57,11 +60,12 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
           ?<LinesWithSourceVisual question={question} bytes={bytes} lines={verified.lines} alt={alt}/>
           :<StructuredQuestionLines lines={verified.lines}/>} 
       </div>
-      {verified.needsVisual&&!visual&&<div className="visual-fallback">
+      {verified.needsVisual&&!bytes&&<div className="visual-fallback"><div className="visual-fallback-label">Add the question PDF in Resources to show this figure.</div></div>}
+      {verified.needsVisual&&bytes&&!visual&&<div className="visual-fallback">
         <div className="visual-fallback-label">Figure from the source material</div>
         <SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={`${alt} visual`}/>
       </div>}
-      {!verified.needsVisual&&showOriginalLayout&&<details className="source-layout-details">
+      {!verified.needsVisual&&showOriginalLayout&&bytes&&<details className="source-layout-details">
         <summary>View original layout</summary>
         <SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={alt}/>
       </details>}
@@ -69,7 +73,8 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
   }
 
   if(error||content?.questionMode==='image-fallback'){
-    return <SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={alt}/>
+    if(bytes)return <SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={alt}/>
+    return <div className="structured-loading">{error||'Add the question PDF in Resources to restore this question text.'}</div>
   }
   if(!content)return <div className="structured-loading">Preparing text question…</div>
 
@@ -79,12 +84,12 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
         ?<LinesWithSourceVisual question={question} bytes={bytes} lines={content.questionLines} alt={alt} reflowProse={reflowProse}/>
         :<StructuredQuestionLines lines={content.questionLines} reflowProse={reflowProse}/>} 
     </div>
-    {content.needsVisual&&!visual?(
+    {content.needsVisual&&!bytes?<div className="visual-fallback"><div className="visual-fallback-label">Add the question PDF in Resources to show this figure.</div></div>:content.needsVisual&&!visual&&bytes?(
       <div className="visual-fallback">
         <div className="visual-fallback-label">Figure from the source material</div>
         <SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={`${alt} figure`}/>
       </div>
-    ):(showOriginalLayout&&!content.needsVisual&&
+    ):(showOriginalLayout&&!content.needsVisual&&bytes&&
       <details className="source-layout-details">
         <summary>View original layout</summary>
         <SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={alt}/>
