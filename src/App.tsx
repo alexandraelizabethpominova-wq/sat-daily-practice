@@ -17,8 +17,8 @@ import {clearQuestionContent,countQuestionContent} from './lib/questionContentSt
 import {QUESTION_BANK,moduleLabel} from './lib/questionBank'
 import {importPracticeMaterials} from './lib/pdfStructuredImport'
 import {choosePracticeQuestions,formatDuration,summarizePerformance,summarizeSession} from './lib/practiceGamification'
-import {addAttempt,clearHistory,getAttempts,getSessions,getSettings,saveSession,saveSettings} from './lib/storage'
-import {syncAttempt,syncSession} from './lib/supabase'
+import {addAttempt,clearHistory,getAttempts,getSessions,getSettings,replaceHistory,saveSession,saveSettings} from './lib/storage'
+import {clearCloudHistory,loadCloudHistory,syncSession} from './lib/supabase'
 import type {Attempt,PracticeQuestion,SessionSummary,Settings,SubjectMode} from './types'
 
 const uid=()=>crypto.randomUUID()
@@ -51,6 +51,32 @@ export default function App(){
       setApdf(answersPdf)
       setContentCount(count)
     })
+  },[])
+  useEffect(()=>{
+    let cancelled=false
+    void (async()=>{
+      try{
+        const cloud=await loadCloudHistory()
+        if(!cloud||cancelled)return
+        const mergeById=<T extends {id:string}>(local:T[],remote:T[])=>{
+          const merged=new Map<string,T>()
+          remote.forEach(item=>merged.set(item.id,item))
+          local.forEach(item=>merged.set(item.id,item))
+          return [...merged.values()]
+        }
+        const mergedAttempts=mergeById(getAttempts(),cloud.attempts).sort((a,b)=>a.createdAt.localeCompare(b.createdAt))
+        const mergedSessions=mergeById(getSessions(),cloud.sessions)
+          .map(session=>({...session,attempts:mergedAttempts.filter(attempt=>attempt.sessionId===session.id)}))
+          .sort((a,b)=>a.startedAt.localeCompare(b.startedAt))
+        replaceHistory(mergedAttempts,mergedSessions)
+        setAttempts(mergedAttempts)
+        setSessions(mergedSessions)
+        await Promise.allSettled(mergedSessions.map(syncSession))
+      }catch(error){
+        console.warn('Supabase history sync failed',error)
+      }
+    })()
+    return()=>{cancelled=true}
   },[])
   useEffect(()=>saveSettings(settings),[settings])
 
@@ -95,7 +121,6 @@ export default function App(){
     addAttempt(attempt)
     setAttempts(previous=>[...previous,attempt])
     setCurrentAttempts(previous=>[...previous,attempt])
-    void syncAttempt(attempt)
   }
 
   async function submit(){
@@ -118,7 +143,7 @@ export default function App(){
     const session:SessionSummary={id:sid,startedAt:started,endedAt:new Date().toISOString(),mode:settings.mode,questionCount:qs.length,attempts:currentAttempts}
     saveSession(session)
     setSessions(previous=>[...previous,session])
-    void syncSession(session)
+    void syncSession(session).catch(error=>console.warn('Supabase session backup failed',error))
     setView('results')
   }
 
@@ -128,8 +153,15 @@ export default function App(){
     goTo(i+1)
   }
 
-  function resetHistory(){
+  async function resetHistory(){
     if(!window.confirm('Delete all practice history and statistics? Your settings and uploaded question sources will be kept.'))return
+    try{
+      await clearCloudHistory()
+    }catch(error){
+      console.error('Supabase history deletion failed',error)
+      window.alert('Cloud history could not be cleared. Your local history was kept so the old data does not reappear later.')
+      return
+    }
     clearHistory()
     setAttempts([])
     setSessions([])
