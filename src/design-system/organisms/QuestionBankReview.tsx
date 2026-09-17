@@ -1,6 +1,6 @@
 import {useMemo,useState} from 'react'
 import {Search} from 'lucide-react'
-import AlexBox from '../atoms/AlexBox'
+import AlexButtonBase from '../atoms/AlexButtonBase'
 import AlexDropdown from '../atoms/AlexDropdown'
 import AlexTextField from '../atoms/AlexTextField'
 import AlexText from '../atoms/AlexText'
@@ -68,16 +68,16 @@ export default function QuestionBankReview({questionsPdf}:Props){
       <aside className="question-bank-list" aria-label="Questions">
         <div className="question-bank-list-header"><b>{questions.length} questions</b><span>Choose one to review</span></div>
         <div className="question-bank-list-scroll">
-          {questions.map(question=><button
-            type="button"
+          {questions.map(question=><AlexButtonBase
             key={question.id}
             className={question.id===selected?.id?'question-bank-row active':'question-bank-row'}
             onClick={()=>setSelectedId(question.id)}
+            aria-pressed={question.id===selected?.id}
           >
             <span>{question.subject==='math'?'Math':'Reading & Writing'}</span>
             <b>Question {question.number}</b>
             <small>{moduleLabel(question.module)}</small>
-          </button>)}
+          </AlexButtonBase>)}
           {!questions.length&&<p className="question-bank-no-results">No questions match this filter.</p>}
         </div>
       </aside>
@@ -90,7 +90,7 @@ export default function QuestionBankReview({questionsPdf}:Props){
         <div className="question-bank-compare">
           <article className="question-bank-pane text-pane">
             <div className="question-bank-pane-label">Text reconstruction</div>
-            <QuestionContent question={selected} bytes={questionsPdf} alt={`${questionLabel(selected)} text`} showOriginalLayout={false}/>
+            <QuestionContent question={selected} bytes={questionsPdf} alt={`${questionLabel(selected)} text`} showOriginalLayout={false} reflowProse/>
           </article>
           <article className="question-bank-pane pdf-pane">
             <div className="question-bank-pane-label">Original PDF</div>
