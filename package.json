@@ -3,16 +3,35 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "scripts": {"dev":"vite","build":"tsc -b && vite build","preview":"vite preview"},
+  "scripts": {
+    "dev":"vite",
+    "build":"tsc -b && vite build",
+    "test":"vitest run",
+    "test:watch":"vitest",
+    "preview":"vite preview"
+  },
   "dependencies": {
     "@emotion/react":"^11.14.0",
     "@emotion/styled":"^11.14.0",
     "@mui/material":"^6.4.8",
     "@supabase/supabase-js":"^2.57.4",
+    "katex":"^0.16.11",
     "lucide-react":"^0.468.0",
     "pdfjs-dist":"^4.10.38",
     "react":"^18.3.1",
     "react-dom":"^18.3.1"
   },
-  "devDependencies": {"@types/react":"^18.3.12","@types/react-dom":"^18.3.1","@vitejs/plugin-react":"^4.3.4","typescript":"^5.7.2","vite":"^6.0.5"}
+  "devDependencies": {
+    "@testing-library/jest-dom":"^6.6.3",
+    "@testing-library/react":"^16.3.0",
+    "@testing-library/user-event":"^14.6.1",
+    "@types/node":"^22.10.2",
+    "@types/react":"^18.3.12",
+    "@types/react-dom":"^18.3.1",
+    "@vitejs/plugin-react":"^4.3.4",
+    "jsdom":"^26.1.0",
+    "typescript":"^5.7.2",
+    "vite":"^6.0.5",
+    "vitest":"^3.2.4"
+  }
 }

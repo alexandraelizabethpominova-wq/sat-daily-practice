@@ -38,9 +38,10 @@ type Marker={n:number;x:number;y:number}
 async function explanationBounds(page:PDFPageProxy,scale:number,questionNumber:number){
   const viewport=page.getViewport({scale})
   const text=await page.getTextContent()
-  const items=text.items.filter(isTextItem).map(item=>{
-    const [x,y]=viewport.convertToViewportPoint(item.transform[4],item.transform[5])
-    return{text:item.str.trim(),x,y}
+  const items=text.items.flatMap(raw=>{
+    if(!isTextItem(raw))return[]
+    const [x,y]=viewport.convertToViewportPoint(raw.transform[4],raw.transform[5])
+    return[{text:raw.str.trim(),x,y}]
   })
 
   const markers:Marker[]=[]

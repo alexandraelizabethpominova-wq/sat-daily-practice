@@ -1,0 +1,135 @@
+import type {ReactNode} from 'react'
+import AlexRichText from '../atoms/AlexRichText'
+
+const SUPERSCRIPTS:Record<string,string>={'2':'²','3':'³'}
+
+function cleanPdfMathArtifacts(value:string){
+  let text=value
+    .replace(/^(?:[-–—]\s*){2,}(?=\S)/,'')
+    .replace(/\b([A-Za-z])\s+x\s*\(\s*\)/g,'$1(x)')
+    .replace(/\b([A-Za-z])\s*\(\s*x\s*\)/g,'$1(x)')
+    .replace(/\(\s*([A-Za-z])\s*\)/g,'($1)')
+    .trim()
+
+  if(/[=<>]/.test(text)||/^\s*[A-Za-z]\(x\)/.test(text)){
+    text=text.replace(/\b([A-Za-z])([23])\b/g,(_,letter:string,power:string)=>`${letter}${SUPERSCRIPTS[power]??power}`)
+  }
+  return text
+}
+
+function isPdfDecoration(value:string){
+  const compact=value.replace(/\s+/g,'')
+  return compact.length>=4&&/^[I|l1\-–—_]+$/.test(compact)
+}
+
+function choiceLabel(value:string){
+  return value.match(/^([A-D])[.)]\s*$/i)?.[1]?.toUpperCase()??null
+}
+
+function tableCells(value:string){
+  const text=cleanPdfMathArtifacts(value).trim()
+  if(!text||/[.!?]$/.test(text))return null
+  const cells=text.split(/\s+/).filter(Boolean)
+  if(cells.length<3||cells.length>7)return null
+  if(cells.some(cell=>cell.length>18))return null
+  return cells
+}
+
+function isNumericCell(value:string){
+  return /^[-−+]?\d+(?:[.,]\d+)?%?$/.test(value)||/^[-−+]?\d+\/\d+$/.test(value)
+}
+
+function ChoiceTable({label,rows}:{label:string;rows:string[][]}){
+  return <div className="structured-choice-table">
+    <div className="structured-choice-label">{label})</div>
+    <table aria-label={`Choice ${label}`}>
+      <tbody>
+        {rows.map((row,rowIndex)=><tr key={`${label}-${rowIndex}`}>
+          {row.map((cell,columnIndex)=>{
+            const Tag=rowIndex===0||columnIndex===0?'th':'td'
+            return <Tag key={`${label}-${rowIndex}-${columnIndex}`} scope={Tag==='th'?(rowIndex===0?'col':'row'):undefined}>
+              <AlexRichText text={cell}/>
+            </Tag>
+          })}
+        </tr>)}
+      </tbody>
+    </table>
+  </div>
+}
+
+function DataTable({headers,rows}:{headers:string[];rows:string[][]}){
+  return <div className="structured-data-table-wrap">
+    <table className="structured-data-table">
+      <thead>
+        <tr>{headers.map((header,index)=><th key={`header-${index}`} scope="col"><AlexRichText text={header}/></th>)}</tr>
+      </thead>
+      <tbody>
+        {rows.map((row,rowIndex)=><tr key={`row-${rowIndex}`}>
+          {row.map((cell,columnIndex)=>columnIndex===0
+            ?<th key={`cell-${rowIndex}-${columnIndex}`} scope="row"><AlexRichText text={cell}/></th>
+            :<td key={`cell-${rowIndex}-${columnIndex}`}><AlexRichText text={cell}/></td>)}
+        </tr>)}
+      </tbody>
+    </table>
+  </div>
+}
+
+function dataTableAt(lines:string[],start:number){
+  const header=tableCells(lines[start])
+  if(!header||header.some(isNumericCell))return null
+
+  const rows:string[][]=[]
+  let index=start+1
+  while(index<lines.length&&rows.length<8){
+    const row=tableCells(lines[index])
+    if(!row)break
+    const numericCount=row.filter(isNumericCell).length
+    if(numericCount<2)break
+    if(row.length!==header.length&&row.length!==header.length+1)break
+    rows.push(row)
+    index++
+  }
+
+  if(rows.length<2)return null
+  const rowLength=rows[0].length
+  if(rows.some(row=>row.length!==rowLength))return null
+  const headers=rowLength===header.length+1?['',...header]:header
+  if(headers.length!==rowLength)return null
+  return {headers,rows,nextIndex:index}
+}
+
+export default function StructuredQuestionLines({lines}:{lines:string[]}){
+  const output:ReactNode[]=[]
+  let index=0
+
+  while(index<lines.length){
+    const line=cleanPdfMathArtifacts(lines[index])
+    if(!line||isPdfDecoration(line)){
+      index++
+      continue
+    }
+
+    const dataTable=dataTableAt(lines,index)
+    if(dataTable){
+      output.push(<DataTable key={`data-table-${index}`} headers={dataTable.headers} rows={dataTable.rows}/>)
+      index=dataTable.nextIndex
+      continue
+    }
+
+    const label=choiceLabel(line)
+    if(label&&index+2<lines.length){
+      const first=tableCells(lines[index+1])
+      const second=tableCells(lines[index+2])
+      if(first&&second&&first.length===second.length){
+        output.push(<ChoiceTable key={`choice-table-${index}`} label={label} rows={[first,second]}/>)
+        index+=3
+        continue
+      }
+    }
+
+    output.push(<p key={`line-${index}`}><AlexRichText text={line}/></p>)
+    index++
+  }
+
+  return <>{output}</>
+}
