@@ -28,6 +28,10 @@ function choiceLabel(value:string){
   return value.match(/^([A-D])[.)]\s*$/i)?.[1]?.toUpperCase()??null
 }
 
+function isChoiceStart(value:string){
+  return Boolean(choiceLabel(value)||FULL_CHOICE.test(value))
+}
+
 function tableCells(value:string){
   const text=cleanPdfMathArtifacts(value).trim()
   if(!text||/[.!?]$/.test(text))return null
@@ -100,6 +104,27 @@ function dataTableAt(lines:string[],start:number){
   return {headers,rows,nextIndex:index}
 }
 
+function consumeChoice(lines:string[],start:number){
+  const first=cleanPdfMathArtifacts(lines[start])
+  const standalone=choiceLabel(first)
+  const full=first.match(/^([A-D][.)])\s+(.+)$/i)
+  if(!standalone&&!full)return null
+
+  const label=standalone?`${standalone})`:full![1]
+  const parts:string[]=[]
+  if(full)parts.push(full[2])
+
+  let index=start+1
+  while(index<lines.length){
+    const next=cleanPdfMathArtifacts(lines[index])
+    if(!next||isPdfDecoration(next)||isChoiceStart(next)||/^\$\$/.test(next))break
+    parts.push(next)
+    index++
+  }
+
+  return {line:`${label}${parts.length?` ${parts.join(' ').replace(/\s+/g,' ').trim()}`:''}`,nextIndex:index}
+}
+
 export function reflowProseLines(lines:string[]){
   const result:string[]=[]
   let index=0
@@ -127,19 +152,15 @@ export function reflowProseLines(lines:string[]){
       continue
     }
 
-    const standaloneChoice=choiceLabel(line)
-    if(standaloneChoice&&index+2<lines.length){
-      const first=tableCells(lines[index+1])
-      const second=tableCells(lines[index+2])
-      if(first&&second&&first.length===second.length){
-        flush()
-        result.push(line,cleanPdfMathArtifacts(lines[index+1]),cleanPdfMathArtifacts(lines[index+2]))
-        index+=3
-        continue
-      }
+    const choice=consumeChoice(lines,index)
+    if(choice){
+      flush()
+      result.push(choice.line)
+      index=choice.nextIndex
+      continue
     }
 
-    if(FULL_CHOICE.test(line)||/^\$\$/.test(line)){
+    if(/^\$\$/.test(line)){
       flush()
       result.push(line)
       index++
