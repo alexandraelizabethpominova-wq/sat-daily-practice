@@ -10,7 +10,7 @@ export const VERIFIED_MATH_QUESTIONS:Record<string,VerifiedMathContent>={
   ],true),
   'math1-2':q(['What percentage of 300 is 75?','A) 25%','B) 50%','C) 75%','D) 225%']),
   'math1-3':q(['$$\\frac{x^2}{25}=36$$','What is a solution to the given equation?','A) 6','B) 30','C) 450','D) 900']),
-  'math1-4':q(['3 more than 8 times a number $x$ is equal to 83. Which equation represents this situation?','A) $(3x)(8)=83$','B) $8x=83+3$','C) $3x+8=83$','D) $8x+3=83$']),
+  'math1-4':q(['3 more than 8 times a number $x$ is equal to 83. Which equation represents this situation?','A) $(3)(8)x=83$','B) $8x=83+3$','C) $3x+8=83$','D) $8x+3=83$']),
   'math1-5':q(['Hana deposited a fixed amount into her bank account each month. The function $f(t)=100+25t$ gives the amount, in dollars, in Hana’s bank account after $t$ monthly deposits. What is the best interpretation of 25 in this context?','A) With each monthly deposit, the amount in Hana’s bank account increased by $25.','B) Before Hana made any monthly deposits, the amount in her bank account was $25.','C) After 1 monthly deposit, the amount in Hana’s bank account was $25.','D) Hana made a total of 25 monthly deposits.']),
   'math1-6':q(['A customer spent $27 to purchase oranges at $3 per pound. How many pounds of oranges did the customer purchase?']),
   'math1-7':q(['Nasir bought 9 storage bins that were each the same price. He used a coupon for $63 off the entire purchase. The cost for the entire purchase after using the coupon was $27. What was the original price, in dollars, for 1 storage bin?']),
