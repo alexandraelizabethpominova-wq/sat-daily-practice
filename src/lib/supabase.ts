@@ -8,6 +8,16 @@ export const supabase=url&&publishableKey?createClient(url,publishableKey):null
 export const isSupabaseConfigured=Boolean(supabase)
 
 export type AuthUser={id:string;email:string|null}
+export type UserProfile={
+  displayName:string
+  school:string
+  grade:string
+  parentGuardianName:string
+  parentGuardianEmail:string
+  about:string
+}
+
+export const EMPTY_USER_PROFILE:UserProfile={displayName:'',school:'',grade:'',parentGuardianName:'',parentGuardianEmail:'',about:''}
 
 const toAuthUser=(user:User|null):AuthUser|null=>user?{id:user.id,email:user.email??null}:null
 
@@ -54,6 +64,48 @@ export async function signOut(){
 async function currentUserId(){
   const user=await getCurrentAuthUser()
   return user?.id??null
+}
+
+export async function loadUserProfile():Promise<UserProfile|null>{
+  if(!supabase)return null
+  const userId=await currentUserId()
+  if(!userId)return null
+  const {data,error}=await supabase.from('sat_user_profiles')
+    .select('display_name,school,grade,parent_guardian_name,parent_guardian_email,about')
+    .eq('user_id',userId)
+    .maybeSingle()
+  if(error)throw error
+  if(!data)return {...EMPTY_USER_PROFILE}
+  return {
+    displayName:data.display_name??'',
+    school:data.school??'',
+    grade:data.grade??'',
+    parentGuardianName:data.parent_guardian_name??'',
+    parentGuardianEmail:data.parent_guardian_email??'',
+    about:data.about??'',
+  }
+}
+
+export async function saveUserProfile(profile:UserProfile):Promise<UserProfile>{
+  if(!supabase)throw new Error('Supabase is not configured.')
+  const userId=await currentUserId()
+  if(!userId)throw new Error('Sign in before saving your profile.')
+  const row={
+    user_id:userId,
+    display_name:profile.displayName.trim()||null,
+    school:profile.school.trim()||null,
+    grade:profile.grade.trim()||null,
+    parent_guardian_name:profile.parentGuardianName.trim()||null,
+    parent_guardian_email:profile.parentGuardianEmail.trim()||null,
+    about:profile.about.trim()||null,
+    updated_at:new Date().toISOString(),
+  }
+  const {error}=await supabase.from('sat_user_profiles').upsert(row,{onConflict:'user_id'})
+  if(error)throw error
+  return {
+    displayName:row.display_name??'',school:row.school??'',grade:row.grade??'',
+    parentGuardianName:row.parent_guardian_name??'',parentGuardianEmail:row.parent_guardian_email??'',about:row.about??'',
+  }
 }
 
 function attemptRow(a:Attempt,userId:string){
