@@ -15,16 +15,22 @@ type Props={
   onPerformance:()=>void
   onResources:()=>void
   onSettings:()=>void
+  accountLabel?:string
+  accountDetail?:string
+  signedIn?:boolean
   children:ReactNode
   contentBackground?:string
 }
 
-export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onStudyPlan,onPracticeTests,onPracticeSetup,onQuestionBank,onPerformance,onResources,onSettings,children,contentBackground='#FFFFFF'}:Props){
+export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onStudyPlan,onPracticeTests,onPracticeSetup,onQuestionBank,onPerformance,onResources,onSettings,accountLabel='Sign in',accountDetail='',signedIn=false,children,contentBackground='#FFFFFF'}:Props){
   return <AlexBox sx={{minHeight:'100vh',display:'flex',bgcolor:contentBackground,color:'#08275B'}}>
     <SideNavigation
       collapsed={collapsed}
       onToggleCollapsed={onToggleCollapsed}
       onFooterClick={onSettings}
+      footerLabel={accountLabel}
+      footerDetail={accountDetail}
+      signedIn={signedIn}
       primary={[
         {key:'study',label:'Study Plan',active:active==='study',onClick:onStudyPlan},
         {key:'practice-tests',label:'Practice Tests',active:active==='practice-tests',onClick:onPracticeTests},
