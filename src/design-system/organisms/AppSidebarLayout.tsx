@@ -1,5 +1,5 @@
-import {Box} from '@mui/material'
 import type {ReactNode} from 'react'
+import AlexBox from '../atoms/AlexBox'
 import SideNavigation from '../molecules/SideNavigation'
 
 type NavKey='study'|'practice-tests'|'question-bank'|'performance'|'resources'
@@ -19,7 +19,7 @@ type Props={
 }
 
 export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onStudyPlan,onPracticeTests,onQuestionBank,onPerformance,onResources,onSettings,children,contentBackground='#FFFFFF'}:Props){
-  return <Box sx={{minHeight:'100vh',display:'flex',bgcolor:contentBackground,color:'#08275B'}}>
+  return <AlexBox sx={{minHeight:'100vh',display:'flex',bgcolor:contentBackground,color:'#08275B'}}>
     <SideNavigation
       collapsed={collapsed}
       onToggleCollapsed={onToggleCollapsed}
@@ -32,6 +32,6 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onS
       ]}
       secondary={[{key:'resources',label:'Resources',active:active==='resources',onClick:onResources}]}
     />
-    <Box sx={{minWidth:0,flex:1,minHeight:'100vh'}}>{children}</Box>
-  </Box>
+    <AlexBox sx={{minWidth:0,flex:1,minHeight:'100vh'}}>{children}</AlexBox>
+  </AlexBox>
 }
