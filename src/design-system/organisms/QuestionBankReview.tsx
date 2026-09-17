@@ -1,4 +1,4 @@
-import {useMemo,useState} from 'react'
+import {useEffect,useMemo,useState} from 'react'
 import {Search} from 'lucide-react'
 import AlexButtonBase from '../atoms/AlexButtonBase'
 import AlexDropdown from '../atoms/AlexDropdown'
@@ -8,6 +8,7 @@ import QuestionContent from '../molecules/QuestionContent'
 import SourceSlice from '../../components/SourceSlice'
 import {QUESTION_BANK,moduleLabel} from '../../lib/questionBank'
 import {groupQuestionsByModule} from '../../lib/questionBankGroups'
+import {loadSharedQuestionBank} from '../../lib/sharedQuestionBank'
 import type {PracticeQuestion} from '../../types'
 
 type Props={questionsPdf:ArrayBuffer|null}
@@ -18,19 +19,28 @@ function questionLabel(question:PracticeQuestion){return `${moduleLabel(question
 export default function QuestionBankReview({questionsPdf}:Props){
   const[moduleFilter,setModuleFilter]=useState<ModuleFilter>('all')
   const[search,setSearch]=useState('')
+  const[bank,setBank]=useState<PracticeQuestion[]>(QUESTION_BANK)
   const[selectedId,setSelectedId]=useState(()=>QUESTION_BANK.find(question=>question.subject==='math')?.id??QUESTION_BANK[0]?.id??'')
+
+  useEffect(()=>{
+    let cancelled=false
+    void loadSharedQuestionBank().then(shared=>{
+      if(!cancelled&&shared?.length)setBank(shared)
+    }).catch(error=>console.warn('Shared Question Bank load failed; using bundled metadata.',error))
+    return()=>{cancelled=true}
+  },[])
 
   const questions=useMemo(()=>{
     const needle=search.trim().toLowerCase()
-    return QUESTION_BANK.filter(question=>{
+    return bank.filter(question=>{
       if(moduleFilter!=='all'&&question.module!==moduleFilter)return false
       if(!needle)return true
       return question.id.toLowerCase().includes(needle)||questionLabel(question).toLowerCase().includes(needle)||String(question.number)===needle
     })
-  },[moduleFilter,search])
+  },[bank,moduleFilter,search])
 
   const groupedQuestions=useMemo(()=>groupQuestionsByModule(questions),[questions])
-  const selected=QUESTION_BANK.find(question=>question.id===selectedId)??questions[0]
+  const selected=bank.find(question=>question.id===selectedId)??questions[0]
 
   return <main className="question-bank-page">
     <header className="question-bank-heading">
