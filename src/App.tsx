@@ -6,6 +6,7 @@ import AlexNumberField from './design-system/atoms/AlexNumberField'
 import AlexStatusChip from './design-system/atoms/AlexStatusChip'
 import ExplanationContent from './design-system/molecules/ExplanationContent'
 import QuestionContent from './design-system/molecules/QuestionContent'
+import AccountAuthPanel from './design-system/organisms/AccountAuthPanel'
 import AppSidebarLayout from './design-system/organisms/AppSidebarLayout'
 import PerformanceDashboard from './design-system/organisms/PerformanceDashboard'
 import PracticeAnswerPanel from './design-system/organisms/PracticeAnswerPanel'
@@ -18,13 +19,13 @@ import {clearQuestionContent,countQuestionContent} from './lib/questionContentSt
 import {QUESTION_BANK,moduleLabel} from './lib/questionBank'
 import {importPracticeMaterials} from './lib/pdfStructuredImport'
 import {choosePracticeQuestions,formatDuration,summarizePerformance,summarizeSession} from './lib/practiceGamification'
-import {addAttempt,clearHistory,getAttempts,getSessions,getSettings,saveSession,saveSettings} from './lib/storage'
-import {syncAttempt,syncSession} from './lib/supabase'
+import {addAttempt,clearHistory,getAttempts,getSessions,getSettings,prepareHistoryForUser,replaceHistory,saveSession,saveSettings} from './lib/storage'
+import {clearCloudHistory,getCurrentAuthUser,loadCloudHistory,subscribeToAuth,syncSession,type AuthUser} from './lib/supabase'
 import type {Attempt,PracticeQuestion,SessionSummary,Settings,SubjectMode} from './types'
 
 const uid=()=>crypto.randomUUID()
 
-type View='study'|'home'|'practice'|'results'|'stats'|'settings'|'sources'|'question-bank'
+type View='study'|'home'|'practice'|'results'|'stats'|'settings'|'sources'|'question-bank'|'account'
 type SidebarKey='study'|'practice-tests'|'practice-setup'|'question-bank'|'performance'|'resources'
 
 export default function App(){
@@ -45,6 +46,7 @@ export default function App(){
   const[sidebarCollapsed,setSidebarCollapsed]=useState(false)
   const[contentCount,setContentCount]=useState(0)
   const[importProgress,setImportProgress]=useState('')
+  const[authUser,setAuthUser]=useState<AuthUser|null>(null)
 
   useEffect(()=>{
     Promise.all([getPdf('questions'),getPdf('answers'),countQuestionContent()]).then(([questionsPdf,answersPdf,count])=>{
@@ -53,6 +55,44 @@ export default function App(){
       setContentCount(count)
     })
   },[])
+  useEffect(()=>{
+    let cancelled=false
+    void getCurrentAuthUser().then(user=>{if(!cancelled)setAuthUser(user)}).catch(error=>console.warn('Supabase auth check failed',error))
+    const unsubscribe=subscribeToAuth(user=>{if(!cancelled)setAuthUser(user)})
+    return()=>{cancelled=true;unsubscribe()}
+  },[])
+  useEffect(()=>{
+    if(!authUser)return
+    let cancelled=false
+    void (async()=>{
+      try{
+        prepareHistoryForUser(authUser.id)
+        const localAttempts=getAttempts()
+        const localSessions=getSessions()
+        setAttempts(localAttempts)
+        setSessions(localSessions)
+        const cloud=await loadCloudHistory()
+        if(!cloud||cancelled)return
+        const mergeById=<T extends {id:string},>(local:T[],remote:T[])=>{
+          const merged=new Map<string,T>()
+          remote.forEach(item=>merged.set(item.id,item))
+          local.forEach(item=>merged.set(item.id,item))
+          return [...merged.values()]
+        }
+        const mergedAttempts=mergeById(localAttempts,cloud.attempts).sort((a,b)=>a.createdAt.localeCompare(b.createdAt))
+        const mergedSessions=mergeById(localSessions,cloud.sessions)
+          .map(session=>({...session,attempts:mergedAttempts.filter(attempt=>attempt.sessionId===session.id)}))
+          .sort((a,b)=>a.startedAt.localeCompare(b.startedAt))
+        replaceHistory(mergedAttempts,mergedSessions)
+        setAttempts(mergedAttempts)
+        setSessions(mergedSessions)
+        await Promise.allSettled(mergedSessions.map(syncSession))
+      }catch(error){
+        console.warn('Supabase history sync failed',error)
+      }
+    })()
+    return()=>{cancelled=true}
+  },[authUser?.id])
   useEffect(()=>saveSettings(settings),[settings])
 
   const current=qs[i]
@@ -96,7 +136,6 @@ export default function App(){
     addAttempt(attempt)
     setAttempts(previous=>[...previous,attempt])
     setCurrentAttempts(previous=>[...previous,attempt])
-    void syncAttempt(attempt)
   }
 
   async function submit(){
@@ -119,7 +158,7 @@ export default function App(){
     const session:SessionSummary={id:sid,startedAt:started,endedAt:new Date().toISOString(),mode:settings.mode,questionCount:qs.length,attempts:currentAttempts}
     saveSession(session)
     setSessions(previous=>[...previous,session])
-    void syncSession(session)
+    void syncSession(session).catch(error=>console.warn('Supabase session backup failed',error))
     setView('results')
   }
 
@@ -129,8 +168,15 @@ export default function App(){
     goTo(i+1)
   }
 
-  function resetHistory(){
+  async function resetHistory(){
     if(!window.confirm('Delete all practice history and statistics? Your settings and uploaded question sources will be kept.'))return
+    try{
+      await clearCloudHistory()
+    }catch(error){
+      console.error('Supabase history deletion failed',error)
+      window.alert('Cloud history could not be cleared. Your local history was kept so the old data does not reappear later.')
+      return
+    }
     clearHistory()
     setAttempts([])
     setSessions([])
@@ -166,7 +212,7 @@ export default function App(){
       onQuestionBank={()=>setView('question-bank')}
       onPerformance={()=>setView('stats')}
       onResources={()=>setView('sources')}
-      onSettings={()=>setView('settings')}
+      onSettings={()=>setView('account')}
       contentBackground={background}
     >{content}</AppSidebarLayout>
   }
@@ -229,6 +275,11 @@ export default function App(){
   if(view==='stats')return withSidebar('performance',<main className="shell"><PerformanceDashboard summary={performance} hasHistory={attempts.length>0} onClearHistory={resetHistory}/></main>)
 
   if(view==='question-bank')return withSidebar('question-bank',<QuestionBankReview questionsPdf={qpdf}/>,'#F7F6F2')
+
+  if(view==='account')return withSidebar('practice-tests',<main className="shell">
+    <div className="page-heading"><div><p className="eyebrow">Account</p><h1>Account & sync</h1></div></div>
+    <AccountAuthPanel email={authUser?.email??null}/>
+  </main>,'#F7F6F2')
 
   if(view==='settings')return withSidebar('practice-setup',<main className="shell">
     <div className="page-heading"><div><p className="eyebrow">Practice Setup</p><h1>Practice setup</h1></div></div>
