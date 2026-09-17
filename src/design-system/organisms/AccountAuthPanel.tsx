@@ -1,25 +1,35 @@
-import {useState} from 'react'
+import {useEffect,useState} from 'react'
 import AlexButton from '../atoms/AlexButton'
 import AlexStack from '../atoms/AlexStack'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
 import AuthCredentialsForm from '../molecules/AuthCredentialsForm'
 import UserProfileForm from '../molecules/UserProfileForm'
-import {EMPTY_USER_PROFILE,isSupabaseConfigured,saveUserProfile,signInWithPassword,signOut,signUpWithPassword,type UserProfile} from '../../lib/supabase'
+import {EMPTY_USER_PROFILE,isSupabaseConfigured,loadUserProfile,saveUserProfile,signInWithPassword,signOut,signUpWithPassword,type UserProfile} from '../../lib/supabase'
 
 type Props={
   email:string|null
-  profile?:UserProfile|null
-  onProfileSaved?:(profile:UserProfile)=>void
 }
 
 const messageFromError=(error:unknown)=>error instanceof Error?error.message:'Something went wrong. Please try again.'
 
-export default function AccountAuthPanel({email,profile=EMPTY_USER_PROFILE,onProfileSaved}:Props){
+export default function AccountAuthPanel({email}:Props){
   const[mode,setMode]=useState<'signin'|'signup'>('signin')
   const[busy,setBusy]=useState(false)
   const[message,setMessage]=useState('')
   const[error,setError]=useState('')
+  const[profile,setProfile]=useState<UserProfile>(EMPTY_USER_PROFILE)
+
+  useEffect(()=>{
+    if(!email){setProfile(EMPTY_USER_PROFILE);return}
+    let cancelled=false
+    void loadUserProfile().then(nextProfile=>{
+      if(!cancelled)setProfile(nextProfile??EMPTY_USER_PROFILE)
+    }).catch(nextError=>{
+      if(!cancelled)setError(messageFromError(nextError))
+    })
+    return()=>{cancelled=true}
+  },[email])
 
   async function submit(nextEmail:string,password:string){
     setBusy(true)
@@ -46,7 +56,8 @@ export default function AccountAuthPanel({email,profile=EMPTY_USER_PROFILE,onPro
     setMessage('')
     try{
       const saved=await saveUserProfile(nextProfile)
-      onProfileSaved?.(saved)
+      setProfile(saved)
+      window.dispatchEvent(new Event('sat-profile-updated'))
       setMessage('Profile saved.')
     }catch(nextError){
       setError(messageFromError(nextError))
@@ -61,6 +72,7 @@ export default function AccountAuthPanel({email,profile=EMPTY_USER_PROFILE,onPro
     setMessage('')
     try{
       await signOut()
+      setProfile(EMPTY_USER_PROFILE)
       setMessage('Signed out. Your local practice data remains on this device.')
     }catch(nextError){
       setError(messageFromError(nextError))
@@ -82,7 +94,7 @@ export default function AccountAuthPanel({email,profile=EMPTY_USER_PROFILE,onPro
           <AlexText sx={{fontSize:12,color:'text.secondary',mb:.25}}>Signed in as</AlexText>
           <AlexText sx={{fontWeight:750}}>{email}</AlexText>
         </AlexSurface>
-        <UserProfileForm profile={profile??EMPTY_USER_PROFILE} busy={busy} onSave={saveProfile}/>
+        <UserProfileForm profile={profile} busy={busy} onSave={saveProfile}/>
         {error&&<AlexText role="alert" sx={{fontSize:13,color:'error.main'}}>{error}</AlexText>}
         {message&&<AlexText role="status" sx={{fontSize:13,color:'success.main'}}>{message}</AlexText>}
         <AlexButton tone="secondary" disabled={busy} onClick={logout} sx={{alignSelf:'flex-start'}}>Sign out</AlexButton>
