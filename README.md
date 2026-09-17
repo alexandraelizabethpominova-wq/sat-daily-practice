@@ -12,7 +12,7 @@ A React + TypeScript study app for daily SAT practice using your own SAT practic
 - Optional official explanations using the uploaded SAT answer-explanation PDF.
 - Multiple-choice questions are auto-graded.
 - Student-produced-response math questions show the official answer and let you self-mark.
-- Local-first storage with optional Supabase persistence.
+- Local-first storage with optional authenticated Supabase persistence.
 
 ## Copyright / PDF handling
 
@@ -38,11 +38,28 @@ npm run dev
 
 Then open the local Vite URL shown in your terminal.
 
-## Optional Supabase setup
+## Supabase persistence
 
-1. Create a Supabase project.
-2. Run `supabase/schema.sql` in the SQL editor.
-3. Copy `.env.example` to `.env`.
-4. Add your project URL and anon key.
+Database schema changes are versioned under `supabase/migrations/`. Do not paste `schema.sql` into the Supabase SQL editor or make production schema changes manually unless you are intentionally creating a migration to capture them afterward.
 
-This app works without Supabase using browser storage only. For production cloud sync, add Supabase Auth so each user only accesses their own records.
+Copy `.env.example` to `.env` and add your project URL and publishable key:
+
+```bash
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_PUBLISHABLE_KEY=...
+```
+
+The app remains local-first. When a Supabase Auth session exists, completed practice sessions and attempts are backed up to Supabase, cloud history is merged into the local browser history on startup, and clearing history also clears the authenticated user's cloud rows. Cross-device persistence therefore requires Supabase Auth sign-in for the same user on each device.
+
+## Automated migrations from GitHub
+
+`.github/workflows/supabase-migrations.yml` applies pending migrations whenever migration files are merged to `main`.
+
+Add these encrypted GitHub Actions repository secrets before relying on the workflow:
+
+- `SUPABASE_ACCESS_TOKEN`
+- `SUPABASE_DB_PASSWORD`
+
+The workflow links to the `sat practice` Supabase project, runs `supabase db push --dry-run`, and then applies pending migrations with `supabase db push`.
+
+Alternatively, Supabase's native GitHub integration can deploy the same `supabase/migrations/` directory. If using the native integration, set the repository working directory to `.` and enable **Deploy to production** for `main`; do not run both deployment mechanisms unless you intentionally want redundant deployment checks.
