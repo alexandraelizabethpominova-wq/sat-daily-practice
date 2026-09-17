@@ -7,9 +7,9 @@ import {verifiedMathContent} from '../../lib/verifiedMathQuestions'
 import type {StoredQuestionContent} from '../../lib/questionContentStore'
 import type {PracticeQuestion} from '../../types'
 
-type Props={question:PracticeQuestion;bytes:ArrayBuffer;alt:string;showOriginalLayout?:boolean}
+type Props={question:PracticeQuestion;bytes:ArrayBuffer;alt:string;showOriginalLayout?:boolean;reflowProse?:boolean}
 
-export default function QuestionContent({question,bytes,alt,showOriginalLayout=true}:Props){
+export default function QuestionContent({question,bytes,alt,showOriginalLayout=true,reflowProse=false}:Props){
   const[content,setContent]=useState<StoredQuestionContent|null>(null)
   const[error,setError]=useState('')
   const verified=question.subject==='math'?verifiedMathContent(question.id):undefined
@@ -55,7 +55,7 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
 
   return <div className="structured-question">
     <div className="structured-lines">
-      <StructuredQuestionLines lines={content.questionLines}/>
+      <StructuredQuestionLines lines={content.questionLines} reflowProse={reflowProse}/>
     </div>
     {content.needsVisual?(
       <div className="visual-fallback">
