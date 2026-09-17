@@ -19,7 +19,9 @@
 .structured-data-table thead th:first-child:empty{background:#fff;border-top-color:transparent;border-left-color:transparent}
 .structured-explanation .structured-lines{font-family:inherit;font-size:.96rem;line-height:1.65;max-width:none;padding:12px 2px;color:#344054}
 .structured-loading{padding:52px 28px;text-align:center;color:#667085}
-.rich-math.inline{display:inline-block;margin:0 .06em;max-width:100%;vertical-align:-.08em}.rich-math.display{display:block;overflow-x:auto;margin:14px 0;text-align:center;padding:2px 0;max-width:100%}
+.rich-math.inline{display:inline;margin:0 .04em;max-width:100%;vertical-align:baseline;line-height:inherit}
+.rich-math.inline .katex{font-size:1em;line-height:inherit;vertical-align:baseline}
+.rich-math.display{display:block;overflow-x:auto;margin:14px 0;text-align:center;padding:2px 0;max-width:100%}
 .source-layout-details{margin-top:24px;border-top:1px solid #ebe7e1;padding-top:14px}
 .source-layout-details>summary{color:#475467;font-size:.85rem;font-family:inherit}
 .visual-fallback{margin-top:20px;border-top:1px solid #ebe7e1;padding-top:16px;max-width:100%;overflow:hidden}
@@ -38,5 +40,4 @@
 .question-bank-pane .structured-lines p{white-space:normal;max-width:100%;overflow-wrap:anywhere;word-break:normal}
 .question-bank-pane .verified-math-lines{font-size:18px;line-height:1.48}
 .question-bank-pane .structured-choice-table table,.question-bank-pane .structured-data-table{font-family:Georgia,'Times New Roman',serif;font-size:18px}
-.question-bank-pane .rich-math.inline{max-width:100%;overflow-x:auto}
 @media(max-width:800px){.structured-question{padding:20px 16px 24px}.structured-db-card{align-items:flex-start;flex-direction:column}.structured-db-actions{justify-content:flex-start}.structured-lines{font-size:16px}.structured-choice-table{grid-template-columns:26px minmax(0,max-content);gap:6px}.structured-choice-table th,.structured-choice-table td{min-width:40px;padding:5px 9px}.structured-data-table th,.structured-data-table td{min-width:62px;padding:7px 10px}.question-bank-pane .structured-question{padding:18px 16px 22px}.question-bank-pane .structured-lines,.question-bank-pane .verified-math-lines{font-size:17px}}
