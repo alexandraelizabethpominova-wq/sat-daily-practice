@@ -2,7 +2,7 @@ import {useEffect,useState} from 'react'
 import {GlobalWorkerOptions,getDocument,type PDFDocumentProxy} from 'pdfjs-dist'
 import {getQuestionImage,saveQuestionImage} from '../lib/questionImageStore'
 import {QUESTION_CROPS} from '../lib/questionCrops'
-import type {NormalizedCrop} from '../lib/questionVisuals'
+import {expandNormalizedCrop,type NormalizedCrop} from '../lib/questionVisuals'
 import type {PracticeQuestion} from '../types'
 
 GlobalWorkerOptions.workerSrc=new URL('pdfjs-dist/build/pdf.worker.min.mjs',import.meta.url).toString()
@@ -31,7 +31,9 @@ export default function QuestionVisualSlice({question,bytes,crop,alt}:Props){
     let cancelled=false
     let objectUrl=''
     let renderTask:{cancel:()=>void;promise:Promise<void>}|null=null
-    const imageKey=`visual-v1:${bytes.byteLength}:${question.id}:${crop.x}:${crop.y}:${crop.width}:${crop.height}`
+    const expandedCrop=expandNormalizedCrop(crop)
+    // Bump the cache version when crop/render behavior changes so browsers do not keep a clipped image.
+    const imageKey=`visual-v2:${bytes.byteLength}:${question.id}:${expandedCrop.x}:${expandedCrop.y}:${expandedCrop.width}:${expandedCrop.height}`
 
     async function showBlob(blob:Blob){
       objectUrl=URL.createObjectURL(blob)
@@ -62,10 +64,10 @@ export default function QuestionVisualSlice({question,bytes,crop,alt}:Props){
         await renderTask!.promise
         if(cancelled)return
 
-        const left=(questionCrop.x+questionCrop.width*crop.x)*scale
-        const top=(questionCrop.y+questionCrop.height*crop.y)*scale
-        const right=(questionCrop.x+questionCrop.width*(crop.x+crop.width))*scale
-        const bottom=(questionCrop.y+questionCrop.height*(crop.y+crop.height))*scale
+        const left=(questionCrop.x+questionCrop.width*expandedCrop.x)*scale
+        const top=(questionCrop.y+questionCrop.height*expandedCrop.y)*scale
+        const right=(questionCrop.x+questionCrop.width*(expandedCrop.x+expandedCrop.width))*scale
+        const bottom=(questionCrop.y+questionCrop.height*(expandedCrop.y+expandedCrop.height))*scale
         const srcX=Math.max(0,Math.floor(left*dpr))
         const srcY=Math.max(0,Math.floor(top*dpr))
         const srcRight=Math.min(full.width,Math.ceil(right*dpr))
