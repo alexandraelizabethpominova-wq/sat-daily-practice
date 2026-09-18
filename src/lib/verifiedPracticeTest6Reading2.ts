@@ -128,6 +128,13 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) other forest management strategies are more effective than limited logging.',
     'C) as time passes, it will be difficult to know whether limited logging has any benefits.',
     'D) the best way to support forest health may be to leave large forests entirely untouched.',
+  ]),  18:q([
+    'Even with the widespread adoption of personal computers, many authors still choose to write and revise their novels by hand and only then transcribe the final version on a computer. It may be tempting to speculate about how a novel written this way would be affected if it had been exclusively typed instead, but each novel is a unique entity resulting from a specific set of circumstances. Therefore, _______',
+    'Which choice most logically completes the text?',
+    'A) in order to increase their efficiency, authors who currently write their novels largely by hand should instead work only on a computer.',
+    'B) authors who do most of their drafting and revising by hand likely have more success than those who work entirely on a computer.',
+    'C) novels written by hand take less time to produce, on average, than novels written on a computer do.',
+    'D) there is no way to reasonably evaluate how a work would be different if it had been written by other means.',
   ]),
 }
 
