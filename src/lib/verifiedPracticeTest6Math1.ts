@@ -166,7 +166,17 @@ export const VERIFIED_PRACTICE_TEST_6_MATH1:Record<number,VerifiedPracticeTest6M
     'What is the $y$-coordinate of the $y$-intercept of the graph of $\\frac{3x}{7}=-\\frac{5y}{9}+21$ in the $xy$-plane?',
   ]),  21:q([
     'The graph of $y=2x^2+bx+c$ is shown, where $b$ and $c$ are constants. What is the value of $bc$?',
-  ],true),
+  ],true),  22:q([
+    'In 2008, Zinah earned 14% more than in 2007, and in 2009 Zinah earned 4% more than in 2008. If Zinah earned $y$ times as much in 2009 as in 2007, what is the value of $y$?',
+    'A) $0.5600(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'B) $1.0056(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'C) $1.1800(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'D) $1.1856(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+  ]),
 }
 
 export function verifiedPracticeTest6Math1Content(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
