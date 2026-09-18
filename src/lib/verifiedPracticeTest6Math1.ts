@@ -113,7 +113,17 @@ export const VERIFIED_PRACTICE_TEST_6_MATH1:Record<number,VerifiedPracticeTest6M
 ,
     'D) $9(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
 ,
-  ],true),
+  ],true),  16:q([
+    'The relationship between two variables, $x$ and $y$, is linear. For every increase in the value of $x$ by 1, the value of $y$ increases by 8. When the value of $x$ is 2, the value of $y$ is 18. Which equation represents this relationship?',
+    'A) $y=2x+18(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'B) $y=2x+8(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'C) $y=8x+2(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'D) $y=3x+26(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+  ]),
 }
 
 export function verifiedPracticeTest6Math1Content(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
