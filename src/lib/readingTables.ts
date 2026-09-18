@@ -16,7 +16,7 @@ const TABLES:Record<string,ReadingTableSpec>={
       ['potassium','44%','74%','97%','100%'],
       ['sodium','45%','75%','99%','100%'],
     ],
-    sourceCrop:{x:.01,y:.055,width:.98,height:.145},
+    sourceCrop:{x:.01,y:.04,width:.98,height:.13},
   },
   'rw1-17':{
     title:'Effects of Mycorrhizal Fungi on 3 Plant Species',
@@ -26,7 +26,7 @@ const TABLES:Record<string,ReadingTableSpec>={
       ['Marigold','yes','10.2','2.4'],
       ['Broccoli','no','7.5','7'],
     ],
-    sourceCrop:{x:.005,y:.055,width:.99,height:.215},
+    sourceCrop:{x:.005,y:.04,width:.99,height:.17},
   },
 }
 
