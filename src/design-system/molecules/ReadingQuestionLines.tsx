@@ -1,13 +1,24 @@
 import AlexRichText from '../atoms/AlexRichText'
 
-const CHOICE=/^([A-D])[.)]\s*(.*)$/i
+const LABELED_CHOICE=/^([A-D])(?:[.)]\s*|\s+)(.+)$/i
 const QUESTION_STEM=/^(Which|What|How|Why|According to|Based on|As used in|The student wants|To which|Which finding|Which quotation|Which choice|Which statement|Which response|The passage|The text|The main purpose|The author|The speaker)\b/i
 
 export type ReadingChoice={label:string;text:string}
 export type ParsedReadingQuestion={stimulus:string[];stem:string;choices:ReadingChoice[];isQuote:boolean;isVerse:boolean}
 
 function clean(value:string){return value.replace(/\s+/g,' ').trim()}
-function isChoice(value:string){return CHOICE.test(value.trim())}
+
+function stemStart(source:string[]){
+  const direct=source.findIndex(line=>QUESTION_STEM.test(clean(line)))
+  if(direct>=0)return direct
+  for(let index=source.length-1;index>=0;index--){if(/[?]$/.test(clean(source[index])))return index}
+  return Math.max(0,source.length-1)
+}
+
+function stemEnd(source:string[],start:number){
+  for(let index=start;index<source.length;index++){if(/[?]$/.test(clean(source[index])))return index}
+  return start
+}
 
 function looksLikeVerse(lines:string[]){
   if(lines.length<3)return false
@@ -20,27 +31,15 @@ function looksLikeVerse(lines:string[]){
 
 function explicitlyQuoted(lines:string[]){
   const text=lines.map(clean).filter(Boolean).join(' ')
-  return /^[“\"‘]/.test(text)||/[”\"’]$/.test(text)
+  return /^[“\"‘]/.test(text)||/[”\"’]$/.test(text)||/^The following text is (?:from|adapted from)\b/i.test(text)
 }
 
-export function parseReadingQuestion(lines:string[]):ParsedReadingQuestion{
-  const source=lines.map(line=>line.trim()).filter(Boolean)
-  const firstChoice=source.findIndex(isChoice)
-  const choiceIndex=firstChoice<0?source.length:firstChoice
-  let stemIndex=source.slice(0,choiceIndex).findIndex(line=>QUESTION_STEM.test(clean(line)))
-  if(stemIndex<0){
-    let fallback=-1
-    for(let index=choiceIndex-1;index>=0;index--){if(/[?]$/.test(clean(source[index]))){fallback=index;break}}
-    stemIndex=fallback>=0?fallback:Math.max(0,choiceIndex-1)
-  }
-
-  const stimulus=source.slice(0,stemIndex)
-  const stemLines=source.slice(stemIndex,choiceIndex)
+function parseChoices(lines:string[]){
   const choices:ReadingChoice[]=[]
   let current:ReadingChoice|null=null
-  for(const raw of source.slice(choiceIndex)){
+  for(const raw of lines){
     const line=clean(raw)
-    const match=line.match(CHOICE)
+    const match=line.match(LABELED_CHOICE)
     if(match){
       if(current)choices.push(current)
       current={label:match[1].toUpperCase(),text:match[2].trim()}
@@ -49,15 +48,18 @@ export function parseReadingQuestion(lines:string[]):ParsedReadingQuestion{
     if(current)current.text=clean(`${current.text} ${line}`)
   }
   if(current)choices.push(current)
+  return choices
+}
 
+export function parseReadingQuestion(lines:string[]):ParsedReadingQuestion{
+  const source=lines.map(line=>line.trim()).filter(Boolean)
+  const start=stemStart(source)
+  const end=stemEnd(source,start)
+  const stimulus=source.slice(0,start)
+  const stem=source.slice(start,end+1).map(clean).join(' ')
+  const choices=parseChoices(source.slice(end+1))
   const isVerse=looksLikeVerse(stimulus)
-  return {
-    stimulus,
-    stem:stemLines.map(clean).join(' '),
-    choices,
-    isVerse,
-    isQuote:isVerse||explicitlyQuoted(stimulus),
-  }
+  return {stimulus,stem,choices,isVerse,isQuote:isVerse||explicitlyQuoted(stimulus)}
 }
 
 export default function ReadingQuestionLines({lines}:{lines:string[]}){
