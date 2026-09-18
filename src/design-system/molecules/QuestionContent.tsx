@@ -12,6 +12,7 @@ import {questionVisualSpecs,type QuestionVisualSpec} from '../../lib/questionVis
 import {isPracticeTest5Math1Verified} from '../../lib/practiceTest5Math1Layout'
 import {verifiedPracticeTest5Math1Content} from '../../lib/verifiedPracticeTest5Math1'
 import {verifiedPracticeTest6Reading1Content} from '../../lib/verifiedPracticeTest6Reading1'
+import {verifiedPracticeTest6Reading2Content} from '../../lib/verifiedPracticeTest6Reading2'
 import usePracticeTestPdf from '../../hooks/usePracticeTestPdf'
 import type {PracticeQuestion} from '../../types'
 
@@ -74,8 +75,12 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
         if(cancelled)return
 
         const bundledVisuals=questionVisualSpecs(question.id)
-        const verifiedPracticeTest6Reading=question.practiceTestId==='practice-test-6'&&question.module==='rw1'
-          ?verifiedPracticeTest6Reading1Content(question.number)
+        const verifiedPracticeTest6Reading=question.practiceTestId==='practice-test-6'
+          ?question.module==='rw1'
+            ?verifiedPracticeTest6Reading1Content(question.number)
+            :question.module==='rw2'
+              ?verifiedPracticeTest6Reading2Content(question.number)
+              :undefined
           :undefined
         const sharedHasText=Boolean(shared?.questionLines.length)
         const sharedControlsVisual=Boolean(shared&&shared.contentStatus!=='metadata'&&!(verifiedPracticeTest6Reading&&!sharedHasText))
