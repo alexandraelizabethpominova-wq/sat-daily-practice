@@ -11,6 +11,7 @@ import {loadSharedQuestionContent,saveSharedQuestionRepair} from '../../lib/shar
 import {verifiedMathContent} from '../../lib/verifiedMathQuestions'
 import {verifiedPracticeTest5Math1Content} from '../../lib/verifiedPracticeTest5Math1'
 import {questionVisualSpec,type QuestionVisualSpec} from '../../lib/questionVisuals'
+import usePracticeTestPdf from '../../hooks/usePracticeTestPdf'
 import type {PracticeQuestion} from '../../types'
 
 type Props={
@@ -22,6 +23,7 @@ type Props={
 const toLines=(value:string)=>value.split(/\r?\n/).map(line=>line.trim()).filter(Boolean)
 
 export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Props){
+  const resolvedQuestionsPdf=usePracticeTestPdf(question,'questions',questionsPdf)
   const[questionText,setQuestionText]=useState('')
   const[visualSpec,setVisualSpec]=useState<QuestionVisualSpec|null>(null)
   const[loading,setLoading]=useState(true)
@@ -40,8 +42,8 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
           ?verifiedPracticeTest5Math1Content(question.number)
           :question.practiceTestId==='practice-test-4'&&question.subject==='math'?verifiedMathContent(question.id):undefined
 
-        if(!local?.questionLines.length&&questionsPdf&&!verified){
-          local=await ensureQuestionText(question,questionsPdf).catch(()=>local)
+        if(!local?.questionLines.length&&resolvedQuestionsPdf&&!verified){
+          local=await ensureQuestionText(question,resolvedQuestionsPdf).catch(()=>local)
         }
         if(cancelled)return
 
@@ -57,7 +59,7 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
       }finally{if(!cancelled)setLoading(false)}
     })()
     return()=>{cancelled=true}
-  },[question,questionsPdf])
+  },[question,resolvedQuestionsPdf])
 
   async function save(){
     const questionLines=toLines(questionText)
@@ -77,7 +79,7 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
     <AlexText sx={{fontSize:13,color:'#667085',mt:.4,mb:1.75}}>Edit only the reconstructed question text and source visual. The explanation always stays in its original PDF format.</AlexText>
     {loading?<AlexText sx={{color:'#667085'}}>Preparing editable content…</AlexText>:<AlexBox sx={{display:'grid',gap:1.5}}>
       <AlexTextField label="Question text" multiline minRows={8} value={questionText} onChange={event=>setQuestionText(event.target.value)}/>
-      <VisualCropEditor question={question} bytes={questionsPdf} value={visualSpec} onChange={setVisualSpec} lineCount={toLines(questionText).length}/>
+      <VisualCropEditor question={question} bytes={resolvedQuestionsPdf} value={visualSpec} onChange={setVisualSpec} lineCount={toLines(questionText).length}/>
       {error&&<AlexText role="alert" sx={{fontSize:13,color:'#B42318'}}>{error}</AlexText>}
       {message&&<AlexText role="status" sx={{fontSize:13,color:'#067647'}}>{message}</AlexText>}
       <AlexButton disabled={saving} onClick={save} sx={{justifySelf:'start'}}>{saving?'Saving fix…':'Save shared fix'}</AlexButton>
