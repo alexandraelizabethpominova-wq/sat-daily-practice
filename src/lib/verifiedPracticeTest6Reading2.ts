@@ -30,6 +30,13 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) manifest in',
     'C) scrutinized by',
     'D) complicated by',
+  ]),  5:q([
+    'Mary Engle Pennington, a chemist who helped advance home refrigeration, undoubtedly made a substantial impact on society, but her place in our historical memory is perhaps more _______ than that of Stephanie Kwolek, who invented the incredibly strong material known as Kevlar, an accomplishment for which she will long be remembered.',
+    'Which choice completes the text with the most logical and precise word or phrase?',
+    'A) permanent',
+    'B) tentative',
+    'C) warranted',
+    'D) prominent',
   ]),
 }
 
