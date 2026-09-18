@@ -13,11 +13,14 @@ import PracticeAnswerPanel from './design-system/organisms/PracticeAnswerPanel'
 import PracticeSessionHeader from './design-system/organisms/PracticeSessionHeader'
 import PracticeSetupPanel from './design-system/organisms/PracticeSetupPanel'
 import PracticeTestsDashboard from './design-system/organisms/PracticeTestsDashboard'
+import StudyPlanRecommendation from './design-system/organisms/StudyPlanRecommendation'
 import QuestionBankReview from './design-system/organisms/QuestionBankReview'
 import {answerLabel,matchesAnswer} from './lib/answerCompare'
 import {clearPdfs,getPdf,savePdf} from './lib/pdfStore'
 import {clearQuestionContent,countQuestionContent} from './lib/questionContentStore'
 import {availablePracticeTests,moduleLabel,practiceTestLabel,QUESTION_BANK} from './lib/questionBank'
+import {buildPracticePlanRecommendation} from './lib/practicePlan'
+import {loadSharedQuestionBank} from './lib/sharedQuestionBank'
 import {importPracticeMaterials} from './lib/pdfStructuredImport'
 import {choosePracticeQuestions,countFailedPracticeQuestions,formatDuration,summarizePerformance,summarizeSession} from './lib/practiceGamification'
 import {addAttempt,clearHistory,getAttempts,getSessions,getSettings,prepareHistoryForUser,replaceHistory,saveSession,saveSettings} from './lib/storage'
@@ -48,8 +51,10 @@ export default function App(){
   const[contentCount,setContentCount]=useState(0)
   const[importProgress,setImportProgress]=useState('')
   const[authUser,setAuthUser]=useState<AuthUser|null>(null)
+  const[questionBank,setQuestionBank]=useState<PracticeQuestion[]>(QUESTION_BANK)
 
   useEffect(()=>{
+    void loadSharedQuestionBank().then(shared=>{if(shared?.length)setQuestionBank(shared)}).catch(error=>console.warn('Shared question bank load failed',error))
     Promise.all([getPdf('questions'),getPdf('answers'),countQuestionContent()]).then(([questionsPdf,answersPdf,count])=>{
       setQpdf(questionsPdf)
       setApdf(answersPdf)
@@ -98,11 +103,12 @@ export default function App(){
 
   const current=qs[i]
   const currentRec=current?currentAttempts.find(attempt=>attempt.questionId===current.id):undefined
-  const performance=summarizePerformance(attempts,sessions,QUESTION_BANK.length)
-  const failedQuestionCount=countFailedPracticeQuestions(settings,attempts)
+  const performance=summarizePerformance(attempts,sessions,questionBank.length)
+  const failedQuestionCount=countFailedPracticeQuestions(settings,attempts,questionBank)
+  const practiceRecommendation=buildPracticePlanRecommendation(settings,questionBank,attempts)
   const practiceTestOptions=[
     {value:'all' as const,label:'All available tests'},
-    ...availablePracticeTests().map(value=>({value,label:practiceTestLabel(value)})),
+    ...availablePracticeTests(questionBank).map(value=>({value,label:practiceTestLabel(value)})),
   ]
   const practiceSource=settings.practiceTest&&settings.practiceTest!=='all'?practiceTestLabel(settings.practiceTest):'All available tests'
   const practiceSummary=[settings.selectionMode==='random'?'Random':'Adaptive',practiceSource,settings.failedOnly?'Failed questions only':''].filter(Boolean).join(' · ')
@@ -119,7 +125,7 @@ export default function App(){
 
   function beginPractice(nextMode:SubjectMode=settings.mode){
     const nextSettings={...settings,mode:nextMode}
-    const nextQuestions=choosePracticeQuestions(nextSettings,attempts)
+    const nextQuestions=choosePracticeQuestions(nextSettings,attempts,Math.random,questionBank)
     if(!nextQuestions.length){
       window.alert('No questions match these practice settings yet. Adjust the practice test, subject, or failed-question filter.')
       setView('settings')
@@ -273,7 +279,7 @@ export default function App(){
         <div className="review-list">
           <h2>Session review</h2>
           {currentAttempts.map((attempt,index)=>{
-            const question=QUESTION_BANK.find(item=>item.id===attempt.questionId)
+            const question=questionBank.find(item=>item.id===attempt.questionId)
             if(!question)return null
             return <article className="review-item" key={attempt.id}>
               <div className="review-head"><div><b>{index+1}. {moduleLabel(attempt.module)} · Q{attempt.questionNumber}</b><span>{attempt.correct?'Correct':'Review'} · {formatDuration(attempt.elapsedMs)}</span></div><div><span>Your answer: <b>{attempt.selectedAnswer||'—'}</b></span><span>Accepted: <b>{answerLabel(question)}</b></span></div></div>
@@ -308,6 +314,7 @@ export default function App(){
       onChange={setSettings}
       onStart={()=>beginPractice(settings.mode)}
       onClearHistory={resetHistory}
+      recommendation={practiceRecommendation}
     />
   </main>)
 
@@ -329,6 +336,7 @@ export default function App(){
       <div><p className="eyebrow">Study Plan</p><h1>Your SAT practice plan</h1><p>Use short adaptive sessions to build consistency. Questions you have not seen and topics you miss more often are prioritized automatically.</p><div className="hero-actions"><AlexButton onClick={()=>setView('home')}>Choose a practice test</AlexButton><AlexButton tone="secondary" onClick={()=>beginPractice(settings.mode)}>Start {settings.questionsPerSession} questions</AlexButton></div></div>
       <div className="score">{attempts.length?`${performance.accuracy}%`:'—'}<small>overall accuracy</small></div>
     </section>
+    <StudyPlanRecommendation recommendation={practiceRecommendation}/>
     <PerformanceDashboard summary={performance} hasHistory={attempts.length>0} compact/>
   </main>,'#F7F6F2')
 
