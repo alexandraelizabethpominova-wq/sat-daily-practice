@@ -67,6 +67,13 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) It identifies an aspect of the Chicano movement that the text implies was overemphasized by scholars due to their own political orientations.',
     'C) It describes a common approach to studying the Chicano movement that, according to the text, obscures the ideological diversity of the movement’s participants.',
     'D) It summarizes the conventional method for analyzing the Chicano movement, which the text suggests creates a misleading impression of the effectiveness of neighborhood institutions and projects.',
+  ]),  10:q([
+    'Elizabeth Asiedu has identified a negative correlation between the share of developing countries’ economies derived from natural-resource extraction and those countries’ receipts of foreign investment. This may appear counterintuitive—resource extraction requires initial investments (in extractive technology, for instance) at scales best met by multinational corporations—but Asiedu notes that natural-resource industries’ boom-bust cycle can destabilize local currencies and increase developing countries’ vulnerability to external shocks, creating levels of uncertainty to which foreign investors are typically averse.',
+    'Which choice best states the main idea of the text?',
+    'A) Although it may seem surprising that foreign investment declines in developing countries as natural-resource extraction makes up a larger share of those countries’ economies, that decline happens because resource extraction requires initial investments too large for foreign investors to supply.',
+    'B) Although developing countries tend to become less dependent on foreign investment as natural-resource industries make up a larger share of their economies, this change may not occur if the boom-bust cycle of those industries destabilizes local currencies or increases countries’ vulnerability to external shocks.',
+    'C) Although one might expect that foreign investment would increase as natural-resource extraction makes up a larger share of developing countries’ economies, the opposite happens because heavy reliance on natural resources can lead to unattractive conditions for investors.',
+    'D) Although foreign investors tend to avoid initial investments in natural-resource industries in developing countries, foreign investment may increase significantly as those industries stabilize and the risks associated with them decline.',
   ]),
 }
 
