@@ -1,17 +1,17 @@
 .structured-question{padding:24px 24px 28px;background:#fff;min-height:420px;width:100%;max-width:100%;min-width:0}
-.structured-lines{width:100%;max-width:100%;min-width:0;margin:0;color:#10284f;font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;font-size:19px;line-height:1.56;font-weight:400;overflow-wrap:break-word}
+.structured-lines{width:100%;max-width:100%;min-width:0;margin:0;color:#10284f;font-family:'Times New Roman',Times,Georgia,serif;font-size:19px;line-height:1.56;font-weight:400;overflow-wrap:break-word}
 .structured-lines p{margin:0 0 12px;white-space:pre-wrap;max-width:100%;min-width:0;overflow-wrap:break-word}
 .structured-lines p:last-child{margin-bottom:0}
-.verified-math-lines{font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;font-size:19px;line-height:1.56;letter-spacing:0}
+.verified-math-lines{font-family:'Times New Roman',Times,Georgia,serif;font-size:19px;line-height:1.56;letter-spacing:0}
 .verified-math-lines p{margin-bottom:12px}
 .structured-choice-table{display:grid;grid-template-columns:30px minmax(0,max-content);align-items:start;gap:9px;margin:18px 0 22px;max-width:100%;overflow-x:auto}
 .structured-choice-label{font-weight:400;line-height:1.35;padding-top:8px}
-.structured-choice-table table{border-collapse:collapse;font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;font-size:19px;line-height:1.3;background:#fff;max-width:100%}
+.structured-choice-table table{border-collapse:collapse;font-family:'Times New Roman',Times,Georgia,serif;font-size:19px;line-height:1.3;background:#fff;max-width:100%}
 .structured-choice-table th,.structured-choice-table td{min-width:52px;height:32px;padding:4px 10px;text-align:center;border:1px solid #667085;font-weight:400;white-space:nowrap;background:#fff}
 .structured-choice-table th{min-width:66px;font-weight:400}
 .structured-choice-table th .katex{font-size:1.02em}
 .structured-data-table-wrap{width:max-content;max-width:100%;overflow-x:auto;margin:16px auto 24px}
-.structured-data-table{border-collapse:collapse;font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;font-size:19px;line-height:1.3;background:#fff;color:#10284f}
+.structured-data-table{border-collapse:collapse;font-family:'Times New Roman',Times,Georgia,serif;font-size:19px;line-height:1.3;background:#fff;color:#10284f}
 .structured-data-table th,.structured-data-table td{min-width:76px;height:34px;padding:4px 12px;text-align:center;border:1px solid #667085;font-weight:400;white-space:nowrap;background:#fff}
 .structured-data-table thead th{font-weight:400;background:#fff}
 .structured-data-table thead .katex{font-size:1.05em}
@@ -37,15 +37,15 @@
 .structured-db-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;flex:0 0 auto}
 .review-item .structured-question{min-height:0;padding:12px 4px}.review-item .structured-lines{font-size:1rem;max-width:none}.review-item .structured-explanation .structured-lines{padding:8px 0}
 .question-bank-pane .structured-question{min-height:0;padding:20px 20px 26px;width:100%;max-width:100%;min-width:0;overflow:hidden}
-.question-bank-pane .structured-lines{font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;font-size:19px;line-height:1.56;width:100%;max-width:100%;min-width:0;overflow:hidden}
+.question-bank-pane .structured-lines{font-family:'Times New Roman',Times,Georgia,serif;font-size:19px;line-height:1.56;width:100%;max-width:100%;min-width:0;overflow:hidden}
 .question-bank-pane .structured-lines p{white-space:normal;max-width:100%;overflow-wrap:anywhere;word-break:normal}
 .question-bank-pane .verified-math-lines{font-size:19px;line-height:1.56}
-.question-bank-pane .structured-choice-table table,.question-bank-pane .structured-data-table{font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;font-size:19px}
+.question-bank-pane .structured-choice-table table,.question-bank-pane .structured-data-table{font-family:'Times New Roman',Times,Georgia,serif;font-size:19px}
 .question-bank-pane .question-visual-slice img{width:100%;max-width:100%;max-height:none}
 @media(max-width:800px){.structured-question{padding:20px 16px 24px}.structured-db-card{align-items:flex-start;flex-direction:column}.structured-db-actions{justify-content:flex-start}.structured-lines{font-size:18px}.structured-choice-table{grid-template-columns:26px minmax(0,max-content);gap:6px}.structured-choice-table th,.structured-choice-table td{min-width:44px;padding:4px 8px}.structured-data-table th,.structured-data-table td{min-width:62px;padding:5px 10px}.question-visual-slice img{max-height:none}.question-bank-pane .structured-question{padding:18px 16px 22px}.question-bank-pane .structured-lines,.question-bank-pane .verified-math-lines{font-size:18px}.reading-question-content,.question-bank-pane .reading-question-content,.review-item .reading-question-content{font-size:18px}.reading-answer-choice{grid-template-columns:30px minmax(0,1fr);padding:11px 12px}.reading-choice-label{width:28px;height:28px;font-size:14px}.reading-quote{padding:16px 16px 16px 18px}}
 
 .reading-structured-question{padding-top:26px}
-.reading-question-content{width:100%;max-width:100%;color:#10284f;font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;font-size:20px;line-height:1.58;font-weight:400}
+.reading-question-content{width:100%;max-width:100%;color:#10284f;font-family:'Times New Roman',Times,Georgia,serif;font-size:21px;line-height:1.55;font-weight:400}
 .reading-stimulus{margin:0 0 28px}
 .reading-stimulus p{margin:0;white-space:normal}
 .reading-quote{margin:0 0 28px;padding:18px 20px 18px 22px;border-left:4px solid #667085;background:#F8FAFC;border-radius:0 10px 10px 0}
@@ -59,5 +59,5 @@
 .reading-choice-label{display:grid;place-items:center;width:30px;height:30px;border:1.5px solid #667085;border-radius:50%;font-size:15px;font-weight:800;line-height:1;color:#344054}
 .reading-choice-text{padding-top:1px;min-width:0}
 .reading-answer-choice .rich-math.inline .katex{font-size:1em}
-.question-bank-pane .reading-question-content{font-size:20px;line-height:1.58}
+.question-bank-pane .reading-question-content{font-size:21px;line-height:1.55}
 .review-item .reading-question-content{font-size:19px;line-height:1.56}
