@@ -39,7 +39,7 @@ describe('Practice Test 6 quality import',()=>{
       const crop=PRACTICE_TEST_6_CROPS[question.module][question.number]
       expect(question.sourceCrop).toEqual(crop)
       expect(question.contentStatus).toBe('verified')
-      expect(question.questionMode).toBe(question.module==='rw1'||question.module==='rw2'?'text':'image-fallback')
+      expect(question.questionMode).toBe(question.module==='math2'?'image-fallback':'text')
       expect(crop.x).toBeGreaterThanOrEqual(0)
       expect(crop.y).toBeGreaterThanOrEqual(0)
       expect(crop.width).toBeGreaterThan(0)
