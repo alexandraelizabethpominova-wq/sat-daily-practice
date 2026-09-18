@@ -9,6 +9,7 @@ import {getQuestionContent,isCurrentQuestionContent,QUESTION_CONTENT_VERSION,typ
 import {loadSharedQuestionContent} from '../../lib/sharedQuestionBank'
 import {verifiedMathContent} from '../../lib/verifiedMathQuestions'
 import {questionVisualSpec,type QuestionVisualSpec} from '../../lib/questionVisuals'
+import {isPracticeTest5Math1Verified} from '../../lib/practiceTest5Math1Layout'
 import usePracticeTestPdf from '../../hooks/usePracticeTestPdf'
 import type {PracticeQuestion} from '../../types'
 
@@ -81,7 +82,7 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
           return
         }
 
-        if((question.practiceTestId??'practice-test-4')!=='practice-test-4'&&!shared?.questionLines.length){
+        if((question.practiceTestId??'practice-test-4')!=='practice-test-4'&&!isPracticeTest5Math1Verified(question.id)&&!shared?.questionLines.length){
           setContent({questionId:question.id,questionLines:[],explanationLines:[],questionMode:'image-fallback',explanationMode:'image-fallback',needsVisual:false,importedAt:new Date().toISOString(),contentVersion:QUESTION_CONTENT_VERSION})
           return
         }
