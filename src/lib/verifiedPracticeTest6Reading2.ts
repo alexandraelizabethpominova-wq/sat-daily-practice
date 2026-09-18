@@ -219,6 +219,13 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) In World War II, one group of Navajo (Diné) soldiers was known as the Navajo Code Talkers.',
     'C) Both the Choctaw Code Talkers and the Navajo Code Talkers transmitted coded military messages in the soldiers’ native languages.',
     'D) The Choctaw Code Talkers, not the Navajo Code Talkers, served in World War I.',
+  ]),  31:q([
+    'While researching a topic, a student has taken the following notes: • Meteorites found on Earth are divided into two categories. • A meteorite that was observed falling to Earth before being recovered is known as a meteorite fall. • All other meteorites found on Earth are known as meteorite finds. • There have been about 1,200 recorded meteorite falls. • There have been over 60,000 recorded meteorite finds. The student wants to contrast the number of meteorite falls with the number of meteorite finds.',
+    'Which choice most effectively uses relevant information from the notes to accomplish this goal?',
+    'A) A meteorite that was observed falling to Earth before being recovered is known as a meteorite fall; all others are known as meteorite finds.',
+    'B) Meteorites found on Earth are divided into two categories: meteorite falls and meteorite finds.',
+    'C) There have been about 1,200 recorded meteorite falls, or meteorites observed falling to Earth.',
+    'D) While there have been only about 1,200 recorded meteorite falls, there have been over 60,000 meteorite finds.',
   ]),
 }
 
