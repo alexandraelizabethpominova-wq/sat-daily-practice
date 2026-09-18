@@ -271,7 +271,7 @@ export default function App(){
     </main>)
   }
 
-  if(view==='stats')return withSidebar('performance',<main className="shell"><PerformanceDashboard summary={performance} hasHistory={attempts.length>0} onClearHistory={resetHistory}/></main>)
+  if(view==='stats')return withSidebar('performance',<main className="shell"><PerformanceDashboard summary={performance} hasHistory={attempts.length>0} onClearHistory={resetHistory} questionsPdf={qpdf} answersPdf={apdf}/></main>)
 
   if(view==='question-bank')return withSidebar('question-bank',<QuestionBankReview questionsPdf={qpdf}/>,'#F7F6F2')
 
