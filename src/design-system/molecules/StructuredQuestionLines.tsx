@@ -93,7 +93,8 @@ function dataTableAt(lines:string[],start:number){
     const row=tableCells(lines[index])
     if(!row)break
     const numericCount=row.filter(isNumericCell).length
-    if(numericCount<2)break
+    const minimumNumericCells=Math.max(1,header.length-1)
+    if(numericCount<minimumNumericCells)break
     if(row.length!==header.length&&row.length!==header.length+1)break
     rows.push(row)
     index++
