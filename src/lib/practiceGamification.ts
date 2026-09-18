@@ -1,4 +1,4 @@
-import {questionsForMode} from './questionBank'
+import {questionsForPractice} from './questionBank'
 import {buildPerformanceAnalytics,type PerformanceAnalytics} from './performanceAnalytics'
 import type {Attempt,PracticeQuestion,SessionSummary,Settings} from '../types'
 
@@ -16,8 +16,38 @@ export function formatDuration(ms:number){
   return seconds<60?`${seconds}s`:`${Math.floor(seconds/60)}m ${seconds%60}s`
 }
 
+function latestAttemptByQuestion(attempts:Attempt[]){
+  const latest=new Map<string,Attempt>()
+  attempts.forEach(attempt=>latest.set(attempt.questionId,attempt))
+  return latest
+}
+
+export function practiceQuestionPool(settings:Settings,attempts:Attempt[]):PracticeQuestion[]{
+  const pool=questionsForPractice(settings.mode,settings.practiceTest??'all')
+  if(!settings.failedOnly)return pool
+  const latest=latestAttemptByQuestion(attempts)
+  return pool.filter(question=>latest.get(question.id)?.correct===false)
+}
+
+export function countFailedPracticeQuestions(settings:Settings,attempts:Attempt[]){
+  const latest=latestAttemptByQuestion(attempts)
+  return questionsForPractice(settings.mode,settings.practiceTest??'all')
+    .filter(question=>latest.get(question.id)?.correct===false)
+    .length
+}
+
 export function choosePracticeQuestions(settings:Settings,attempts:Attempt[],random:()=>number=Math.random):PracticeQuestion[]{
-  const pool=questionsForMode(settings.mode)
+  const pool=practiceQuestionPool(settings,attempts)
+  const limit=Math.min(settings.questionsPerSession,pool.length)
+
+  if((settings.selectionMode??'adaptive')==='random'){
+    return pool
+      .map(question=>({question,score:random()}))
+      .sort((a,b)=>a.score-b.score)
+      .slice(0,limit)
+      .map(item=>item.question)
+  }
+
   const stats=new Map<string,{attempts:number;correct:number;lastIndex:number}>()
 
   attempts.forEach((attempt,index)=>{
@@ -37,7 +67,7 @@ export function choosePracticeQuestions(settings:Settings,attempts:Attempt[],ran
       return {question,score:unseenBonus+weaknessBonus+recencyBonus+random()*60}
     })
     .sort((a,b)=>b.score-a.score)
-    .slice(0,settings.questionsPerSession)
+    .slice(0,limit)
     .map(item=>item.question)
 }
 
