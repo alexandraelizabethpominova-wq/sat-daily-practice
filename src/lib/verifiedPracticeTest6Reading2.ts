@@ -135,6 +135,13 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) authors who do most of their drafting and revising by hand likely have more success than those who work entirely on a computer.',
     'C) novels written by hand take less time to produce, on average, than novels written on a computer do.',
     'D) there is no way to reasonably evaluate how a work would be different if it had been written by other means.',
+  ]),  19:q([
+    'In forecasting weather events, meteorologists sometimes discuss the role of atmospheric rivers. What are atmospheric rivers, and how _______ Part of the water cycle, atmospheric rivers are narrow channels of moisture moving through the atmosphere. In certain conditions, these “rivers” can release some of their moisture as precipitation.',
+    'Which choice completes the text so that it conforms to the conventions of Standard English?',
+    'A) do they affect our weather.',
+    'B) they do affect our weather.',
+    'C) do they affect our weather?',
+    'D) they do affect our weather?',
   ]),
 }
 
