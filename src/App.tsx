@@ -111,7 +111,6 @@ export default function App(){
     {value:'all' as const,label:'All available tests'},
     ...availablePracticeTests(questionBank).map(value=>({value,label:practiceTestLabel(value)})),
   ]
-  const practiceSource=settings.practiceTest&&settings.practiceTest!=='all'?practiceTestLabel(settings.practiceTest):'All available tests'
   const practiceSummary=[settings.selectionMode==='random'?'Random':'Adaptive',settings.failedOnly?'Missed questions only':''].filter(Boolean).join(' · ')
   const practiceTestSummaries=availablePracticeTests(questionBank).map(value=>{
     const questions=questionBank.filter(question=>question.practiceTestId===value)
