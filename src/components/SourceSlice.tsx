@@ -1,7 +1,7 @@
 import {useEffect,useState} from 'react'
 import {GlobalWorkerOptions,getDocument,type PDFDocumentProxy,type PDFPageProxy} from 'pdfjs-dist'
 import {getQuestionImage,saveQuestionImage} from '../lib/questionImageStore'
-import {QUESTION_CROPS} from '../lib/questionCrops'
+import {questionCropForParts} from '../lib/questionCrops'
 import type {ModuleKey,PracticeTestId} from '../types'
 
 GlobalWorkerOptions.workerSrc=new URL('pdfjs-dist/build/pdf.worker.min.mjs',import.meta.url).toString()
@@ -67,7 +67,7 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt,zoom=1
   const[src,setSrc]=useState('');const[error,setError]=useState('');const isQuestion=pdfKey==='questions'
   useEffect(()=>{
     let cancelled=false;let objectUrl='';let renderTask:{cancel:()=>void;promise:Promise<void>}|null=null
-    const imageKey=`v7:${practiceTestId}:${pdfKey}:${bytes.byteLength}:${page}:${questionNumber}`
+    const imageKey=`v8:${practiceTestId}:${pdfKey}:${bytes.byteLength}:${page}:${questionNumber}`
     async function showBlob(blob:Blob){objectUrl=URL.createObjectURL(blob);if(!cancelled)setSrc(objectUrl)}
     async function render(){
       try{
@@ -76,9 +76,11 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt,zoom=1
         let scale=1.8,left=0,right=0,top=0,bottom=0,viewport
         if(isQuestion){
           scale=2.4
-          if(practiceTestId==='practice-test-4'){
-            viewport=pdfPage.getViewport({scale});const resolvedModule=module??moduleForPage(page);if(!resolvedModule)throw new Error(`Question ${questionNumber} has an unsupported source page.`)
-            const crop=QUESTION_CROPS[resolvedModule]?.[questionNumber];if(!crop)throw new Error(`Question ${questionNumber} crop is not configured.`)
+          const resolvedModule=module??moduleForPage(page)
+          if(!resolvedModule)throw new Error(`Question ${questionNumber} has an unsupported source page.`)
+          const crop=questionCropForParts(practiceTestId,resolvedModule,questionNumber)
+          if(crop){
+            viewport=pdfPage.getViewport({scale})
             left=crop.x*scale;right=(crop.x+crop.width)*scale;top=crop.y*scale;bottom=(crop.y+crop.height)*scale
           }else{
             const bounds=await dynamicQuestionBounds(pdfPage,scale,questionNumber);viewport=bounds.viewport;({left,right,top,bottom}=bounds)
