@@ -292,7 +292,7 @@ export default function App(){
 
   if(view==='question-bank')return withSidebar('question-bank',<QuestionBankReview questionsPdf={qpdf}/>,'#F7F6F2')
 
-  if(view==='parsing-issues')return withSidebar('parsing-issues',<ParsingIssuesDashboard/>,'#F7F6F2')
+  if(view==='parsing-issues')return withSidebar('parsing-issues',<ParsingIssuesDashboard questionsPdf={qpdf} answersPdf={apdf}/>,'#F7F6F2')
 
   if(view==='account')return withSidebar('practice-tests',<main className="shell">
     <div className="page-heading"><div><p className="eyebrow">Account</p><h1>Account & sync</h1></div></div>
