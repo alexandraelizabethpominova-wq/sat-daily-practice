@@ -1,10 +1,11 @@
 import {GlobalWorkerOptions,getDocument,type PDFDocumentProxy} from 'pdfjs-dist'
 import {QUESTION_BANK} from './questionBank'
-import {QUESTION_CROPS} from './questionCrops'
+import {questionCropForParts} from './questionCrops'
 import {getQuestionContent,isCurrentQuestionContent,QUESTION_CONTENT_VERSION,saveQuestionContent,type StoredQuestionContent} from './questionContentStore'
 import {READING_PARAGRAPH_BREAK} from './readingQuestionFormat'
 import {expandNormalizedCrop,questionVisualSpec,type NormalizedCrop} from './questionVisuals'
 import {readingTableSpec} from './readingTables'
+import {isPracticeTest5Math1Verified,normalizePracticeTest5Math1Lines,PRACTICE_TEST_5_MATH1_IMAGE_FALLBACK} from './practiceTest5Math1Layout'
 import type {PracticeQuestion} from '../types'
 
 GlobalWorkerOptions.workerSrc=new URL('pdfjs-dist/build/pdf.worker.min.mjs',import.meta.url).toString()
@@ -130,14 +131,16 @@ function hasVisualReference(lines:string[]){
 export async function extractQuestionLines(question:PracticeQuestion,questionPdf:ArrayBuffer){
   const doc=await loadPdf('questions',questionPdf)
   const {items}=await pageItems(doc,question.sourcePage)
-  const crop=QUESTION_CROPS[question.module][question.number]
+  const crop=questionCropForParts(question.practiceTestId,question.module,question.number)
+  if(!crop)return[]
   const margin=4
   const selected=items.filter(item=>
     item.x>=crop.x-margin&&item.x<=crop.x+crop.width+margin&&
     item.y>=crop.y-margin&&item.y<=crop.y+crop.height+margin
   )
-  const textItems=question.subject==='english'?withoutKnownVisualText(question,crop,selected):selected
-  return cleanQuestionLines(question.subject==='english'?groupReadingQuestionItems(question,crop,textItems):groupLines(textItems),question.number)
+  const textItems=withoutKnownVisualText(question,crop,selected)
+  const cleaned=cleanQuestionLines(question.subject==='english'?groupReadingQuestionItems(question,crop,textItems):groupLines(textItems),question.number)
+  return isPracticeTest5Math1Verified(question.id)?normalizePracticeTest5Math1Lines(question.number,cleaned):cleaned
 }
 
 export async function extractExplanationLines(question:PracticeQuestion,answerPdf:ArrayBuffer){
@@ -156,6 +159,20 @@ export async function extractExplanationLines(question:PracticeQuestion,answerPd
 
 export async function ensureQuestionText(question:PracticeQuestion,questionPdf:ArrayBuffer){
   const existing=await getQuestionContent(question.id)
+  if(question.practiceTestId==='practice-test-5'&&question.module==='math1'&&PRACTICE_TEST_5_MATH1_IMAGE_FALLBACK.has(question.number)){
+    const record:StoredQuestionContent={
+      questionId:question.id,
+      questionLines:[],
+      explanationLines:existing?.explanationLines??[],
+      questionMode:'image-fallback',
+      explanationMode:existing?.explanationMode??'image-fallback',
+      needsVisual:false,
+      importedAt:new Date().toISOString(),
+      contentVersion:QUESTION_CONTENT_VERSION,
+    }
+    await saveQuestionContent(record)
+    return record
+  }
   if(isCurrentQuestionContent(existing)&&existing?.questionLines.length)return existing
   const questionLines=await extractQuestionLines(question,questionPdf)
   const record:StoredQuestionContent={
@@ -190,10 +207,11 @@ export async function ensureExplanationText(question:PracticeQuestion,answerPdf:
   return record
 }
 
-export async function importPracticeMaterials(questionPdf:ArrayBuffer,answerPdf:ArrayBuffer,onProgress?:(done:number,total:number)=>void){
+export async function importPracticeMaterials(questionPdf:ArrayBuffer,answerPdf:ArrayBuffer,onProgress?:(done:number,total:number)=>void,practiceTestId='practice-test-4'){
   let done=0
-  const total=QUESTION_BANK.length
-  for(const question of QUESTION_BANK){
+  const questions=QUESTION_BANK.filter(question=>(question.practiceTestId??'practice-test-4')===practiceTestId)
+  const total=questions.length
+  for(const question of questions){
     let existing=await getQuestionContent(question.id)
     try{
       const questionLines=existing?.questionLines.length?existing.questionLines:await extractQuestionLines(question,questionPdf)
