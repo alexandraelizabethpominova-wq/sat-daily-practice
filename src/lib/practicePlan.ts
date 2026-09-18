@@ -53,7 +53,7 @@ export function buildPracticePlanRecommendation(settings:Settings,questions:Prac
   const targetScore=typeof settings.targetScore==='number'?Math.max(400,Math.min(1600,Math.round(settings.targetScore/10)*10)):null
   const estimatedScore=performance.latestScoreEstimate
   const scoreGap=targetScore!==null&&estimatedScore!==null?targetScore-estimatedScore:null
-  const needsScoreWork=scoreGap!==null&&scoreGap>0
+  const needsScoreWork=targetScore!==null&&(estimatedScore===null||(scoreGap!==null&&scoreGap>0))
   const coverageSessionsPerDay=remainingSessions?Math.max(1,Math.ceil(remainingSessions/daysRemaining)):0
   const recommendedSessionsPerDay=Math.max(coverageSessionsPerDay,remainingQuestions===0&&needsScoreWork?1:0)
 
