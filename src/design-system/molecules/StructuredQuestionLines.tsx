@@ -35,7 +35,7 @@ function isChoiceStart(value:string){
 function tableCells(value:string){
   const text=cleanPdfMathArtifacts(value).trim()
   if(!text||/[.!?]$/.test(text))return null
-  const cells=text.split(/\s+/).filter(Boolean)
+  const cells=(text.includes('\t')?text.split(/\t+/):text.split(/\s+/)).map(cell=>cell.trim()).filter(Boolean)
   if(cells.length<2||cells.length>7)return null
   if(cells.some(cell=>cell.length>18))return null
   return cells
