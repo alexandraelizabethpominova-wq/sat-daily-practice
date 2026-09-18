@@ -7,7 +7,7 @@ import AlexText from '../atoms/AlexText'
 import ParsingIssueReporter from '../molecules/ParsingIssueReporter'
 import QuestionSourceReview from '../molecules/QuestionSourceReview'
 import {availablePracticeTests,moduleLabel,practiceTestLabel,QUESTION_BANK} from '../../lib/questionBank'
-import {groupQuestionsByModule} from '../../lib/questionBankGroups'
+import {groupQuestionsByPracticeTest} from '../../lib/questionBankGroups'
 import {loadSharedQuestionBank} from '../../lib/sharedQuestionBank'
 import type {PracticeQuestion,PracticeTestFilter} from '../../types'
 
@@ -43,7 +43,7 @@ export default function QuestionBankReview({questionsPdf}:Props){
     })
   },[bank,practiceTestFilter,moduleFilter,search])
 
-  const groupedQuestions=useMemo(()=>groupQuestionsByModule(questions),[questions])
+  const groupedPracticeTests=useMemo(()=>groupQuestionsByPracticeTest(questions),[questions])
   useEffect(()=>{
     if(questions.length&&!questions.some(question=>question.id===selectedId))setSelectedId(questions[0].id)
   },[questions,selectedId])
@@ -79,15 +79,18 @@ export default function QuestionBankReview({questionsPdf}:Props){
       <aside className="question-bank-list" aria-label="Questions">
         <div className="question-bank-list-header"><b>{questions.length} questions</b><span>Select a question</span></div>
         <div className="question-bank-list-scroll">
-          {groupedQuestions.map(group=><section className="question-bank-group" key={group.module}>
-            <div className="question-bank-group-title"><span>{moduleLabel(group.module)}</span><small>{group.items.length}</small></div>
-            <div className="question-bank-group-items">{group.items.map(question=><AlexButtonBase
-              key={question.id}
-              className={question.id===selected?.id?'question-bank-row active':'question-bank-row'}
-              onClick={()=>setSelectedId(question.id)}
-              aria-pressed={question.id===selected?.id}
-              aria-label={`${practiceTestLabel(question.practiceTestId??'practice-test-4')} ${moduleLabel(question.module)} Question ${question.number}`}
-            ><span>Question {question.number}</span><small>{practiceTestLabel(question.practiceTestId??'practice-test-4')}</small></AlexButtonBase>)}</div>
+          {groupedPracticeTests.map(testGroup=><section className="question-bank-test-group" key={testGroup.practiceTestId}>
+            <div className="question-bank-group-title"><span>{practiceTestLabel(testGroup.practiceTestId)}</span><small>{testGroup.items.length}</small></div>
+            {testGroup.modules.map(group=><section className="question-bank-group" key={`${testGroup.practiceTestId}-${group.module}`}>
+              <div className="question-bank-group-title"><span>{moduleLabel(group.module)}</span><small>{group.items.length}</small></div>
+              <div className="question-bank-group-items">{group.items.map(question=><AlexButtonBase
+                key={question.id}
+                className={question.id===selected?.id?'question-bank-row active':'question-bank-row'}
+                onClick={()=>setSelectedId(question.id)}
+                aria-pressed={question.id===selected?.id}
+                aria-label={`${practiceTestLabel(question.practiceTestId??'practice-test-4')} ${moduleLabel(question.module)} Question ${question.number}`}
+              ><span>Question {question.number}</span></AlexButtonBase>)}</div>
+            </section>)}
           </section>)}
           {!questions.length&&<p className="question-bank-no-results">No questions match this filter.</p>}
         </div>
