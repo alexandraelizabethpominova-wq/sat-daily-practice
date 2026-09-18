@@ -19,26 +19,26 @@ revoke all on table public.sat_parsing_issue_reports from authenticated;
 grant select, insert, update, delete on table public.sat_parsing_issue_reports to authenticated;
 grant select, insert, update, delete on table public.sat_parsing_issue_reports to service_role;
 
-create policy "parsing_reports_select_own"
+create policy "parsing_reports_select_all"
   on public.sat_parsing_issue_reports for select
   to authenticated
-  using ((select auth.uid()) = user_id);
+  using (true);
 
 create policy "parsing_reports_insert_own"
   on public.sat_parsing_issue_reports for insert
   to authenticated
   with check ((select auth.uid()) = user_id);
 
-create policy "parsing_reports_update_own"
+create policy "parsing_reports_update_all"
   on public.sat_parsing_issue_reports for update
   to authenticated
-  using ((select auth.uid()) = user_id)
-  with check ((select auth.uid()) = user_id);
+  using (true)
+  with check (true);
 
-create policy "parsing_reports_delete_own"
+create policy "parsing_reports_delete_all"
   on public.sat_parsing_issue_reports for delete
   to authenticated
-  using ((select auth.uid()) = user_id);
+  using (true);
 
 create index sat_parsing_issue_reports_user_status_idx
   on public.sat_parsing_issue_reports(user_id, status, created_at desc);
