@@ -43,6 +43,13 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
     setError('')
     void (async()=>{
       try{
+        if(question.subject==='english'&&bytes){
+          const extracted=await ensureQuestionText(question,bytes)
+          if(cancelled)return
+          if(extracted&&isCurrentQuestionContent(extracted))setContent(extracted)
+          else setError('Question text is not available in this browser yet.')
+          return
+        }
         const shared=await loadSharedQuestionContent(question.id)
         if(shared){
           if(!cancelled)setContent({
@@ -87,8 +94,8 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
 
   return <div className={question.subject==='english'?'structured-question reading-structured-question':'structured-question'}>
     <div className="structured-lines">
-      {content.needsVisual&&visual?<LinesWithSourceVisual question={question} bytes={bytes} lines={content.questionLines} alt={alt} reflowProse={reflowProse}/>:<RenderQuestionLines question={question} lines={content.questionLines} reflowProse={reflowProse}/>} 
+      {visual&&bytes?<LinesWithSourceVisual question={question} bytes={bytes} lines={content.questionLines} alt={alt} reflowProse={reflowProse}/>:<RenderQuestionLines question={question} lines={content.questionLines} reflowProse={reflowProse}/>} 
     </div>
-    {content.needsVisual&&!bytes?<div className="visual-fallback"><div className="visual-fallback-label">Source figure will appear when the source asset is available.</div></div>:content.needsVisual&&!visual&&bytes?<div className="visual-fallback"><div className="visual-fallback-label">Figure from the source material</div><SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={`${alt} figure`}/></div>:(showOriginalLayout&&!content.needsVisual&&bytes&&<details className="source-layout-details"><summary>View original layout</summary><SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={alt}/></details>)}
+    {(content.needsVisual||Boolean(visual))&&!bytes?<div className="visual-fallback"><div className="visual-fallback-label">Source figure will appear when the source asset is available.</div></div>:content.needsVisual&&!visual&&bytes?<div className="visual-fallback"><div className="visual-fallback-label">Figure from the source material</div><SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={`${alt} figure`}/></div>:(showOriginalLayout&&!content.needsVisual&&!visual&&bytes&&<details className="source-layout-details"><summary>View original layout</summary><SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={alt}/></details>)}
   </div>
 }
