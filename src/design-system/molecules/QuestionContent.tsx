@@ -31,7 +31,10 @@ function LinesWithSourceVisuals({question,bytes,lines,alt,visuals,sourceCrop,ref
     const split=Math.max(cursor,Math.min(lines.length,visual.afterLine+1))
     const before=lines.slice(cursor,split)
     if(before.length)output.push(<RenderQuestionLines key={`text-${index}`} question={question} lines={before} reflowProse={reflowProse}/>)
-    output.push(<QuestionVisualSlice key={`visual-${index}`} question={question} bytes={bytes} crop={visual.crop} alt={`${alt} figure ${index+1} from source PDF`} expand={!visual.exact} sourceCrop={sourceCrop}/>)
+    const visualAlt=visual.kind==='choice-grid'
+      ?`${alt} graphical answer choices A through D from source PDF`
+      :`${alt} figure ${index+1} from source PDF`
+    output.push(<QuestionVisualSlice key={`visual-${index}`} question={question} bytes={bytes} crop={visual.crop} alt={visualAlt} expand={!visual.exact} sourceCrop={sourceCrop} variant={visual.kind}/>)
     cursor=split
   })
   const after=lines.slice(cursor)
