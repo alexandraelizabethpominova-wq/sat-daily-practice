@@ -103,6 +103,16 @@ export const VERIFIED_PRACTICE_TEST_6_MATH1:Record<number,VerifiedPracticeTest6M
   ]),  14:q([
     'Note: Figure not drawn to scale.',
     'The figure shows the lengths, in inches, of two sides of a right triangle. What is the area of the triangle, in square inches?',
+  ],true),  15:q([
+    'The graph models the number of active projects a company was working on $x$ months after the end of November 2012, where $0\\le x\\le6$. According to the model, what is the predicted number of active projects the company was working on at the end of November 2012?',
+    'A) $0(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'B) $5(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'C) $8(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'D) $9(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
   ],true),
 }
 
