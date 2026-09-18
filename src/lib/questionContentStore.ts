@@ -1,5 +1,7 @@
 export type ContentMode='text'|'image-fallback'
 
+export const QUESTION_CONTENT_VERSION=2
+
 export interface StoredQuestionContent{
   questionId:string
   questionLines:string[]
@@ -8,6 +10,7 @@ export interface StoredQuestionContent{
   explanationMode:ContentMode
   needsVisual:boolean
   importedAt:string
+  contentVersion?:number
 }
 
 const DB_NAME='sat-practice-content'
@@ -67,4 +70,8 @@ export async function clearQuestionContent(){
     request.onsuccess=()=>resolve()
     request.onerror=()=>reject(request.error)
   })
+}
+
+export function isCurrentQuestionContent(content:StoredQuestionContent|undefined){
+  return Boolean(content&&content.contentVersion===QUESTION_CONTENT_VERSION)
 }
