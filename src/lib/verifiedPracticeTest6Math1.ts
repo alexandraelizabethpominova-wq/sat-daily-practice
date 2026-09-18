@@ -53,6 +53,9 @@ export const VERIFIED_PRACTICE_TEST_6_MATH1:Record<number,VerifiedPracticeTest6M
   ],true),  6:q([
     'How many yards are equivalent to 1,116 inches? $(1\\text{ yard}=36\\text{ inches})(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
 ,
+  ]),  7:q([
+    '$f(x)=14+4x$',
+    'The function $f$ represents the total cost, in dollars, of attending an arcade when $x$ games are played. How many games can be played for a total cost of $58$?',
   ]),
 }
 
