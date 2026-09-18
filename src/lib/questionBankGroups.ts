@@ -10,10 +10,10 @@ export function groupQuestionsByModule(questions:PracticeQuestion[]){
 }
 
 export function groupQuestionsByPracticeTest(questions:PracticeQuestion[]){
-  const ids=[...new Set(questions.map(question=>question.practiceTestId??'practice-test-4'))]
+  const ids=[...new Set(questions.map(question=>question.practiceTestId))]
     .sort((a,b)=>Number(a.replace('practice-test-',''))-Number(b.replace('practice-test-',''))) as PracticeTestId[]
   return ids.map(practiceTestId=>{
-    const items=questions.filter(question=>(question.practiceTestId??'practice-test-4')===practiceTestId)
+    const items=questions.filter(question=>(question.practiceTestId)===practiceTestId)
     return {practiceTestId,items,modules:groupQuestionsByModule(items)}
   })
 }
