@@ -56,6 +56,17 @@ export const VERIFIED_PRACTICE_TEST_6_MATH1:Record<number,VerifiedPracticeTest6M
   ]),  7:q([
     '$f(x)=14+4x$',
     'The function $f$ represents the total cost, in dollars, of attending an arcade when $x$ games are played. How many games can be played for a total cost of $58$?',
+  ]),  8:q([
+    '$f(x)=x+b$',
+    'For the linear function $f$, $b$ is a constant. When $x=0$, $f(x)=30$. What is the value of $b$?',
+    'A) $-30(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'B) $-\\frac{1}{30}(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'C) $\\frac{1}{30}(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'D) $30(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
   ]),
 }
 
