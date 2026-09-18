@@ -62,7 +62,8 @@ function makePracticeTest(
 export const QUESTION_BANK=[
   ...makePracticeTest('practice-test-4',pages,answerPages,answers,acceptedStudentAnswers),
   ...makePracticeTest('practice-test-5',PRACTICE_TEST_5_PAGES,PRACTICE_TEST_5_ANSWER_PAGES,PRACTICE_TEST_5_ANSWERS,PRACTICE_TEST_5_ACCEPTED),
-  ...makePracticeTest('practice-test-6',PRACTICE_TEST_6_PAGES,PRACTICE_TEST_6_ANSWER_PAGES,PRACTICE_TEST_6_ANSWERS,PRACTICE_TEST_6_ACCEPTED,{sourceCrops:PRACTICE_TEST_6_CROPS,contentStatus:'verified',questionMode:'image-fallback'}),
+  ...makePracticeTest('practice-test-6',PRACTICE_TEST_6_PAGES,PRACTICE_TEST_6_ANSWER_PAGES,PRACTICE_TEST_6_ANSWERS,PRACTICE_TEST_6_ACCEPTED,{sourceCrops:PRACTICE_TEST_6_CROPS,contentStatus:'verified',questionMode:'image-fallback'})
+    .map(question=>question.module==='rw1'?{...question,questionMode:'text' as const}:question),
 ]
 
 function practiceTestNumber(id:PracticeTestId){return Number(id.replace('practice-test-',''))}
