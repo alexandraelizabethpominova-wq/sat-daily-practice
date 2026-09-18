@@ -3,7 +3,7 @@ import {GlobalWorkerOptions,getDocument,type PDFDocumentProxy} from 'pdfjs-dist'
 import {getQuestionImage,saveQuestionImage} from '../lib/questionImageStore'
 import {questionCropForParts} from '../lib/questionCrops'
 import {expandNormalizedCrop,type NormalizedCrop} from '../lib/questionVisuals'
-import type {PracticeQuestion} from '../types'
+import type {PracticeQuestion,SourceCrop} from '../types'
 
 GlobalWorkerOptions.workerSrc=new URL('pdfjs-dist/build/pdf.worker.min.mjs',import.meta.url).toString()
 
@@ -21,9 +21,9 @@ function canvasToBlob(canvas:HTMLCanvasElement):Promise<Blob>{
   return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('Could not create visual image.')),'image/png'))
 }
 
-type Props={question:PracticeQuestion;bytes:ArrayBuffer;crop:NormalizedCrop;alt:string;expand?:boolean}
+type Props={question:PracticeQuestion;bytes:ArrayBuffer;crop:NormalizedCrop;alt:string;expand?:boolean;sourceCrop?:SourceCrop|null}
 
-export default function QuestionVisualSlice({question,bytes,crop,alt,expand=true}:Props){
+export default function QuestionVisualSlice({question,bytes,crop,alt,expand=true,sourceCrop}:Props){
   const[src,setSrc]=useState('')
   const[error,setError]=useState('')
 
@@ -47,7 +47,7 @@ export default function QuestionVisualSlice({question,bytes,crop,alt,expand=true
         const existing=await getQuestionImage(imageKey)
         if(existing){await showBlob(existing);return}
 
-        const questionCrop=questionCropForParts(question.practiceTestId,question.module,question.number)
+        const questionCrop=sourceCrop??question.sourceCrop??questionCropForParts(question.practiceTestId,question.module,question.number)
         if(!questionCrop)throw new Error(`Question ${question.number} crop is not configured.`)
 
         const doc=await loadPdf(bytes)
@@ -97,7 +97,7 @@ export default function QuestionVisualSlice({question,bytes,crop,alt,expand=true
       try{renderTask?.cancel()}catch{}
       if(objectUrl)URL.revokeObjectURL(objectUrl)
     }
-  },[question,bytes,crop,expand])
+  },[question,bytes,crop,expand,sourceCrop])
 
   return <div className="question-visual-slice" role="img" aria-label={alt}>
     {error?<div className="source-error">{error}</div>:src?<img src={src} alt={alt}/>:<div className="source-loading">Preparing figure…</div>}
