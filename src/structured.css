@@ -1,8 +1,8 @@
 .structured-question{padding:24px 24px 28px;background:#fff;min-height:420px;width:100%;max-width:100%;min-width:0}
-.structured-lines{width:100%;max-width:100%;min-width:0;margin:0;color:#10284f;font-family:'Minion Pro','Minion 3',Georgia,'Times New Roman',Times,serif;font-size:20px;line-height:1.52;font-weight:400;overflow-wrap:break-word}
+.structured-lines{width:100%;max-width:100%;min-width:0;margin:0;color:#10284f;font-family:'Minion Pro','Minion 3',Georgia,'Times New Roman',Times,serif;font-size:21px;line-height:1.5;font-weight:400;overflow-wrap:break-word}
 .structured-lines p{margin:0 0 12px;white-space:pre-wrap;max-width:100%;min-width:0;overflow-wrap:break-word}
 .structured-lines p:last-child{margin-bottom:0}
-.verified-math-lines{font-family:'Minion Pro','Minion 3',Georgia,'Times New Roman',Times,serif;font-size:20px;line-height:1.52;letter-spacing:0}
+.verified-math-lines{font-family:'Minion Pro','Minion 3',Georgia,'Times New Roman',Times,serif;font-size:21px;line-height:1.5;letter-spacing:0}
 .verified-math-lines p{margin-bottom:12px}
 .structured-choice-table{display:grid;grid-template-columns:30px minmax(0,max-content);align-items:start;gap:9px;margin:18px 0 22px;max-width:100%;overflow-x:auto}
 .structured-choice-label{font-weight:400;line-height:1.35;padding-top:8px}
@@ -37,15 +37,15 @@
 .structured-db-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;flex:0 0 auto}
 .review-item .structured-question{min-height:0;padding:12px 4px}.review-item .structured-lines{font-size:1rem;max-width:none}.review-item .structured-explanation .structured-lines{padding:8px 0}
 .question-bank-pane .structured-question{min-height:0;padding:20px 10px 26px 20px;width:100%;max-width:100%;min-width:0;overflow:hidden}
-.question-bank-pane .structured-lines{font-family:'Minion Pro','Minion 3',Georgia,'Times New Roman',Times,serif;font-size:20px;line-height:1.52;width:100%;max-width:100%;min-width:0;overflow:hidden}
+.question-bank-pane .structured-lines{font-family:'Minion Pro','Minion 3',Georgia,'Times New Roman',Times,serif;font-size:22px;line-height:1.48;width:100%;max-width:100%;min-width:0;overflow:hidden}
 .question-bank-pane .structured-lines p{white-space:normal;max-width:100%;overflow-wrap:anywhere;word-break:normal}
-.question-bank-pane .verified-math-lines{font-size:20px;line-height:1.52}
+.question-bank-pane .verified-math-lines{font-size:22px;line-height:1.48}
 .question-bank-pane .structured-choice-table table,.question-bank-pane .structured-data-table{font-family:'Minion Pro','Minion 3',Georgia,'Times New Roman',Times,serif;font-size:20px}
 .question-bank-pane .question-visual-slice img{width:100%;max-width:100%;max-height:none}
 @media(max-width:800px){.structured-question{padding:20px 16px 24px}.structured-db-card{align-items:flex-start;flex-direction:column}.structured-db-actions{justify-content:flex-start}.structured-lines{font-size:18px}.structured-choice-table{grid-template-columns:26px minmax(0,max-content);gap:6px}.structured-choice-table th,.structured-choice-table td{min-width:44px;padding:4px 8px}.structured-data-table th,.structured-data-table td{min-width:62px;padding:5px 10px}.question-visual-slice img{max-height:none}.question-bank-pane .structured-question{padding:18px 10px 22px 16px}.question-bank-pane .structured-lines,.question-bank-pane .verified-math-lines{font-size:18px}.reading-question-content,.question-bank-pane .reading-question-content,.review-item .reading-question-content{font-size:18px}.reading-answer-choice{grid-template-columns:28px minmax(0,1fr);padding:0}.reading-choice-label{width:auto;height:auto;font-size:inherit}.reading-quote{padding:3px 4px 3px 14px}}
 
 .reading-structured-question{padding-top:26px}
-.reading-question-content{width:100%;max-width:100%;color:#10284f;font-family:'Minion Pro','Minion 3',Georgia,'Times New Roman',Times,serif;font-size:20px;line-height:1.52;font-weight:400}
+.reading-question-content{width:100%;max-width:100%;color:#10284f;font-family:'Minion Pro','Minion 3',Georgia,'Times New Roman',Times,serif;font-size:21px;line-height:1.5;font-weight:400}
 .reading-intro{margin:0 0 18px;max-width:none}.reading-intro p{margin:0}.reading-stimulus{margin:0 0 24px;max-width:none}.reading-stimulus p{margin:0 0 14px}.reading-stimulus p:last-child{margin-bottom:0}
 .reading-stimulus p{margin:0;white-space:normal}
 .reading-quote{width:100%;box-sizing:border-box;margin:0 0 24px;padding:4px 6px 4px 18px;border-left:3px solid #98A2B3;background:transparent}
@@ -59,5 +59,5 @@
 .reading-choice-label{display:block;width:auto;height:auto;border:0;border-radius:0;font-size:inherit;font-weight:400;line-height:inherit;color:inherit}
 .reading-choice-text{padding-top:0;min-width:0}
 .reading-answer-choice .rich-math.inline .katex{font-size:1em}
-.question-bank-pane .reading-question-content{font-size:20px;line-height:1.52}
+.question-bank-pane .reading-question-content{font-size:22px;line-height:1.48}
 .review-item .reading-question-content{font-size:19px;line-height:1.56}
