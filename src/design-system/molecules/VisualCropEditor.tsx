@@ -31,8 +31,8 @@ export default function VisualCropEditor({question,bytes,value,onChange,lineCoun
     onChange({afterLine:value?.afterLine??-1,crop:next,exact:true})
   }
   const placementOptions=[
-    {value:-1,label:'Before all question text'},
-    ...Array.from({length:lineCount},(_,index)=>({value:index,label:`After text line ${index+1}`})),
+    {value:'-1',label:'Before all question text'},
+    ...Array.from({length:lineCount},(_,index)=>({value:String(index),label:`After text line ${index+1}`})),
   ]
 
   return <AlexSurface sx={{p:2,border:'1px solid #E6E2DB',borderRadius:2.5,bgcolor:'#FBFAF8'}}>
@@ -45,7 +45,7 @@ export default function VisualCropEditor({question,bytes,value,onChange,lineCoun
       <AlexDropdown
         id={`visual-placement-${question.id}`}
         label="Visual placement"
-        value={value.afterLine}
+        value={String(value.afterLine)}
         options={placementOptions}
         onChange={afterLine=>onChange({...value,afterLine:Number(afterLine),exact:true})}
       />
