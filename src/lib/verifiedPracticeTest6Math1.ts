@@ -176,7 +176,17 @@ export const VERIFIED_PRACTICE_TEST_6_MATH1:Record<number,VerifiedPracticeTest6M
 ,
     'D) $1.1856(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
 ,
-  ]),
+  ]),  23:q([
+    'Circle $A$ (shown) is defined by the equation $(x+2)^2+y^2=9$. Circle $B$ (not shown) is the result of shifting circle $A$ down 6 units and increasing the radius so that the radius of circle $B$ is 2 times the radius of circle $A$. Which equation defines circle $B$?',
+    'A) $(x+2)^2+(y+6)^2=(4)(9)(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'B) $2(x+2)^2+2(y+6)^2=9(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'C) $(x+2)^2+(y-6)^2=(4)(9)(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'D) $2(x+2)^2+2(y-6)^2=9(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+  ],true),
 }
 
 export function verifiedPracticeTest6Math1Content(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
