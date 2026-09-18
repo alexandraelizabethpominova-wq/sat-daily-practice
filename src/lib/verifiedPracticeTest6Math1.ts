@@ -220,6 +220,8 @@ export const VERIFIED_PRACTICE_TEST_6_MATH1:Record<number,VerifiedPracticeTest6M
 ,
     'D) $(0,-9)(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
 ,
+  ]),  27:q([
+    'In right triangle $ABC$, angle $C$ is the right angle and $BC=162$. Point $D$ on side $AB$ is connected by a line segment with point $E$ on side $AC$ such that line segment $DE$ is parallel to side $BC$ and $CE=2AE$. What is the length of line segment $DE$?',
   ]),
 }
 
