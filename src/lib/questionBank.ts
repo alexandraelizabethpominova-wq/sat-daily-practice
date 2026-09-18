@@ -14,7 +14,7 @@ function makeModule(module:ModuleKey,subject:Subject,count:number,practiceTestId
     const number=i+1
     const correctAnswer=answers[module][number]
     return{
-      id:`${module}-${number}`,
+      id:practiceTestId==='practice-test-4'?`${module}-${number}`:`${practiceTestId}:${module}-${number}`,
       practiceTestId,
       subject,
       module,
