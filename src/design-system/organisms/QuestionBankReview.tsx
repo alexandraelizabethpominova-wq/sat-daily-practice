@@ -5,7 +5,7 @@ import AlexDropdown from '../atoms/AlexDropdown'
 import AlexTextField from '../atoms/AlexTextField'
 import AlexText from '../atoms/AlexText'
 import QuestionContent from '../molecules/QuestionContent'
-import SourceSlice from '../../components/SourceSlice'
+import SourceViewer from '../molecules/SourceViewer'
 import {QUESTION_BANK,moduleLabel} from '../../lib/questionBank'
 import {groupQuestionsByModule} from '../../lib/questionBankGroups'
 import {loadSharedQuestionBank} from '../../lib/sharedQuestionBank'
@@ -98,7 +98,7 @@ export default function QuestionBankReview({questionsPdf}:Props){
           </article>
           {hasQuestionsPdf&&validQuestionsPdf?<article className="question-bank-pane pdf-pane">
             <div className="question-bank-pane-label">Original PDF</div>
-            <SourceSlice pdfKey="questions" bytes={validQuestionsPdf} page={selected.sourcePage} questionNumber={selected.number} alt={`${questionLabel(selected)} original PDF`}/>
+            <SourceViewer pdfKey="questions" bytes={validQuestionsPdf} page={selected.sourcePage} questionNumber={selected.number} alt={`${questionLabel(selected)} original PDF`}/>
           </article>:<article className="question-bank-pane pdf-pane">
             <div className="question-bank-pane-label">Original PDF</div>
             <p className="question-bank-no-results">Source PDF is not available on this device. Add it in Resources to enable the original-PDF comparison.</p>

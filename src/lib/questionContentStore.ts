@@ -1,5 +1,7 @@
 export type ContentMode='text'|'image-fallback'
 
+export const QUESTION_CONTENT_VERSION=7
+
 export interface StoredQuestionContent{
   questionId:string
   questionLines:string[]
@@ -8,10 +10,11 @@ export interface StoredQuestionContent{
   explanationMode:ContentMode
   needsVisual:boolean
   importedAt:string
+  contentVersion?:number
 }
 
 const DB_NAME='sat-practice-content'
-const DB_VERSION=1
+const DB_VERSION=7
 const STORE='questions'
 
 function openDb():Promise<IDBDatabase>{
@@ -20,6 +23,7 @@ function openDb():Promise<IDBDatabase>{
     request.onupgradeneeded=()=>{
       const db=request.result
       if(!db.objectStoreNames.contains(STORE))db.createObjectStore(STORE,{keyPath:'questionId'})
+      else request.transaction?.objectStore(STORE).clear()
     }
     request.onsuccess=()=>resolve(request.result)
     request.onerror=()=>reject(request.error??new Error('Unable to open question database.'))
@@ -67,4 +71,8 @@ export async function clearQuestionContent(){
     request.onsuccess=()=>resolve()
     request.onerror=()=>reject(request.error)
   })
+}
+
+export function isCurrentQuestionContent(content:StoredQuestionContent|undefined){
+  return Boolean(content&&content.contentVersion===QUESTION_CONTENT_VERSION)
 }

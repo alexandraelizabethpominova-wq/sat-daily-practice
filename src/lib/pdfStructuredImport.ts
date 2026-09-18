@@ -1,7 +1,10 @@
 import {GlobalWorkerOptions,getDocument,type PDFDocumentProxy} from 'pdfjs-dist'
 import {QUESTION_BANK} from './questionBank'
 import {QUESTION_CROPS} from './questionCrops'
-import {getQuestionContent,saveQuestionContent,type StoredQuestionContent} from './questionContentStore'
+import {getQuestionContent,isCurrentQuestionContent,QUESTION_CONTENT_VERSION,saveQuestionContent,type StoredQuestionContent} from './questionContentStore'
+import {READING_PARAGRAPH_BREAK} from './readingQuestionFormat'
+import {expandNormalizedCrop,questionVisualSpec,type NormalizedCrop} from './questionVisuals'
+import {readingTableSpec} from './readingTables'
 import type {PracticeQuestion} from '../types'
 
 GlobalWorkerOptions.workerSrc=new URL('pdfjs-dist/build/pdf.worker.min.mjs',import.meta.url).toString()
@@ -21,16 +24,43 @@ async function loadPdf(key:string,bytes:ArrayBuffer){
 
 function normalizeSpace(value:string){return value.replace(/\s+/g,' ').trim()}
 
-function groupLines(items:TextItem[]){
+function groupedRows(items:TextItem[]){
   const rows:TextItem[][]=[]
   for(const item of [...items].sort((a,b)=>a.y-b.y||a.x-b.x)){
     const row=rows.find(candidate=>Math.abs(candidate[0].y-item.y)<3)
     if(row)row.push(item)
     else rows.push([item])
   }
-  return rows
-    .map(row=>normalizeSpace(row.sort((a,b)=>a.x-b.x).map(item=>item.text).join(' ')))
-    .filter(Boolean)
+  return rows.map(row=>{
+    const ordered=row.sort((a,b)=>a.x-b.x)
+    return {text:normalizeSpace(ordered.map(item=>item.text).join(' ')),x:ordered[0].x,y:ordered[0].y}
+  }).filter(row=>Boolean(row.text))
+}
+
+function groupLines(items:TextItem[]){return groupedRows(items).map(row=>row.text)}
+
+function groupReadingLines(items:TextItem[]){
+  const rows=groupedRows(items)
+  if(rows.length<2)return rows.map(row=>row.text)
+  const gaps=rows.slice(1).map((row,index)=>row.y-rows[index].y).filter(gap=>gap>5&&gap<16)
+  const baseline=gaps.length?[...gaps].sort((a,b)=>a-b)[Math.floor(gaps.length/2)]:12.5
+  const paragraphGap=Math.max(16,baseline*1.35)
+  const lines:string[]=[]
+  rows.forEach((row,index)=>{
+    if(index>0&&row.y-rows[index-1].y>=paragraphGap)lines.push(READING_PARAGRAPH_BREAK)
+    lines.push(row.text)
+  })
+  return lines
+}
+
+function groupReadingQuestionItems(question:PracticeQuestion,crop:{x:number;y:number;width:number;height:number},items:TextItem[]){
+  if(question.id!=='rw2-13')return groupReadingLines(items)
+  const divider=crop.x+crop.width*.5
+  const left=items.filter(item=>item.x<divider)
+  const right=items.filter(item=>item.x>=divider)
+  const leftLines=groupReadingLines(left)
+  const rightLines=groupReadingLines(right)
+  return [...leftLines,READING_PARAGRAPH_BREAK,...rightLines]
 }
 
 async function pageItems(doc:PDFDocumentProxy,pageNumber:number){
@@ -52,12 +82,32 @@ function cleanQuestionLines(lines:string[],questionNumber:number){
   return lines.filter(line=>{
     const normalized=line.trim()
     if(!normalized)return false
+    if(normalized.length>=8&&/^[.·•\s]+$/.test(normalized))return false
+    if(/^-{3,}$/.test(normalized))return false
+    if(/^(?:I\s*){5,}$/.test(normalized))return false
     if(normalized===String(questionNumber))return false
     if(/^Module\s+\d+$/i.test(normalized))return false
     if(/Unauthorized copying or reuse/i.test(normalized))return false
     if(/^CONTINUE$/i.test(normalized)||/^STOP$/i.test(normalized))return false
     return true
   })
+}
+
+function withoutNormalizedRegion(crop:{x:number;y:number;width:number;height:number},region:NormalizedCrop,items:TextItem[]){
+  const left=crop.x+crop.width*region.x
+  const top=crop.y+crop.height*region.y
+  const right=crop.x+crop.width*(region.x+region.width)
+  const bottom=crop.y+crop.height*(region.y+region.height)
+  return items.filter(item=>item.x<left||item.x>right||item.y<top||item.y>bottom)
+}
+
+function withoutKnownVisualText(question:PracticeQuestion,crop:{x:number;y:number;width:number;height:number},items:TextItem[]){
+  let result=items
+  const visual=questionVisualSpec(question.id)
+  if(visual)result=withoutNormalizedRegion(crop,expandNormalizedCrop(visual.crop,.012,.008),result)
+  const table=readingTableSpec(question.id)
+  if(table)result=withoutNormalizedRegion(crop,table.sourceCrop,result)
+  return result
 }
 
 function cleanExplanationLines(lines:string[],questionNumber:number){
@@ -74,7 +124,7 @@ function cleanExplanationLines(lines:string[],questionNumber:number){
 
 function hasVisualReference(lines:string[]){
   const text=lines.join(' ').toLowerCase()
-  return /\b(graph|scatterplot|diagram|figure|line graph|bar graph)\b/.test(text)
+  return /\b(graph|scatterplot|diagram|figure|line graph|bar graph|chart)\b/.test(text)
 }
 
 export async function extractQuestionLines(question:PracticeQuestion,questionPdf:ArrayBuffer){
@@ -86,7 +136,8 @@ export async function extractQuestionLines(question:PracticeQuestion,questionPdf
     item.x>=crop.x-margin&&item.x<=crop.x+crop.width+margin&&
     item.y>=crop.y-margin&&item.y<=crop.y+crop.height+margin
   )
-  return cleanQuestionLines(groupLines(selected),question.number)
+  const textItems=question.subject==='english'?withoutKnownVisualText(question,crop,selected):selected
+  return cleanQuestionLines(question.subject==='english'?groupReadingQuestionItems(question,crop,textItems):groupLines(textItems),question.number)
 }
 
 export async function extractExplanationLines(question:PracticeQuestion,answerPdf:ArrayBuffer){
@@ -105,7 +156,7 @@ export async function extractExplanationLines(question:PracticeQuestion,answerPd
 
 export async function ensureQuestionText(question:PracticeQuestion,questionPdf:ArrayBuffer){
   const existing=await getQuestionContent(question.id)
-  if(existing?.questionLines.length)return existing
+  if(isCurrentQuestionContent(existing)&&existing?.questionLines.length)return existing
   const questionLines=await extractQuestionLines(question,questionPdf)
   const record:StoredQuestionContent={
     questionId:question.id,
@@ -113,8 +164,9 @@ export async function ensureQuestionText(question:PracticeQuestion,questionPdf:A
     explanationLines:existing?.explanationLines??[],
     questionMode:questionLines.length?'text':'image-fallback',
     explanationMode:existing?.explanationMode??'text',
-    needsVisual:hasVisualReference(questionLines),
+    needsVisual:Boolean(questionVisualSpec(question.id))||hasVisualReference(questionLines),
     importedAt:new Date().toISOString(),
+    contentVersion:QUESTION_CONTENT_VERSION,
   }
   await saveQuestionContent(record)
   return record
@@ -132,6 +184,7 @@ export async function ensureExplanationText(question:PracticeQuestion,answerPdf:
     explanationMode:explanationLines.length?'text':'image-fallback',
     needsVisual:existing?.needsVisual??false,
     importedAt:new Date().toISOString(),
+    contentVersion:existing?.contentVersion,
   }
   await saveQuestionContent(record)
   return record
@@ -151,8 +204,9 @@ export async function importPracticeMaterials(questionPdf:ArrayBuffer,answerPdf:
         explanationLines,
         questionMode:questionLines.length?'text':'image-fallback',
         explanationMode:explanationLines.length?'text':'image-fallback',
-        needsVisual:hasVisualReference(questionLines),
+        needsVisual:Boolean(questionVisualSpec(question.id))||hasVisualReference(questionLines),
         importedAt:new Date().toISOString(),
+        contentVersion:QUESTION_CONTENT_VERSION,
       }
       await saveQuestionContent(record)
       existing=record
@@ -165,6 +219,7 @@ export async function importPracticeMaterials(questionPdf:ArrayBuffer,answerPdf:
         explanationMode:existing?.explanationLines.length?'text':'image-fallback',
         needsVisual:existing?.needsVisual??false,
         importedAt:new Date().toISOString(),
+        contentVersion:existing?.contentVersion,
       })
     }
     done++

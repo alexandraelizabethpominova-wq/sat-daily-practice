@@ -20,4 +20,18 @@ describe('atomic design boundaries',()=>{
     const directNivoImports=files.filter(file=>directNivoImport.test(readFileSync(resolve(directory,file),'utf8')))
     expect(directNivoImports,`${layer} must not import Nivo chart packages directly`).toEqual([])
   })
+
+  it('routes source PDF UI through the SourceViewer molecule',()=>{
+    const layers=['design-system/molecules','design-system/organisms'] as const
+    const offenders:string[]=[]
+    for(const layer of layers){
+      const directory=resolve(process.cwd(),'src',layer)
+      for(const file of readdirSync(directory).filter(file=>file.endsWith('.tsx')&&!file.endsWith('.test.tsx')&&file!=='SourceViewer.tsx')){
+        const source=readFileSync(resolve(directory,file),'utf8')
+        if(/components\/SourceSlice/.test(source))offenders.push(`${layer}/${file}`)
+      }
+    }
+    expect(offenders,'SourceSlice is low-level; compose it through SourceViewer').toEqual([])
+  })
+
 })
