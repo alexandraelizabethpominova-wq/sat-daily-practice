@@ -63,6 +63,29 @@ describe('ReadingQuestionLines',()=>{
     expect(parseReadingQuestion(lines).choices.map(choice=>choice.text)).toEqual(['substantial','satisfying','unimportant','appropriate'])
   })
 
+
+  it('keeps wrapped choice text attached to its answer label',()=>{
+    const lines=[
+      'Biologist Valentina Gómez-Bahamón and her team have investigated two subspecies.',
+      READING_PARAGRAPH_BREAK,
+      'Which finding, if true, would most directly support',
+      'Gómez-Bahamón and her team’s hypothesis?',
+      READING_PARAGRAPH_BREAK,
+      'A) The feathers located on the wings of the migratory fork-tailed flycatchers have a narrower',
+      'shape than those of the nonmigratory birds,',
+      'which allows them to fly long distances.',
+      READING_PARAGRAPH_BREAK,
+      'B) Over several generations, the sound made by the feathers changes.',
+      'C) Fork-tailed flycatchers communicate different messages.',
+      'D) The breeding habits remained generally the same.',
+    ]
+    const parsed=parseReadingQuestion(lines)
+    expect(parsed.choices).toHaveLength(4)
+    expect(parsed.choices[0].text).toContain('which allows them to fly long distances.')
+    render(<ReadingQuestionLines lines={lines}/>)
+    expect(screen.getByText(/which allows them to fly long distances/).closest('[role="listitem"]')).not.toBeNull()
+  })
+
   it('reflows prose paragraphs but keeps answer choices as separate rows',()=>{
     const lines=[
       'As a young historian in Australia in the 1950s, Jill Roe became dismayed',
