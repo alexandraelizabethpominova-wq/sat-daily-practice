@@ -6,7 +6,7 @@ import type {PracticePlanRecommendation} from '../../lib/practicePlan'
 type Props={recommendation:PracticePlanRecommendation}
 
 export default function StudyPlanRecommendation({recommendation}:Props){
-  const scoreGoalMet=recommendation.scoreGap===null||recommendation.scoreGap<=0
+  const scoreGoalMet=recommendation.targetScore===null||(recommendation.estimatedScore!==null&&recommendation.scoreGap!==null&&recommendation.scoreGap<=0)
   const complete=recommendation.remainingQuestions===0&&scoreGoalMet
   const estimateLabel=recommendation.estimatedScore===null?'Need baseline':String(recommendation.estimatedScore)
   const targetLabel=recommendation.targetScore===null?'Not set':String(recommendation.targetScore)
