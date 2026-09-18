@@ -10,6 +10,7 @@ import {loadSharedQuestionContent} from '../../lib/sharedQuestionBank'
 import {verifiedMathContent} from '../../lib/verifiedMathQuestions'
 import {questionVisualSpec,type QuestionVisualSpec} from '../../lib/questionVisuals'
 import {isPracticeTest5Math1Verified} from '../../lib/practiceTest5Math1Layout'
+import {verifiedPracticeTest5Math1Content} from '../../lib/verifiedPracticeTest5Math1'
 import usePracticeTestPdf from '../../hooks/usePracticeTestPdf'
 import type {PracticeQuestion} from '../../types'
 
@@ -76,13 +77,25 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
           return
         }
 
-        const verified=question.subject==='math'?verifiedMathContent(question.id):undefined
+        if(question.practiceTestId==='practice-test-5'&&question.module==='math1'){
+          const verified=verifiedPracticeTest5Math1Content(question.number)
+          if(verified?.imageFallback){
+            setContent({questionId:question.id,questionLines:[],explanationLines:[],questionMode:'image-fallback',explanationMode:'image-fallback',needsVisual:false,importedAt:new Date().toISOString(),contentVersion:QUESTION_CONTENT_VERSION})
+            return
+          }
+          if(verified){
+            setContent(storedFromShared(question.id,verified.lines,[],Boolean(resolvedVisual??verified.needsVisual)))
+            return
+          }
+        }
+
+        const verified=question.practiceTestId==='practice-test-4'&&question.subject==='math'?verifiedMathContent(question.id):undefined
         if(verified){
           setContent(storedFromShared(question.id,verified.lines,shared?.explanationLines??[],Boolean(resolvedVisual??verified.needsVisual)))
           return
         }
 
-        if((question.practiceTestId??'practice-test-4')!=='practice-test-4'&&!isPracticeTest5Math1Verified(question.id)&&!shared?.questionLines.length){
+        if(question.practiceTestId!=='practice-test-4'&&!isPracticeTest5Math1Verified(question.id)&&!shared?.questionLines.length){
           setContent({questionId:question.id,questionLines:[],explanationLines:[],questionMode:'image-fallback',explanationMode:'image-fallback',needsVisual:false,importedAt:new Date().toISOString(),contentVersion:QUESTION_CONTENT_VERSION})
           return
         }
@@ -107,10 +120,11 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
     return()=>{cancelled=true}
   },[question,sourceBytes,revision])
 
-  if(error||content?.questionMode==='image-fallback'){
+  if(content?.questionMode==='image-fallback'){
     if(sourceBytes)return <SourceViewer pdfKey="questions" bytes={sourceBytes} page={question.sourcePage} questionNumber={question.number} alt={alt} practiceTestId={question.practiceTestId} module={question.module}/>
-    return <div className="structured-loading">{error||'Question text is not available in this browser yet.'}</div>
+    return <div className="structured-loading">Source question is not available for this practice set.</div>
   }
+  if(error)return <div className="structured-loading">{error}</div>
   if(!content)return <div className="structured-loading">Preparing text question…</div>
 
   return <div className={question.subject==='english'?'structured-question reading-structured-question':'structured-question'}>
@@ -122,7 +136,7 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
     {(content.needsVisual||Boolean(visual))&&!sourceBytes
       ?<div className="visual-fallback"><div className="visual-fallback-label">Source figure will appear when the source asset is available.</div></div>
       :content.needsVisual&&!visual&&sourceBytes
-        ?<div className="visual-fallback"><div className="visual-fallback-label">Figure from the source material</div><SourceViewer pdfKey="questions" bytes={sourceBytes} page={question.sourcePage} questionNumber={question.number} alt={`${alt} figure`}/></div>
-        :(showOriginalLayout&&!content.needsVisual&&!visual&&sourceBytes&&<details className="source-layout-details"><summary>View original layout</summary><SourceViewer pdfKey="questions" bytes={sourceBytes} page={question.sourcePage} questionNumber={question.number} alt={alt}/></details>)}
+        ?<div className="visual-fallback"><div className="visual-fallback-label">Figure from the source material</div><SourceViewer pdfKey="questions" bytes={sourceBytes} page={question.sourcePage} questionNumber={question.number} alt={`${alt} figure`} practiceTestId={question.practiceTestId} module={question.module}/></div>
+        :(showOriginalLayout&&!content.needsVisual&&!visual&&sourceBytes&&<details className="source-layout-details"><summary>View original layout</summary><SourceViewer pdfKey="questions" bytes={sourceBytes} page={question.sourcePage} questionNumber={question.number} alt={alt} practiceTestId={question.practiceTestId} module={question.module}/></details>)}
   </div>
 }
