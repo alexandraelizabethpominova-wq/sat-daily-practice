@@ -78,6 +78,11 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
           return
         }
 
+        if(question.questionMode==='image-fallback'&&question.contentStatus==='verified'){
+          setContent(storedFromShared(question.id,[],[],false,'image-fallback'))
+          return
+        }
+
         if(question.practiceTestId==='practice-test-5'&&question.module==='math1'){
           const verified=verifiedPracticeTest5Math1Content(question.number)
           if(verified?.imageFallback){
