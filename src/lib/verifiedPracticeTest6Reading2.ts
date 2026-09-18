@@ -46,6 +46,13 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) To explain why Francie prefers reading over other activities',
     'C) To portray Francie’s determination to meet a goal',
     'D) To describe a book that Francie greatly admires',
+  ]),  7:q([
+    'Researchers have long hypothesized that woolly mammoths were hunted to extinction in North America by humans using spears with grooved tips known as Clovis points. One anthropologist set out to test this hypothesis. Using a mechanical spear-thrower, he launched spears with Clovis points into mounds of clay—substitutes for the animals’ large bodies. The projectiles generally penetrated only a few inches into the clay, an amount insufficient to have harmed most woolly mammoths. This led the anthropologist to conclude that hunters using spears with Clovis points likely weren’t the principal drivers of the extinction.',
+    'Which choice best states the main purpose of the text?',
+    'A) To argue for the significance of new findings amid an ongoing debate among researchers',
+    'B) To discuss the advantages and disadvantages of the method used in an experiment',
+    'C) To summarize two competing hypotheses and a major finding associated with each one',
+    'D) To describe an experiment whose results cast doubt on an established hypothesis',
   ]),
 }
 
