@@ -1,6 +1,6 @@
 import type {PracticeTestId} from '../types'
 
-const DB='sat-practice-pdfs', STORE='pdfs'
+const DB='sat-practice-pdfs', STORE='pdfs', CACHE_VERSION=2
 const OFFICIAL_SOURCES:Record<PracticeTestId,{questions:string;answers:string}>={
   'practice-test-4':{
     questions:'https://satsuite.collegeboard.org/media/pdf/sat-practice-test-4-digital.pdf',
@@ -15,7 +15,7 @@ const supabaseUrl=import.meta.env.VITE_SUPABASE_URL as string|undefined
 export type PdfKind='questions'|'answers'
 
 function openDb():Promise<IDBDatabase>{return new Promise((resolve,reject)=>{const req=indexedDB.open(DB,1);req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains(STORE))req.result.createObjectStore(STORE)};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
-function storageKey(testId:PracticeTestId,kind:PdfKind){return `${testId}:${kind}`}
+function storageKey(testId:PracticeTestId,kind:PdfKind){return `v${CACHE_VERSION}:${testId}:${kind}`}
 
 async function storeBytes(testId:PracticeTestId,kind:PdfKind,bytes:ArrayBuffer){
   const db=await openDb();const key=storageKey(testId,kind)
@@ -31,11 +31,13 @@ async function readStored(testId:PracticeTestId,kind:PdfKind):Promise<ArrayBuffe
   return null
 }
 
-async function fetchPdf(url:string){
-  const response=await fetch(url,{cache:'force-cache'})
+async function fetchPdf(url:string,expectedTestId?:PracticeTestId,expectedKind?:PdfKind){
+  const response=await fetch(url,{cache:'no-store'})
   if(!response.ok)throw new Error(`PDF source returned ${response.status}.`)
   const contentType=response.headers.get('content-type')??''
   if(contentType&&!contentType.includes('pdf')&&!contentType.includes('octet-stream'))throw new Error(`Unexpected PDF content type: ${contentType}`)
+  if(expectedTestId){const actual=response.headers.get('x-sat-practice-test-id');if(actual&&actual!==expectedTestId)throw new Error(`Wrong SAT source returned: expected ${expectedTestId}, received ${actual}.`)}
+  if(expectedKind){const actual=response.headers.get('x-sat-source-kind');if(actual&&actual!==expectedKind)throw new Error(`Wrong SAT source kind returned: expected ${expectedKind}, received ${actual}.`)}
   const bytes=await response.arrayBuffer();if(!bytes.byteLength)throw new Error('PDF source returned an empty file.');return bytes
 }
 
@@ -46,7 +48,7 @@ async function loadOfficialSource(testId:PracticeTestId,kind:PdfKind){
     source??null,
   ].filter((value):value is string=>Boolean(value))
   for(const url of candidates){
-    try{const bytes=await fetchPdf(url);await storeBytes(testId,kind,bytes);return bytes}
+    try{const bytes=await fetchPdf(url,testId,kind);await storeBytes(testId,kind,bytes);return bytes}
     catch(error){console.warn(`SAT ${testId} ${kind} source failed: ${url}`,error)}
   }
   return null
