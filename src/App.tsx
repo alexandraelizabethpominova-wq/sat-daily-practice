@@ -105,7 +105,7 @@ export default function App(){
   const currentRec=current?currentAttempts.find(attempt=>attempt.questionId===current.id):undefined
   const performance=summarizePerformance(attempts,sessions,questionBank.length)
   const failedQuestionCount=countFailedPracticeQuestions(settings,attempts,questionBank)
-  const practiceRecommendation=buildPracticePlanRecommendation(settings,questionBank,attempts)
+  const practiceRecommendation=buildPracticePlanRecommendation(settings,questionBank,attempts,performance)
   const practiceTestOptions=[
     {value:'all' as const,label:'All available tests'},
     ...availablePracticeTests(questionBank).map(value=>({value,label:practiceTestLabel(value)})),
