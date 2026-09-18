@@ -191,6 +191,13 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) increase',
     'C) increases',
     'D) has increased',
+  ]),  27:q([
+    'After appropriate permissions are granted, a typical archaeological dig begins with a surveyor making a detailed grid of the excavation site. Then, the site is carefully dug, and any artifacts found are recorded and mapped onto the site grid. _______ the artifacts are removed, cataloged, and analyzed in a laboratory.',
+    'Which choice completes the text with the most logical transition?',
+    'A) For instance,',
+    'B) On the contrary,',
+    'C) Earlier,',
+    'D) Finally,',
   ]),
 }
 
