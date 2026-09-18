@@ -95,7 +95,14 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) Rocky Mountain National Park.',
     'C) Yellowstone National Park.',
     'D) Grand Canyon National Park.',
-  ],true),
+  ],true),  14:q([
+    '“Lines Written in Early Spring” is a 1798 poem by William Wordsworth. In the poem, the speaker describes having contradictory feelings while experiencing the sights and sounds of a spring day: _______',
+    'Which quotation from “Lines Written in Early Spring” most effectively illustrates the claim?',
+    'A) “Through primrose-tufts, in that sweet bower, / The periwinkle trail’d its wreathes; / And ’tis my faith that every flower / Enjoys the air it breathes.”',
+    'B) “The budding twigs spread out their fan, / To catch the breezy air; / And I must think, do all I can, / That there was pleasure there.”',
+    'C) “The birds around me hopp’d and play’d: / Their thoughts I cannot measure, / But the least motion which they made, / It seem’d a thrill of pleasure.”',
+    'D) “I heard a thousand blended notes, / While in a grove I [sat] reclined, / In that sweet mood when pleasant thoughts / Bring sad thoughts to the mind.”',
+  ]),
 }
 
 export function verifiedPracticeTest6Reading2Content(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_READING2[questionNumber]}
