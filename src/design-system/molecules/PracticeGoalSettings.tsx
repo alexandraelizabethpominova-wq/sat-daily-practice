@@ -16,7 +16,7 @@ export default function PracticeGoalSettings({settings,onChange}:Props){
     <PracticeSettingField
       label="Target SAT score"
       helperText="Optional. When set, recommendations compare this goal with your current practice-only score estimate."
-      control={<AlexTextField fullWidth size="small" type="number" label="Target score" value={settings.targetScore??''} inputProps={{min:400,max:1600,step:10}} placeholder="e.g. 1400" onChange={event=>{const value=event.target.value;onChange({...settings,targetScore:value?Math.max(400,Math.min(1600,Number(value))):undefined})}}/>} 
+      control={<AlexTextField fullWidth size="small" type="number" label="Target score" value={settings.targetScore??''} inputProps={{min:400,max:1600,step:10}} placeholder="e.g. 1400" onChange={event=>{const value=event.target.value;onChange({...settings,targetScore:value?Number(value):undefined})}}/>} 
     />
     <PracticeSettingField
       label="Practice-set goal"
