@@ -149,6 +149,13 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) 1891 and 1909 were the years between which Matthew Henson made several treks across Greenland.',
     'C) Greenland was where Matthew Henson made several treks between 1891 and 1909.',
     'D) several treks across Greenland were made by Matthew Henson between 1891 and 1909.',
+  ]),  21:q([
+    'Woven from recycled yarn and hand tufted using a carpet weaving technique passed down by the artist’s Turkish grandmother, _______ so lush and tactilely inviting that you are tempted to reach out and touch them.',
+    'Which choice completes the text so that it conforms to the conventions of Standard English?',
+    'A) the topological tapestries of Argentine textile artist Alexandra Kehayoglou are',
+    'B) the Argentine textile artist Alexandra Kehayoglou creates topological tapestries that are',
+    'C) when she creates her topological tapestries, Argentine textile artist Alexandra Kehayoglou makes them',
+    'D) Alexandra Kehayoglou is an Argentine textile artist whose topological tapestries are',
   ]),
 }
 
