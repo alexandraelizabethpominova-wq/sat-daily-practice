@@ -2,6 +2,7 @@ import {GlobalWorkerOptions,getDocument,type PDFDocumentProxy} from 'pdfjs-dist'
 import {QUESTION_BANK} from './questionBank'
 import {QUESTION_CROPS} from './questionCrops'
 import {getQuestionContent,isCurrentQuestionContent,QUESTION_CONTENT_VERSION,saveQuestionContent,type StoredQuestionContent} from './questionContentStore'
+import {READING_PARAGRAPH_BREAK} from './readingQuestionFormat'
 import type {PracticeQuestion} from '../types'
 
 GlobalWorkerOptions.workerSrc=new URL('pdfjs-dist/build/pdf.worker.min.mjs',import.meta.url).toString()
@@ -21,16 +22,33 @@ async function loadPdf(key:string,bytes:ArrayBuffer){
 
 function normalizeSpace(value:string){return value.replace(/\s+/g,' ').trim()}
 
-function groupLines(items:TextItem[]){
+function groupedRows(items:TextItem[]){
   const rows:TextItem[][]=[]
   for(const item of [...items].sort((a,b)=>a.y-b.y||a.x-b.x)){
     const row=rows.find(candidate=>Math.abs(candidate[0].y-item.y)<3)
     if(row)row.push(item)
     else rows.push([item])
   }
-  return rows
-    .map(row=>normalizeSpace(row.sort((a,b)=>a.x-b.x).map(item=>item.text).join(' ')))
-    .filter(Boolean)
+  return rows.map(row=>{
+    const ordered=row.sort((a,b)=>a.x-b.x)
+    return {text:normalizeSpace(ordered.map(item=>item.text).join(' ')),x:ordered[0].x,y:ordered[0].y}
+  }).filter(row=>Boolean(row.text))
+}
+
+function groupLines(items:TextItem[]){return groupedRows(items).map(row=>row.text)}
+
+function groupReadingLines(items:TextItem[]){
+  const rows=groupedRows(items)
+  if(rows.length<2)return rows.map(row=>row.text)
+  const gaps=rows.slice(1).map((row,index)=>row.y-rows[index].y).filter(gap=>gap>5&&gap<16)
+  const baseline=gaps.length?[...gaps].sort((a,b)=>a-b)[Math.floor(gaps.length/2)]:12.5
+  const paragraphGap=Math.max(16,baseline*1.35)
+  const lines:string[]=[]
+  rows.forEach((row,index)=>{
+    if(index>0&&row.y-rows[index-1].y>=paragraphGap)lines.push(READING_PARAGRAPH_BREAK)
+    lines.push(row.text)
+  })
+  return lines
 }
 
 async function pageItems(doc:PDFDocumentProxy,pageNumber:number){
@@ -86,7 +104,7 @@ export async function extractQuestionLines(question:PracticeQuestion,questionPdf
     item.x>=crop.x-margin&&item.x<=crop.x+crop.width+margin&&
     item.y>=crop.y-margin&&item.y<=crop.y+crop.height+margin
   )
-  return cleanQuestionLines(groupLines(selected),question.number)
+  return cleanQuestionLines(question.subject==='english'?groupReadingLines(selected):groupLines(selected),question.number)
 }
 
 export async function extractExplanationLines(question:PracticeQuestion,answerPdf:ArrayBuffer){
