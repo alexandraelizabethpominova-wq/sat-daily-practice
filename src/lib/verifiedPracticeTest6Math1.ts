@@ -145,6 +145,23 @@ export const VERIFIED_PRACTICE_TEST_6_MATH1:Record<number,VerifiedPracticeTest6M
 ,
     'D) $-6+2\\sqrt{19}(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
 ,
+  ]),  19:q([
+    'The table shown summarizes the number of employees at each of the 17 restaurants in a town.',
+    'Number of employees	Number of restaurants',
+    '2 to 7	2',
+    '8 to 13	4',
+    '14 to 19	2',
+    '20 to 25	7',
+    '26 to 31	2',
+    'Which of the following could be the median number of employees for the restaurants in this town?',
+    'A) $2(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'B) $9(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'C) $15(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'D) $21(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
   ]),
 }
 
