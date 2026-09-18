@@ -2,15 +2,15 @@ import AlexRichText from '../atoms/AlexRichText'
 
 const LABELED_CHOICE=/^([A-D])(?:[.)]\s*|\s+)(.+)$/i
 const QUESTION_STEM=/^(Which|What|How|Why|According to|Based on|As used in|The student wants|To which|Which finding|Which quotation|Which choice|Which statement|Which response|The passage|The text|The main purpose|The author|The speaker)\b/i
+const INTRO_START=/^The following text is (?:from|adapted from)\b/i
 
 export type ReadingChoice={label:string;text:string}
-export type ParsedReadingQuestion={stimulus:string[];stem:string;choices:ReadingChoice[];isQuote:boolean;isVerse:boolean}
+export type ParsedReadingQuestion={intro:string;stimulus:string[];stem:string;choices:ReadingChoice[];isQuote:boolean;isVerse:boolean}
 
 function clean(value:string){return value.replace(/\s+/g,' ').trim()}
 
 function stemStart(source:string[]){
-  const direct=source.findIndex(line=>QUESTION_STEM.test(clean(line)))
-  if(direct>=0)return direct
+  for(let index=source.length-1;index>=0;index--){if(QUESTION_STEM.test(clean(source[index])))return index}
   for(let index=source.length-1;index>=0;index--){if(/[?]$/.test(clean(source[index])))return index}
   return Math.max(0,source.length-1)
 }
@@ -18,6 +18,17 @@ function stemStart(source:string[]){
 function stemEnd(source:string[],start:number){
   for(let index=start;index<source.length;index++){if(/[?]$/.test(clean(source[index])))return index}
   return start
+}
+
+function splitIntro(lines:string[]){
+  if(!lines.length||!INTRO_START.test(clean(lines[0])))return {intro:'',body:lines}
+  const joined=lines.map(clean).join(' ')
+  const firstSentence=joined.match(/^(.*?[.!?][”\"']?)(?:\s+|$)/)
+  if(!firstSentence)return {intro:clean(lines[0]),body:lines.slice(1)}
+  const intro=firstSentence[1].trim()
+  let remainder=joined.slice(firstSentence[0].length).trim()
+  if(!remainder)return {intro,body:[] as string[]}
+  return {intro,body:[remainder]}
 }
 
 function looksLikeVerse(lines:string[]){
@@ -31,7 +42,7 @@ function looksLikeVerse(lines:string[]){
 
 function explicitlyQuoted(lines:string[]){
   const text=lines.map(clean).filter(Boolean).join(' ')
-  return /^[“\"‘]/.test(text)||/[”\"’]$/.test(text)||/^The following text is (?:from|adapted from)\b/i.test(text)
+  return /^[“\"‘]/.test(text)||/[”\"’]$/.test(text)
 }
 
 function parseChoices(lines:string[]){
@@ -55,16 +66,22 @@ export function parseReadingQuestion(lines:string[]):ParsedReadingQuestion{
   const source=lines.map(line=>line.trim()).filter(Boolean)
   const start=stemStart(source)
   const end=stemEnd(source,start)
-  const stimulus=source.slice(0,start)
+  const rawStimulus=source.slice(0,start)
+  const {intro,body}=splitIntro(rawStimulus)
   const stem=source.slice(start,end+1).map(clean).join(' ')
   const choices=parseChoices(source.slice(end+1))
-  const isVerse=looksLikeVerse(stimulus)
-  return {stimulus,stem,choices,isVerse,isQuote:isVerse||explicitlyQuoted(stimulus)}
+  const isVerse=looksLikeVerse(body)
+  return {intro,stimulus:body,stem,choices,isVerse,isQuote:Boolean(intro)||isVerse||explicitlyQuoted(body)}
+}
+
+export function hasCompleteReadingChoices(lines:string[]){
+  return parseReadingQuestion(lines).choices.map(choice=>choice.label).join('')==='ABCD'
 }
 
 export default function ReadingQuestionLines({lines}:{lines:string[]}){
   const parsed=parseReadingQuestion(lines)
   return <div className="reading-question-content">
+    {parsed.intro&&<p className="reading-intro"><AlexRichText text={parsed.intro}/></p>}
     {parsed.stimulus.length>0&&(parsed.isQuote
       ?<blockquote className={`reading-stimulus reading-quote${parsed.isVerse?' reading-verse':''}`}>
         {parsed.isVerse
@@ -77,7 +94,7 @@ export default function ReadingQuestionLines({lines}:{lines:string[]}){
 
     {parsed.choices.length>0&&<div className="reading-answer-options" role="list" aria-label="Answer choices">
       {parsed.choices.map(choice=><div className="reading-answer-choice" role="listitem" key={choice.label}>
-        <span className="reading-choice-label" aria-hidden="true">{choice.label}</span>
+        <span className="reading-choice-label" aria-hidden="true">{choice.label})</span>
         <span className="reading-choice-text"><AlexRichText text={choice.text}/></span>
       </div>)}
     </div>}
