@@ -60,6 +60,13 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) It describes a limitation of earlier historians’ studies of medieval European bathing habits.',
     'C) It concedes that not all people in medieval Europe had access to public bathhouses.',
     'D) It explains why Janega decided to study the popularity of public bathhouses in medieval Europe.',
+  ]),  9:q([
+    'Scholarly accounts of the Chicano movement—a movement that advocated for the social, political, and cultural empowerment of Mexican Americans and reached its zenith in the 1960s and 1970s—tend to focus on the most militant, outspoken figures in the movement, making it seem uniformly radical. Geographer Juan Herrera has shown, however, that if we shift our focus toward the way the movement manifested in comparatively low-profile neighborhood institutions and projects, we see participants espousing an array of political orientations and approaches to community activism.',
+    'Which choice best describes the function of the underlined portion in the text as a whole?',
+    'A) It presents a trend in scholarship on the Chicano movement that the text claims has been reevaluated by researchers in light of Herrera’s work on the movement’s participants.',
+    'B) It identifies an aspect of the Chicano movement that the text implies was overemphasized by scholars due to their own political orientations.',
+    'C) It describes a common approach to studying the Chicano movement that, according to the text, obscures the ideological diversity of the movement’s participants.',
+    'D) It summarizes the conventional method for analyzing the Chicano movement, which the text suggests creates a misleading impression of the effectiveness of neighborhood institutions and projects.',
   ]),
 }
 
