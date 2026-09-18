@@ -64,6 +64,27 @@ describe('ReadingQuestionLines',()=>{
   })
 
 
+
+  it('renders Reading data tables as structured tables without duplicating table text into the passage',()=>{
+    const lines=[
+      'Earth’s atmosphere is bombarded by cosmic dust originating from several sources.',
+      'Some of the dust’s material vaporizes in the atmosphere in a process called ablation.',
+      READING_PARAGRAPH_BREAK,
+      'Which choice most effectively uses data from the table to complete the example?',
+      READING_PARAGRAPH_BREAK,
+      'A) iron from SPC dust is 20%.',
+      'B) sodium from OCC dust is 100%.',
+      'C) iron from HTC dust is 90%.',
+      'D) sodium from AST dust is 75%.',
+    ]
+    render(<ReadingQuestionLines lines={lines} questionId="rw1-15"/>)
+    expect(screen.getByText('Ablation Rates for Three Elements in Cosmic Dust, by Dust Source')).toBeInTheDocument()
+    expect(screen.getByRole('table')).toBeInTheDocument()
+    expect(screen.getByText('potassium')).toBeInTheDocument()
+    expect(screen.getByText(/Earth’s atmosphere is bombarded by cosmic dust/)).toBeInTheDocument()
+    expect(screen.getAllByText('20%')).toHaveLength(1)
+  })
+
   it('keeps wrapped choice text attached to its answer label',()=>{
     const lines=[
       'Biologist Valentina Gómez-Bahamón and her team have investigated two subspecies.',
