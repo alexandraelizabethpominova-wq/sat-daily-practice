@@ -88,6 +88,16 @@ export const VERIFIED_PRACTICE_TEST_6_MATH1:Record<number,VerifiedPracticeTest6M
     '2	13',
     '4	21',
     '6	29',
+  ]),  12:q([
+    'Which expression is equivalent to $(x^2+11)^2+(x-5)(x+5)$?',
+    'A) $x^4+23x^2-14(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'B) $x^4+23x^2+96(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'C) $x^4+12x^2+121(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'D) $x^4+x^2+146(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
   ]),
 }
 
