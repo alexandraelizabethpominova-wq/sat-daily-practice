@@ -1,7 +1,7 @@
 import AlexRichText from '../atoms/AlexRichText'
 import ReadingDataTable from './ReadingDataTable'
 import {READING_PARAGRAPH_BREAK} from '../../lib/readingQuestionFormat'
-import {readingTableSpec} from '../../lib/readingTables'
+import {readingTableSpec,type ReadingTableSpec} from '../../lib/readingTables'
 
 const LABELED_CHOICE=/^([A-D])(?:[.)]\s*|\s+)(.+)$/i
 const STANDALONE_CHOICE=/^([A-D])[.)]\s*$/i
@@ -155,6 +155,21 @@ export function parseReadingQuestion(lines:string[]):ParsedReadingQuestion{
   return {intro,stimulusBlocks,stem,choices,isVerse,isQuote:Boolean(intro.length)||isVerse||explicitlyQuoted(stimulusBlocks)}
 }
 
+function canonicalTabTable(lines:string[]){
+  const first=lines.findIndex(line=>line.includes('\t'))
+  if(first<0)return null
+  let end=first
+  while(end<lines.length&&lines[end].includes('\t'))end++
+  if(end-first<2)return null
+  const rows=lines.slice(first,end).map(line=>line.split(/\t+/).map(cell=>clean(cell)).filter(Boolean))
+  const width=rows[0].length
+  if(width<2||rows.some(row=>row.length!==width))return null
+  const title=first>0?clean(lines[first-1]):''
+  const table:ReadingTableSpec={title,headers:rows[0],rows:rows.slice(1),sourceCrop:{x:0,y:0,width:1,height:1}}
+  const content=lines.filter((_,index)=>index<Math.max(0,first-1)||index>=end)
+  return {table,content}
+}
+
 export function hasCompleteReadingChoices(lines:string[]){return parseReadingQuestion(lines).choices.map(choice=>choice.label).join('')==='ABCD'}
 
 function JoinedBlock({lines}:{lines:string[]}){return <p><AlexRichText text={lines.map(clean).join(' ')}/></p>}
@@ -185,8 +200,9 @@ function PairedTextPassages({sections}:{sections:PairedTextSection[]}){
 }
 
 export default function ReadingQuestionLines({lines,questionId}:{lines:string[];questionId?:string}){
-  const parsed=parseReadingQuestion(lines)
-  const table=questionId?readingTableSpec(questionId):undefined
+  const canonicalTable=canonicalTabTable(lines)
+  const parsed=parseReadingQuestion(canonicalTable?.content??lines)
+  const table=canonicalTable?.table??(questionId?readingTableSpec(questionId):undefined)
   const pairedTexts=pairedTextSections(parsed.stimulusBlocks)
   return <div className="reading-question-content">
     {table&&<ReadingDataTable table={table}/>} 
