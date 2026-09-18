@@ -4,6 +4,7 @@ import {READING_PARAGRAPH_BREAK} from '../../lib/readingQuestionFormat'
 import {readingTableSpec} from '../../lib/readingTables'
 
 const LABELED_CHOICE=/^([A-D])(?:[.)]\s*|\s+)(.+)$/i
+const STANDALONE_CHOICE=/^([A-D])[.)]\s*$/i
 const QUESTION_STEM=/^(Which|What|How|Why|According to|Based on|As used in|The student wants|To which|Which finding|Which quotation|Which choice|Which statement|Which response|The passage|The text|The main purpose|The author|The speaker)\b/i
 const INTRO_START=/^The following text is (?:from|adapted from)\b/i
 
@@ -12,7 +13,7 @@ export type ParsedReadingQuestion={intro:string[];stimulusBlocks:string[][];stem
 
 function clean(value:string){return value.replace(/\s+/g,' ').trim()}
 function isBreak(value:string){return value===READING_PARAGRAPH_BREAK}
-function choiceMatch(value:string){return clean(value).match(LABELED_CHOICE)}
+function choiceMatch(value:string){const line=clean(value);return line.match(LABELED_CHOICE)||line.match(STANDALONE_CHOICE)}
 
 function splitBlocks(lines:string[]){
   const blocks:string[][]=[]
@@ -64,9 +65,10 @@ function parseChoices(lines:string[]){
     if(isBreak(raw))continue
     const line=clean(raw)
     const match=line.match(LABELED_CHOICE)
-    if(match){
+    const standalone=line.match(STANDALONE_CHOICE)
+    if(match||standalone){
       if(current)choices.push(current)
-      current={label:match[1].toUpperCase(),text:match[2].trim()}
+      current={label:(match?.[1]??standalone![1]).toUpperCase(),text:match?.[2]?.trim()??''}
       continue
     }
     if(current)current.text=clean(`${current.text} ${line}`)
