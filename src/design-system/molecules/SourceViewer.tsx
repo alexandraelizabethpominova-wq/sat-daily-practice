@@ -14,7 +14,7 @@ type Props={
   minZoom?:number
   maxZoom?:number
   zoomStep?:number
-  practiceTestId?:PracticeTestId
+  practiceTestId:PracticeTestId
   module?:ModuleKey
 }
 
