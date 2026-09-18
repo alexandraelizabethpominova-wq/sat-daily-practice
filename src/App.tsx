@@ -14,6 +14,7 @@ import PracticeSessionHeader from './design-system/organisms/PracticeSessionHead
 import PracticeSetupPanel from './design-system/organisms/PracticeSetupPanel'
 import PracticeTestsDashboard from './design-system/organisms/PracticeTestsDashboard'
 import StudyPlanRecommendation from './design-system/organisms/StudyPlanRecommendation'
+import PracticeGoalSettings from './design-system/molecules/PracticeGoalSettings'
 import QuestionBankReview from './design-system/organisms/QuestionBankReview'
 import {answerLabel,matchesAnswer} from './lib/answerCompare'
 import {clearPdfs,getPdf,savePdf} from './lib/pdfStore'
@@ -111,7 +112,7 @@ export default function App(){
     ...availablePracticeTests(questionBank).map(value=>({value,label:practiceTestLabel(value)})),
   ]
   const practiceSource=settings.practiceTest&&settings.practiceTest!=='all'?practiceTestLabel(settings.practiceTest):'All available tests'
-  const practiceSummary=[settings.selectionMode==='random'?'Random':'Adaptive',practiceSource,settings.failedOnly?'Failed questions only':''].filter(Boolean).join(' · ')
+  const practiceSummary=[settings.selectionMode==='random'?'Random':'Adaptive',settings.failedOnly?'Missed questions only':''].filter(Boolean).join(' · ')
   const practiceTestSummaries=availablePracticeTests(questionBank).map(value=>{
     const questions=questionBank.filter(question=>question.practiceTestId===value)
     const practicedIds=new Set(attempts.filter(attempt=>attempt.practiceTestId===value).map(attempt=>attempt.questionId))
@@ -338,11 +339,29 @@ export default function App(){
 
   if(view==='study')return withSidebar('study',<main className="shell">
     <section className="hero card">
-      <div><p className="eyebrow">Study Plan</p><h1>Your SAT practice plan</h1><p>Use short adaptive sessions to build consistency. Questions you have not seen and topics you miss more often are prioritized automatically.</p><div className="hero-actions"><AlexButton onClick={()=>setView('home')}>Choose a practice test</AlexButton><AlexButton tone="secondary" onClick={()=>beginPractice(settings.mode)}>Start {settings.questionsPerSession} questions</AlexButton></div></div>
+      <div>
+        <p className="eyebrow">Study Plan</p>
+        <h1>Your SAT practice plan</h1>
+        <p>Set your goal, track progress, and use the daily recommendation to stay on pace.</p>
+        <div className="hero-actions">
+          <AlexButton onClick={()=>setView('home')}>Choose a practice test</AlexButton>
+          <AlexButton tone="secondary" onClick={()=>beginPractice(settings.mode)}>Start {settings.questionsPerSession} questions</AlexButton>
+        </div>
+      </div>
       <div className="score">{attempts.length?`${performance.accuracy}%`:'—'}<small>overall accuracy</small></div>
     </section>
-    <StudyPlanRecommendation recommendation={practiceRecommendation}/>
+
     <PerformanceDashboard summary={performance} hasHistory={attempts.length>0} compact/>
+
+    <section className="card" style={{marginTop:24}}>
+      <p className="eyebrow">Goals</p>
+      <h2 style={{marginTop:4}}>Plan settings</h2>
+      <PracticeGoalSettings settings={settings} onChange={setSettings}/>
+    </section>
+
+    <div style={{marginTop:32,marginBottom:16}}>
+      <StudyPlanRecommendation recommendation={practiceRecommendation}/>
+    </div>
   </main>,'#F7F6F2')
 
   return withSidebar('practice-tests',<PracticeTestsDashboard
