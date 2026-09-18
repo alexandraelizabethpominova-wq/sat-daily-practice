@@ -226,6 +226,13 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) Meteorites found on Earth are divided into two categories: meteorite falls and meteorite finds.',
     'C) There have been about 1,200 recorded meteorite falls, or meteorites observed falling to Earth.',
     'D) While there have been only about 1,200 recorded meteorite falls, there have been over 60,000 meteorite finds.',
+  ]),  32:q([
+    'While researching a topic, a student has taken the following notes: • Doña María do Carmo Bandeira was a Brazilian botanist. • Between 1924 and 1941, she collected approximately 800 botanical samples. • She collected a sample of Polytrichum juniperinum from Serra de Itatiaia in Mauá in February of 1925. • She collected a sample of Sphagnum gracilescen from Ponte do Inferno in Corcovado in March of 1925. • Polytrichum juniperinum and Sphagnum gracilescen are both species of moss. The student wants to emphasize the sample collected from Serra de Itatiaia.',
+    'Which choice most effectively uses relevant information from the notes to accomplish this goal?',
+    'A) Doña María do Carmo Bandeira was a botanist notable for collecting approximately 800 botanical samples between 1924 and 1941.',
+    'B) Among the many botanical samples Doña María do Carmo Bandeira collected was Polytrichum juniperinum, a species of moss she collected from Serra de Itatiaia in 1925.',
+    'C) Between 1924 and 1941, Doña María do Carmo Bandeira collected many botanical samples, such as Polytrichum juniperinum from Serra de Itatiaia and Sphagnum gracilescen from Ponte do Inferno.',
+    'D) Between 1924 and 1941, Doña María do Carmo Bandeira collected samples of Polytrichum juniperinum and Sphagnum gracilescen, both species of moss.',
   ]),
 }
 
