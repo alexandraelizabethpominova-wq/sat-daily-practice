@@ -8,8 +8,8 @@ export type QuestionVisualSpec={afterLine:number;crop:NormalizedCrop;exact?:bool
 export const QUESTION_VISUALS:Record<string,QuestionVisualSpec>={
   'rw1-13':{afterLine:-1,crop:{x:.04,y:.050,width:.92,height:.385}},
   'rw2-13':{afterLine:-1,crop:{x:.02,y:.065,width:.46,height:.36}},
-  'practice-test-6:rw1-14':{afterLine:-1,crop:{x:.04,y:.035,width:.40,height:.39}},
-  'practice-test-6:rw1-15':{afterLine:-1,crop:{x:0,y:0,width:1,height:.43}},
+  'practice-test-6:rw1-14':{afterLine:-1,crop:{x:.04,y:.035,width:.40,height:.39},exact:true},
+  'practice-test-6:rw1-15':{afterLine:-1,crop:{x:.10,y:.035,width:.88,height:.375},exact:true},
   'math1-1':{afterLine:-1,crop:{x:.08,y:.07,width:.84,height:.39}},
   'math1-9':{afterLine:0,crop:{x:.06,y:.09,width:.88,height:.29}},
   'math1-10':{afterLine:0,crop:{x:.08,y:.10,width:.84,height:.43}},
