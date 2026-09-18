@@ -8,7 +8,7 @@ import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
 import QuestionRepairEditor from '../molecules/QuestionRepairEditor'
 import QuestionSourceReview from '../molecules/QuestionSourceReview'
-import {availablePracticeTests,moduleLabel,practiceTestLabel,QUESTION_BANK} from '../../lib/questionBank'
+import {availablePracticeTests,moduleLabel,practiceTestLabel} from '../../lib/questionBank'
 import {loadSharedQuestionBank} from '../../lib/sharedQuestionBank'
 import {deleteParsingIssueReport,loadParsingIssueReports,setParsingIssueStatus,type ParsingIssueReport,type ParsingIssueStatus} from '../../lib/parsingIssueReports'
 import type {PracticeQuestion,PracticeTestFilter} from '../../types'
@@ -18,7 +18,7 @@ type Props={questionsPdf:ArrayBuffer|null;answersPdf:ArrayBuffer|null}
 
 export default function ParsingIssuesDashboard({questionsPdf,answersPdf}:Props){
   const[reports,setReports]=useState<ParsingIssueReport[]>([])
-  const[bank,setBank]=useState<PracticeQuestion[]>(QUESTION_BANK)
+  const[bank,setBank]=useState<PracticeQuestion[]>([])
   const[selectedId,setSelectedId]=useState<string|null>(null)
   const[practiceTest,setPracticeTest]=useState<PracticeTestFilter>('all')
   const[statusFilter,setStatusFilter]=useState<StatusFilter>('all')
@@ -46,7 +46,7 @@ export default function ParsingIssuesDashboard({questionsPdf,answersPdf}:Props){
   ),[reports,practiceTest,statusFilter])
 
   const selected=filtered.find(report=>report.id===selectedId)??filtered[0]??null
-  const selectedQuestion=selected?(bank.find(question=>question.id===selected.questionId)??QUESTION_BANK.find(question=>question.id===selected.questionId)??null):null
+  const selectedQuestion=selected?(bank.find(question=>question.id===selected.questionId)??null):null
   const testOptions=[{value:'all' as const,label:'All practice tests'},...availablePracticeTests(bank).map(value=>({value,label:practiceTestLabel(value)}))]
 
   async function changeStatus(report:ParsingIssueReport,status:ParsingIssueStatus){
