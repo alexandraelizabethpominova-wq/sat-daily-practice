@@ -11,6 +11,7 @@ import {verifiedMathContent} from '../../lib/verifiedMathQuestions'
 import {questionVisualSpec,type QuestionVisualSpec} from '../../lib/questionVisuals'
 import {isPracticeTest5Math1Verified} from '../../lib/practiceTest5Math1Layout'
 import {verifiedPracticeTest5Math1Content} from '../../lib/verifiedPracticeTest5Math1'
+import {verifiedPracticeTest6Reading1Content} from '../../lib/verifiedPracticeTest6Reading1'
 import usePracticeTestPdf from '../../hooks/usePracticeTestPdf'
 import type {PracticeQuestion} from '../../types'
 
@@ -68,13 +69,27 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
         if(cancelled)return
 
         const bundledVisual=questionVisualSpec(question.id)??null
-        const sharedControlsVisual=Boolean(shared&&shared.contentStatus!=='metadata')
+        const verifiedPracticeTest6Reading=question.practiceTestId==='practice-test-6'&&question.module==='rw1'
+          ?verifiedPracticeTest6Reading1Content(question.number)
+          :undefined
+        const sharedHasText=Boolean(shared?.questionLines.length)
+        const sharedControlsVisual=Boolean(shared&&shared.contentStatus!=='metadata'&&!(verifiedPracticeTest6Reading&&!sharedHasText))
         const resolvedVisual=shared?.visualSpec??(sharedControlsVisual&&!shared?.needsVisual?null:bundledVisual)
         const resolvedSourceCrop=shared?.sourceCrop??question.sourceCrop??null
         setVisual(resolvedVisual)
 
-        if(shared&&(shared.questionLines.length||shared.questionMode==='image-fallback')){
+        if(sharedHasText&&shared){
           setContent(storedFromShared(question.id,shared.questionLines,shared.explanationLines,Boolean(resolvedVisual),shared.questionMode))
+          return
+        }
+
+        if(verifiedPracticeTest6Reading){
+          setContent(storedFromShared(question.id,verifiedPracticeTest6Reading.lines,shared?.explanationLines??[],Boolean(resolvedVisual??verifiedPracticeTest6Reading.needsVisual),'text'))
+          return
+        }
+
+        if(shared?.questionMode==='image-fallback'){
+          setContent(storedFromShared(question.id,[],shared.explanationLines,Boolean(resolvedVisual),'image-fallback'))
           return
         }
 
@@ -136,7 +151,7 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
   return <div className={question.subject==='english'?'structured-question reading-structured-question':'structured-question'}>
     <div className="structured-lines">
       {visual&&sourceBytes
-        ?<LinesWithSourceVisual question={question} bytes={sourceBytes} lines={content.questionLines} alt={alt} visual={visual} sourceCrop={question.sourceCrop} reflowProse={reflowProse}/>
+        ?<LinesWithSourceVisual question={question} bytes={sourceBytes} lines={content.questionLines} alt={alt} visual={visual} sourceCrop={resolvedSourceCrop} reflowProse={reflowProse}/>
         :<RenderQuestionLines question={question} lines={content.questionLines} reflowProse={reflowProse}/>} 
     </div>
     {(content.needsVisual||Boolean(visual))&&!sourceBytes
