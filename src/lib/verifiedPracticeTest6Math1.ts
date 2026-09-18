@@ -74,6 +74,16 @@ export const VERIFIED_PRACTICE_TEST_6_MATH1:Record<number,VerifiedPracticeTest6M
     'B) The estimated number of marine mammals in the area was 1,800 when the study began.',
     'C) The estimated number of marine mammals in the area increased by 102 each year during the study.',
     'D) The estimated number of marine mammals in the area increased by 1,800 each year during the study.',
+  ]),  10:q([
+    'A manager is responsible for ordering supplies for a shaved ice shop. The shop’s inventory starts with 4,500 paper cups, and the manager estimates that 70 of these paper cups are used each day. Based on this estimate, in how many days will the supply of paper cups reach 1,700?',
+    'A) $20(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'B) $40(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'C) $60(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'D) $80(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
   ]),
 }
 
