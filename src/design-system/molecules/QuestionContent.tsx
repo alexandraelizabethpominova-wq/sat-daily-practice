@@ -5,7 +5,7 @@ import SourceSlice from '../../components/SourceSlice'
 import StructuredQuestionLines from './StructuredQuestionLines'
 import ReadingQuestionLines from './ReadingQuestionLines'
 import {ensureQuestionText} from '../../lib/pdfStructuredImport'
-import {getQuestionContent,type StoredQuestionContent} from '../../lib/questionContentStore'
+import {getQuestionContent,isCurrentQuestionContent,QUESTION_CONTENT_VERSION,type StoredQuestionContent} from '../../lib/questionContentStore'
 import {loadSharedQuestionContent} from '../../lib/sharedQuestionBank'
 import {verifiedMathContent} from '../../lib/verifiedMathQuestions'
 import {questionVisualSpec} from '../../lib/questionVisuals'
@@ -53,12 +53,13 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
             explanationMode:shared.explanationLines.length?'text':'image-fallback',
             needsVisual:shared.needsVisual,
             importedAt:new Date().toISOString(),
+            contentVersion:QUESTION_CONTENT_VERSION,
           })
           return
         }
         const local=bytes?await ensureQuestionText(question,bytes):await getQuestionContent(question.id)
         if(cancelled)return
-        if(local)setContent(local)
+        if(local&&isCurrentQuestionContent(local))setContent(local)
         else setError('Question text is not available in this browser yet.')
       }catch(reason){
         if(!cancelled)setError(reason instanceof Error?reason.message:'Unable to read this question as text.')
