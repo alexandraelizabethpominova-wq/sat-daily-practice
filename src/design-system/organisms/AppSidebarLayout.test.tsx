@@ -16,6 +16,7 @@ describe('AppSidebarLayout',()=>{
         onPracticeTests={()=>undefined}
         onPracticeSetup={onPracticeSetup}
         onQuestionBank={onQuestionBank}
+        onParsingIssues={()=>undefined}
         onPerformance={()=>undefined}
         onResources={()=>undefined}
         onSettings={()=>undefined}
