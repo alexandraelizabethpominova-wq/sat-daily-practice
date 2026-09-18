@@ -4,7 +4,7 @@ import AlexDrawer from '../atoms/AlexDrawer'
 import AlexIconButton from '../atoms/AlexIconButton'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
-import ExplanationContent from './ExplanationContent'
+import SourceSlice from '../../components/SourceSlice'
 import QuestionContent from './QuestionContent'
 import {formatDuration} from '../../lib/practiceGamification'
 import {moduleLabel} from '../../lib/questionBank'
@@ -33,8 +33,10 @@ export default function QuestionReviewDrawer({open,onClose,question,performance,
         <QuestionContent question={question} bytes={questionsPdf} alt={`${moduleLabel(question.module)} question ${question.number}`} showOriginalLayout={false}/>
       </AlexSurface>
       <AlexSurface sx={{border:'1px solid #E6E2DB',borderRadius:2.5,overflow:'hidden'}}>
-        <AlexBox sx={{px:2,py:1.25,borderBottom:'1px solid #E6E2DB',bgcolor:'#F7F6F2'}}><AlexText sx={{fontSize:12,fontWeight:800,color:'#475467',textTransform:'uppercase',letterSpacing:'.07em'}}>Explanation</AlexText></AlexBox>
-        <AlexBox sx={{p:2}}><ExplanationContent question={question} bytes={answersPdf}/></AlexBox>
+        <AlexBox sx={{px:2,py:1.25,borderBottom:'1px solid #E6E2DB',bgcolor:'#F7F6F2'}}><AlexText sx={{fontSize:12,fontWeight:800,color:'#475467',textTransform:'uppercase',letterSpacing:'.07em'}}>Original explanation</AlexText></AlexBox>
+        {answersPdf
+          ?<SourceSlice pdfKey="answers" bytes={answersPdf} page={question.answerPage} questionNumber={question.number} alt={`Original explanation for question ${question.number}`} showZoomControls/>
+          :<AlexBox sx={{p:4,textAlign:'center'}}><AlexText sx={{fontSize:14,color:'#667085'}}>Original explanation is loading from the SAT answer source…</AlexText></AlexBox>}
       </AlexSurface>
     </AlexBox>}
   </AlexDrawer>
