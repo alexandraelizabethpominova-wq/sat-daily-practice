@@ -64,7 +64,7 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
 
     void (async()=>{
       try{
-        const shared=await loadSharedQuestionContent(question.id).catch(()=>null)
+        const shared=await loadSharedQuestionContent(question.id,question.practiceTestId).catch(()=>null)
         if(cancelled)return
 
         const bundledVisual=questionVisualSpec(question.id)??null
