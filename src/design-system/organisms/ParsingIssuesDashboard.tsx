@@ -54,7 +54,7 @@ export default function ParsingIssuesDashboard(){
       <AlexBox>
         <AlexText sx={{fontSize:12,textTransform:'uppercase',letterSpacing:'.12em',fontWeight:800,color:'#6558F5'}}>Quality review</AlexText>
         <AlexText component="h1" sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:32,md:42},lineHeight:1.1,my:1,color:'#08275B'}}>Parsing Issues</AlexText>
-        <AlexText sx={{color:'#667085',maxWidth:720}}>Review question parsing or formatting problems you flagged while practicing, reviewing, browsing the Question Bank, or inspecting performance.</AlexText>
+        <AlexText sx={{color:'#667085',maxWidth:720}}>Shared queue of parsing and formatting problems reported by signed-in users. Everyone can review the queue and mark issues resolved for now.</AlexText>
       </AlexBox>
       <AlexBox sx={{display:'grid',gridTemplateColumns:{xs:'1fr',sm:'1fr 1fr'},gap:1,minWidth:{xs:'100%',md:430}}}>
         <AlexDropdown id="parsing-issues-test" label="Practice test" value={practiceTest} options={testOptions} onChange={setPracticeTest}/>
@@ -63,14 +63,14 @@ export default function ParsingIssuesDashboard(){
     </AlexBox>
 
     {error&&<AlexSurface sx={{p:2,border:'1px solid #FDA29B',borderRadius:2,bgcolor:'#FFFBFA',mb:2}}><AlexText sx={{color:'#B42318',fontSize:14}}>{error}</AlexText></AlexSurface>}
-    {loading?<AlexText sx={{color:'#667085'}}>Loading parsing issues…</AlexText>:filtered.length===0?<AlexSurface sx={{p:3,border:'1px solid #E6E2DB',borderRadius:3}}><AlexText component="h2" sx={{fontSize:19,fontWeight:800}}>No matching reports</AlexText><AlexText sx={{color:'#667085',mt:.5}}>Flag a question from practice, review, the Question Bank, or question statistics and it will appear here.</AlexText></AlexSurface>:
+    {loading?<AlexText sx={{color:'#667085'}}>Loading parsing issues…</AlexText>:filtered.length===0?<AlexSurface sx={{p:3,border:'1px solid #E6E2DB',borderRadius:3}}><AlexText component="h2" sx={{fontSize:19,fontWeight:800}}>No matching reports</AlexText><AlexText sx={{color:'#667085',mt:.5}}>Flag a question from practice, review, the Question Bank, or question statistics and it will appear in this shared queue.</AlexText></AlexSurface>:
     <AlexBox sx={{display:'grid',gap:1.25}}>
       {filtered.map(report=><AlexSurface key={report.id} sx={{p:{xs:2,md:2.5},border:'1px solid #E6E2DB',borderRadius:2.5}}>
         <AlexBox sx={{display:'flex',justifyContent:'space-between',gap:2,alignItems:'flex-start',flexWrap:'wrap'}}>
           <AlexBox>
             <AlexBox sx={{display:'flex',gap:.75,alignItems:'center',flexWrap:'wrap',mb:.5}}>
               <AlexStatusChip>{report.status}</AlexStatusChip>
-              <AlexText sx={{fontSize:12,color:'#667085'}}>{practiceTestLabel(report.practiceTestId)} · {report.context.replace('-',' ')}</AlexText>
+              <AlexText sx={{fontSize:12,color:'#667085'}}>{practiceTestLabel(report.practiceTestId)} · {report.context.replace('-',' ')} · {report.isOwnReport?'your report':'shared report'}</AlexText>
             </AlexBox>
             <AlexText component="h2" sx={{fontSize:17,fontWeight:800,color:'#08275B'}}>{moduleLabel(report.module)} · Q{report.questionNumber}</AlexText>
             <AlexText sx={{fontSize:12,color:'#667085',mt:.35}}>Question ID: {report.questionId} · Reported {new Date(report.createdAt).toLocaleString()}</AlexText>
