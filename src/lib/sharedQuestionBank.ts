@@ -102,15 +102,24 @@ export async function loadSharedQuestionContent(questionId:string,expectedPracti
 export async function saveSharedQuestionRepair(input:{
   questionId:string
   questionLines:string[]
-  visualSpec:QuestionVisualSpec|null
+  visualSpec?:QuestionVisualSpec|null
+  visualSpecs?:QuestionVisualSpec[]
 }){
   if(!supabase)throw new Error('Supabase is not configured for shared question repairs.')
-  const visual=input.visualSpec
+  const visuals=input.visualSpecs??(input.visualSpec?[input.visualSpec]:[])
+  const encodeVisual=(visual:QuestionVisualSpec,includeLine:boolean)=>({
+    ...visual.crop,
+    ...(includeLine?{afterLine:visual.afterLine}:{}),
+    ...(visual.kind?{kind:visual.kind}:{}),
+  })
+  const visualCrop=visuals.length>1
+    ?visuals.map(visual=>encodeVisual(visual,true))
+    :visuals[0]?encodeVisual(visuals[0],false):null
   const {error}=await supabase.from('sat_question_bank').update({
     question_lines:input.questionLines,
-    needs_visual:Boolean(visual),
-    visual_crop:visual?visual.crop:null,
-    visual_after_line:visual?visual.afterLine:null,
+    needs_visual:visuals.length>0,
+    visual_crop:visualCrop,
+    visual_after_line:visuals.length===1?visuals[0].afterLine:null,
     content_status:'verified',
     updated_at:new Date().toISOString(),
   }).eq('id',input.questionId)
