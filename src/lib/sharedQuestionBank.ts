@@ -1,7 +1,6 @@
 import {supabase} from './supabase'
 import type {QuestionVisualSpec} from './questionVisuals'
-import type {ModuleKey,PracticeQuestion,Subject} from '../types'
-import {QUESTION_BANK} from './questionBank'
+import type {ModuleKey,PracticeQuestion,SourceCrop,Subject} from '../types'
 
 export type SharedQuestionContent={
   questionId:string
@@ -11,6 +10,8 @@ export type SharedQuestionContent={
   needsVisual:boolean
   contentStatus:'metadata'|'verified'|'imported'
   visualSpec:QuestionVisualSpec|null
+  sourceCrop:SourceCrop|null
+  questionMode:'text'|'image-fallback'
 }
 
 function parseVisualSpec(crop:unknown,afterLine:unknown):QuestionVisualSpec|null{
@@ -32,7 +33,7 @@ export async function loadSharedQuestionBank():Promise<PracticeQuestion[]|null>{
   if(!supabase)return null
   const {data,error}=await supabase
     .from('sat_question_bank')
-    .select('id,practice_test_id,subject,module,question_number,source_page,answer_page,correct_answer,accepted_answers,response_type')
+    .select('id,practice_test_id,subject,module,question_number,source_page,answer_page,correct_answer,accepted_answers,response_type,source_crop,content_status,question_mode')
     .order('module',{ascending:true})
     .order('question_number',{ascending:true})
   if(error)throw error
@@ -47,18 +48,18 @@ export async function loadSharedQuestionBank():Promise<PracticeQuestion[]|null>{
     correctAnswer:row.correct_answer,
     acceptedAnswers:Array.isArray(row.accepted_answers)?row.accepted_answers as string[]:[row.correct_answer],
     responseType:row.response_type as PracticeQuestion['responseType'],
+    sourceCrop:row.source_crop as SourceCrop|null,
+    contentStatus:row.content_status as PracticeQuestion['contentStatus'],
+    questionMode:row.question_mode as PracticeQuestion['questionMode'],
   }))
-  const merged=new Map<string,PracticeQuestion>()
-  QUESTION_BANK.forEach(question=>merged.set(question.id,question))
-  remote.forEach(question=>merged.set(question.id,question))
-  return [...merged.values()]
+  return remote
 }
 
 export async function loadSharedQuestionContent(questionId:string,expectedPracticeTestId?:string):Promise<SharedQuestionContent|null>{
   if(!supabase)return null
   const {data,error}=await supabase
     .from('sat_question_bank')
-    .select('id,practice_test_id,question_lines,explanation_lines,needs_visual,content_status,visual_crop,visual_after_line')
+    .select('id,practice_test_id,question_lines,explanation_lines,needs_visual,content_status,visual_crop,visual_after_line,source_crop,question_mode')
     .eq('id',questionId)
     .maybeSingle()
   if(error)throw error
@@ -73,6 +74,8 @@ export async function loadSharedQuestionContent(questionId:string,expectedPracti
     needsVisual:Boolean(data.needs_visual),
     contentStatus:data.content_status as SharedQuestionContent['contentStatus'],
     visualSpec:parseVisualSpec(data.visual_crop,data.visual_after_line),
+    sourceCrop:data.source_crop as SourceCrop|null,
+    questionMode:data.question_mode as SharedQuestionContent['questionMode'],
   }
 }
 
