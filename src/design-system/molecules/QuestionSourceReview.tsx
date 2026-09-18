@@ -1,7 +1,6 @@
 import AlexBox from '../atoms/AlexBox'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
-import ExplanationContent from './ExplanationContent'
 import QuestionContent from './QuestionContent'
 import SourceViewer from './SourceViewer'
 import {moduleLabel} from '../../lib/questionBank'
@@ -42,9 +41,9 @@ export default function QuestionSourceReview({question,questionsPdf,answersPdf=n
       <AlexBox sx={{px:2,py:1.25,borderBottom:'1px solid #E6E2DB',bgcolor:'#F7F6F2'}}>
         <AlexText sx={{fontSize:12,fontWeight:800,color:'#475467',textTransform:'uppercase',letterSpacing:'.07em'}}>Explanation</AlexText>
       </AlexBox>
-      <AlexBox sx={{p:{xs:1.5,md:2}}}>
-        <ExplanationContent key={`explanation-${question.id}-${revision}`} question={question} bytes={answersPdf}/>
-      </AlexBox>
+      {answersPdf
+        ?<SourceViewer pdfKey="answers" bytes={answersPdf} page={question.answerPage} questionNumber={question.number} alt={`Original explanation for ${label}`} label="Original explanation"/>
+        :<AlexBox sx={{p:3}}><AlexText sx={{fontSize:14,color:'#667085'}}>Answer-explanation PDF is not available on this device. Add it in Resources to view the original explanation.</AlexText></AlexBox>}
     </AlexSurface>}
   </AlexBox>
 }
