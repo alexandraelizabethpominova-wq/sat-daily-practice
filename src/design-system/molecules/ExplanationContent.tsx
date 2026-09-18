@@ -1,5 +1,5 @@
 import {useEffect,useState} from 'react'
-import SourceSlice from '../../components/SourceSlice'
+import SourceViewer from './SourceViewer'
 import AlexRichText from '../atoms/AlexRichText'
 import {ensureExplanationText} from '../../lib/pdfStructuredImport'
 import {getQuestionContent,type StoredQuestionContent} from '../../lib/questionContentStore'
@@ -36,13 +36,13 @@ export default function ExplanationContent({question,bytes}:Props){
   },[question,bytes])
 
   if(error||content?.explanationMode==='image-fallback'){
-    if(bytes)return <SourceSlice pdfKey="answers" bytes={bytes} page={question.answerPage} questionNumber={question.number} alt={`Explanation for question ${question.number}`}/>
+    if(bytes)return <SourceViewer pdfKey="answers" bytes={bytes} page={question.answerPage} questionNumber={question.number} alt={`Explanation for question ${question.number}`}/>
     return <div className="structured-loading">{error||'Explanation text is not available on this device yet.'}</div>
   }
   if(!content)return <div className="structured-loading">Preparing walkthrough…</div>
 
   return <div className="structured-explanation">
     <div className="structured-lines">{content.explanationLines.map((line,index)=><p key={`${question.id}-explanation-${index}`}><AlexRichText text={line}/></p>)}</div>
-    {bytes&&<details className="source-layout-details"><summary>View original explanation layout</summary><SourceSlice pdfKey="answers" bytes={bytes} page={question.answerPage} questionNumber={question.number} alt={`Original explanation for question ${question.number}`}/></details>}
+    {bytes&&<details className="source-layout-details"><summary>View original explanation layout</summary><SourceViewer pdfKey="answers" bytes={bytes} page={question.answerPage} questionNumber={question.number} alt={`Original explanation for question ${question.number}`}/></details>}
   </div>
 }
