@@ -65,6 +65,43 @@ describe('ReadingQuestionLines',()=>{
 
 
 
+
+  it('does not mistake poem lines beginning with A for answer choices',()=>{
+    const lines=[
+      'The following text is from the 1923 poem “Black Finger” by Angelina Weld Grimké, a Black American',
+      'writer. A cypress is a type of evergreen tree.',
+      READING_PARAGRAPH_BREAK,
+      'I have just seen a most beautiful thing,',
+      'Slim and still,',
+      'Against a gold, gold sky,',
+      'A straight black cypress,',
+      'Sensitive,',
+      'Exquisite,',
+      'A black finger',
+      'Pointing upwards.',
+      'Why, beautiful still finger, are you black?',
+      'And why are you pointing upwards?',
+      READING_PARAGRAPH_BREAK,
+      'Which choice best describes the overall structure of',
+      'the text?',
+      READING_PARAGRAPH_BREAK,
+      'A) The speaker assesses a natural phenomenon, then questions the accuracy of her assessment.',
+      'B) The speaker describes a distinctive sight in nature, then ponders what meaning to attribute to that sight.',
+      'C) The speaker presents an outdoor scene, then considers a human behavior occurring within that scene.',
+      'D) The speaker examines her surroundings, then speculates about their influence on her emotional state.',
+    ]
+    const parsed=parseReadingQuestion(lines)
+    expect(parsed.stem).toBe('Which choice best describes the overall structure of the text?')
+    expect(parsed.choices.map(choice=>choice.label)).toEqual(['A','B','C','D'])
+    expect(parsed.stimulusBlocks.flat()).toContain('A straight black cypress,')
+    expect(parsed.stimulusBlocks.flat()).toContain('A black finger')
+    render(<ReadingQuestionLines lines={lines}/>)
+    const quote=screen.getByRole('blockquote')
+    expect(within(quote).getByText('A straight black cypress,')).toBeInTheDocument()
+    expect(within(quote).getByText('A black finger')).toBeInTheDocument()
+    expect(screen.getAllByRole('listitem')).toHaveLength(4)
+  })
+
   it('renders Reading data tables as structured tables without duplicating table text into the passage',()=>{
     const lines=[
       'Earth’s atmosphere is bombarded by cosmic dust originating from several sources.',
