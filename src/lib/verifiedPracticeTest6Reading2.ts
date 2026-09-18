@@ -74,6 +74,13 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) Although developing countries tend to become less dependent on foreign investment as natural-resource industries make up a larger share of their economies, this change may not occur if the boom-bust cycle of those industries destabilizes local currencies or increases countries’ vulnerability to external shocks.',
     'C) Although one might expect that foreign investment would increase as natural-resource extraction makes up a larger share of developing countries’ economies, the opposite happens because heavy reliance on natural resources can lead to unattractive conditions for investors.',
     'D) Although foreign investors tend to avoid initial investments in natural-resource industries in developing countries, foreign investment may increase significantly as those industries stabilize and the risks associated with them decline.',
+  ]),  11:q([
+    'To understand how temperature change affects microorganism-mediated cycling of soil nutrients in alpine ecosystems, Eva Kaštovská et al. collected plant-soil cores in the Tatra Mountains at elevations around 2,100 meters and transplanted them to elevations of 1,700–1,800 meters, where the mean air temperature was warmer by 2°C. Microorganism-mediated nutrient cycling was accelerated in the transplanted cores; crucially, microorganism community composition was unchanged, allowing Kaštovská et al. to attribute the acceleration to temperature-induced increases in microorganism activity.',
+    'It can most reasonably be inferred from the text that the finding about the microorganism community composition was important for which reason?',
+    'A) It provided preliminary evidence that microorganism-mediated nutrient cycling was accelerated in the transplanted cores.',
+    'B) It suggested that temperature-induced changes in microorganism activity may be occurring at increasingly high elevations.',
+    'C) It ruled out a potential alternative explanation for the acceleration in microorganism-mediated nutrient cycling.',
+    'D) It clarified that microorganism activity levels in the plant-soil cores varied depending on which microorganisms comprised the community.',
   ]),
 }
 
