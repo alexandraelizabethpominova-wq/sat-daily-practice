@@ -37,6 +37,15 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) tentative',
     'C) warranted',
     'D) prominent',
+  ]),  6:q([
+    'The following text is from Betty Smith’s 1943 novel A Tree Grows in Brooklyn. Francie, a young girl, visits the library often.',
+    '[[SAT_PARAGRAPH_BREAK]]',
+    'Francie thought that all the books in the world were in that library and she had a plan about reading all the books in the world. She was reading a book a day in alphabetical order and not skipping the dry ones. She remembered that the first author had been Abbott. She had been reading a book a day for a long time now and she was still in the B’s. Already she had read about bees and buffaloes, Bermuda vacations and Byzantine architecture. For all her enthusiasm, she had to admit that some of the B’s had been hard going. But Francie was a reader.',
+    'Which choice best states the main purpose of the text?',
+    'A) To illustrate Francie’s enjoyment of an unusual topic',
+    'B) To explain why Francie prefers reading over other activities',
+    'C) To portray Francie’s determination to meet a goal',
+    'D) To describe a book that Francie greatly admires',
   ]),
 }
 
