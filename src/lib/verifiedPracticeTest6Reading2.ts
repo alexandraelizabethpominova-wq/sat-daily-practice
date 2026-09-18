@@ -53,6 +53,13 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) To discuss the advantages and disadvantages of the method used in an experiment',
     'C) To summarize two competing hypotheses and a major finding associated with each one',
     'D) To describe an experiment whose results cast doubt on an established hypothesis',
+  ]),  8:q([
+    'The people of medieval Europe have traditionally been seen as uninterested in cleanliness and hygiene, but modern research has shown that this is largely a myth. According to historian Eleanor Janega, most medieval towns in Europe had at least one public bathhouse, which often offered both full-immersion baths and—more affordably—steam baths. While such amenities were available mainly to town dwellers, regular bathing in rivers and streams or daily sponge baths at home were common practices throughout medieval Europe.',
+    'Which choice best describes the function of the underlined portion?',
+    'A) It asserts that in medieval Europe steam baths were more popular in rural areas than in urban ones.',
+    'B) It describes a limitation of earlier historians’ studies of medieval European bathing habits.',
+    'C) It concedes that not all people in medieval Europe had access to public bathhouses.',
+    'D) It explains why Janega decided to study the popularity of public bathhouses in medieval Europe.',
   ]),
 }
 
