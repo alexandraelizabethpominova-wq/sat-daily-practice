@@ -15,7 +15,7 @@ async function loadPdf(key:string,bytes:ArrayBuffer){
   return doc
 }
 
-type TextItemLike={str:string;transform:number[]}
+type TextItemLike={str:string;transform:number[];width?:number}
 function isTextItem(item:unknown):item is TextItemLike{
   return !!item&&typeof item==='object'&&'str' in item&&'transform' in item
 }
@@ -39,7 +39,8 @@ async function explanationBounds(page:PDFPageProxy,scale:number,questionNumber:n
   const items=text.items.flatMap(raw=>{
     if(!isTextItem(raw))return[]
     const [x,y]=viewport.convertToViewportPoint(raw.transform[4],raw.transform[5])
-    return[{text:raw.str.trim(),x,y}]
+    const width=typeof raw.width==='number'?raw.width*scale:Math.max(raw.str.length*4.5*scale,8*scale)
+    return[{text:raw.str.trim(),x,y,width}]
   })
 
   const markers:Marker[]=[]
@@ -57,7 +58,16 @@ async function explanationBounds(page:PDFPageProxy,scale:number,questionNumber:n
   const top=Math.max(0,current.y-28*scale)
   const bottom=Math.min(viewport.height,next?next.y-18*scale:viewport.height-12*scale)
 
-  return{left:0,right:viewport.width,top,bottom,viewport}
+  const blockItems=items.filter(item=>item.text&&item.y>=top&&item.y<=bottom)
+  if(!blockItems.length)return{left:0,right:viewport.width,top,bottom,viewport}
+
+  const horizontalPadding=18*scale
+  const contentLeft=Math.min(...blockItems.map(item=>item.x))
+  const contentRight=Math.max(...blockItems.map(item=>item.x+item.width))
+  const left=Math.max(0,contentLeft-horizontalPadding)
+  const right=Math.min(viewport.width,contentRight+horizontalPadding)
+
+  return{left,right,top,bottom,viewport}
 }
 
 function canvasToBlob(canvas:HTMLCanvasElement):Promise<Blob>{
@@ -73,7 +83,7 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt,zoom=1
     let cancelled=false
     let objectUrl=''
     let renderTask:{cancel:()=>void;promise:Promise<void>}|null=null
-    const imageKey=`v4:${pdfKey}:${bytes.byteLength}:${page}:${questionNumber}`
+    const imageKey=`v5:${pdfKey}:${bytes.byteLength}:${page}:${questionNumber}`
 
     async function showBlob(blob:Blob){
       objectUrl=URL.createObjectURL(blob)
