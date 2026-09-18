@@ -186,6 +186,16 @@ export const VERIFIED_PRACTICE_TEST_6_MATH1:Record<number,VerifiedPracticeTest6M
 ,
     'D) $2(x+2)^2+2(y-6)^2=9(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
 ,
+  ],true),  24:q([
+    'Right triangle $ABC$ is shown. What is the value of $\\tan A$?',
+    'A) $\\frac{\\sqrt{3}}{54}(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'B) $\\frac{1}{\\sqrt{3}}(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'C) $\\sqrt{3}(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'D) $27\\sqrt{3}(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
   ],true),
 }
 
