@@ -32,9 +32,8 @@ function daysUntil(dateValue:string){
 
 function scoreFocusShare(gap:number|null){
   if(gap===null||gap<=0)return null
-  if(gap>=200)return 70
-  if(gap>=100)return 65
-  return 60
+  const raw=55+Math.min(15,gap/20)
+  return Math.round(raw/5)*5
 }
 
 export function buildPracticePlanRecommendation(settings:Settings,questions:PracticeQuestion[],attempts:Attempt[],performance:PerformanceAnalytics):PracticePlanRecommendation{
