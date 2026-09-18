@@ -102,6 +102,18 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) “The budding twigs spread out their fan, / To catch the breezy air; / And I must think, do all I can, / That there was pleasure there.”',
     'C) “The birds around me hopp’d and play’d: / Their thoughts I cannot measure, / But the least motion which they made, / It seem’d a thrill of pleasure.”',
     'D) “I heard a thousand blended notes, / While in a grove I [sat] reclined, / In that sweet mood when pleasant thoughts / Bring sad thoughts to the mind.”',
+  ]),  15:q([
+    'Mean Ratings for Patients after 21 Days',
+    'Measure	Mean rating for participants aware of taking a placebo	Mean rating for participants in the control group',
+    'Global improvement	5.0	3.9',
+    'Symptom severity reduction	92.00	46.00',
+    'Quality of life improvement	11.4	5.4',
+    'To test whether a medication is effective, scientists compare outcomes for patients taking it and patients taking a placebo (a medically inactive substance). Patients normally aren’t told they’re receiving a placebo, but a research team conducted a study to see if there might be a medical benefit to telling them. The team used various measures to evaluate participants, with higher ratings indicating greater well-being in each measure. Compared to the mean ratings after 21 days for participants in the control group, the mean ratings for participants who were aware of taking a placebo _______',
+    'Which choice most effectively uses data from the table to complete the statement?',
+    'A) ranged from 5.0 to 92.00, indicating that well-being varied widely from participant to participant.',
+    'B) were lower for two measures, with the rating for only one measure indicating greater well-being for these participants.',
+    'C) ranged from 3.9 to 46.00, with no rating indicating greater well-being in any measure for these participants.',
+    'D) were higher for all three measures, indicating greater overall well-being for these participants.',
   ]),
 }
 
