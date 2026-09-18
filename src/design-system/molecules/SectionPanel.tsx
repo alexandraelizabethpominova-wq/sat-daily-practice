@@ -59,7 +59,7 @@ export default function SectionPanel({eyebrow,title,description,action,children,
         </AlexText>}
         {description&&<AlexText
           sx={{
-            mt:title||eyebrow ? .75 : 0,
+            mt:(title||eyebrow) ? .75 : 0,
             fontSize:13.5,
             lineHeight:1.5,
             color:'#667085',
