@@ -10,18 +10,28 @@ export type SharedQuestionContent={
   needsVisual:boolean
   contentStatus:'metadata'|'verified'|'imported'
   visualSpec:QuestionVisualSpec|null
+  visualSpecs:QuestionVisualSpec[]
   sourceCrop:SourceCrop|null
   questionMode:'text'|'image-fallback'
 }
 
-function parseVisualSpec(crop:unknown,afterLine:unknown):QuestionVisualSpec|null{
-  if(!crop||typeof crop!=='object')return null
+function parseOneVisualSpec(crop:unknown,afterLine:unknown):QuestionVisualSpec|null{
+  if(!crop||typeof crop!=='object'||Array.isArray(crop))return null
   const value=crop as Record<string,unknown>
   const x=Number(value.x),y=Number(value.y),width=Number(value.width),height=Number(value.height)
-  const line=Number(afterLine)
+  const line=Number(value.afterLine??afterLine)
   if([x,y,width,height,line].some(number=>Number.isNaN(number)))return null
   if(x<0||y<0||width<=0||height<=0||x+width>1||y+height>1||line<-1)return null
   return {afterLine:line,crop:{x,y,width,height},exact:true}
+}
+
+function parseVisualSpecs(crop:unknown,afterLine:unknown):QuestionVisualSpec[]{
+  if(Array.isArray(crop))return crop.flatMap(item=>{
+    const parsed=parseOneVisualSpec(item,afterLine)
+    return parsed?[parsed]:[]
+  })
+  const parsed=parseOneVisualSpec(crop,afterLine)
+  return parsed?[parsed]:[]
 }
 
 function idMatchesPracticeTest(id:string,practiceTestId:string){
@@ -73,6 +83,7 @@ export async function loadSharedQuestionContent(questionId:string,expectedPracti
   if(!data)return null
   if(expectedPracticeTestId&&data.practice_test_id!==expectedPracticeTestId)return null
   if(!idMatchesPracticeTest(data.id,data.practice_test_id))return null
+  const visualSpecs=parseVisualSpecs(data.visual_crop,data.visual_after_line)
   return {
     questionId:data.id,
     practiceTestId:data.practice_test_id,
@@ -80,7 +91,8 @@ export async function loadSharedQuestionContent(questionId:string,expectedPracti
     explanationLines:Array.isArray(data.explanation_lines)?data.explanation_lines as string[]:[],
     needsVisual:Boolean(data.needs_visual),
     contentStatus:data.content_status as SharedQuestionContent['contentStatus'],
-    visualSpec:parseVisualSpec(data.visual_crop,data.visual_after_line),
+    visualSpec:visualSpecs[0]??null,
+    visualSpecs,
     sourceCrop:data.source_crop as SourceCrop|null,
     questionMode:data.question_mode as SharedQuestionContent['questionMode'],
   }
