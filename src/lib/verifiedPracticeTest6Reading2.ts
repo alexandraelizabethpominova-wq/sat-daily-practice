@@ -156,6 +156,13 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) the Argentine textile artist Alexandra Kehayoglou creates topological tapestries that are',
     'C) when she creates her topological tapestries, Argentine textile artist Alexandra Kehayoglou makes them',
     'D) Alexandra Kehayoglou is an Argentine textile artist whose topological tapestries are',
+  ]),  22:q([
+    'Physical materials can be classified by how much light passes through them. Clear glass, which is classified as transparent, allows all (or almost all) light to pass _______ wax paper, which is classified as translucent, allows only some light to pass through.',
+    'Which choice completes the text so that it conforms to the conventions of Standard English?',
+    'A) through,',
+    'B) through',
+    'C) through;',
+    'D) through and',
   ]),
 }
 
