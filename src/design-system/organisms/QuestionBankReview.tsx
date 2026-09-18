@@ -5,8 +5,7 @@ import AlexDropdown from '../atoms/AlexDropdown'
 import AlexTextField from '../atoms/AlexTextField'
 import AlexText from '../atoms/AlexText'
 import ParsingIssueReporter from '../molecules/ParsingIssueReporter'
-import QuestionContent from '../molecules/QuestionContent'
-import SourceViewer from '../molecules/SourceViewer'
+import QuestionSourceReview from '../molecules/QuestionSourceReview'
 import {availablePracticeTests,moduleLabel,practiceTestLabel,QUESTION_BANK} from '../../lib/questionBank'
 import {groupQuestionsByModule} from '../../lib/questionBankGroups'
 import {loadSharedQuestionBank} from '../../lib/sharedQuestionBank'
@@ -97,19 +96,7 @@ export default function QuestionBankReview({questionsPdf}:Props){
           <AlexText component="span" sx={{fontSize:12,color:'#667085'}}>{hasQuestionsPdf?`PDF page ${selected.sourcePage}`:'Shared bank'}</AlexText>
         </div>
         <ParsingIssueReporter question={selected} context="question-bank"/>
-        <div className="question-bank-compare">
-          <article className="question-bank-pane text-pane">
-            <div className="question-bank-pane-label">Text reconstruction</div>
-            <QuestionContent question={selected} bytes={validQuestionsPdf} alt={`${questionLabel(selected)} text`} showOriginalLayout={false} reflowProse/>
-          </article>
-          {hasQuestionsPdf&&validQuestionsPdf?<article className="question-bank-pane pdf-pane">
-            <div className="question-bank-pane-label">Original PDF</div>
-            <SourceViewer pdfKey="questions" bytes={validQuestionsPdf} page={selected.sourcePage} questionNumber={selected.number} alt={`${questionLabel(selected)} original PDF`}/>
-          </article>:<article className="question-bank-pane pdf-pane">
-            <div className="question-bank-pane-label">Original PDF</div>
-            <p className="question-bank-no-results">Source PDF is not available on this device. Add it in Resources to enable the original-PDF comparison.</p>
-          </article>}
-        </div>
+        <QuestionSourceReview question={selected} questionsPdf={validQuestionsPdf}/>
       </section>}
     </div>
   </main>
