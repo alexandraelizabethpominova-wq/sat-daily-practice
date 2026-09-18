@@ -10,7 +10,10 @@ import {getQuestionContent} from '../../lib/questionContentStore'
 import {loadSharedQuestionContent,saveSharedQuestionRepair} from '../../lib/sharedQuestionBank'
 import {verifiedMathContent} from '../../lib/verifiedMathQuestions'
 import {verifiedPracticeTest5Math1Content} from '../../lib/verifiedPracticeTest5Math1'
-import {questionVisualSpec,type QuestionVisualSpec} from '../../lib/questionVisuals'
+import {verifiedPracticeTest6Reading1Content} from '../../lib/verifiedPracticeTest6Reading1'
+import {verifiedPracticeTest6Reading2Content} from '../../lib/verifiedPracticeTest6Reading2'
+import {verifiedPracticeTest6Math1Content} from '../../lib/verifiedPracticeTest6Math1'
+import {questionVisualSpecs,type QuestionVisualSpec} from '../../lib/questionVisuals'
 import usePracticeTestPdf from '../../hooks/usePracticeTestPdf'
 import type {PracticeQuestion} from '../../types'
 
@@ -26,6 +29,7 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
   const resolvedQuestionsPdf=usePracticeTestPdf(question,'questions',questionsPdf)
   const[questionText,setQuestionText]=useState('')
   const[visualSpec,setVisualSpec]=useState<QuestionVisualSpec|null>(null)
+  const[visualSpecs,setVisualSpecs]=useState<QuestionVisualSpec[]>([])
   const[loading,setLoading]=useState(true)
   const[saving,setSaving]=useState(false)
   const[message,setMessage]=useState('')
@@ -38,9 +42,15 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
       try{
         const shared=await loadSharedQuestionContent(question.id,question.practiceTestId).catch(()=>null)
         let local=await getQuestionContent(question.id).catch(()=>undefined)
-        const verified=question.practiceTestId==='practice-test-5'&&question.module==='math1'
-          ?verifiedPracticeTest5Math1Content(question.number)
-          :question.practiceTestId==='practice-test-4'&&question.subject==='math'?verifiedMathContent(question.id):undefined
+        const verified=question.practiceTestId==='practice-test-6'&&(question.module==='rw1'||question.module==='rw2'||question.module==='math1')
+          ?question.module==='rw1'
+            ?verifiedPracticeTest6Reading1Content(question.number)
+            :question.module==='rw2'
+              ?verifiedPracticeTest6Reading2Content(question.number)
+              :verifiedPracticeTest6Math1Content(question.number)
+          :question.practiceTestId==='practice-test-5'&&question.module==='math1'
+            ?verifiedPracticeTest5Math1Content(question.number)
+            :question.practiceTestId==='practice-test-4'&&question.subject==='math'?verifiedMathContent(question.id):undefined
 
         if(!local?.questionLines.length&&resolvedQuestionsPdf&&!verified){
           local=await ensureQuestionText(question,resolvedQuestionsPdf).catch(()=>local)
@@ -48,12 +58,16 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
         if(cancelled)return
 
         const questionLines=shared?.questionLines.length?shared.questionLines:verified?.lines?.length?verified.lines:local?.questionLines??[]
-        const bundledVisual=questionVisualSpec(question.id)??null
-        const sharedControlsVisual=Boolean(shared&&shared.contentStatus!=='metadata')
-        const resolvedVisual=shared?.visualSpec??(sharedControlsVisual&&!shared?.needsVisual?null:bundledVisual)
+        const bundledVisuals=questionVisualSpecs(question.id)
+        const sharedHasText=Boolean(shared?.questionLines.length)
+        const sharedControlsVisual=Boolean(shared&&shared.contentStatus!=='metadata'&&!(verified&&!sharedHasText))
+        const resolvedVisuals=shared?.visualSpecs?.length
+          ?shared.visualSpecs
+          :sharedControlsVisual&&!shared?.needsVisual?[]:bundledVisuals
 
         setQuestionText(questionLines.join('\n'))
-        setVisualSpec(resolvedVisual?{...resolvedVisual,exact:true}:null)
+        setVisualSpecs(resolvedVisuals)
+        setVisualSpec(resolvedVisuals[0]?{...resolvedVisuals[0],exact:true}:null)
       }catch(reason){
         if(!cancelled)setError(reason instanceof Error?reason.message:'Unable to prepare this question for editing.')
       }finally{if(!cancelled)setLoading(false)}
@@ -66,7 +80,9 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
     if(!questionLines.length){setError('Question text cannot be empty.');return}
     setSaving(true);setError('');setMessage('')
     try{
-      await saveSharedQuestionRepair({questionId:question.id,questionLines,visualSpec})
+      const nextVisuals=visualSpec?[visualSpec,...visualSpecs.slice(1)]:visualSpecs.slice(1)
+      await saveSharedQuestionRepair({questionId:question.id,questionLines,visualSpecs:nextVisuals})
+      setVisualSpecs(nextVisuals)
       setMessage('Fix saved to the shared Question Bank.')
       onSaved?.()
     }catch(reason){
@@ -79,6 +95,7 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
     <AlexText sx={{fontSize:13,color:'#667085',mt:.4,mb:1.75}}>Edit only the reconstructed question text and source visual. The explanation always stays in its original PDF format.</AlexText>
     {loading?<AlexText sx={{color:'#667085'}}>Preparing editable content…</AlexText>:<AlexBox sx={{display:'grid',gap:1.5}}>
       <AlexTextField label="Question text" multiline minRows={8} value={questionText} onChange={event=>setQuestionText(event.target.value)}/>
+      {visualSpecs.length>1&&<AlexText sx={{fontSize:12,color:'#667085'}}>This question has {visualSpecs.length} source visual regions. The editor below adjusts the first region; the remaining regions are preserved when saving.</AlexText>}
       <VisualCropEditor question={question} bytes={resolvedQuestionsPdf} value={visualSpec} onChange={setVisualSpec} lineCount={toLines(questionText).length}/>
       {error&&<AlexText role="alert" sx={{fontSize:13,color:'#B42318'}}>{error}</AlexText>}
       {message&&<AlexText role="status" sx={{fontSize:13,color:'#067647'}}>{message}</AlexText>}

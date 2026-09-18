@@ -10,23 +10,41 @@ export type SharedQuestionContent={
   needsVisual:boolean
   contentStatus:'metadata'|'verified'|'imported'
   visualSpec:QuestionVisualSpec|null
+  visualSpecs:QuestionVisualSpec[]
   sourceCrop:SourceCrop|null
   questionMode:'text'|'image-fallback'
 }
 
-function parseVisualSpec(crop:unknown,afterLine:unknown):QuestionVisualSpec|null{
-  if(!crop||typeof crop!=='object')return null
+function parseOneVisualSpec(crop:unknown,afterLine:unknown):QuestionVisualSpec|null{
+  if(!crop||typeof crop!=='object'||Array.isArray(crop))return null
   const value=crop as Record<string,unknown>
   const x=Number(value.x),y=Number(value.y),width=Number(value.width),height=Number(value.height)
-  const line=Number(afterLine)
+  const line=Number(value.afterLine??afterLine)
   if([x,y,width,height,line].some(number=>Number.isNaN(number)))return null
   if(x<0||y<0||width<=0||height<=0||x+width>1||y+height>1||line<-1)return null
-  return {afterLine:line,crop:{x,y,width,height},exact:true}
+  const kind=value.kind==='choice-grid'?'choice-grid':value.kind==='figure'?'figure':undefined
+  return {afterLine:line,crop:{x,y,width,height},exact:true,kind}
+}
+
+function parseVisualSpecs(crop:unknown,afterLine:unknown):QuestionVisualSpec[]{
+  if(Array.isArray(crop))return crop.flatMap(item=>{
+    const parsed=parseOneVisualSpec(item,afterLine)
+    return parsed?[parsed]:[]
+  })
+  const parsed=parseOneVisualSpec(crop,afterLine)
+  return parsed?[parsed]:[]
 }
 
 function idMatchesPracticeTest(id:string,practiceTestId:string){
   if(practiceTestId==='practice-test-4')return !id.startsWith('practice-test-')
   return id.startsWith(`${practiceTestId}:`)
+}
+
+export function mergeQuestionBanks(bundled:PracticeQuestion[],shared:PracticeQuestion[]|null|undefined){
+  if(!shared?.length)return bundled
+  const merged=new Map(bundled.map(question=>[question.id,question]))
+  shared.forEach(question=>merged.set(question.id,question))
+  return [...merged.values()]
 }
 
 export async function loadSharedQuestionBank():Promise<PracticeQuestion[]|null>{
@@ -66,6 +84,7 @@ export async function loadSharedQuestionContent(questionId:string,expectedPracti
   if(!data)return null
   if(expectedPracticeTestId&&data.practice_test_id!==expectedPracticeTestId)return null
   if(!idMatchesPracticeTest(data.id,data.practice_test_id))return null
+  const visualSpecs=parseVisualSpecs(data.visual_crop,data.visual_after_line)
   return {
     questionId:data.id,
     practiceTestId:data.practice_test_id,
@@ -73,7 +92,8 @@ export async function loadSharedQuestionContent(questionId:string,expectedPracti
     explanationLines:Array.isArray(data.explanation_lines)?data.explanation_lines as string[]:[],
     needsVisual:Boolean(data.needs_visual),
     contentStatus:data.content_status as SharedQuestionContent['contentStatus'],
-    visualSpec:parseVisualSpec(data.visual_crop,data.visual_after_line),
+    visualSpec:visualSpecs[0]??null,
+    visualSpecs,
     sourceCrop:data.source_crop as SourceCrop|null,
     questionMode:data.question_mode as SharedQuestionContent['questionMode'],
   }
@@ -82,15 +102,24 @@ export async function loadSharedQuestionContent(questionId:string,expectedPracti
 export async function saveSharedQuestionRepair(input:{
   questionId:string
   questionLines:string[]
-  visualSpec:QuestionVisualSpec|null
+  visualSpec?:QuestionVisualSpec|null
+  visualSpecs?:QuestionVisualSpec[]
 }){
   if(!supabase)throw new Error('Supabase is not configured for shared question repairs.')
-  const visual=input.visualSpec
+  const visuals=input.visualSpecs??(input.visualSpec?[input.visualSpec]:[])
+  const encodeVisual=(visual:QuestionVisualSpec,includeLine:boolean)=>({
+    ...visual.crop,
+    ...(includeLine?{afterLine:visual.afterLine}:{}),
+    ...(visual.kind?{kind:visual.kind}:{}),
+  })
+  const visualCrop=visuals.length>1
+    ?visuals.map(visual=>encodeVisual(visual,true))
+    :visuals[0]?encodeVisual(visuals[0],false):null
   const {error}=await supabase.from('sat_question_bank').update({
     question_lines:input.questionLines,
-    needs_visual:Boolean(visual),
-    visual_crop:visual?visual.crop:null,
-    visual_after_line:visual?visual.afterLine:null,
+    needs_visual:visuals.length>0,
+    visual_crop:visualCrop,
+    visual_after_line:visuals.length===1?visuals[0].afterLine:null,
     content_status:'verified',
     updated_at:new Date().toISOString(),
   }).eq('id',input.questionId)

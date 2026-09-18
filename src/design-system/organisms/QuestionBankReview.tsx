@@ -6,9 +6,9 @@ import AlexTextField from '../atoms/AlexTextField'
 import AlexText from '../atoms/AlexText'
 import ParsingIssueReporter from '../molecules/ParsingIssueReporter'
 import QuestionSourceReview from '../molecules/QuestionSourceReview'
-import {availablePracticeTests,moduleLabel,practiceTestLabel} from '../../lib/questionBank'
+import {availablePracticeTests,moduleLabel,practiceTestLabel,QUESTION_BANK} from '../../lib/questionBank'
 import {groupQuestionsByPracticeTest} from '../../lib/questionBankGroups'
-import {loadSharedQuestionBank} from '../../lib/sharedQuestionBank'
+import {loadSharedQuestionBank,mergeQuestionBanks} from '../../lib/sharedQuestionBank'
 import type {PracticeQuestion,PracticeTestFilter} from '../../types'
 
 type Props={questionsPdf:ArrayBuffer|null}
@@ -20,7 +20,7 @@ export default function QuestionBankReview({questionsPdf}:Props){
   const[practiceTestFilter,setPracticeTestFilter]=useState<PracticeTestFilter>('all')
   const[moduleFilter,setModuleFilter]=useState<ModuleFilter>('all')
   const[search,setSearch]=useState('')
-  const[bank,setBank]=useState<PracticeQuestion[]>([])
+  const[bank,setBank]=useState<PracticeQuestion[]>(()=>QUESTION_BANK)
   const[selectedId,setSelectedId]=useState('')
   const hasQuestionsPdf=Boolean(questionsPdf?.byteLength)
   const validQuestionsPdf=hasQuestionsPdf?questionsPdf:null
@@ -28,7 +28,7 @@ export default function QuestionBankReview({questionsPdf}:Props){
   useEffect(()=>{
     let cancelled=false
     void loadSharedQuestionBank().then(shared=>{
-      if(!cancelled&&shared?.length)setBank(shared)
+      if(!cancelled)setBank(mergeQuestionBanks(QUESTION_BANK,shared))
     }).catch(error=>console.warn('Shared Question Bank load failed; using bundled metadata.',error))
     return()=>{cancelled=true}
   },[])
@@ -52,20 +52,23 @@ export default function QuestionBankReview({questionsPdf}:Props){
 
   return <main className="question-bank-page">
     <header className="question-bank-heading">
-      <div>
+      <div className="question-bank-heading-copy">
         <p className="eyebrow">Question Bank</p>
         <h1>Review source questions</h1>
-        <p>Browse the shared question bank. Original-PDF comparison is optional and appears when the source PDF is available on this device.</p>
       </div>
       <div className="question-bank-filters">
-        <AlexDropdown id="question-bank-practice-test" label="Practice test" value={practiceTestFilter} options={practiceTestOptions} onChange={setPracticeTestFilter}/>
-        <AlexDropdown id="question-bank-module" label="Module" value={moduleFilter} options={[
-          {value:'all',label:'All modules'},
-          {value:'math1',label:'Math · Module 1'},
-          {value:'math2',label:'Math · Module 2'},
-          {value:'rw1',label:'Reading & Writing · Module 1'},
-          {value:'rw2',label:'Reading & Writing · Module 2'},
-        ]} onChange={value=>setModuleFilter(value as ModuleFilter)}/>
+        <div className="question-bank-filter-practice-test">
+          <AlexDropdown id="question-bank-practice-test" label="Practice test" value={practiceTestFilter} options={practiceTestOptions} onChange={setPracticeTestFilter}/>
+        </div>
+        <div className="question-bank-filter-module">
+          <AlexDropdown id="question-bank-module" label="Module" value={moduleFilter} options={[
+            {value:'all',label:'All modules'},
+            {value:'math1',label:'Math · Module 1'},
+            {value:'math2',label:'Math · Module 2'},
+            {value:'rw1',label:'Reading & Writing · Module 1'},
+            {value:'rw2',label:'Reading & Writing · Module 2'},
+          ]} onChange={value=>setModuleFilter(value as ModuleFilter)}/>
+        </div>
         <div className="question-bank-search"><Search size={17}/><AlexTextField value={search} onChange={event=>setSearch(event.target.value)} placeholder="Find question"/></div>
       </div>
     </header>

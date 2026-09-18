@@ -83,6 +83,22 @@ function DataTable({headers,rows}:{headers:string[];rows:string[][]}){
   </div>
 }
 
+function ChoiceDataTable({label,headers,rows}:{label:string;headers:string[];rows:string[][]}){
+  return <div className="structured-choice-table">
+    <div className="structured-choice-label">{label})</div>
+    <table aria-label={`Choice ${label}`}>
+      <thead>
+        <tr>{headers.map((header,index)=><th key={`choice-${label}-header-${index}`} scope="col"><AlexRichText text={tableHeaderText(header)}/></th>)}</tr>
+      </thead>
+      <tbody>
+        {rows.map((row,rowIndex)=><tr key={`choice-${label}-row-${rowIndex}`}>
+          {row.map((cell,columnIndex)=><td key={`choice-${label}-cell-${rowIndex}-${columnIndex}`}><AlexRichText text={cell}/></td>)}
+        </tr>)}
+      </tbody>
+    </table>
+  </div>
+}
+
 function dataTableAt(lines:string[],start:number){
   const header=tableCells(lines[start])
   if(!header||header.some(isNumericCell))return null
@@ -210,6 +226,18 @@ export function reflowProseLines(lines:string[]){
       continue
     }
 
+    const standaloneLabel=choiceLabel(line)
+    if(standaloneLabel){
+      const choiceData=dataTableAt(lines,index+1)
+      if(choiceData){
+        flush()
+        result.push(line)
+        for(let row=index+1;row<choiceData.nextIndex;row++)result.push(cleanPdfMathArtifacts(lines[row]))
+        index=choiceData.nextIndex
+        continue
+      }
+    }
+
     const choice=consumeChoice(lines,index)
     if(choice){
       flush()
@@ -262,6 +290,14 @@ export default function StructuredQuestionLines({lines,reflowProse=false}:{lines
     }
 
     const label=choiceLabel(line)
+    if(label){
+      const choiceData=dataTableAt(sourceLines,index+1)
+      if(choiceData){
+        output.push(<ChoiceDataTable key={`choice-data-table-${index}`} label={label} headers={choiceData.headers} rows={choiceData.rows}/>)
+        index=choiceData.nextIndex
+        continue
+      }
+    }
     if(label&&index+2<sourceLines.length){
       const first=tableCells(sourceLines[index+1])
       const second=tableCells(sourceLines[index+2])

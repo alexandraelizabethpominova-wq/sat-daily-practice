@@ -1,4 +1,4 @@
-import {useEffect,useState} from 'react'
+import {useEffect,useState,type ReactNode} from 'react'
 import '../../structured.css'
 import QuestionVisualSlice from '../../components/QuestionVisualSlice'
 import SourceViewer from './SourceViewer'
@@ -8,9 +8,12 @@ import {ensureQuestionText} from '../../lib/pdfStructuredImport'
 import {getQuestionContent,isCurrentQuestionContent,QUESTION_CONTENT_VERSION,type StoredQuestionContent} from '../../lib/questionContentStore'
 import {loadSharedQuestionContent} from '../../lib/sharedQuestionBank'
 import {verifiedMathContent} from '../../lib/verifiedMathQuestions'
-import {questionVisualSpec,type QuestionVisualSpec} from '../../lib/questionVisuals'
+import {questionVisualSpecs,type QuestionVisualSpec} from '../../lib/questionVisuals'
 import {isPracticeTest5Math1Verified} from '../../lib/practiceTest5Math1Layout'
 import {verifiedPracticeTest5Math1Content} from '../../lib/verifiedPracticeTest5Math1'
+import {verifiedPracticeTest6Reading1Content} from '../../lib/verifiedPracticeTest6Reading1'
+import {verifiedPracticeTest6Reading2Content} from '../../lib/verifiedPracticeTest6Reading2'
+import {verifiedPracticeTest6Math1Content} from '../../lib/verifiedPracticeTest6Math1'
 import usePracticeTestPdf from '../../hooks/usePracticeTestPdf'
 import type {PracticeQuestion} from '../../types'
 
@@ -20,16 +23,24 @@ function RenderQuestionLines({question,lines,reflowProse=false}:{question:Practi
   return question.subject==='english'?<ReadingQuestionLines lines={lines} questionId={question.id}/>:<StructuredQuestionLines lines={lines} reflowProse={reflowProse}/>
 }
 
-function LinesWithSourceVisual({question,bytes,lines,alt,visual,sourceCrop,reflowProse=false}:{question:PracticeQuestion;bytes:ArrayBuffer|null;lines:string[];alt:string;visual:QuestionVisualSpec;sourceCrop?:PracticeQuestion['sourceCrop'];reflowProse?:boolean}){
+function LinesWithSourceVisuals({question,bytes,lines,alt,visuals,sourceCrop,reflowProse=false}:{question:PracticeQuestion;bytes:ArrayBuffer|null;lines:string[];alt:string;visuals:QuestionVisualSpec[];sourceCrop?:PracticeQuestion['sourceCrop'];reflowProse?:boolean}){
   if(!bytes)return <RenderQuestionLines question={question} lines={lines} reflowProse={reflowProse}/>
-  const split=Math.max(0,Math.min(lines.length,visual.afterLine+1))
-  const before=lines.slice(0,split)
-  const after=lines.slice(split)
-  return <>
-    {before.length>0&&<RenderQuestionLines question={question} lines={before} reflowProse={reflowProse}/>} 
-    <QuestionVisualSlice question={question} bytes={bytes} crop={visual.crop} alt={`${alt} figure from source PDF`} expand={!visual.exact} sourceCrop={sourceCrop}/>
-    {after.length>0&&<RenderQuestionLines question={question} lines={after} reflowProse={reflowProse}/>} 
-  </>
+  const ordered=[...visuals].sort((a,b)=>a.afterLine-b.afterLine)
+  const output:ReactNode[]=[]
+  let cursor=0
+  ordered.forEach((visual,index)=>{
+    const split=Math.max(cursor,Math.min(lines.length,visual.afterLine+1))
+    const before=lines.slice(cursor,split)
+    if(before.length)output.push(<RenderQuestionLines key={`text-${index}`} question={question} lines={before} reflowProse={reflowProse}/>)
+    const visualAlt=visual.kind==='choice-grid'
+      ?`${alt} graphical answer choices A through D from source PDF`
+      :`${alt} figure ${index+1} from source PDF`
+    output.push(<QuestionVisualSlice key={`visual-${index}`} question={question} bytes={bytes} crop={visual.crop} alt={visualAlt} expand={!visual.exact} sourceCrop={sourceCrop} variant={visual.kind}/>)
+    cursor=split
+  })
+  const after=lines.slice(cursor)
+  if(after.length)output.push(<RenderQuestionLines key="text-final" question={question} lines={after} reflowProse={reflowProse}/>)
+  return <>{output}</>
 }
 
 function storedFromShared(questionId:string,questionLines:string[],explanationLines:string[],needsVisual:boolean,questionMode:'text'|'image-fallback'='text'):StoredQuestionContent{
@@ -43,7 +54,7 @@ function storedFromShared(questionId:string,questionLines:string[],explanationLi
 export default function QuestionContent({question,bytes,alt,showOriginalLayout=true,reflowProse=false}:Props){
   const sourceBytes=usePracticeTestPdf(question,'questions',bytes)
   const[content,setContent]=useState<StoredQuestionContent|null>(null)
-  const[visual,setVisual]=useState<QuestionVisualSpec|null>(null)
+  const[visuals,setVisuals]=useState<QuestionVisualSpec[]>([])
   const[error,setError]=useState('')
   const[revision,setRevision]=useState(0)
 
@@ -60,21 +71,46 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
     let cancelled=false
     setContent(null)
     setError('')
-    setVisual(null)
+    setVisuals([])
 
     void (async()=>{
       try{
         const shared=await loadSharedQuestionContent(question.id,question.practiceTestId).catch(()=>null)
         if(cancelled)return
 
-        const bundledVisual=questionVisualSpec(question.id)??null
-        const sharedControlsVisual=Boolean(shared&&shared.contentStatus!=='metadata')
-        const resolvedVisual=shared?.visualSpec??(sharedControlsVisual&&!shared?.needsVisual?null:bundledVisual)
-        const resolvedSourceCrop=shared?.sourceCrop??question.sourceCrop??null
-        setVisual(resolvedVisual)
+        const bundledVisuals=questionVisualSpecs(question.id)
+        const verifiedPracticeTest6Bundled=question.practiceTestId==='practice-test-6'
+          ?question.module==='rw1'
+            ?verifiedPracticeTest6Reading1Content(question.number)
+            :question.module==='rw2'
+              ?verifiedPracticeTest6Reading2Content(question.number)
+              :question.module==='math1'
+                ?verifiedPracticeTest6Math1Content(question.number)
+                :undefined
+          :undefined
+        const sharedHasText=Boolean(shared?.questionLines.length)
+        const sharedControlsVisual=Boolean(shared&&shared.contentStatus!=='metadata'&&!(verifiedPracticeTest6Bundled&&!sharedHasText))
+        const sharedVisuals=shared?.visualSpecs??[]
+        const resolvedVisuals=sharedVisuals.length?sharedVisuals:(sharedControlsVisual&&!shared?.needsVisual?[]:bundledVisuals)
+        setVisuals(resolvedVisuals)
 
-        if(shared&&(shared.questionLines.length||shared.questionMode==='image-fallback')){
-          setContent(storedFromShared(question.id,shared.questionLines,shared.explanationLines,Boolean(resolvedVisual),shared.questionMode))
+        if(sharedHasText&&shared){
+          setContent(storedFromShared(question.id,shared.questionLines,shared.explanationLines,resolvedVisuals.length>0,shared.questionMode))
+          return
+        }
+
+        if(verifiedPracticeTest6Bundled){
+          setContent(storedFromShared(question.id,verifiedPracticeTest6Bundled.lines,shared?.explanationLines??[],resolvedVisuals.length>0||Boolean(verifiedPracticeTest6Bundled.needsVisual),'text'))
+          return
+        }
+
+        if(shared?.questionMode==='image-fallback'){
+          setContent(storedFromShared(question.id,[],shared.explanationLines,resolvedVisuals.length>0,'image-fallback'))
+          return
+        }
+
+        if(question.questionMode==='image-fallback'&&question.contentStatus==='verified'){
+          setContent(storedFromShared(question.id,[],[],false,'image-fallback'))
           return
         }
 
@@ -85,14 +121,14 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
             return
           }
           if(verified){
-            setContent(storedFromShared(question.id,verified.lines,[],Boolean(resolvedVisual??verified.needsVisual)))
+            setContent(storedFromShared(question.id,verified.lines,[],resolvedVisuals.length>0||Boolean(verified.needsVisual)))
             return
           }
         }
 
         const verified=question.practiceTestId==='practice-test-4'&&question.subject==='math'?verifiedMathContent(question.id):undefined
         if(verified){
-          setContent(storedFromShared(question.id,verified.lines,shared?.explanationLines??[],Boolean(resolvedVisual??verified.needsVisual)))
+          setContent(storedFromShared(question.id,verified.lines,shared?.explanationLines??[],resolvedVisuals.length>0||Boolean(verified.needsVisual)))
           return
         }
 
@@ -104,14 +140,14 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
         if(question.subject==='english'&&sourceBytes){
           const extracted=await ensureQuestionText(question,sourceBytes)
           if(cancelled)return
-          if(extracted&&isCurrentQuestionContent(extracted))setContent({...extracted,needsVisual:Boolean(resolvedVisual)||extracted.needsVisual})
+          if(extracted&&isCurrentQuestionContent(extracted))setContent({...extracted,needsVisual:resolvedVisuals.length>0||extracted.needsVisual})
           else setError('Question text is not available in this browser yet.')
           return
         }
 
         const local=sourceBytes?await ensureQuestionText(question,sourceBytes):await getQuestionContent(question.id)
         if(cancelled)return
-        if(local&&isCurrentQuestionContent(local))setContent({...local,needsVisual:Boolean(resolvedVisual)||local.needsVisual})
+        if(local&&isCurrentQuestionContent(local))setContent({...local,needsVisual:resolvedVisuals.length>0||local.needsVisual})
         else setError('Question text is not available in this browser yet.')
       }catch(reason){
         if(!cancelled)setError(reason instanceof Error?reason.message:'Unable to read this question as text.')
@@ -130,14 +166,14 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
 
   return <div className={question.subject==='english'?'structured-question reading-structured-question':'structured-question'}>
     <div className="structured-lines">
-      {visual&&sourceBytes
-        ?<LinesWithSourceVisual question={question} bytes={sourceBytes} lines={content.questionLines} alt={alt} visual={visual} sourceCrop={question.sourceCrop} reflowProse={reflowProse}/>
+      {visuals.length&&sourceBytes
+        ?<LinesWithSourceVisuals question={question} bytes={sourceBytes} lines={content.questionLines} alt={alt} visuals={visuals} sourceCrop={question.sourceCrop} reflowProse={reflowProse}/>
         :<RenderQuestionLines question={question} lines={content.questionLines} reflowProse={reflowProse}/>} 
     </div>
-    {(content.needsVisual||Boolean(visual))&&!sourceBytes
+    {(content.needsVisual||visuals.length>0)&&!sourceBytes
       ?<div className="visual-fallback"><div className="visual-fallback-label">Source figure will appear when the source asset is available.</div></div>
-      :content.needsVisual&&!visual&&sourceBytes
+      :content.needsVisual&&!visuals.length&&sourceBytes
         ?<div className="visual-fallback"><div className="visual-fallback-label">Figure from the source material</div><SourceViewer pdfKey="questions" bytes={sourceBytes} page={question.sourcePage} questionNumber={question.number} alt={`${alt} figure`} practiceTestId={question.practiceTestId} module={question.module} sourceCrop={question.sourceCrop}/></div>
-        :(showOriginalLayout&&!content.needsVisual&&!visual&&sourceBytes&&<details className="source-layout-details"><summary>View original layout</summary><SourceViewer pdfKey="questions" bytes={sourceBytes} page={question.sourcePage} questionNumber={question.number} alt={alt} practiceTestId={question.practiceTestId} module={question.module} sourceCrop={question.sourceCrop}/></details>)}
+        :(showOriginalLayout&&!content.needsVisual&&!visuals.length&&sourceBytes&&<details className="source-layout-details"><summary>View original layout</summary><SourceViewer pdfKey="questions" bytes={sourceBytes} page={question.sourcePage} questionNumber={question.number} alt={alt} practiceTestId={question.practiceTestId} module={question.module} sourceCrop={question.sourceCrop}/></details>)}
   </div>
 }
