@@ -9,11 +9,24 @@ type Props={
 }
 
 export default function PracticeSettingField({label,helperText,control}:Props){
-  return <AlexBox sx={{display:'grid',gridTemplateColumns:{xs:'1fr',md:'minmax(220px,1fr) minmax(260px,1fr)'},gap:{xs:1,md:3},alignItems:'center',py:1.25}}>
-    <AlexBox>
-      <AlexText component="div" sx={{fontWeight:750,color:'#08275B',fontSize:15.5}}>{label}</AlexText>
-      {helperText&&<AlexText component="div" sx={{mt:.5,color:'#667085',fontSize:13.5,lineHeight:1.45}}>{helperText}</AlexText>}
+  return <AlexBox
+    sx={{
+      display:'grid',
+      gridTemplateColumns:{xs:'1fr',md:'minmax(0,1fr) minmax(280px,360px)'},
+      gap:{xs:1.25,md:4},
+      alignItems:'center',
+      py:{xs:1.5,md:1.75},
+      minWidth:0,
+    }}
+  >
+    <AlexBox sx={{minWidth:0}}>
+      <AlexText component="div" sx={{fontWeight:800,color:'#08275B',fontSize:15}}>
+        {label}
+      </AlexText>
+      {helperText&&<AlexText component="div" sx={{mt:.5,color:'#667085',fontSize:13,lineHeight:1.5}}>
+        {helperText}
+      </AlexText>}
     </AlexBox>
-    <AlexBox sx={{minWidth:0}}>{control}</AlexBox>
+    <AlexBox sx={{minWidth:0,width:'100%'}}>{control}</AlexBox>
   </AlexBox>
 }
