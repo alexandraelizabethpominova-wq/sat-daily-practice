@@ -66,6 +66,35 @@ describe('ReadingQuestionLines',()=>{
 
 
 
+
+  it('renders Text 1 and Text 2 as separately labeled quote blocks',()=>{
+    const lines=[
+      'Text 1',
+      'Conventional wisdom long held that human social systems evolved in stages, beginning with',
+      'hunter-gatherers forming small bands of members with roughly equal status.',
+      READING_PARAGRAPH_BREAK,
+      'Text 2',
+      'In a 2021 book, anthropologist David Graeber and archaeologist David Wengrow maintain that humans',
+      'have always been socially flexible, alternately forming systems based on hierarchy and collective ones.',
+      READING_PARAGRAPH_BREAK,
+      'Based on the texts, how would Graeber and Wengrow (Text 2) most likely respond to the',
+      '“conventional wisdom” presented in Text 1?',
+      READING_PARAGRAPH_BREAK,
+      'A) By conceding the importance of hierarchical systems.',
+      'B) By disputing the idea that developments followed a linear progression.',
+      'C) By acknowledging that hierarchy was absent before agriculture.',
+      'D) By challenging the assumption that hunter-gatherers were early social groups.',
+    ]
+    render(<ReadingQuestionLines lines={lines}/>)
+    expect(screen.getByText('Text 1')).toBeInTheDocument()
+    expect(screen.getByText('Text 2')).toBeInTheDocument()
+    const quotes=screen.getAllByRole('blockquote')
+    expect(quotes).toHaveLength(2)
+    expect(within(quotes[0]).getByText(/Conventional wisdom long held/)).toBeInTheDocument()
+    expect(within(quotes[1]).getByText(/In a 2021 book/)).toBeInTheDocument()
+    expect(screen.getByText(/Based on the texts, how would Graeber and Wengrow/).closest('blockquote')).toBeNull()
+  })
+
   it('does not mistake poem lines beginning with A for answer choices',()=>{
     const lines=[
       'The following text is from the 1923 poem “Black Finger” by Angelina Weld Grimké, a Black American',
