@@ -1,7 +1,7 @@
 import {useEffect,useState} from 'react'
 import '../../structured.css'
 import QuestionVisualSlice from '../../components/QuestionVisualSlice'
-import SourceSlice from '../../components/SourceSlice'
+import SourceViewer from './SourceViewer'
 import StructuredQuestionLines from './StructuredQuestionLines'
 import ReadingQuestionLines from './ReadingQuestionLines'
 import {ensureQuestionText} from '../../lib/pdfStructuredImport'
@@ -81,13 +81,13 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
         {verified.needsVisual&&visual?<LinesWithSourceVisual question={question} bytes={bytes} lines={verified.lines} alt={alt}/>:<StructuredQuestionLines lines={verified.lines}/>} 
       </div>
       {verified.needsVisual&&!bytes&&<div className="visual-fallback"><div className="visual-fallback-label">Source figure will appear when the source asset is available.</div></div>}
-      {verified.needsVisual&&bytes&&!visual&&<div className="visual-fallback"><div className="visual-fallback-label">Figure from the source material</div><SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={`${alt} visual`}/></div>}
-      {!verified.needsVisual&&showOriginalLayout&&bytes&&<details className="source-layout-details"><summary>View original layout</summary><SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={alt}/></details>}
+      {verified.needsVisual&&bytes&&!visual&&<div className="visual-fallback"><div className="visual-fallback-label">Figure from the source material</div><SourceViewer pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={`${alt} visual`}/></div>}
+      {!verified.needsVisual&&showOriginalLayout&&bytes&&<details className="source-layout-details"><summary>View original layout</summary><SourceViewer pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={alt}/></details>}
     </div>
   }
 
   if(error||content?.questionMode==='image-fallback'){
-    if(bytes)return <SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={alt}/>
+    if(bytes)return <SourceViewer pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={alt}/>
     return <div className="structured-loading">{error||'Question text is not available in this browser yet.'}</div>
   }
   if(!content)return <div className="structured-loading">Preparing text question…</div>
@@ -96,6 +96,6 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
     <div className="structured-lines">
       {visual&&bytes?<LinesWithSourceVisual question={question} bytes={bytes} lines={content.questionLines} alt={alt} reflowProse={reflowProse}/>:<RenderQuestionLines question={question} lines={content.questionLines} reflowProse={reflowProse}/>} 
     </div>
-    {(content.needsVisual||Boolean(visual))&&!bytes?<div className="visual-fallback"><div className="visual-fallback-label">Source figure will appear when the source asset is available.</div></div>:content.needsVisual&&!visual&&bytes?<div className="visual-fallback"><div className="visual-fallback-label">Figure from the source material</div><SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={`${alt} figure`}/></div>:(showOriginalLayout&&!content.needsVisual&&!visual&&bytes&&<details className="source-layout-details"><summary>View original layout</summary><SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={alt}/></details>)}
+    {(content.needsVisual||Boolean(visual))&&!bytes?<div className="visual-fallback"><div className="visual-fallback-label">Source figure will appear when the source asset is available.</div></div>:content.needsVisual&&!visual&&bytes?<div className="visual-fallback"><div className="visual-fallback-label">Figure from the source material</div><SourceViewer pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={`${alt} figure`}/></div>:(showOriginalLayout&&!content.needsVisual&&!visual&&bytes&&<details className="source-layout-details"><summary>View original layout</summary><SourceViewer pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={alt}/></details>)}
   </div>
 }
