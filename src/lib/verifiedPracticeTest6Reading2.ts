@@ -88,7 +88,14 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) Its absence from a planet that’s not a mini-Neptune indicates that the planet probably doesn’t have life.',
     'C) It should be treated as a biosignature gas if detected in the atmosphere of a rocky planet but not if detected in the atmosphere of a mini-Neptune.',
     'D) It doesn’t reliably reach high enough concentrations in the atmospheres of rocky planets or mini-Neptunes to be treated as a biosignature gas.',
-  ]),
+  ]),  13:q([
+    'In 2021, four of the United States national parks that were among the most visited were Grand Canyon National Park, Rocky Mountain National Park, Yellowstone National Park, and Zion National Park. The graph shows the number of visits for recreation to each of these parks during the three-month period with the highest number of visitors. A student notes that among the parks shown in the graph, the park with the highest monthly recreation visits in all three months was _______',
+    'Which choice most effectively uses data from the graph to complete the text?',
+    'A) Zion National Park.',
+    'B) Rocky Mountain National Park.',
+    'C) Yellowstone National Park.',
+    'D) Grand Canyon National Park.',
+  ],true),
 }
 
 export function verifiedPracticeTest6Reading2Content(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_READING2[questionNumber]}
