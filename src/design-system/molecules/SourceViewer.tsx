@@ -2,6 +2,7 @@ import {useEffect,useState} from 'react'
 import {Maximize2,Minus,Plus} from 'lucide-react'
 import AlexIconButton from '../atoms/AlexIconButton'
 import SourceSlice from '../../components/SourceSlice'
+import type {ModuleKey,PracticeTestId} from '../../types'
 
 type Props={
   pdfKey:'questions'|'answers'
@@ -13,11 +14,13 @@ type Props={
   minZoom?:number
   maxZoom?:number
   zoomStep?:number
+  practiceTestId?:PracticeTestId
+  module?:ModuleKey
 }
 
 export default function SourceViewer({
   pdfKey,bytes,page,questionNumber,alt,label,
-  minZoom=.7,maxZoom=1.8,zoomStep=.1,
+  minZoom=.7,maxZoom=1.8,zoomStep=.1,practiceTestId,module,
 }:Props){
   const[zoom,setZoom]=useState(1)
   const viewLabel=label??(pdfKey==='questions'?'Question view':'Explanation view')
@@ -37,6 +40,6 @@ export default function SourceViewer({
         <AlexIconButton label={`Fit ${pdfKey==='questions'?'question':'explanation'} to screen`} onClick={()=>setZoom(1)} disabled={zoom===1}><Maximize2 size={16}/></AlexIconButton>
       </div>
     </div>
-    <SourceSlice pdfKey={pdfKey} bytes={bytes} page={page} questionNumber={questionNumber} alt={alt} zoom={zoom}/>
+    <SourceSlice pdfKey={pdfKey} bytes={bytes} page={page} questionNumber={questionNumber} alt={alt} zoom={zoom} practiceTestId={practiceTestId} module={module}/>
   </div>
 }
