@@ -164,7 +164,9 @@ export const VERIFIED_PRACTICE_TEST_6_MATH1:Record<number,VerifiedPracticeTest6M
 ,
   ]),  20:q([
     'What is the $y$-coordinate of the $y$-intercept of the graph of $\\frac{3x}{7}=-\\frac{5y}{9}+21$ in the $xy$-plane?',
-  ]),
+  ]),  21:q([
+    'The graph of $y=2x^2+bx+c$ is shown, where $b$ and $c$ are constants. What is the value of $bc$?',
+  ],true),
 }
 
 export function verifiedPracticeTest6Math1Content(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
