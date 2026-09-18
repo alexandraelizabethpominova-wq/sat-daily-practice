@@ -170,6 +170,13 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) leaves; man-made trash,',
     'C) leaves, man-made trash,',
     'D) leaves; man-made trash;',
+  ]),  24:q([
+    'Latin America is known to have dozens, if not hundreds, of popular dance forms. Only five of these dances are included in international ballroom dance _______ rumba, samba, cha-cha-cha, paso doble, and jive—the last of which is grouped with the other Latin dances despite not having Latin roots.',
+    'Which choice completes the text so that it conforms to the conventions of Standard English?',
+    'A) competitions, however:',
+    'B) competitions, however,',
+    'C) competitions, however;',
+    'D) competitions; however,',
   ]),
 }
 
