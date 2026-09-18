@@ -42,16 +42,15 @@ crops were capped above STOP/footer material.
 
 ## Rendering mode
 
-Practice Test 6 uses `question_mode = 'image-fallback'` with a verified source
-crop for each question. This is an explicit full-question source-backed exception
-under the parsing standard: the repository does not duplicate the full official
-question wording. The displayed question therefore remains exactly tied to its
-Practice Test 6 source PDF, while answer metadata and explanation-page mappings
-remain canonical in Supabase.
+Reading & Writing Module 1 has now completed the structured-content QA pass.
+All 33 questions are stored as verified semantic text. Question 11's data table
+is reconstructed semantically, and only questions 14 and 15 retain source-image
+graph crops. The graph crops were individually checked against the source PDF.
 
-The existing repair/validation workflow can later promote individual questions
-to structured text after a separate wording, math-symbol, table, and visual QA
-pass. Until that happens, the verified source crop is authoritative.
+Reading & Writing Module 2 and both Math modules remain in the verified
+`image-fallback` state until their separate wording, symbol, table, and visual
+QA passes are complete. Their verified source crops remain authoritative in the
+meantime.
 
 ## Source isolation
 
@@ -69,4 +68,4 @@ The Practice Test 6 regression test verifies:
 - official answer metadata
 - student-produced response positions and accepted forms
 - verified source crop presence and page bounds
-- verified source-backed rendering mode
+- verified reconstruction state by module
