@@ -18,11 +18,11 @@ export default function ParsingIssueReporter({question,context,compact=false}:Pr
   async function submit(){
     setSaving(true);setStatus('')
     try{
-      await createParsingIssueReport(question,context,message)
-      setMessage('');setOpen(false);setStatus('Reported. Thank you — it is now in Parsing Issues.')
+      const result=await createParsingIssueReport(question,context,message)
+      setMessage('');setOpen(false);setStatus(result.syncedToAdmin?'Reported. It is now in the shared Parsing Issues queue.':'Saved on this device. Sign in to send reports to the shared Parsing Issues queue.')
     }catch(error){
       console.error('Parsing issue report failed',error)
-      setStatus('The report could not be saved to the cloud. Please try again.')
+      setStatus('The report could not be sent to the shared queue. Please try again.')
     }finally{setSaving(false)}
   }
 
@@ -37,6 +37,6 @@ export default function ParsingIssueReporter({question,context,compact=false}:Pr
         <AlexButton size="small" tone="secondary" disabled={saving} onClick={()=>{setOpen(false);setMessage('')}}>Cancel</AlexButton>
       </AlexBox>
     </AlexSurface>}
-    {status&&<AlexText role="status" sx={{fontSize:12.5,color:status.startsWith('Reported')?'#067647':'#B42318'}}>{status}</AlexText>}
+    {status&&<AlexText role="status" sx={{fontSize:12.5,color:status.startsWith('Reported')||status.startsWith('Saved')?'#067647':'#B42318'}}>{status}</AlexText>}
   </AlexBox>
 }
