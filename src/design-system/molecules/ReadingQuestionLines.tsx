@@ -136,19 +136,47 @@ export function hasCompleteReadingChoices(lines:string[]){return parseReadingQue
 
 function JoinedBlock({lines}:{lines:string[]}){return <p><AlexRichText text={lines.map(clean).join(' ')}/></p>}
 
+type PairedTextSection={label:string;lines:string[]}
+
+function pairedTextSections(blocks:string[][]):PairedTextSection[]|null{
+  const lines=blocks.flat()
+  const first=lines.findIndex(line=>/^Text\s+1$/i.test(clean(line)))
+  const second=lines.findIndex(line=>/^Text\s+2$/i.test(clean(line)))
+  if(first<0||second<=first)return null
+  const firstLines=lines.slice(first+1,second).filter(line=>!isBreak(line))
+  const secondLines=lines.slice(second+1).filter(line=>!isBreak(line))
+  if(!firstLines.length||!secondLines.length)return null
+  return[
+    {label:'Text 1',lines:firstLines},
+    {label:'Text 2',lines:secondLines},
+  ]
+}
+
+function PairedTextPassages({sections}:{sections:PairedTextSection[]}){
+  return <div className="reading-paired-texts">
+    {sections.map(section=><section className="reading-paired-text" key={section.label}>
+      <div className="reading-paired-label">{section.label}</div>
+      <blockquote className="reading-quote reading-paired-quote"><JoinedBlock lines={section.lines}/></blockquote>
+    </section>)}
+  </div>
+}
+
 export default function ReadingQuestionLines({lines,questionId}:{lines:string[];questionId?:string}){
   const parsed=parseReadingQuestion(lines)
   const table=questionId?readingTableSpec(questionId):undefined
+  const pairedTexts=pairedTextSections(parsed.stimulusBlocks)
   return <div className="reading-question-content">
     {table&&<ReadingDataTable table={table}/>} 
     {parsed.intro.length>0&&<div className="reading-intro">{splitBlocks(parsed.intro).map((block,index)=><JoinedBlock key={`intro-${index}`} lines={block}/>)}</div>}
-    {parsed.stimulusBlocks.length>0&&(parsed.isQuote
-      ?<blockquote role="blockquote" className={`reading-stimulus reading-quote${parsed.isVerse?' reading-verse':''}`}>
-        {parsed.isVerse
-          ?parsed.stimulusBlocks.flat().map((line,index)=><span className="reading-verse-line" key={`verse-${index}`}><AlexRichText text={line}/></span>)
-          :parsed.stimulusBlocks.map((block,index)=><JoinedBlock key={`quote-${index}`} lines={block}/>)}
-      </blockquote>
-      :<div className="reading-stimulus">{parsed.stimulusBlocks.map((block,index)=><JoinedBlock key={`stimulus-${index}`} lines={block}/>)}</div>)}
+    {pairedTexts
+      ?<PairedTextPassages sections={pairedTexts}/>
+      :parsed.stimulusBlocks.length>0&&(parsed.isQuote
+        ?<blockquote role="blockquote" className={`reading-stimulus reading-quote${parsed.isVerse?' reading-verse':''}`}>
+          {parsed.isVerse
+            ?parsed.stimulusBlocks.flat().map((line,index)=><span className="reading-verse-line" key={`verse-${index}`}><AlexRichText text={line}/></span>)
+            :parsed.stimulusBlocks.map((block,index)=><JoinedBlock key={`quote-${index}`} lines={block}/>)}
+        </blockquote>
+        :<div className="reading-stimulus">{parsed.stimulusBlocks.map((block,index)=><JoinedBlock key={`stimulus-${index}`} lines={block}/>)}</div>)}
     {parsed.stem&&<p className="reading-question-stem"><AlexRichText text={parsed.stem}/></p>}
     {parsed.choices.length>0&&<div className="reading-answer-options" role="list" aria-label="Answer choices">
       {parsed.choices.map(choice=><div className="reading-answer-choice" role="listitem" key={choice.label}>
