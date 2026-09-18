@@ -1,4 +1,5 @@
 import {useState} from 'react'
+import {Flag} from 'lucide-react'
 import AlexBox from '../atoms/AlexBox'
 import AlexButton from '../atoms/AlexButton'
 import AlexSurface from '../atoms/AlexSurface'
@@ -27,7 +28,7 @@ export default function ParsingIssueReporter({question,context,compact=false}:Pr
   }
 
   return <AlexBox sx={{display:'grid',gap:1}}>
-    {!open&&<AlexButton tone="quiet" size="small" onClick={()=>{setOpen(true);setStatus('')}} sx={{justifySelf:'start',px:compact?0.5:1}}>Report parsing issue</AlexButton>}
+    {!open&&<AlexButton tone="secondary" size="small" startIcon={<Flag size={15}/>} onClick={()=>{setOpen(true);setStatus('')}} sx={{justifySelf:'start'}}>Report parsing issue</AlexButton>}
     {open&&<AlexSurface sx={{p:1.5,border:'1px solid #E6E2DB',borderRadius:2,bgcolor:'#FBFAF8'}}>
       <AlexText sx={{fontSize:13.5,fontWeight:800,color:'#08275B'}}>Flag a parsing or formatting problem</AlexText>
       <AlexText sx={{fontSize:12.5,color:'#667085',mt:.35,mb:1.1}}>The question is attached automatically. Add an optional note about what looks wrong.</AlexText>
