@@ -56,9 +56,13 @@ export default function StudyPlanRecommendation({recommendation,compact=false}:P
         </AlexSurface>
       </AlexBox>}
 
-    {!compact&&recommendation.scoreGuidance&&
+    {!compact&&recommendation.estimatedScore===null&&recommendation.targetScore!==null&&
       <AlexText sx={{mt:1.5,fontSize:12.75,lineHeight:1.5,color:'#667085'}}>
-        {recommendation.scoreGuidance}
+        Complete practice in both sections to establish a score estimate and refine this recommendation.
+      </AlexText>}
+    {!compact&&scoreGoalMet&&recommendation.estimatedScore!==null&&
+      <AlexText sx={{mt:1.5,fontSize:12.75,lineHeight:1.5,color:'#667085'}}>
+        Keep sessions mixed and review missed questions to maintain consistency.
       </AlexText>}
   </AlexSurface>
 }
