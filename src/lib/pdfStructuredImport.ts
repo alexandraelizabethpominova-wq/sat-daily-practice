@@ -3,6 +3,7 @@ import {QUESTION_BANK} from './questionBank'
 import {QUESTION_CROPS} from './questionCrops'
 import {getQuestionContent,isCurrentQuestionContent,QUESTION_CONTENT_VERSION,saveQuestionContent,type StoredQuestionContent} from './questionContentStore'
 import {READING_PARAGRAPH_BREAK} from './readingQuestionFormat'
+import {expandNormalizedCrop,questionVisualSpec} from './questionVisuals'
 import type {PracticeQuestion} from '../types'
 
 GlobalWorkerOptions.workerSrc=new URL('pdfjs-dist/build/pdf.worker.min.mjs',import.meta.url).toString()
@@ -71,12 +72,25 @@ function cleanQuestionLines(lines:string[],questionNumber:number){
     const normalized=line.trim()
     if(!normalized)return false
     if(normalized.length>=8&&/^[.·•\s]+$/.test(normalized))return false
+    if(/^-{3,}$/.test(normalized))return false
+    if(/^(?:I\s*){5,}$/.test(normalized))return false
     if(normalized===String(questionNumber))return false
     if(/^Module\s+\d+$/i.test(normalized))return false
     if(/Unauthorized copying or reuse/i.test(normalized))return false
     if(/^CONTINUE$/i.test(normalized)||/^STOP$/i.test(normalized))return false
     return true
   })
+}
+
+function withoutKnownVisualText(question:PracticeQuestion,crop:{x:number;y:number;width:number;height:number},items:TextItem[]){
+  const spec=questionVisualSpec(question.id)
+  if(!spec)return items
+  const visual=expandNormalizedCrop(spec.crop,.012,.008)
+  const left=crop.x+crop.width*visual.x
+  const top=crop.y+crop.height*visual.y
+  const right=crop.x+crop.width*(visual.x+visual.width)
+  const bottom=crop.y+crop.height*(visual.y+visual.height)
+  return items.filter(item=>item.x<left||item.x>right||item.y<top||item.y>bottom)
 }
 
 function cleanExplanationLines(lines:string[],questionNumber:number){
@@ -105,7 +119,8 @@ export async function extractQuestionLines(question:PracticeQuestion,questionPdf
     item.x>=crop.x-margin&&item.x<=crop.x+crop.width+margin&&
     item.y>=crop.y-margin&&item.y<=crop.y+crop.height+margin
   )
-  return cleanQuestionLines(question.subject==='english'?groupReadingLines(selected):groupLines(selected),question.number)
+  const textItems=question.subject==='english'?withoutKnownVisualText(question,crop,selected):selected
+  return cleanQuestionLines(question.subject==='english'?groupReadingLines(textItems):groupLines(textItems),question.number)
 }
 
 export async function extractExplanationLines(question:PracticeQuestion,answerPdf:ArrayBuffer){
@@ -132,7 +147,7 @@ export async function ensureQuestionText(question:PracticeQuestion,questionPdf:A
     explanationLines:existing?.explanationLines??[],
     questionMode:questionLines.length?'text':'image-fallback',
     explanationMode:existing?.explanationMode??'text',
-    needsVisual:hasVisualReference(questionLines),
+    needsVisual:Boolean(questionVisualSpec(question.id))||hasVisualReference(questionLines),
     importedAt:new Date().toISOString(),
     contentVersion:QUESTION_CONTENT_VERSION,
   }
@@ -172,7 +187,7 @@ export async function importPracticeMaterials(questionPdf:ArrayBuffer,answerPdf:
         explanationLines,
         questionMode:questionLines.length?'text':'image-fallback',
         explanationMode:explanationLines.length?'text':'image-fallback',
-        needsVisual:hasVisualReference(questionLines),
+        needsVisual:Boolean(questionVisualSpec(question.id))||hasVisualReference(questionLines),
         importedAt:new Date().toISOString(),
         contentVersion:QUESTION_CONTENT_VERSION,
       }
