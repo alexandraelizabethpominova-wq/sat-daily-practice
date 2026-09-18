@@ -140,7 +140,7 @@ export default function App(){
   async function record(correct:boolean,selfGraded=false){
     if(!current)return
     const attempt:Attempt={
-      id:uid(),sessionId:sid,questionId:current.id,subject:current.subject,module:current.module,
+      id:uid(),sessionId:sid,questionId:current.id,practiceTestId:current.practiceTestId??'practice-test-4',subject:current.subject,module:current.module,
       questionNumber:current.number,selectedAnswer:selected,correctAnswer:answerLabel(current),correct,selfGraded,
       elapsedMs:Date.now()-qStart,createdAt:new Date().toISOString(),
     }
