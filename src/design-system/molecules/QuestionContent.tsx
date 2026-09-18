@@ -20,21 +20,21 @@ function RenderQuestionLines({question,lines,reflowProse=false}:{question:Practi
   return question.subject==='english'?<ReadingQuestionLines lines={lines} questionId={question.id}/>:<StructuredQuestionLines lines={lines} reflowProse={reflowProse}/>
 }
 
-function LinesWithSourceVisual({question,bytes,lines,alt,visual,reflowProse=false}:{question:PracticeQuestion;bytes:ArrayBuffer|null;lines:string[];alt:string;visual:QuestionVisualSpec;reflowProse?:boolean}){
+function LinesWithSourceVisual({question,bytes,lines,alt,visual,sourceCrop,reflowProse=false}:{question:PracticeQuestion;bytes:ArrayBuffer|null;lines:string[];alt:string;visual:QuestionVisualSpec;sourceCrop?:PracticeQuestion['sourceCrop'];reflowProse?:boolean}){
   if(!bytes)return <RenderQuestionLines question={question} lines={lines} reflowProse={reflowProse}/>
   const split=Math.max(0,Math.min(lines.length,visual.afterLine+1))
   const before=lines.slice(0,split)
   const after=lines.slice(split)
   return <>
     {before.length>0&&<RenderQuestionLines question={question} lines={before} reflowProse={reflowProse}/>} 
-    <QuestionVisualSlice question={question} bytes={bytes} crop={visual.crop} alt={`${alt} figure from source PDF`} expand={!visual.exact}/>
+    <QuestionVisualSlice question={question} bytes={bytes} crop={visual.crop} alt={`${alt} figure from source PDF`} expand={!visual.exact} sourceCrop={sourceCrop}/>
     {after.length>0&&<RenderQuestionLines question={question} lines={after} reflowProse={reflowProse}/>} 
   </>
 }
 
-function storedFromShared(questionId:string,questionLines:string[],explanationLines:string[],needsVisual:boolean):StoredQuestionContent{
+function storedFromShared(questionId:string,questionLines:string[],explanationLines:string[],needsVisual:boolean,questionMode:'text'|'image-fallback'='text'):StoredQuestionContent{
   return {
-    questionId,questionLines,explanationLines,questionMode:'text',
+    questionId,questionLines,explanationLines,questionMode,
     explanationMode:explanationLines.length?'text':'image-fallback',needsVisual,
     importedAt:new Date().toISOString(),contentVersion:QUESTION_CONTENT_VERSION,
   }
@@ -70,10 +70,11 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
         const bundledVisual=questionVisualSpec(question.id)??null
         const sharedControlsVisual=Boolean(shared&&shared.contentStatus!=='metadata')
         const resolvedVisual=shared?.visualSpec??(sharedControlsVisual&&!shared?.needsVisual?null:bundledVisual)
+        const resolvedSourceCrop=shared?.sourceCrop??question.sourceCrop??null
         setVisual(resolvedVisual)
 
-        if(shared?.questionLines.length){
-          setContent(storedFromShared(question.id,shared.questionLines,shared.explanationLines,Boolean(resolvedVisual)))
+        if(shared&&(shared.questionLines.length||shared.questionMode==='image-fallback')){
+          setContent(storedFromShared(question.id,shared.questionLines,shared.explanationLines,Boolean(resolvedVisual),shared.questionMode))
           return
         }
 
@@ -121,7 +122,7 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
   },[question,sourceBytes,revision])
 
   if(content?.questionMode==='image-fallback'){
-    if(sourceBytes)return <SourceViewer pdfKey="questions" bytes={sourceBytes} page={question.sourcePage} questionNumber={question.number} alt={alt} practiceTestId={question.practiceTestId} module={question.module}/>
+    if(sourceBytes)return <SourceViewer pdfKey="questions" bytes={sourceBytes} page={question.sourcePage} questionNumber={question.number} alt={alt} practiceTestId={question.practiceTestId} module={question.module} sourceCrop={question.sourceCrop}/>
     return <div className="structured-loading">Source question is not available for this practice set.</div>
   }
   if(error)return <div className="structured-loading">{error}</div>
@@ -130,13 +131,13 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
   return <div className={question.subject==='english'?'structured-question reading-structured-question':'structured-question'}>
     <div className="structured-lines">
       {visual&&sourceBytes
-        ?<LinesWithSourceVisual question={question} bytes={sourceBytes} lines={content.questionLines} alt={alt} visual={visual} reflowProse={reflowProse}/>
+        ?<LinesWithSourceVisual question={question} bytes={sourceBytes} lines={content.questionLines} alt={alt} visual={visual} sourceCrop={question.sourceCrop} reflowProse={reflowProse}/>
         :<RenderQuestionLines question={question} lines={content.questionLines} reflowProse={reflowProse}/>} 
     </div>
     {(content.needsVisual||Boolean(visual))&&!sourceBytes
       ?<div className="visual-fallback"><div className="visual-fallback-label">Source figure will appear when the source asset is available.</div></div>
       :content.needsVisual&&!visual&&sourceBytes
-        ?<div className="visual-fallback"><div className="visual-fallback-label">Figure from the source material</div><SourceViewer pdfKey="questions" bytes={sourceBytes} page={question.sourcePage} questionNumber={question.number} alt={`${alt} figure`} practiceTestId={question.practiceTestId} module={question.module}/></div>
-        :(showOriginalLayout&&!content.needsVisual&&!visual&&sourceBytes&&<details className="source-layout-details"><summary>View original layout</summary><SourceViewer pdfKey="questions" bytes={sourceBytes} page={question.sourcePage} questionNumber={question.number} alt={alt} practiceTestId={question.practiceTestId} module={question.module}/></details>)}
+        ?<div className="visual-fallback"><div className="visual-fallback-label">Figure from the source material</div><SourceViewer pdfKey="questions" bytes={sourceBytes} page={question.sourcePage} questionNumber={question.number} alt={`${alt} figure`} practiceTestId={question.practiceTestId} module={question.module} sourceCrop={question.sourceCrop}/></div>
+        :(showOriginalLayout&&!content.needsVisual&&!visual&&sourceBytes&&<details className="source-layout-details"><summary>View original layout</summary><SourceViewer pdfKey="questions" bytes={sourceBytes} page={question.sourcePage} questionNumber={question.number} alt={alt} practiceTestId={question.practiceTestId} module={question.module} sourceCrop={question.sourceCrop}/></details>)}
   </div>
 }
