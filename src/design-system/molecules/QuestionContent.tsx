@@ -96,7 +96,7 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
         }
 
         if(question.practiceTestId!=='practice-test-4'&&!isPracticeTest5Math1Verified(question.id)&&!shared?.questionLines.length){
-          setContent({questionId:question.id,questionLines:[],explanationLines:[],questionMode:'image-fallback',explanationMode:'image-fallback',needsVisual:false,importedAt:new Date().toISOString(),contentVersion:QUESTION_CONTENT_VERSION})
+          setError('This question has not been parsed and verified for this practice set yet.')
           return
         }
 
