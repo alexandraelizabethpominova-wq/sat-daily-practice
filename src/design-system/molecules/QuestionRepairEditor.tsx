@@ -34,7 +34,7 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
     setLoading(true);setError('');setMessage('')
     void (async()=>{
       try{
-        const shared=await loadSharedQuestionContent(question.id).catch(()=>null)
+        const shared=await loadSharedQuestionContent(question.id,question.practiceTestId).catch(()=>null)
         let local=await getQuestionContent(question.id).catch(()=>undefined)
         const verified=question.practiceTestId==='practice-test-5'&&question.module==='math1'
           ?verifiedPracticeTest5Math1Content(question.number)
