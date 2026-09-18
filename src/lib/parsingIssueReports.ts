@@ -85,7 +85,7 @@ export async function createParsingIssueReport(question:PracticeQuestion,context
   const report:ParsingIssueReport={
     id:crypto.randomUUID(),
     questionId:question.id,
-    practiceTestId:question.practiceTestId??'practice-test-4',
+    practiceTestId:question.practiceTestId,
     subject:question.subject,module:question.module,questionNumber:question.number,context,
     message:message.trim(),status:'open',createdAt:now,updatedAt:now,
     reporterId:user?.id,isOwnReport:true,
