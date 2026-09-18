@@ -15,10 +15,6 @@ export const VERIFIED_PRACTICE_TEST_6_MATH1:Record<number,VerifiedPracticeTest6M
   ]),  2:q([
     'The scatterplot shows the relationship between two variables, $x$ and $y$.',
     'Which of the following graphs shows the most appropriate model for the data?',
-    'A)',
-    'B)',
-    'C)',
-    'D)',
   ],true),  3:q([
     '$k^2-53=91$',
     'What is the positive solution to the given equation?',
