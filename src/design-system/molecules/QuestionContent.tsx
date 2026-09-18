@@ -3,6 +3,7 @@ import '../../structured.css'
 import QuestionVisualSlice from '../../components/QuestionVisualSlice'
 import SourceSlice from '../../components/SourceSlice'
 import StructuredQuestionLines from './StructuredQuestionLines'
+import ReadingQuestionLines from './ReadingQuestionLines'
 import {ensureQuestionText} from '../../lib/pdfStructuredImport'
 import {getQuestionContent,type StoredQuestionContent} from '../../lib/questionContentStore'
 import {loadSharedQuestionContent} from '../../lib/sharedQuestionBank'
@@ -12,16 +13,20 @@ import type {PracticeQuestion} from '../../types'
 
 type Props={question:PracticeQuestion;bytes:ArrayBuffer|null;alt:string;showOriginalLayout?:boolean;reflowProse?:boolean}
 
+function RenderQuestionLines({question,lines,reflowProse=false}:{question:PracticeQuestion;lines:string[];reflowProse?:boolean}){
+  return question.subject==='english'?<ReadingQuestionLines lines={lines}/>:<StructuredQuestionLines lines={lines} reflowProse={reflowProse}/>
+}
+
 function LinesWithSourceVisual({question,bytes,lines,alt,reflowProse=false}:{question:PracticeQuestion;bytes:ArrayBuffer|null;lines:string[];alt:string;reflowProse?:boolean}){
   const visual=questionVisualSpec(question.id)
-  if(!visual||!bytes)return <StructuredQuestionLines lines={lines} reflowProse={reflowProse}/>
+  if(!visual||!bytes)return <RenderQuestionLines question={question} lines={lines} reflowProse={reflowProse}/>
   const split=Math.max(0,Math.min(lines.length,visual.afterLine+1))
   const before=lines.slice(0,split)
   const after=lines.slice(split)
   return <>
-    {before.length>0&&<StructuredQuestionLines lines={before} reflowProse={reflowProse}/>} 
+    {before.length>0&&<RenderQuestionLines question={question} lines={before} reflowProse={reflowProse}/>} 
     <QuestionVisualSlice question={question} bytes={bytes} crop={visual.crop} alt={`${alt} figure from source PDF`}/>
-    {after.length>0&&<StructuredQuestionLines lines={after} reflowProse={reflowProse}/>} 
+    {after.length>0&&<RenderQuestionLines question={question} lines={after} reflowProse={reflowProse}/>} 
   </>
 }
 
@@ -79,9 +84,9 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
   }
   if(!content)return <div className="structured-loading">Preparing text question…</div>
 
-  return <div className="structured-question">
+  return <div className={question.subject==='english'?'structured-question reading-structured-question':'structured-question'}>
     <div className="structured-lines">
-      {content.needsVisual&&visual?<LinesWithSourceVisual question={question} bytes={bytes} lines={content.questionLines} alt={alt} reflowProse={reflowProse}/>:<StructuredQuestionLines lines={content.questionLines} reflowProse={reflowProse}/>} 
+      {content.needsVisual&&visual?<LinesWithSourceVisual question={question} bytes={bytes} lines={content.questionLines} alt={alt} reflowProse={reflowProse}/>:<RenderQuestionLines question={question} lines={content.questionLines} reflowProse={reflowProse}/>} 
     </div>
     {content.needsVisual&&!bytes?<div className="visual-fallback"><div className="visual-fallback-label">Source figure will appear when the source asset is available.</div></div>:content.needsVisual&&!visual&&bytes?<div className="visual-fallback"><div className="visual-fallback-label">Figure from the source material</div><SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={`${alt} figure`}/></div>:(showOriginalLayout&&!content.needsVisual&&bytes&&<details className="source-layout-details"><summary>View original layout</summary><SourceSlice pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={alt}/></details>)}
   </div>
