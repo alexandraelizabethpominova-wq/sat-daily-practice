@@ -48,9 +48,15 @@ All 66 reading questions are stored as verified semantic text. Module 1 question
 and Module 2 question 13 retain only the necessary source-image graph regions;
 their graph crops were individually checked against the source PDF.
 
-Both Math modules remain in the verified `image-fallback` state until their
-separate wording, symbol, table, and visual QA passes are complete. Their verified
-source crops remain authoritative in the meantime.
+Math Module 1 has completed its structured-content QA pass. All 27 questions are
+stored as verified semantic text. Questions 11, 19, and 26 use semantic tables.
+Questions 2, 5, 14, 15, 21, 23, and 24 retain only the genuinely visual graph,
+diagram, or graphical-answer-choice regions. Question 2 uses two independent
+visual regions so its scatterplot and graphical answer choices stay in source
+reading order without rasterizing the text stem.
+
+Math Module 2 remains in the verified `image-fallback` state until its separate
+wording, symbol, table, and visual QA pass is complete.
 
 ## Source isolation
 
