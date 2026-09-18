@@ -1,0 +1,4 @@
+update public.sat_question_bank
+set question_lines='["Five Eretmochelys imbricata, a type of sea turtle, each have a nest. The table shows an original data set of the number of eggs that each turtle laid in its nest.","Nest\tNumber of eggs","A\t149","B\t144","C\t148","D\t136","E\t139","A sixth nest with 121 eggs is added to create a new data set. Which of the following correctly compares the means of the two data sets?","A) The mean of the original data set is greater than the mean of the new data set.","B) The mean of the original data set is less than the mean of the new data set.","C) The means of both data sets are equal.","D) There is not enough information to compare the means."]'::jsonb,
+    updated_at=now()
+where id='practice-test-5:math2-15' and practice_test_id='practice-test-5';
