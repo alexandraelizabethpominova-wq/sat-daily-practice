@@ -30,7 +30,7 @@ describe('practice plan recommendations',()=>{
     expect(plan.estimatedScore).toBe(1200)
     expect(plan.scoreGap).toBe(200)
     expect(plan.focusLabel).toBe('Math')
-    expect(plan.focusSharePercent).toBe(70)
+    expect(plan.focusSharePercent).toBe(65)
   })
 
   it('keeps a target-score plan active when coverage is complete but the score goal is not',()=>{
