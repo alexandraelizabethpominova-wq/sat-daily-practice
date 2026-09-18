@@ -1,7 +1,7 @@
 import {PRACTICE_TEST_5_MATH1_VISUALS} from './practiceTest5Math1Layout'
 
 export type NormalizedCrop={x:number;y:number;width:number;height:number}
-export type QuestionVisualSpec={afterLine:number;crop:NormalizedCrop;exact?:boolean}
+export type QuestionVisualSpec={afterLine:number;crop:NormalizedCrop;exact?:boolean;kind?:'figure'|'choice-grid'}
 
 // Crops are normalized within the already-verified question crop, not the full PDF page.
 // Keep these deliberately a little generous so axes, labels, and geometry annotations are not clipped.
@@ -33,8 +33,8 @@ export const QUESTION_VISUALS:Record<string,QuestionVisualSpec>={
 
 const QUESTION_VISUAL_GROUPS:Record<string,QuestionVisualSpec[]>={
   'practice-test-6:math1-2':[
-    {afterLine:0,crop:{x:.14,y:.065,width:.40,height:.27},exact:true},
-    {afterLine:1,crop:{x:.03,y:.46,width:.94,height:.52},exact:true},
+    {afterLine:0,crop:{x:.14,y:.065,width:.40,height:.27},exact:true,kind:'figure'},
+    {afterLine:1,crop:{x:.03,y:.46,width:.94,height:.52},exact:true,kind:'choice-grid'},
   ],
 }
 
