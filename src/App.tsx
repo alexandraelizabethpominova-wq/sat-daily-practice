@@ -3,9 +3,11 @@ import {Upload} from 'lucide-react'
 import AlexButton from './design-system/atoms/AlexButton'
 import AlexStatusChip from './design-system/atoms/AlexStatusChip'
 import ExplanationContent from './design-system/molecules/ExplanationContent'
+import ParsingIssueReporter from './design-system/molecules/ParsingIssueReporter'
 import QuestionContent from './design-system/molecules/QuestionContent'
 import AccountAuthPanel from './design-system/organisms/AccountAuthPanel'
 import AppSidebarLayout from './design-system/organisms/AppSidebarLayout'
+import ParsingIssuesDashboard from './design-system/organisms/ParsingIssuesDashboard'
 import PerformanceDashboard from './design-system/organisms/PerformanceDashboard'
 import PracticeAnswerPanel from './design-system/organisms/PracticeAnswerPanel'
 import PracticeSessionHeader from './design-system/organisms/PracticeSessionHeader'
@@ -24,8 +26,8 @@ import type {Attempt,PracticeQuestion,SessionSummary,Settings,SubjectMode} from 
 
 const uid=()=>crypto.randomUUID()
 
-type View='study'|'home'|'practice'|'results'|'stats'|'settings'|'sources'|'question-bank'|'account'
-type SidebarKey='study'|'practice-tests'|'practice-setup'|'question-bank'|'performance'|'resources'
+type View='study'|'home'|'practice'|'results'|'stats'|'settings'|'sources'|'question-bank'|'parsing-issues'|'account'
+type SidebarKey='study'|'practice-tests'|'practice-setup'|'question-bank'|'parsing-issues'|'performance'|'resources'
 
 export default function App(){
   const[settings,setSettings]=useState<Settings>(()=>getSettings())
@@ -221,6 +223,7 @@ export default function App(){
       onPracticeTests={()=>setView('home')}
       onPracticeSetup={()=>setView('settings')}
       onQuestionBank={()=>setView('question-bank')}
+      onParsingIssues={()=>setView('parsing-issues')}
       onPerformance={()=>setView('stats')}
       onResources={()=>setView('sources')}
       onSettings={()=>setView('account')}
@@ -245,6 +248,7 @@ export default function App(){
         <section className="question-panel">
           <div className="question-heading"><div><span>QUESTION {current.number}</span><b>{current.subject==='math'?'Math':'Reading & Writing'}</b></div><AlexStatusChip>READY</AlexStatusChip></div>
           <QuestionContent question={current} bytes={qpdf} alt={`${moduleLabel(current.module)} question ${current.number}`}/>
+          <ParsingIssueReporter question={current} context="practice"/>
         </section>
         <PracticeAnswerPanel
           question={current}
@@ -274,6 +278,7 @@ export default function App(){
             return <article className="review-item" key={attempt.id}>
               <div className="review-head"><div><b>{index+1}. {moduleLabel(attempt.module)} · Q{attempt.questionNumber}</b><span>{attempt.correct?'Correct':'Review'} · {formatDuration(attempt.elapsedMs)}</span></div><div><span>Your answer: <b>{attempt.selectedAnswer||'—'}</b></span><span>Accepted: <b>{answerLabel(question)}</b></span></div></div>
               <details><summary>Review question</summary><QuestionContent question={question} bytes={qpdf} alt={`${moduleLabel(question.module)} question ${question.number}`}/></details>
+              <ParsingIssueReporter question={question} context="session-review" compact/>
               {apdf?<details><summary>Show walkthrough and explanation</summary><ExplanationContent question={question} bytes={apdf}/></details>:<p className="muted">Add the answer-explanations source in Resources to review explanations here.</p>}
             </article>
           })}
@@ -286,6 +291,8 @@ export default function App(){
   if(view==='stats')return withSidebar('performance',<main className="shell"><PerformanceDashboard summary={performance} hasHistory={attempts.length>0} onClearHistory={resetHistory} questionsPdf={qpdf} answersPdf={apdf}/></main>)
 
   if(view==='question-bank')return withSidebar('question-bank',<QuestionBankReview questionsPdf={qpdf}/>,'#F7F6F2')
+
+  if(view==='parsing-issues')return withSidebar('parsing-issues',<ParsingIssuesDashboard/>,'#F7F6F2')
 
   if(view==='account')return withSidebar('practice-tests',<main className="shell">
     <div className="page-heading"><div><p className="eyebrow">Account</p><h1>Account & sync</h1></div></div>
