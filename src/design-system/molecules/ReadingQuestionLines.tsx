@@ -48,14 +48,8 @@ function legacyIntroSplit(lines:string[]){
   return {intro,bodyBlocks:body.length?[body]:[]}
 }
 
-function looksLikeVerse(intro:string[],blocks:string[][]){
-  if(/\bpoem\b/i.test(intro.map(clean).join(' ')))return true
-  const lines=blocks.flat()
-  if(lines.length<3)return false
-  const lengths=lines.map(line=>clean(line).length).filter(Boolean)
-  const average=lengths.reduce((sum,value)=>sum+value,0)/lengths.length
-  const longLines=lengths.filter(length=>length>72).length
-  return average<=52&&longLines===0
+function looksLikeVerse(intro:string[]){
+  return /\bpoem\b/i.test(intro.map(clean).join(' '))
 }
 
 function explicitlyQuoted(blocks:string[][]){
@@ -101,7 +95,7 @@ export function parseReadingQuestion(lines:string[]):ParsedReadingQuestion{
   const stemEnd=choiceIndex>=0?choiceIndex:source.length
   const stem=source.slice(start,stemEnd).filter(line=>!isBreak(line)).map(clean).join(' ')
   const choices=choiceIndex>=0?parseChoices(source.slice(choiceIndex)):[]
-  const isVerse=looksLikeVerse(intro,stimulusBlocks)
+  const isVerse=looksLikeVerse(intro)
   return {intro,stimulusBlocks,stem,choices,isVerse,isQuote:Boolean(intro.length)||isVerse||explicitlyQuoted(stimulusBlocks)}
 }
 
