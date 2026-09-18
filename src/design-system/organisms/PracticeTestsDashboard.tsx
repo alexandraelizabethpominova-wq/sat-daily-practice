@@ -4,12 +4,12 @@ import AlexDivider from '../atoms/AlexDivider'
 import AlexText from '../atoms/AlexText'
 import PracticeOptionCard from '../molecules/PracticeOptionCard'
 
-type Props={questionCount:number;mixedAction:ReactNode;readingAction:ReactNode;mathAction:ReactNode}
+type Props={questionCount:number;practiceSummary:string;mixedAction:ReactNode;readingAction:ReactNode;mathAction:ReactNode}
 
 const FullIcon=()=> <AlexBox sx={{width:22,height:22,borderRadius:'50%',bgcolor:'#C7DFFF'}}/>
 const SectionIcon=()=> <AlexBox sx={{width:22,height:22,borderRadius:'50%',border:'3px solid #BFD9FF',position:'relative',overflow:'hidden'}}><AlexBox sx={{position:'absolute',inset:'-3px -3px -3px 50%',bgcolor:'#D8E8FF'}}/></AlexBox>
 
-export default function PracticeTestsDashboard({questionCount,mixedAction,readingAction,mathAction}:Props){
+export default function PracticeTestsDashboard({questionCount,practiceSummary,mixedAction,readingAction,mathAction}:Props){
   return <AlexBox component="section" sx={{width:'100%',px:{xs:2.5,sm:4,lg:5.5},py:{xs:3,lg:4.2}}}>
     <AlexBox sx={{maxWidth:1010,mx:'auto'}}>
       <AlexBox>
