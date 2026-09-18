@@ -134,6 +134,17 @@ export const VERIFIED_PRACTICE_TEST_6_MATH1:Record<number,VerifiedPracticeTest6M
 ,
     'D) $C=19-\\frac{P}{N}(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
 ,
+  ]),  18:q([
+    '$w^2+12w-40=0$',
+    'Which of the following is a solution to the given equation?',
+    'A) $6-2\\sqrt{19}(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'B) $2\\sqrt{19}(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'C) $\\sqrt{19}(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'D) $-6+2\\sqrt{19}(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
   ]),
 }
 
