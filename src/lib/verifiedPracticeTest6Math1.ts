@@ -19,7 +19,18 @@ export const VERIFIED_PRACTICE_TEST_6_MATH1:Record<number,VerifiedPracticeTest6M
     'B)',
     'C)',
     'D)',
-  ],true),
+  ],true),  3:q([
+    '$k^2-53=91$',
+    'What is the positive solution to the given equation?',
+    'A) $144(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'B) $72(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'C) $38(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'D) $12(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+  ]),
 }
 
 export function verifiedPracticeTest6Math1Content(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
