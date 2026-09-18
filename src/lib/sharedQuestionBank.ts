@@ -1,6 +1,7 @@
 import {supabase} from './supabase'
 import type {QuestionVisualSpec} from './questionVisuals'
 import type {ModuleKey,PracticeQuestion,Subject} from '../types'
+import {QUESTION_BANK} from './questionBank'
 
 export type SharedQuestionContent={
   questionId:string
@@ -29,7 +30,7 @@ export async function loadSharedQuestionBank():Promise<PracticeQuestion[]|null>{
     .order('module',{ascending:true})
     .order('question_number',{ascending:true})
   if(error)throw error
-  return (data??[]).map(row=>({
+  const remote=(data??[]).map(row=>({
     id:row.id,
     practiceTestId:row.practice_test_id,
     subject:row.subject as Subject,
@@ -41,6 +42,10 @@ export async function loadSharedQuestionBank():Promise<PracticeQuestion[]|null>{
     acceptedAnswers:Array.isArray(row.accepted_answers)?row.accepted_answers as string[]:[row.correct_answer],
     responseType:row.response_type as PracticeQuestion['responseType'],
   }))
+  const merged=new Map<string,PracticeQuestion>()
+  QUESTION_BANK.forEach(question=>merged.set(question.id,question))
+  remote.forEach(question=>merged.set(question.id,question))
+  return [...merged.values()]
 }
 
 export async function loadSharedQuestionContent(questionId:string):Promise<SharedQuestionContent|null>{
