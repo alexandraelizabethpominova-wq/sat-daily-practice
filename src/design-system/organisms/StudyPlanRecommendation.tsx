@@ -35,6 +35,7 @@ export default function StudyPlanRecommendation({recommendation}:Props){
       <AlexText sx={{fontSize:12,fontWeight:850,textTransform:'uppercase',letterSpacing:'.07em',color:'#6558F5'}}>Score-improvement focus</AlexText>
       <AlexText sx={{fontSize:13.5,color:'#344054',mt:.65,lineHeight:1.55}}>{recommendation.scoreGuidance}</AlexText>
       {recommendation.focusLabel&&recommendation.focusSharePercent&&<AlexText sx={{fontSize:12.5,color:'#667085',mt:.65}}>Recommended split: about {recommendation.focusSharePercent}% of focused work on {recommendation.focusLabel}, with the remainder kept mixed. Revisit missed questions after reviewing the source/explanation instead of immediately repeating them from memory.</AlexText>}
+      {recommendation.recommendedSessionsPerDay>1&&<AlexText sx={{fontSize:12.5,color:'#667085',mt:.65}}>Because the plan calls for multiple sessions, split them into separate study blocks instead of combining them into one long cram session.</AlexText>}
       <AlexText sx={{fontSize:11.5,color:'#98A2B3',mt:.9}}>The score estimate is a practice trend derived from your question history, not an official College Board score.</AlexText>
     </AlexSurface>
   </AlexSurface>
