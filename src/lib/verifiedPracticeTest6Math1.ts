@@ -98,6 +98,8 @@ export const VERIFIED_PRACTICE_TEST_6_MATH1:Record<number,VerifiedPracticeTest6M
 ,
     'D) $x^4+x^2+146(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
 ,
+  ]),  13:q([
+    'The function $h$ is defined by $h(x)=\\frac{8}{5x+6}$. What is the value of $h(2)$?',
   ]),
 }
 
