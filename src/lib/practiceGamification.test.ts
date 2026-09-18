@@ -1,6 +1,6 @@
 import {describe,expect,it} from 'vitest'
 import {QUESTION_BANK} from './questionBank'
-import {choosePracticeQuestions,formatDuration,summarizePerformance,summarizeSession} from './practiceGamification'
+import {choosePracticeQuestions,countFailedPracticeQuestions,formatDuration,practiceQuestionPool,summarizePerformance,summarizeSession} from './practiceGamification'
 import type {Attempt,SessionSummary,Settings} from '../types'
 
 const settings:Settings={mode:'math',questionsPerSession:3,showExplanations:true,shuffle:true}
@@ -15,6 +15,30 @@ describe('choosePracticeQuestions',()=>{
     const chosen=choosePracticeQuestions(settings,[],()=>0)
     expect(chosen).toHaveLength(3)
     expect(chosen.every(question=>question.subject==='math')).toBe(true)
+  })
+
+
+  it('filters the pool to the selected practice test',()=>{
+    const chosen=choosePracticeQuestions({...settings,practiceTest:'practice-test-4'},[],()=>0)
+    expect(chosen).toHaveLength(3)
+    expect(chosen.every(question=>question.practiceTestId==='practice-test-4')).toBe(true)
+  })
+
+  it('supports random selection without adaptive prioritization',()=>{
+    let call=0
+    const chosen=choosePracticeQuestions({...settings,questionsPerSession:1,selectionMode:'random'},[attempt('math1-1',false)],()=>call++===0?0:1)
+    expect(chosen[0].id).toBe('math1-1')
+  })
+
+  it('can practice only questions whose latest attempt is incorrect',()=>{
+    const attempts=[
+      attempt('math1-1',false,0),
+      attempt('math1-2',false,1),
+      attempt('math1-1',true,2),
+    ]
+    const failedSettings={...settings,failedOnly:true}
+    expect(practiceQuestionPool(failedSettings,attempts).map(question=>question.id)).toEqual(['math1-2'])
+    expect(countFailedPracticeQuestions(failedSettings,attempts)).toBe(1)
   })
 
   it('prioritizes unseen questions over already attempted questions',()=>{
