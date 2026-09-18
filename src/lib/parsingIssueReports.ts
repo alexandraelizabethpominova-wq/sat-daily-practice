@@ -1,4 +1,4 @@
-import {getCurrentAuthUser,supabase} from './supabase'
+import {getCurrentAuthUser,loadUserProfile,supabase} from './supabase'
 import type {ModuleKey,PracticeQuestion,PracticeTestId,Subject} from '../types'
 
 export type ParsingIssueContext='practice'|'session-review'|'question-bank'|'performance'
@@ -16,22 +16,24 @@ export type ParsingIssueReport={
   status:ParsingIssueStatus
   createdAt:string
   updatedAt:string
+  reporterId?:string
+  isOwnReport:boolean
 }
 
 const keyFor=(owner:string)=>`sat-parsing-issues-v1:${owner}`
 
 function readLocal(owner:string):ParsingIssueReport[]{
-  try{return JSON.parse(localStorage.getItem(keyFor(owner))??'[]') as ParsingIssueReport[]}
+  try{return (JSON.parse(localStorage.getItem(keyFor(owner))??'[]') as ParsingIssueReport[]).map(report=>({...report,isOwnReport:true}))}
   catch{return []}
 }
 
 function saveLocal(owner:string,reports:ParsingIssueReport[]){
-  localStorage.setItem(keyFor(owner),JSON.stringify(reports))
+  localStorage.setItem(keyFor(owner),JSON.stringify(reports.filter(report=>report.isOwnReport)))
 }
 
-async function ownerId(){
+async function currentOwner(){
   const user=await getCurrentAuthUser().catch(()=>null)
-  return user?.id??'guest'
+  return user??null
 }
 
 function mergeReports(local:ParsingIssueReport[],remote:ParsingIssueReport[]){
@@ -44,11 +46,12 @@ function mergeReports(local:ParsingIssueReport[],remote:ParsingIssueReport[]){
   return [...merged.values()].sort((a,b)=>b.createdAt.localeCompare(a.createdAt))
 }
 
-function rowToReport(row:any):ParsingIssueReport{
+function rowToReport(row:any,ownerId:string):ParsingIssueReport{
   return {
     id:row.id,questionId:row.question_id,practiceTestId:row.practice_test_id,
     subject:row.subject,module:row.module,questionNumber:row.question_number,context:row.context,
     message:row.message??'',status:row.status,createdAt:row.created_at,updatedAt:row.updated_at,
+    reporterId:row.user_id,isOwnReport:row.user_id===ownerId,
   }
 }
 
@@ -60,22 +63,28 @@ function reportRow(report:ParsingIssueReport,userId:string){
   }
 }
 
-export async function loadParsingIssueReports():Promise<ParsingIssueReport[]>{
-  const owner=await ownerId()
+export async function loadParsingIssueReports():Promise<{reports:ParsingIssueReport[];isAdmin:boolean}>{
+  const user=await currentOwner()
+  const owner=user?.id??'guest'
   const local=readLocal(owner)
-  if(!supabase||owner==='guest')return local.sort((a,b)=>b.createdAt.localeCompare(a.createdAt))
-  const {data,error}=await supabase.from('sat_parsing_issue_reports')
-    .select('id,question_id,practice_test_id,subject,module,question_number,context,message,status,created_at,updated_at')
-    .eq('user_id',owner)
+  if(!supabase||!user)return {reports:local.sort((a,b)=>b.createdAt.localeCompare(a.createdAt)),isAdmin:false}
+  const profile=await loadUserProfile().catch(()=>null)
+  const isAdmin=Boolean(profile?.isAdmin)
+  let query=supabase.from('sat_parsing_issue_reports')
+    .select('id,user_id,question_id,practice_test_id,subject,module,question_number,context,message,status,created_at,updated_at')
     .order('created_at',{ascending:false})
+  if(!isAdmin)query=query.eq('user_id',owner)
+  const {data,error}=await query
   if(error)throw error
-  const merged=mergeReports(local,(data??[]).map(rowToReport))
-  saveLocal(owner,merged)
-  return merged
+  const remote=(data??[]).map(row=>rowToReport(row,owner))
+  const reports=mergeReports(local,remote)
+  saveLocal(owner,reports)
+  return {reports,isAdmin}
 }
 
 export async function createParsingIssueReport(question:PracticeQuestion,context:ParsingIssueContext,message=''){
-  const owner=await ownerId()
+  const user=await currentOwner()
+  const owner=user?.id??'guest'
   const now=new Date().toISOString()
   const report:ParsingIssueReport={
     id:crypto.randomUUID(),
@@ -83,32 +92,37 @@ export async function createParsingIssueReport(question:PracticeQuestion,context
     practiceTestId:question.practiceTestId??'practice-test-4',
     subject:question.subject,module:question.module,questionNumber:question.number,context,
     message:message.trim(),status:'open',createdAt:now,updatedAt:now,
+    reporterId:user?.id,isOwnReport:true,
   }
   saveLocal(owner,[report,...readLocal(owner)])
-  if(supabase&&owner!=='guest'){
-    const {error}=await supabase.from('sat_parsing_issue_reports').insert(reportRow(report,owner))
+  let syncedToAdmin=false
+  if(supabase&&user){
+    const {error}=await supabase.from('sat_parsing_issue_reports').insert(reportRow(report,user.id))
     if(error)throw error
+    syncedToAdmin=true
   }
   window.dispatchEvent(new Event('sat-parsing-issues-updated'))
-  return report
+  return {report,syncedToAdmin}
 }
 
 export async function setParsingIssueStatus(id:string,status:ParsingIssueStatus){
-  const owner=await ownerId()
+  const user=await currentOwner()
+  const owner=user?.id??'guest'
   const updatedAt=new Date().toISOString()
   saveLocal(owner,readLocal(owner).map(report=>report.id===id?{...report,status,updatedAt}:report))
-  if(supabase&&owner!=='guest'){
-    const {error}=await supabase.from('sat_parsing_issue_reports').update({status,updated_at:updatedAt}).eq('id',id).eq('user_id',owner)
+  if(supabase&&user){
+    const {error}=await supabase.from('sat_parsing_issue_reports').update({status,updated_at:updatedAt}).eq('id',id)
     if(error)throw error
   }
   window.dispatchEvent(new Event('sat-parsing-issues-updated'))
 }
 
 export async function deleteParsingIssueReport(id:string){
-  const owner=await ownerId()
+  const user=await currentOwner()
+  const owner=user?.id??'guest'
   saveLocal(owner,readLocal(owner).filter(report=>report.id!==id))
-  if(supabase&&owner!=='guest'){
-    const {error}=await supabase.from('sat_parsing_issue_reports').delete().eq('id',id).eq('user_id',owner)
+  if(supabase&&user){
+    const {error}=await supabase.from('sat_parsing_issue_reports').delete().eq('id',id)
     if(error)throw error
   }
   window.dispatchEvent(new Event('sat-parsing-issues-updated'))
