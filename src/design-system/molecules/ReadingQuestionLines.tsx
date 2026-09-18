@@ -1,5 +1,7 @@
 import AlexRichText from '../atoms/AlexRichText'
+import ReadingDataTable from './ReadingDataTable'
 import {READING_PARAGRAPH_BREAK} from '../../lib/readingQuestionFormat'
+import {readingTableSpec} from '../../lib/readingTables'
 
 const LABELED_CHOICE=/^([A-D])(?:[.)]\s*|\s+)(.+)$/i
 const QUESTION_STEM=/^(Which|What|How|Why|According to|Based on|As used in|The student wants|To which|Which finding|Which quotation|Which choice|Which statement|Which response|The passage|The text|The main purpose|The author|The speaker)\b/i
@@ -10,6 +12,7 @@ export type ParsedReadingQuestion={intro:string[];stimulusBlocks:string[][];stem
 
 function clean(value:string){return value.replace(/\s+/g,' ').trim()}
 function isBreak(value:string){return value===READING_PARAGRAPH_BREAK}
+function choiceMatch(value:string){return clean(value).match(LABELED_CHOICE)}
 
 function splitBlocks(lines:string[]){
   const blocks:string[][]=[]
@@ -22,15 +25,15 @@ function splitBlocks(lines:string[]){
   return blocks
 }
 
-function stemStart(source:string[]){
-  for(let index=source.length-1;index>=0;index--){if(!isBreak(source[index])&&QUESTION_STEM.test(clean(source[index])))return index}
-  for(let index=source.length-1;index>=0;index--){if(!isBreak(source[index])&&/[?]$/.test(clean(source[index])))return index}
-  return Math.max(0,source.length-1)
+function firstChoiceIndex(source:string[]){
+  return source.findIndex(line=>!isBreak(line)&&Boolean(choiceMatch(line)))
 }
 
-function stemEnd(source:string[],start:number){
-  for(let index=start;index<source.length;index++){if(!isBreak(source[index])&&/[?]$/.test(clean(source[index])))return index}
-  return start
+function stemStart(source:string[],choiceIndex:number){
+  const end=choiceIndex>=0?choiceIndex:source.length
+  for(let index=end-1;index>=0;index--){if(!isBreak(source[index])&&QUESTION_STEM.test(clean(source[index])))return index}
+  for(let index=end-1;index>=0;index--){if(!isBreak(source[index])&&/[?]$/.test(clean(source[index])))return index}
+  return Math.max(0,end-1)
 }
 
 function legacyIntroSplit(lines:string[]){
@@ -80,8 +83,8 @@ function parseChoices(lines:string[]){
 
 export function parseReadingQuestion(lines:string[]):ParsedReadingQuestion{
   const source=lines.map(line=>line.trim()).filter(Boolean)
-  const start=stemStart(source)
-  const end=stemEnd(source,start)
+  const choiceIndex=firstChoiceIndex(source)
+  const start=stemStart(source,choiceIndex)
   const rawStimulus=source.slice(0,start)
   const blocks=splitBlocks(rawStimulus)
   let intro:string[]=[]
@@ -95,8 +98,9 @@ export function parseReadingQuestion(lines:string[]):ParsedReadingQuestion{
       stimulusBlocks=legacy.bodyBlocks
     }
   }
-  const stem=source.slice(start,end+1).filter(line=>!isBreak(line)).map(clean).join(' ')
-  const choices=parseChoices(source.slice(end+1))
+  const stemEnd=choiceIndex>=0?choiceIndex:source.length
+  const stem=source.slice(start,stemEnd).filter(line=>!isBreak(line)).map(clean).join(' ')
+  const choices=choiceIndex>=0?parseChoices(source.slice(choiceIndex)):[]
   const isVerse=looksLikeVerse(intro,stimulusBlocks)
   return {intro,stimulusBlocks,stem,choices,isVerse,isQuote:Boolean(intro.length)||isVerse||explicitlyQuoted(stimulusBlocks)}
 }
@@ -105,9 +109,11 @@ export function hasCompleteReadingChoices(lines:string[]){return parseReadingQue
 
 function JoinedBlock({lines}:{lines:string[]}){return <p><AlexRichText text={lines.map(clean).join(' ')}/></p>}
 
-export default function ReadingQuestionLines({lines}:{lines:string[]}){
+export default function ReadingQuestionLines({lines,questionId}:{lines:string[];questionId?:string}){
   const parsed=parseReadingQuestion(lines)
+  const table=questionId?readingTableSpec(questionId):undefined
   return <div className="reading-question-content">
+    {table&&<ReadingDataTable table={table}/>} 
     {parsed.intro.length>0&&<div className="reading-intro">{splitBlocks(parsed.intro).map((block,index)=><JoinedBlock key={`intro-${index}`} lines={block}/>)}</div>}
     {parsed.stimulusBlocks.length>0&&(parsed.isQuote
       ?<blockquote role="blockquote" className={`reading-stimulus reading-quote${parsed.isVerse?' reading-verse':''}`}>
