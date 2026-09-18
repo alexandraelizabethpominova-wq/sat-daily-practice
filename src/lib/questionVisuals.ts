@@ -1,3 +1,5 @@
+import {PRACTICE_TEST_5_MATH1_VISUALS} from './practiceTest5Math1Layout'
+
 export type NormalizedCrop={x:number;y:number;width:number;height:number}
 export type QuestionVisualSpec={afterLine:number;crop:NormalizedCrop;exact?:boolean}
 
@@ -30,5 +32,7 @@ export function expandNormalizedCrop(crop:NormalizedCrop,paddingX=.03,paddingY=.
 }
 
 export function questionVisualSpec(questionId:string){
+  const match=questionId.match(/^practice-test-5:math1-(\d+)$/)
+  if(match)return PRACTICE_TEST_5_MATH1_VISUALS[Number(match[1])]
   return QUESTION_VISUALS[questionId]
 }
