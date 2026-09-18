@@ -70,6 +70,7 @@ function cleanQuestionLines(lines:string[],questionNumber:number){
   return lines.filter(line=>{
     const normalized=line.trim()
     if(!normalized)return false
+    if(normalized.length>=8&&/^[.·•\s]+$/.test(normalized))return false
     if(normalized===String(questionNumber))return false
     if(/^Module\s+\d+$/i.test(normalized))return false
     if(/Unauthorized copying or reuse/i.test(normalized))return false
@@ -92,7 +93,7 @@ function cleanExplanationLines(lines:string[],questionNumber:number){
 
 function hasVisualReference(lines:string[]){
   const text=lines.join(' ').toLowerCase()
-  return /\b(graph|scatterplot|diagram|figure|line graph|bar graph)\b/.test(text)
+  return /\b(graph|scatterplot|diagram|figure|line graph|bar graph|table|chart)\b/.test(text)
 }
 
 export async function extractQuestionLines(question:PracticeQuestion,questionPdf:ArrayBuffer){
