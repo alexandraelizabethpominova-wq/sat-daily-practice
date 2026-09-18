@@ -4,7 +4,7 @@ import QuestionStatsTable from './QuestionStatsTable'
 import type {QuestionPerformance} from '../../lib/performanceAnalytics'
 
 vi.mock('./QuestionContent',()=>({default:({question}:{question:{id:string}})=><div>Rendered question {question.id}</div>}))
-vi.mock('../../components/SourceSlice',()=>({default:({pdfKey,questionNumber,showZoomControls}:{pdfKey:string;questionNumber:number;showZoomControls?:boolean})=><div>Source {pdfKey} Q{questionNumber} zoom {String(Boolean(showZoomControls))}</div>}))
+vi.mock('./SourceViewer',()=>({default:({pdfKey,questionNumber}:{pdfKey:string;questionNumber:number})=><div>Source viewer {pdfKey} Q{questionNumber}</div>}))
 
 describe('QuestionStatsTable review drawer',()=>{
   it('opens a drawer with the question and original explanation source',()=>{
@@ -16,7 +16,7 @@ describe('QuestionStatsTable review drawer',()=>{
     expect(screen.getByText('Question review')).toBeInTheDocument()
     expect(screen.getByText('Rendered question rw2-8')).toBeInTheDocument()
     expect(screen.getByText('Original explanation')).toBeInTheDocument()
-    expect(screen.getByText('Source answers Q8 zoom true')).toBeInTheDocument()
+    expect(screen.getByText('Source viewer answers Q8')).toBeInTheDocument()
     expect(screen.queryByText(/Rendered explanation/)).not.toBeInTheDocument()
   })
 })
