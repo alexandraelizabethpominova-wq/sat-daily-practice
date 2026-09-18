@@ -40,7 +40,17 @@ export const VERIFIED_PRACTICE_TEST_6_MATH1:Record<number,VerifiedPracticeTest6M
 ,
     'D) $150\\le s\\le170(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
 ,
-  ]),
+  ]),  5:q([
+    'An object was launched upward from a platform. The graph shown models the height above ground, $y$, in meters, of the object $x$ seconds after it was launched. For which of the following intervals of time was the height of the object increasing for the entire interval?',
+    'A) From $x=0$ to $x=2(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'B) From $x=0$ to $x=4(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'C) From $x=2$ to $x=3(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'D) From $x=3$ to $x=4(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+  ],true),
 }
 
 export function verifiedPracticeTest6Math1Content(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
