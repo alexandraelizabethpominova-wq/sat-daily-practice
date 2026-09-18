@@ -7,6 +7,7 @@ export const QUESTION_CROPS:Record<ModuleKey,Record<number,QuestionCrop>>={"rw1"
 
 
 export function questionCropForParts(practiceTestId:PracticeTestId|undefined,module:ModuleKey,questionNumber:number):QuestionCrop|undefined{
+  if(practiceTestId==='practice-test-4')return QUESTION_CROPS[module]?.[questionNumber]
   if(practiceTestId==='practice-test-5'&&module==='math1')return PRACTICE_TEST_5_MATH1_CROPS[questionNumber]
-  return QUESTION_CROPS[module]?.[questionNumber]
+  return undefined
 }
