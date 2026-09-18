@@ -14,5 +14,7 @@ export default function ExplanationContent({question,bytes}:Props){
     questionNumber={question.number}
     alt={`Original explanation for question ${question.number}`}
     label="Original explanation"
+    practiceTestId={question.practiceTestId}
+    module={question.module}
   />
 }
