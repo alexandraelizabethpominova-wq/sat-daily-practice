@@ -1,4 +1,4 @@
-import {BarChart3,BookOpen,ChevronLeft,ChevronRight,ClipboardList,Compass,LogIn,Settings,SlidersHorizontal,Sparkles} from 'lucide-react'
+import {BarChart3,BookOpen,ChevronLeft,ChevronRight,ClipboardList,Compass,Flag,LogIn,Settings,SlidersHorizontal,Sparkles} from 'lucide-react'
 import type {ReactNode} from 'react'
 import AlexBox from '../atoms/AlexBox'
 import AlexButtonBase from '../atoms/AlexButtonBase'
@@ -25,6 +25,7 @@ const defaultIcon=(label:string)=>{
   if(label==='Practice Tests')return <ClipboardList size={19}/>
   if(label==='Practice Setup')return <SlidersHorizontal size={19}/>
   if(label==='Question Bank')return <BookOpen size={19}/>
+  if(label==='Parsing Issues')return <Flag size={19}/>
   if(label==='Performance')return <BarChart3 size={19}/>
   if(label==='Resources')return <BookOpen size={19}/>
   return <Settings size={19}/>
