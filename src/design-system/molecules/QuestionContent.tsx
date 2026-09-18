@@ -13,6 +13,7 @@ import {isPracticeTest5Math1Verified} from '../../lib/practiceTest5Math1Layout'
 import {verifiedPracticeTest5Math1Content} from '../../lib/verifiedPracticeTest5Math1'
 import {verifiedPracticeTest6Reading1Content} from '../../lib/verifiedPracticeTest6Reading1'
 import {verifiedPracticeTest6Reading2Content} from '../../lib/verifiedPracticeTest6Reading2'
+import {verifiedPracticeTest6Math1Content} from '../../lib/verifiedPracticeTest6Math1'
 import usePracticeTestPdf from '../../hooks/usePracticeTestPdf'
 import type {PracticeQuestion} from '../../types'
 
@@ -78,15 +79,17 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
         if(cancelled)return
 
         const bundledVisuals=questionVisualSpecs(question.id)
-        const verifiedPracticeTest6Reading=question.practiceTestId==='practice-test-6'
+        const verifiedPracticeTest6Bundled=question.practiceTestId==='practice-test-6'
           ?question.module==='rw1'
             ?verifiedPracticeTest6Reading1Content(question.number)
             :question.module==='rw2'
               ?verifiedPracticeTest6Reading2Content(question.number)
-              :undefined
+              :question.module==='math1'
+                ?verifiedPracticeTest6Math1Content(question.number)
+                :undefined
           :undefined
         const sharedHasText=Boolean(shared?.questionLines.length)
-        const sharedControlsVisual=Boolean(shared&&shared.contentStatus!=='metadata'&&!(verifiedPracticeTest6Reading&&!sharedHasText))
+        const sharedControlsVisual=Boolean(shared&&shared.contentStatus!=='metadata'&&!(verifiedPracticeTest6Bundled&&!sharedHasText))
         const sharedVisuals=shared?.visualSpecs??[]
         const resolvedVisuals=sharedVisuals.length?sharedVisuals:(sharedControlsVisual&&!shared?.needsVisual?[]:bundledVisuals)
         setVisuals(resolvedVisuals)
@@ -96,8 +99,8 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
           return
         }
 
-        if(verifiedPracticeTest6Reading){
-          setContent(storedFromShared(question.id,verifiedPracticeTest6Reading.lines,shared?.explanationLines??[],resolvedVisuals.length>0||Boolean(verifiedPracticeTest6Reading.needsVisual),'text'))
+        if(verifiedPracticeTest6Bundled){
+          setContent(storedFromShared(question.id,verifiedPracticeTest6Bundled.lines,shared?.explanationLines??[],resolvedVisuals.length>0||Boolean(verifiedPracticeTest6Bundled.needsVisual),'text'))
           return
         }
 
