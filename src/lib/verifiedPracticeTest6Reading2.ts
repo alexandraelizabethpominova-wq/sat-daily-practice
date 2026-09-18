@@ -184,6 +184,13 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) indiscriminate,',
     'C) indiscriminate',
     'D) indiscriminate:',
+  ]),  26:q([
+    'A species of Byropsis algae produces toxins to avoid being eaten by predators. However, in some cases, the toxins the organism uses to protect itself from predation actually _______ its attractiveness to predators. The Hawaiian sea slug, for example, not only tolerates Byropsis toxins but actually uses them for protection in the same way the algae does.',
+    'Which choice completes the text so that it conforms to the conventions of Standard English?',
+    'A) is increasing',
+    'B) increase',
+    'C) increases',
+    'D) has increased',
   ]),
 }
 
