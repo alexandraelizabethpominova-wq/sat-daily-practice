@@ -6,6 +6,7 @@ import {READING_PARAGRAPH_BREAK} from './readingQuestionFormat'
 import {expandNormalizedCrop,questionVisualSpec,type NormalizedCrop} from './questionVisuals'
 import {readingTableSpec} from './readingTables'
 import {isPracticeTest5Math1Verified,normalizePracticeTest5Math1Lines,PRACTICE_TEST_5_MATH1_IMAGE_FALLBACK} from './practiceTest5Math1Layout'
+import {verifiedPracticeTest5Math1Content} from './verifiedPracticeTest5Math1'
 import type {PracticeQuestion} from '../types'
 
 GlobalWorkerOptions.workerSrc=new URL('pdfjs-dist/build/pdf.worker.min.mjs',import.meta.url).toString()
@@ -159,6 +160,23 @@ export async function extractExplanationLines(question:PracticeQuestion,answerPd
 
 export async function ensureQuestionText(question:PracticeQuestion,questionPdf:ArrayBuffer){
   const existing=await getQuestionContent(question.id)
+  if(question.practiceTestId==='practice-test-5'&&question.module==='math1'){
+    const verified=verifiedPracticeTest5Math1Content(question.number)
+    if(verified){
+      const record:StoredQuestionContent={
+        questionId:question.id,
+        questionLines:verified.lines,
+        explanationLines:[],
+        questionMode:verified.imageFallback?'image-fallback':'text',
+        explanationMode:'image-fallback',
+        needsVisual:Boolean(verified.needsVisual),
+        importedAt:new Date().toISOString(),
+        contentVersion:QUESTION_CONTENT_VERSION,
+      }
+      await saveQuestionContent(record)
+      return record
+    }
+  }
   if(question.practiceTestId==='practice-test-5'&&question.module==='math1'&&PRACTICE_TEST_5_MATH1_IMAGE_FALLBACK.has(question.number)){
     const record:StoredQuestionContent={
       questionId:question.id,
