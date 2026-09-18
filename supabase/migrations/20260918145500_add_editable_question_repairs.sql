@@ -9,7 +9,7 @@ alter table public.sat_question_bank
   check (visual_after_line is null or visual_after_line >= -1);
 
 -- During the current QA phase, every signed-in user may repair parsed content.
-grant update (question_lines, explanation_lines, needs_visual, visual_crop, visual_after_line, content_status, updated_at)
+grant update (question_lines, needs_visual, visual_crop, visual_after_line, content_status, updated_at)
   on public.sat_question_bank to authenticated;
 
 drop policy if exists "question_bank_authenticated_update" on public.sat_question_bank;
