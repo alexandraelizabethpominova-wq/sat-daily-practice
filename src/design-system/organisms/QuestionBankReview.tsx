@@ -6,7 +6,7 @@ import AlexTextField from '../atoms/AlexTextField'
 import AlexText from '../atoms/AlexText'
 import ParsingIssueReporter from '../molecules/ParsingIssueReporter'
 import QuestionSourceReview from '../molecules/QuestionSourceReview'
-import {availablePracticeTests,moduleLabel,practiceTestLabel,QUESTION_BANK} from '../../lib/questionBank'
+import {availablePracticeTests,moduleLabel,practiceTestLabel} from '../../lib/questionBank'
 import {groupQuestionsByPracticeTest} from '../../lib/questionBankGroups'
 import {loadSharedQuestionBank} from '../../lib/sharedQuestionBank'
 import type {PracticeQuestion,PracticeTestFilter} from '../../types'
@@ -20,8 +20,8 @@ export default function QuestionBankReview({questionsPdf}:Props){
   const[practiceTestFilter,setPracticeTestFilter]=useState<PracticeTestFilter>('all')
   const[moduleFilter,setModuleFilter]=useState<ModuleFilter>('all')
   const[search,setSearch]=useState('')
-  const[bank,setBank]=useState<PracticeQuestion[]>(QUESTION_BANK)
-  const[selectedId,setSelectedId]=useState(()=>QUESTION_BANK.find(question=>question.subject==='math')?.id??QUESTION_BANK[0]?.id??'')
+  const[bank,setBank]=useState<PracticeQuestion[]>([])
+  const[selectedId,setSelectedId]=useState('')
   const hasQuestionsPdf=Boolean(questionsPdf?.byteLength)
   const validQuestionsPdf=hasQuestionsPdf?questionsPdf:null
 
