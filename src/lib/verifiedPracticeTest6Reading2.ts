@@ -177,6 +177,13 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) competitions, however,',
     'C) competitions, however;',
     'D) competitions; however,',
+  ]),  25:q([
+    'For thousands of years, humans have used domesticated goats (Capra hircus) to clear land of unwanted vegetation. When it comes to their diets, goats are notoriously _______ they will devour all kinds of shrubs and weeds, leaving virtually no part of any plant unconsumed.',
+    'Which choice completes the text so that it conforms to the conventions of Standard English?',
+    'A) indiscriminate and',
+    'B) indiscriminate,',
+    'C) indiscriminate',
+    'D) indiscriminate:',
   ]),
 }
 
