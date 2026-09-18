@@ -67,6 +67,13 @@ export const VERIFIED_PRACTICE_TEST_6_MATH1:Record<number,VerifiedPracticeTest6M
 ,
     'D) $30(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
 ,
+  ]),  9:q([
+    '$P(t)=1{,}800(1.02)^t$',
+    'The function $P$ gives the estimated number of marine mammals in a certain area, where $t$ is the number of years since a study began. What is the best interpretation of $P(0)=1{,}800$ in this context?',
+    'A) The estimated number of marine mammals in the area was 102 when the study began.',
+    'B) The estimated number of marine mammals in the area was 1,800 when the study began.',
+    'C) The estimated number of marine mammals in the area increased by 102 each year during the study.',
+    'D) The estimated number of marine mammals in the area increased by 1,800 each year during the study.',
   ]),
 }
 
