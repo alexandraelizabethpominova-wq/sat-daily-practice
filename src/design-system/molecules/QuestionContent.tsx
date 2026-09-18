@@ -151,7 +151,7 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
   return <div className={question.subject==='english'?'structured-question reading-structured-question':'structured-question'}>
     <div className="structured-lines">
       {visual&&sourceBytes
-        ?<LinesWithSourceVisual question={question} bytes={sourceBytes} lines={content.questionLines} alt={alt} visual={visual} sourceCrop={resolvedSourceCrop} reflowProse={reflowProse}/>
+        ?<LinesWithSourceVisual question={question} bytes={sourceBytes} lines={content.questionLines} alt={alt} visual={visual} sourceCrop={question.sourceCrop} reflowProse={reflowProse}/>
         :<RenderQuestionLines question={question} lines={content.questionLines} reflowProse={reflowProse}/>} 
     </div>
     {(content.needsVisual||Boolean(visual))&&!sourceBytes
