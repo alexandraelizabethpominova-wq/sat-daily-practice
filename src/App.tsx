@@ -102,6 +102,8 @@ export default function App(){
     {value:'all' as const,label:'All available tests'},
     ...availablePracticeTests().map(value=>({value,label:practiceTestLabel(value)})),
   ]
+  const practiceSource=settings.practiceTest&&settings.practiceTest!=='all'?practiceTestLabel(settings.practiceTest):'All available tests'
+  const practiceSummary=[settings.selectionMode==='random'?'Random':'Adaptive',practiceSource,settings.failedOnly?'Failed questions only':''].filter(Boolean).join(' · ')
 
   async function upload(kind:'questions'|'answers',file?:File){
     if(!file)return
@@ -325,6 +327,7 @@ export default function App(){
 
   return withSidebar('practice-tests',<PracticeTestsDashboard
     questionCount={settings.questionsPerSession}
+    practiceSummary={practiceSummary}
     mixedAction={<AlexButton onClick={()=>beginPractice('both')}>Start</AlexButton>}
     readingAction={<AlexButton tone="secondary" onClick={()=>beginPractice('english')}>Start</AlexButton>}
     mathAction={<AlexButton tone="secondary" onClick={()=>beginPractice('math')}>Start</AlexButton>}
