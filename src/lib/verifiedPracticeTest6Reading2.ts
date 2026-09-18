@@ -81,6 +81,13 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) It suggested that temperature-induced changes in microorganism activity may be occurring at increasingly high elevations.',
     'C) It ruled out a potential alternative explanation for the acceleration in microorganism-mediated nutrient cycling.',
     'D) It clarified that microorganism activity levels in the plant-soil cores varied depending on which microorganisms comprised the community.',
+  ]),  12:q([
+    'Some astronomers searching for extraterrestrial life have proposed that atmospheric NH₃ (ammonia) can serve as a biosignature gas—an indication that a planet harbors life. Jingcheng Huang, Sara Seager, and colleagues evaluated this possibility, finding that on rocky planets, atmospheric NH₃ likely couldn’t reach detectably high levels in the absence of biological activity. But the team also found that on so-called mini-Neptunes—gas planets smaller than Neptune but with atmospheres similar to Neptune’s—atmospheric pressure and temperature can be high enough to produce atmospheric NH₃.',
+    'Based on the text, Huang, Seager, and colleagues would most likely agree with which statement about atmospheric NH₃?',
+    'A) Its presence is more likely to indicate that a planet is a mini-Neptune than that the planet is a rocky planet that could support life.',
+    'B) Its absence from a planet that’s not a mini-Neptune indicates that the planet probably doesn’t have life.',
+    'C) It should be treated as a biosignature gas if detected in the atmosphere of a rocky planet but not if detected in the atmosphere of a mini-Neptune.',
+    'D) It doesn’t reliably reach high enough concentrations in the atmospheres of rocky planets or mini-Neptunes to be treated as a biosignature gas.',
   ]),
 }
 
