@@ -49,8 +49,17 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onS
 
   const accountLabel=user?(profile?.displayName.trim()||user.email?.split('@')[0]||'Account'):'Sign in'
   const accountDetail=user?(profile?.grade?`Grade ${profile.grade}`:user.email??'Signed in'):''
+  const sidebarWidth=collapsed?76:244
 
-  return <AlexBox sx={{minHeight:'100vh',width:'100%',maxWidth:'100vw',display:'flex',overflowX:'hidden',bgcolor:contentBackground,color:'#08275B'}}>
+  return <AlexBox sx={{
+    minHeight:'100vh',
+    width:'100%',
+    maxWidth:'100%',
+    display:'flex',
+    overflowX:'hidden',
+    bgcolor:contentBackground,
+    color:'#08275B',
+  }}>
     <SideNavigation
       collapsed={collapsed}
       onToggleCollapsed={onToggleCollapsed}
@@ -68,6 +77,18 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onS
       ]}
       secondary={[{key:'resources',label:'Resources',active:active==='resources',onClick:onResources}]}
     />
-    <AlexBox sx={{minWidth:0,width:0,maxWidth:'100%',flex:'1 1 0%',minHeight:'100vh',overflowX:'hidden'}}>{children}</AlexBox>
+    <AlexBox sx={{
+      minWidth:0,
+      width:`calc(100% - ${sidebarWidth}px)`,
+      maxWidth:`calc(100% - ${sidebarWidth}px)`,
+      minHeight:'100vh',
+      px:{xs:1.5,md:2},
+      boxSizing:'border-box',
+      overflowX:'hidden',
+    }}>
+      <AlexBox sx={{width:'100%',maxWidth:'100%',minWidth:0,mx:'auto','& > *':{maxWidth:'100%',minWidth:0}}}>
+        {children}
+      </AlexBox>
+    </AlexBox>
   </AlexBox>
 }
