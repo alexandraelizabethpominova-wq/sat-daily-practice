@@ -205,6 +205,13 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) likewise,',
     'C) nevertheless,',
     'D) in reality,',
+  ]),  29:q([
+    'Biographer Michael Gorra notes that the novelist Henry James “lived in a world of second thoughts,” frequently tinkering with his novels and stories after their initial publication. However, the differences between the 1881 first edition and the 1908 edition of his novel A Portrait of a Lady are extreme, even by James’s standards; _______ some critics regard the two editions as two different novels altogether.',
+    'Which choice completes the text with the most logical transition?',
+    'A) by contrast,',
+    'B) in fact,',
+    'C) nevertheless,',
+    'D) in other words,',
   ]),
 }
 
