@@ -1,5 +1,6 @@
 import {useEffect,useState,type ReactNode} from 'react'
 import {Upload} from 'lucide-react'
+import AlexBox from './design-system/atoms/AlexBox'
 import AlexButton from './design-system/atoms/AlexButton'
 import AlexStatusChip from './design-system/atoms/AlexStatusChip'
 import ExplanationContent from './design-system/molecules/ExplanationContent'
@@ -13,8 +14,8 @@ import PracticeAnswerPanel from './design-system/organisms/PracticeAnswerPanel'
 import PracticeSessionHeader from './design-system/organisms/PracticeSessionHeader'
 import PracticeSetupPanel from './design-system/organisms/PracticeSetupPanel'
 import PracticeTestsDashboard from './design-system/organisms/PracticeTestsDashboard'
+import StudyPlanGoalsPanel from './design-system/organisms/StudyPlanGoalsPanel'
 import StudyPlanRecommendation from './design-system/organisms/StudyPlanRecommendation'
-import PracticeGoalSettings from './design-system/molecules/PracticeGoalSettings'
 import QuestionBankReview from './design-system/organisms/QuestionBankReview'
 import {answerLabel,matchesAnswer} from './lib/answerCompare'
 import {clearPdfs,getPdf,savePdf} from './lib/pdfStore'
@@ -352,15 +353,17 @@ export default function App(){
 
     <PerformanceDashboard summary={performance} hasHistory={attempts.length>0} compact/>
 
-    <section className="card" style={{marginTop:24}}>
-      <p className="eyebrow">Goals</p>
-      <h2 style={{marginTop:4}}>Plan settings</h2>
-      <PracticeGoalSettings settings={settings} onChange={setSettings}/>
-    </section>
-
-    <div style={{marginTop:32,marginBottom:16}}>
+    <AlexBox
+      sx={{
+        display:'grid',
+        gap:{xs:2.5,md:3},
+        mt:{xs:2.5,md:3},
+        pb:{xs:1,md:2},
+      }}
+    >
+      <StudyPlanGoalsPanel settings={settings} onChange={setSettings}/>
       <StudyPlanRecommendation recommendation={practiceRecommendation}/>
-    </div>
+    </AlexBox>
   </main>,'#F7F6F2')
 
   return withSidebar('practice-tests',<PracticeTestsDashboard
