@@ -17,6 +17,8 @@
 .structured-data-table thead .katex{font-size:1.05em}
 .question-visual-slice{display:flex;justify-content:center;align-items:center;width:100%;max-width:100%;margin:14px 0 18px;min-height:90px;overflow:hidden;background:#fff}
 .question-visual-slice img{display:block;width:100%;height:auto;max-width:720px;max-height:none;object-fit:contain}
+.question-visual-slice.graphical-choice-grid{margin-top:8px;align-items:flex-start}
+.question-visual-slice.graphical-choice-grid img{max-width:100%}
 .question-visual-slice .source-loading,.question-visual-slice .source-error{width:100%;padding:18px;text-align:center;font-family:Arial,sans-serif;font-size:.82rem;color:#667085;background:#fafafa;border:1px solid #eaecf0;border-radius:8px}
 .structured-explanation .structured-lines{font-family:inherit;font-size:.96rem;line-height:1.65;max-width:none;padding:12px 2px;color:#344054}
 .structured-loading{padding:52px 28px;text-align:center;color:#667085}
