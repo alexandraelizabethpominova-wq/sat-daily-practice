@@ -163,6 +163,13 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) through',
     'C) through;',
     'D) through and',
+  ]),  23:q([
+    'Using natural debris, such as dried _______ such as plastic bags; and more traditional art supplies, such as tree glue, Ghanaian artist Ed Franklin Gavua creates his striking Yiiiiikakaii African masks, which he hopes can help viewers rethink how waste is used in their communities.',
+    'Which choice completes the text so that it conforms to the conventions of Standard English?',
+    'A) leaves, man-made trash:',
+    'B) leaves; man-made trash,',
+    'C) leaves, man-made trash,',
+    'D) leaves; man-made trash;',
   ]),
 }
 
