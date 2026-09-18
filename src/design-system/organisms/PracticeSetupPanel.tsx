@@ -28,9 +28,9 @@ export default function PracticeSetupPanel({settings,practiceTests,failedQuestio
   const selectionMode=settings.selectionMode??'adaptive'
   const practiceTest=settings.practiceTest??'all'
   const failedOnly=settings.failedOnly??false
-  const dailyLabel=recommendation.remainingQuestions===0&&recommendation.scoreGap!==null&&recommendation.scoreGap<=0
-    ?'On track'
-    :`${recommendation.estimatedDailyMinutes} min/day`
+  const dailyLabel=recommendation.estimatedDailyMinutes>0
+    ?`${recommendation.estimatedDailyMinutes} min/day`
+    :'On track'
 
   return <AlexSurface sx={{maxWidth:860,p:{xs:2.25,md:3.5},borderRadius:3,border:'1px solid #E4E7EC'}}>
     <AlexBox sx={{display:'grid',gap:.5,mb:2}}>
