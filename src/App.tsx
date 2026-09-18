@@ -112,6 +112,11 @@ export default function App(){
   ]
   const practiceSource=settings.practiceTest&&settings.practiceTest!=='all'?practiceTestLabel(settings.practiceTest):'All available tests'
   const practiceSummary=[settings.selectionMode==='random'?'Random':'Adaptive',practiceSource,settings.failedOnly?'Failed questions only':''].filter(Boolean).join(' · ')
+  const practiceTestSummaries=availablePracticeTests(questionBank).map(value=>{
+    const questions=questionBank.filter(question=>question.practiceTestId===value)
+    const practicedIds=new Set(attempts.filter(attempt=>attempt.practiceTestId===value).map(attempt=>attempt.questionId))
+    return{value,label:practiceTestLabel(value),questionCount:questions.length,practicedCount:questions.filter(question=>practicedIds.has(question.id)).length}
+  })
 
   async function upload(kind:'questions'|'answers',file?:File){
     if(!file)return
@@ -123,8 +128,8 @@ export default function App(){
     else setApdf(bytes)
   }
 
-  function beginPractice(nextMode:SubjectMode=settings.mode){
-    const nextSettings={...settings,mode:nextMode}
+  function beginPractice(nextMode:SubjectMode=settings.mode,nextPracticeTest=settings.practiceTest??'all'){
+    const nextSettings={...settings,mode:nextMode,practiceTest:nextPracticeTest}
     const nextQuestions=choosePracticeQuestions(nextSettings,attempts,Math.random,questionBank)
     if(!nextQuestions.length){
       window.alert('No questions match these practice settings yet. Adjust the practice test, subject, or failed-question filter.')
@@ -341,10 +346,9 @@ export default function App(){
   </main>,'#F7F6F2')
 
   return withSidebar('practice-tests',<PracticeTestsDashboard
-    questionCount={settings.questionsPerSession}
-    practiceSummary={practiceSummary}
-    mixedAction={<AlexButton onClick={()=>beginPractice('both')}>Start</AlexButton>}
-    readingAction={<AlexButton tone="secondary" onClick={()=>beginPractice('english')}>Start</AlexButton>}
-    mathAction={<AlexButton tone="secondary" onClick={()=>beginPractice('math')}>Start</AlexButton>}
+    tests={practiceTestSummaries}
+    sessionSummary={`${settings.questionsPerSession} questions · ${settings.mode==='both'?'Reading & Writing + Math':settings.mode==='english'?'Reading & Writing':'Math'} · ${practiceSummary}`}
+    onStartTest={value=>beginPractice(settings.mode,value)}
+    onOpenSetup={()=>setView('settings')}
   />)
 }
