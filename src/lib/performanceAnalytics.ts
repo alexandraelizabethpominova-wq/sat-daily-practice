@@ -1,4 +1,4 @@
-import type {Attempt,ModuleKey,SessionSummary,Subject} from '../types'
+import type {Attempt,ModuleKey,PracticeTestId,SessionSummary,Subject} from '../types'
 
 export type SectionPerformance={
   subject:Subject
@@ -11,6 +11,7 @@ export type SectionPerformance={
 
 export type QuestionPerformance={
   questionId:string
+  practiceTestId:PracticeTestId
   subject:Subject
   module:ModuleKey
   questionNumber:number
@@ -103,6 +104,7 @@ function buildQuestions(attempts:Attempt[]):QuestionPerformance[]{
     const correct=rows.filter(attempt=>attempt.correct).length
     return {
       questionId,
+      practiceTestId:latest.practiceTestId??'practice-test-4',
       subject:latest.subject,
       module:latest.module,
       questionNumber:latest.questionNumber,
