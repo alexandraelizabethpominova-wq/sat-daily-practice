@@ -44,8 +44,11 @@ export default function QuestionBankReview({questionsPdf}:Props){
   },[bank,practiceTestFilter,moduleFilter,search])
 
   const groupedQuestions=useMemo(()=>groupQuestionsByModule(questions),[questions])
+  useEffect(()=>{
+    if(questions.length&&!questions.some(question=>question.id===selectedId))setSelectedId(questions[0].id)
+  },[questions,selectedId])
   const practiceTestOptions=[{value:'all' as const,label:'All practice tests'},...availablePracticeTests(bank).map(value=>({value,label:practiceTestLabel(value)}))]
-  const selected=bank.find(question=>question.id===selectedId)??questions[0]
+  const selected=questions.find(question=>question.id===selectedId)??questions[0]
 
   return <main className="question-bank-page">
     <header className="question-bank-heading">
