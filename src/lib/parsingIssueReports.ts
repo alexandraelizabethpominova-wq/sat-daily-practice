@@ -1,4 +1,4 @@
-import {getCurrentAuthUser,loadUserProfile,supabase} from './supabase'
+import {getCurrentAuthUser,supabase} from './supabase'
 import type {ModuleKey,PracticeQuestion,PracticeTestId,Subject} from '../types'
 
 export type ParsingIssueContext='practice'|'session-review'|'question-bank'|'performance'
@@ -63,23 +63,19 @@ function reportRow(report:ParsingIssueReport,userId:string){
   }
 }
 
-export async function loadParsingIssueReports():Promise<{reports:ParsingIssueReport[];isAdmin:boolean}>{
+export async function loadParsingIssueReports():Promise<ParsingIssueReport[]>{
   const user=await currentOwner()
   const owner=user?.id??'guest'
   const local=readLocal(owner)
-  if(!supabase||!user)return {reports:local.sort((a,b)=>b.createdAt.localeCompare(a.createdAt)),isAdmin:false}
-  const profile=await loadUserProfile().catch(()=>null)
-  const isAdmin=Boolean(profile?.isAdmin)
-  let query=supabase.from('sat_parsing_issue_reports')
+  if(!supabase||!user)return local.sort((a,b)=>b.createdAt.localeCompare(a.createdAt))
+  const {data,error}=await supabase.from('sat_parsing_issue_reports')
     .select('id,user_id,question_id,practice_test_id,subject,module,question_number,context,message,status,created_at,updated_at')
     .order('created_at',{ascending:false})
-  if(!isAdmin)query=query.eq('user_id',owner)
-  const {data,error}=await query
   if(error)throw error
   const remote=(data??[]).map(row=>rowToReport(row,owner))
   const reports=mergeReports(local,remote)
   saveLocal(owner,reports)
-  return {reports,isAdmin}
+  return reports
 }
 
 export async function createParsingIssueReport(question:PracticeQuestion,context:ParsingIssueContext,message=''){
