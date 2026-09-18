@@ -34,11 +34,16 @@ describe('atomic design boundaries',()=>{
     expect(offenders,'SourceSlice is low-level; compose it through SourceViewer').toEqual([])
   })
 
+  it('uses grouped setting rows for Study Plan configuration',()=>{
+    const source=readFileSync(resolve(process.cwd(),'src/design-system/molecules/PracticeGoalSettings.tsx'),'utf8')
+    expect(source).toContain("./SettingsFieldGroup")
+  })
+
   it('uses the shared SectionPanel molecule for Study Plan sections',()=>{
     const files=['StudyPlanGoalsPanel.tsx','StudyPlanRecommendation.tsx']
     for(const file of files){
       const source=readFileSync(resolve(process.cwd(),'src/design-system/organisms',file),'utf8')
-      expect(source,\`${file} should compose its section through SectionPanel\`).toContain("../molecules/SectionPanel")
+      expect(source,`${file} should compose its section through SectionPanel`).toContain("../molecules/SectionPanel")
     }
   })
 
