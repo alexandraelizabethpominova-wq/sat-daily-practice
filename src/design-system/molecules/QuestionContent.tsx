@@ -9,6 +9,7 @@ import {getQuestionContent,isCurrentQuestionContent,QUESTION_CONTENT_VERSION,typ
 import {loadSharedQuestionContent} from '../../lib/sharedQuestionBank'
 import {verifiedMathContent} from '../../lib/verifiedMathQuestions'
 import {questionVisualSpec,type QuestionVisualSpec} from '../../lib/questionVisuals'
+import usePracticeTestPdf from '../../hooks/usePracticeTestPdf'
 import type {PracticeQuestion} from '../../types'
 
 type Props={question:PracticeQuestion;bytes:ArrayBuffer|null;alt:string;showOriginalLayout?:boolean;reflowProse?:boolean}
@@ -24,7 +25,7 @@ function LinesWithSourceVisual({question,bytes,lines,alt,visual,reflowProse=fals
   const after=lines.slice(split)
   return <>
     {before.length>0&&<RenderQuestionLines question={question} lines={before} reflowProse={reflowProse}/>} 
-    <QuestionVisualSlice question={question} bytes={bytes} crop={visual.crop} alt={`${alt} figure from source PDF`} expand={!visual.exact}/>
+    <QuestionVisualSlice question={question} bytes={sourceBytes} crop={visual.crop} alt={`${alt} figure from source PDF`} expand={!visual.exact}/>
     {after.length>0&&<RenderQuestionLines question={question} lines={after} reflowProse={reflowProse}/>} 
   </>
 }
@@ -38,6 +39,7 @@ function storedFromShared(questionId:string,questionLines:string[],explanationLi
 }
 
 export default function QuestionContent({question,bytes,alt,showOriginalLayout=true,reflowProse=false}:Props){
+  const sourceBytes=usePracticeTestPdf(question,'questions',bytes)
   const[content,setContent]=useState<StoredQuestionContent|null>(null)
   const[visual,setVisual]=useState<QuestionVisualSpec|null>(null)
   const[error,setError]=useState('')
@@ -79,15 +81,20 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
           return
         }
 
-        if(question.subject==='english'&&bytes){
-          const extracted=await ensureQuestionText(question,bytes)
+        if((question.practiceTestId??'practice-test-4')!=='practice-test-4'&&!shared?.questionLines.length){
+          setContent({questionId:question.id,questionLines:[],explanationLines:[],questionMode:'image-fallback',explanationMode:'image-fallback',needsVisual:false,importedAt:new Date().toISOString(),contentVersion:QUESTION_CONTENT_VERSION})
+          return
+        }
+
+        if(question.subject==='english'&&sourceBytes){
+          const extracted=await ensureQuestionText(question,sourceBytes)
           if(cancelled)return
           if(extracted&&isCurrentQuestionContent(extracted))setContent({...extracted,needsVisual:Boolean(resolvedVisual)||extracted.needsVisual})
           else setError('Question text is not available in this browser yet.')
           return
         }
 
-        const local=bytes?await ensureQuestionText(question,bytes):await getQuestionContent(question.id)
+        const local=sourceBytes?await ensureQuestionText(question,sourceBytes):await getQuestionContent(question.id)
         if(cancelled)return
         if(local&&isCurrentQuestionContent(local))setContent({...local,needsVisual:Boolean(resolvedVisual)||local.needsVisual})
         else setError('Question text is not available in this browser yet.')
@@ -97,24 +104,24 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
     })()
 
     return()=>{cancelled=true}
-  },[question,bytes,revision])
+  },[question,sourceBytes,revision])
 
   if(error||content?.questionMode==='image-fallback'){
-    if(bytes)return <SourceViewer pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={alt}/>
+    if(sourceBytes)return <SourceViewer pdfKey="questions" bytes={sourceBytes} page={question.sourcePage} questionNumber={question.number} alt={alt} practiceTestId={question.practiceTestId} module={question.module}/>
     return <div className="structured-loading">{error||'Question text is not available in this browser yet.'}</div>
   }
   if(!content)return <div className="structured-loading">Preparing text question…</div>
 
   return <div className={question.subject==='english'?'structured-question reading-structured-question':'structured-question'}>
     <div className="structured-lines">
-      {visual&&bytes
-        ?<LinesWithSourceVisual question={question} bytes={bytes} lines={content.questionLines} alt={alt} visual={visual} reflowProse={reflowProse}/>
+      {visual&&sourceBytes
+        ?<LinesWithSourceVisual question={question} bytes={sourceBytes} lines={content.questionLines} alt={alt} visual={visual} reflowProse={reflowProse}/>
         :<RenderQuestionLines question={question} lines={content.questionLines} reflowProse={reflowProse}/>} 
     </div>
-    {(content.needsVisual||Boolean(visual))&&!bytes
+    {(content.needsVisual||Boolean(visual))&&!sourceBytes
       ?<div className="visual-fallback"><div className="visual-fallback-label">Source figure will appear when the source asset is available.</div></div>
-      :content.needsVisual&&!visual&&bytes
-        ?<div className="visual-fallback"><div className="visual-fallback-label">Figure from the source material</div><SourceViewer pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={`${alt} figure`}/></div>
-        :(showOriginalLayout&&!content.needsVisual&&!visual&&bytes&&<details className="source-layout-details"><summary>View original layout</summary><SourceViewer pdfKey="questions" bytes={bytes} page={question.sourcePage} questionNumber={question.number} alt={alt}/></details>)}
+      :content.needsVisual&&!visual&&sourceBytes
+        ?<div className="visual-fallback"><div className="visual-fallback-label">Figure from the source material</div><SourceViewer pdfKey="questions" bytes={sourceBytes} page={question.sourcePage} questionNumber={question.number} alt={`${alt} figure`}/></div>
+        :(showOriginalLayout&&!content.needsVisual&&!visual&&sourceBytes&&<details className="source-layout-details"><summary>View original layout</summary><SourceViewer pdfKey="questions" bytes={sourceBytes} page={question.sourcePage} questionNumber={question.number} alt={alt}/></details>)}
   </div>
 }
