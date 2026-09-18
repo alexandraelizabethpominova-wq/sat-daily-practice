@@ -88,7 +88,7 @@ export default function QuestionBankReview({questionsPdf}:Props){
                 className={question.id===selected?.id?'question-bank-row active':'question-bank-row'}
                 onClick={()=>setSelectedId(question.id)}
                 aria-pressed={question.id===selected?.id}
-                aria-label={`${practiceTestLabel(question.practiceTestId??'practice-test-4')} ${moduleLabel(question.module)} Question ${question.number}`}
+                aria-label={`${practiceTestLabel(question.practiceTestId)} ${moduleLabel(question.module)} Question ${question.number}`}
               ><span>Question {question.number}</span></AlexButtonBase>)}</div>
             </section>)}
           </section>)}
@@ -98,7 +98,7 @@ export default function QuestionBankReview({questionsPdf}:Props){
 
       {selected&&<section className="question-bank-viewer">
         <div className="question-bank-viewer-header">
-          <div><span>{practiceTestLabel(selected.practiceTestId??'practice-test-4')} · {selected.subject==='math'?'Math':'Reading & Writing'}</span><h2>{questionLabel(selected)}</h2></div>
+          <div><span>{practiceTestLabel(selected.practiceTestId)} · {selected.subject==='math'?'Math':'Reading & Writing'}</span><h2>{questionLabel(selected)}</h2></div>
           <AlexText component="span" sx={{fontSize:12,color:'#667085'}}>{hasQuestionsPdf?`PDF page ${selected.sourcePage}`:'Shared bank'}</AlexText>
         </div>
         <ParsingIssueReporter question={selected} context="question-bank"/>
