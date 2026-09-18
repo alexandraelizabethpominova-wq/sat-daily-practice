@@ -66,11 +66,13 @@ function canvasToBlob(canvas:HTMLCanvasElement):Promise<Blob>{
   return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('Could not create image.')),'image/png'))
 }
 
-export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt}:{pdfKey:string;bytes:ArrayBuffer;page:number;questionNumber:number;alt:string}){
+export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt,showZoomControls=false}:{pdfKey:string;bytes:ArrayBuffer;page:number;questionNumber:number;alt:string;showZoomControls?:boolean}){
   const[src,setSrc]=useState('')
   const[error,setError]=useState('')
   const[zoom,setZoom]=useState(1)
   const isQuestion=pdfKey==='questions'
+  const zoomEnabled=isQuestion||showZoomControls
+  const viewLabel=isQuestion?'Question view':'Explanation view'
 
   useEffect(()=>{setZoom(1)},[page,questionNumber,pdfKey])
 
@@ -148,17 +150,17 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt}:{pdfK
   },[pdfKey,bytes,page,questionNumber,isQuestion])
 
   return <div className={`source-slice ${isQuestion?'question-source':''}`} role="img" aria-label={alt}>
-    {isQuestion&&<div className="question-zoom-bar">
-      <span>Question view</span>
+    {zoomEnabled&&<div className="question-zoom-bar">
+      <span>{viewLabel}</span>
       <div>
         <AlexIconButton label="Zoom out" onClick={()=>setZoom(z=>Math.max(.7,+(z-.1).toFixed(2)))} disabled={zoom<=.7}><Minus size={17}/></AlexIconButton>
         <span className="zoom-value">{Math.round(zoom*100)}%</span>
         <AlexIconButton label="Zoom in" onClick={()=>setZoom(z=>Math.min(1.8,+(z+.1).toFixed(2)))} disabled={zoom>=1.8}><Plus size={17}/></AlexIconButton>
-        <AlexIconButton label="Fit question to screen" onClick={()=>setZoom(1)} disabled={zoom===1}><Maximize2 size={16}/></AlexIconButton>
+        <AlexIconButton label={isQuestion?'Fit question to screen':'Fit explanation to screen'} onClick={()=>setZoom(1)} disabled={zoom===1}><Maximize2 size={16}/></AlexIconButton>
       </div>
     </div>}
     <div className="source-slice-content">
-      {error?<div className="source-error">{error}</div>:src?<img src={src} alt={alt} style={isQuestion?{transform:`scale(${zoom})`}:undefined}/>:<div className="source-loading">Preparing question…</div>}
+      {error?<div className="source-error">{error}</div>:src?<img src={src} alt={alt} style={zoomEnabled?{transform:`scale(${zoom})`}:undefined}/>:<div className="source-loading">{isQuestion?'Preparing question…':'Preparing explanation…'}</div>}
     </div>
   </div>
 }
