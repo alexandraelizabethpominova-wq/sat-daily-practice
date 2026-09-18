@@ -1,7 +1,7 @@
 import {useEffect,useState} from 'react'
 import {GlobalWorkerOptions,getDocument,type PDFDocumentProxy} from 'pdfjs-dist'
 import {getQuestionImage,saveQuestionImage} from '../lib/questionImageStore'
-import {QUESTION_CROPS} from '../lib/questionCrops'
+import {questionCropForParts} from '../lib/questionCrops'
 import {expandNormalizedCrop,type NormalizedCrop} from '../lib/questionVisuals'
 import type {PracticeQuestion} from '../types'
 
@@ -47,7 +47,7 @@ export default function QuestionVisualSlice({question,bytes,crop,alt,expand=true
         const existing=await getQuestionImage(imageKey)
         if(existing){await showBlob(existing);return}
 
-        const questionCrop=QUESTION_CROPS[question.module]?.[question.number]
+        const questionCrop=questionCropForParts(question.practiceTestId,question.module,question.number)
         if(!questionCrop)throw new Error(`Question ${question.number} crop is not configured.`)
 
         const doc=await loadPdf(bytes)
