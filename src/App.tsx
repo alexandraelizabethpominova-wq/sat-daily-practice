@@ -51,7 +51,7 @@ export default function App(){
   const[contentCount,setContentCount]=useState(0)
   const[importProgress,setImportProgress]=useState('')
   const[authUser,setAuthUser]=useState<AuthUser|null>(null)
-  const[questionBank,setQuestionBank]=useState<PracticeQuestion[]>(QUESTION_BANK)
+  const[questionBank,setQuestionBank]=useState<PracticeQuestion[]>([])
 
   useEffect(()=>{
     void loadSharedQuestionBank().then(shared=>{if(shared?.length)setQuestionBank(shared)}).catch(error=>console.warn('Shared question bank load failed',error))
