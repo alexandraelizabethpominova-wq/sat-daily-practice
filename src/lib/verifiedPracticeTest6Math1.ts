@@ -123,6 +123,17 @@ export const VERIFIED_PRACTICE_TEST_6_MATH1:Record<number,VerifiedPracticeTest6M
 ,
     'D) $y=3x+26(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
 ,
+  ]),  17:q([
+    '$P=N(19-C)$',
+    'The given equation relates the positive numbers $P$, $N$, and $C$. Which equation correctly expresses $C$ in terms of $P$ and $N$?',
+    'A) $C=\\frac{19+P}{N}(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'B) $C=\\frac{19-P}{N}(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'C) $C=19+\\frac{P}{N}(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
+    'D) $C=19-\\frac{P}{N}(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
+,
   ]),
 }
 
