@@ -1,8 +1,6 @@
 import {useEffect,useState,type ReactNode} from 'react'
 import {Upload} from 'lucide-react'
 import AlexButton from './design-system/atoms/AlexButton'
-import AlexDropdown from './design-system/atoms/AlexDropdown'
-import AlexNumberField from './design-system/atoms/AlexNumberField'
 import AlexStatusChip from './design-system/atoms/AlexStatusChip'
 import ExplanationContent from './design-system/molecules/ExplanationContent'
 import QuestionContent from './design-system/molecules/QuestionContent'
@@ -11,14 +9,15 @@ import AppSidebarLayout from './design-system/organisms/AppSidebarLayout'
 import PerformanceDashboard from './design-system/organisms/PerformanceDashboard'
 import PracticeAnswerPanel from './design-system/organisms/PracticeAnswerPanel'
 import PracticeSessionHeader from './design-system/organisms/PracticeSessionHeader'
+import PracticeSetupPanel from './design-system/organisms/PracticeSetupPanel'
 import PracticeTestsDashboard from './design-system/organisms/PracticeTestsDashboard'
 import QuestionBankReview from './design-system/organisms/QuestionBankReview'
 import {answerLabel,matchesAnswer} from './lib/answerCompare'
 import {clearPdfs,getPdf,savePdf} from './lib/pdfStore'
 import {clearQuestionContent,countQuestionContent} from './lib/questionContentStore'
-import {QUESTION_BANK,moduleLabel} from './lib/questionBank'
+import {availablePracticeTests,moduleLabel,practiceTestLabel,QUESTION_BANK} from './lib/questionBank'
 import {importPracticeMaterials} from './lib/pdfStructuredImport'
-import {choosePracticeQuestions,formatDuration,summarizePerformance,summarizeSession} from './lib/practiceGamification'
+import {choosePracticeQuestions,countFailedPracticeQuestions,formatDuration,summarizePerformance,summarizeSession} from './lib/practiceGamification'
 import {addAttempt,clearHistory,getAttempts,getSessions,getSettings,prepareHistoryForUser,replaceHistory,saveSession,saveSettings} from './lib/storage'
 import {clearCloudHistory,getCurrentAuthUser,loadCloudHistory,subscribeToAuth,syncSession,type AuthUser} from './lib/supabase'
 import type {Attempt,PracticeQuestion,SessionSummary,Settings,SubjectMode} from './types'
@@ -98,6 +97,11 @@ export default function App(){
   const current=qs[i]
   const currentRec=current?currentAttempts.find(attempt=>attempt.questionId===current.id):undefined
   const performance=summarizePerformance(attempts,sessions,QUESTION_BANK.length)
+  const failedQuestionCount=countFailedPracticeQuestions(settings,attempts)
+  const practiceTestOptions=[
+    {value:'all' as const,label:'All available tests'},
+    ...availablePracticeTests().map(value=>({value,label:practiceTestLabel(value)})),
+  ]
 
   async function upload(kind:'questions'|'answers',file?:File){
     if(!file)return
@@ -111,8 +115,14 @@ export default function App(){
 
   function beginPractice(nextMode:SubjectMode=settings.mode){
     const nextSettings={...settings,mode:nextMode}
+    const nextQuestions=choosePracticeQuestions(nextSettings,attempts)
+    if(!nextQuestions.length){
+      window.alert('No questions match these practice settings yet. Adjust the practice test, subject, or failed-question filter.')
+      setView('settings')
+      return
+    }
     setSettings(nextSettings)
-    setQs(choosePracticeQuestions(nextSettings,attempts))
+    setQs(nextQuestions)
     setSid(uid())
     setStarted(new Date().toISOString())
     setCurrentAttempts([])
@@ -282,12 +292,14 @@ export default function App(){
 
   if(view==='settings')return withSidebar('practice-setup',<main className="shell">
     <div className="page-heading"><div><p className="eyebrow">Practice Setup</p><h1>Practice setup</h1></div></div>
-    <section className="card settings settings-grid">
-      <div className="settings-field"><AlexDropdown id="practice-subject" label="Subject" value={settings.mode} options={[{value:'both',label:'English + Math'},{value:'english',label:'English only'},{value:'math',label:'Math only'}]} onChange={mode=>setSettings({...settings,mode})}/></div>
-      <div className="settings-field"><AlexNumberField label="Questions per session" value={settings.questionsPerSession} min={3} max={30} onChange={questionsPerSession=>setSettings({...settings,questionsPerSession})}/></div>
-      <div className="settings-actions"><AlexButton onClick={()=>beginPractice(settings.mode)}>Start with these settings</AlexButton><AlexButton tone="secondary" onClick={resetHistory}>Clear history & start fresh</AlexButton></div>
-      <p className="muted">Questions are selected adaptively from the available SAT question bank. History is used to prioritize unseen and weaker questions.</p>
-    </section>
+    <PracticeSetupPanel
+      settings={settings}
+      practiceTests={practiceTestOptions}
+      failedQuestionCount={failedQuestionCount}
+      onChange={setSettings}
+      onStart={()=>beginPractice(settings.mode)}
+      onClearHistory={resetHistory}
+    />
   </main>)
 
   if(view==='sources')return withSidebar('resources',<main className="shell">
