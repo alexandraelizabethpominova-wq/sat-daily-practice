@@ -52,6 +52,16 @@ function groupReadingLines(items:TextItem[]){
   return lines
 }
 
+function groupReadingQuestionItems(question:PracticeQuestion,crop:{x:number;y:number;width:number;height:number},items:TextItem[]){
+  if(question.id!=='rw2-13')return groupReadingLines(items)
+  const divider=crop.x+crop.width*.5
+  const left=items.filter(item=>item.x<divider)
+  const right=items.filter(item=>item.x>=divider)
+  const leftLines=groupReadingLines(left)
+  const rightLines=groupReadingLines(right)
+  return [...leftLines,READING_PARAGRAPH_BREAK,...rightLines]
+}
+
 async function pageItems(doc:PDFDocumentProxy,pageNumber:number){
   const page=await doc.getPage(pageNumber)
   const viewport=page.getViewport({scale:1})
@@ -120,7 +130,7 @@ export async function extractQuestionLines(question:PracticeQuestion,questionPdf
     item.y>=crop.y-margin&&item.y<=crop.y+crop.height+margin
   )
   const textItems=question.subject==='english'?withoutKnownVisualText(question,crop,selected):selected
-  return cleanQuestionLines(question.subject==='english'?groupReadingLines(textItems):groupLines(textItems),question.number)
+  return cleanQuestionLines(question.subject==='english'?groupReadingQuestionItems(question,crop,textItems):groupLines(textItems),question.number)
 }
 
 export async function extractExplanationLines(question:PracticeQuestion,answerPdf:ArrayBuffer){
