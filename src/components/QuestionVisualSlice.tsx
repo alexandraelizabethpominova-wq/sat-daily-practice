@@ -21,9 +21,9 @@ function canvasToBlob(canvas:HTMLCanvasElement):Promise<Blob>{
   return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('Could not create visual image.')),'image/png'))
 }
 
-type Props={question:PracticeQuestion;bytes:ArrayBuffer;crop:NormalizedCrop;alt:string;expand?:boolean;sourceCrop?:SourceCrop|null}
+type Props={question:PracticeQuestion;bytes:ArrayBuffer;crop:NormalizedCrop;alt:string;expand?:boolean;sourceCrop?:SourceCrop|null;variant?:'figure'|'choice-grid'}
 
-export default function QuestionVisualSlice({question,bytes,crop,alt,expand=true,sourceCrop}:Props){
+export default function QuestionVisualSlice({question,bytes,crop,alt,expand=true,sourceCrop,variant='figure'}:Props){
   const[src,setSrc]=useState('')
   const[error,setError]=useState('')
 
@@ -99,7 +99,7 @@ export default function QuestionVisualSlice({question,bytes,crop,alt,expand=true
     }
   },[question,bytes,crop,expand,sourceCrop])
 
-  return <div className="question-visual-slice" role="img" aria-label={alt}>
+  return <div className={`question-visual-slice ${variant==='choice-grid'?'graphical-choice-grid':''}`} role="img" aria-label={alt}>
     {error?<div className="source-error">{error}</div>:src?<img src={src} alt={alt}/>:<div className="source-loading">Preparing figure…</div>}
   </div>
 }
