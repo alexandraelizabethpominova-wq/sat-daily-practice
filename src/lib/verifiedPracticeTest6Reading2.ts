@@ -212,6 +212,13 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) in fact,',
     'C) nevertheless,',
     'D) in other words,',
+  ]),  30:q([
+    'While researching a topic, a student has taken the following notes: • In World War I, US soldiers who were members of the Choctaw Nation in Oklahoma participated in the Choctaw Code Talkers program. • The Choctaw Code Talkers were trained to relay coded military information in their native language. • In World War II, the US Army recruited Navajo (Diné) soldiers to transmit coded messages in their native language. • These soldiers were known as the Navajo Code Talkers. The student wants to emphasize a similarity between the Choctaw Code Talkers and the Navajo Code Talkers.',
+    'Which choice most effectively uses relevant information from the notes to accomplish this goal?',
+    'A) US soldiers who were members of the Choctaw Nation in Oklahoma used their native language to relay coded information.',
+    'B) In World War II, one group of Navajo (Diné) soldiers was known as the Navajo Code Talkers.',
+    'C) Both the Choctaw Code Talkers and the Navajo Code Talkers transmitted coded military messages in the soldiers’ native languages.',
+    'D) The Choctaw Code Talkers, not the Navajo Code Talkers, served in World War I.',
   ]),
 }
 
