@@ -5,6 +5,7 @@ import {QUESTION_BANK} from './questionBank'
 
 export type SharedQuestionContent={
   questionId:string
+  practiceTestId:string
   questionLines:string[]
   explanationLines:string[]
   needsVisual:boolean
@@ -22,6 +23,11 @@ function parseVisualSpec(crop:unknown,afterLine:unknown):QuestionVisualSpec|null
   return {afterLine:line,crop:{x,y,width,height},exact:true}
 }
 
+function idMatchesPracticeTest(id:string,practiceTestId:string){
+  if(practiceTestId==='practice-test-4')return !id.startsWith('practice-test-')
+  return id.startsWith(`${practiceTestId}:`)
+}
+
 export async function loadSharedQuestionBank():Promise<PracticeQuestion[]|null>{
   if(!supabase)return null
   const {data,error}=await supabase
@@ -30,7 +36,7 @@ export async function loadSharedQuestionBank():Promise<PracticeQuestion[]|null>{
     .order('module',{ascending:true})
     .order('question_number',{ascending:true})
   if(error)throw error
-  const remote=(data??[]).map(row=>({
+  const remote=(data??[]).filter(row=>idMatchesPracticeTest(row.id,row.practice_test_id)).map(row=>({
     id:row.id,
     practiceTestId:row.practice_test_id,
     subject:row.subject as Subject,
@@ -48,17 +54,20 @@ export async function loadSharedQuestionBank():Promise<PracticeQuestion[]|null>{
   return [...merged.values()]
 }
 
-export async function loadSharedQuestionContent(questionId:string):Promise<SharedQuestionContent|null>{
+export async function loadSharedQuestionContent(questionId:string,expectedPracticeTestId?:string):Promise<SharedQuestionContent|null>{
   if(!supabase)return null
   const {data,error}=await supabase
     .from('sat_question_bank')
-    .select('id,question_lines,explanation_lines,needs_visual,content_status,visual_crop,visual_after_line')
+    .select('id,practice_test_id,question_lines,explanation_lines,needs_visual,content_status,visual_crop,visual_after_line')
     .eq('id',questionId)
     .maybeSingle()
   if(error)throw error
   if(!data)return null
+  if(expectedPracticeTestId&&data.practice_test_id!==expectedPracticeTestId)return null
+  if(!idMatchesPracticeTest(data.id,data.practice_test_id))return null
   return {
     questionId:data.id,
+    practiceTestId:data.practice_test_id,
     questionLines:Array.isArray(data.question_lines)?data.question_lines as string[]:[],
     explanationLines:Array.isArray(data.explanation_lines)?data.explanation_lines as string[]:[],
     needsVisual:Boolean(data.needs_visual),
