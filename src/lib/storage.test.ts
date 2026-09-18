@@ -1,5 +1,5 @@
 import {beforeEach,describe,expect,it} from 'vitest'
-import {addAttempt,clearHistory,getAttempts,getSessions,getSettings,prepareHistoryForUser,saveSession,saveSettings} from './storage'
+import {DEFAULT_SETTINGS,addAttempt,clearHistory,getAttempts,getSessions,getSettings,prepareHistoryForUser,saveSession,saveSettings} from './storage'
 import type {Attempt,SessionSummary,Settings} from '../types'
 
 const attempt:Attempt={id:'a1',sessionId:'s1',questionId:'math1-1',subject:'math',module:'math1',questionNumber:1,selectedAnswer:'B',correctAnswer:'B',correct:true,elapsedMs:12000,createdAt:'2026-09-17T12:00:00.000Z'}
@@ -23,7 +23,7 @@ describe('practice storage',()=>{
     clearHistory()
     expect(getAttempts()).toEqual([])
     expect(getSessions()).toEqual([])
-    expect(getSettings()).toEqual(settings)
+    expect(getSettings()).toEqual({...DEFAULT_SETTINGS,...settings})
   })
 
   it('lets the first signed-in account claim existing local history',()=>{

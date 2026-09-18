@@ -1,12 +1,14 @@
+import {PRACTICE_TEST_5_MATH1_VISUALS} from './practiceTest5Math1Layout'
+
 export type NormalizedCrop={x:number;y:number;width:number;height:number}
-export type QuestionVisualSpec={afterLine:number;crop:NormalizedCrop}
+export type QuestionVisualSpec={afterLine:number;crop:NormalizedCrop;exact?:boolean}
 
 // Crops are normalized within the already-verified question crop, not the full PDF page.
 // Keep these deliberately a little generous so axes, labels, and geometry annotations are not clipped.
 export const QUESTION_VISUALS:Record<string,QuestionVisualSpec>={
   'rw1-13':{afterLine:-1,crop:{x:.04,y:.050,width:.92,height:.385}},
   'rw2-13':{afterLine:-1,crop:{x:.02,y:.065,width:.46,height:.36}},
-  'math1-1':{afterLine:0,crop:{x:.06,y:.10,width:.88,height:.42}},
+  'math1-1':{afterLine:-1,crop:{x:.08,y:.07,width:.84,height:.39}},
   'math1-9':{afterLine:0,crop:{x:.06,y:.09,width:.88,height:.29}},
   'math1-10':{afterLine:0,crop:{x:.08,y:.10,width:.84,height:.43}},
   'math1-12':{afterLine:-1,crop:{x:.10,y:.08,width:.80,height:.44}},
@@ -30,5 +32,7 @@ export function expandNormalizedCrop(crop:NormalizedCrop,paddingX=.03,paddingY=.
 }
 
 export function questionVisualSpec(questionId:string){
+  const match=questionId.match(/^practice-test-5:math1-(\d+)$/)
+  if(match)return PRACTICE_TEST_5_MATH1_VISUALS[Number(match[1])]
   return QUESTION_VISUALS[questionId]
 }

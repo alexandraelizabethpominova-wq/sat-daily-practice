@@ -35,7 +35,7 @@ function isChoiceStart(value:string){
 function tableCells(value:string){
   const text=cleanPdfMathArtifacts(value).trim()
   if(!text||/[.!?]$/.test(text))return null
-  const cells=text.split(/\s+/).filter(Boolean)
+  const cells=(text.includes('\t')?text.split(/\t+/):text.split(/\s+/)).map(cell=>cell.trim()).filter(Boolean)
   if(cells.length<2||cells.length>7)return null
   if(cells.some(cell=>cell.length>18))return null
   return cells
@@ -93,7 +93,8 @@ function dataTableAt(lines:string[],start:number){
     const row=tableCells(lines[index])
     if(!row)break
     const numericCount=row.filter(isNumericCell).length
-    if(numericCount<2)break
+    const minimumNumericCells=Math.max(1,header.length-1)
+    if(numericCount<minimumNumericCells)break
     if(row.length!==header.length&&row.length!==header.length+1)break
     rows.push(row)
     index++

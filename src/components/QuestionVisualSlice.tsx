@@ -1,9 +1,9 @@
 import {useEffect,useState} from 'react'
 import {GlobalWorkerOptions,getDocument,type PDFDocumentProxy} from 'pdfjs-dist'
 import {getQuestionImage,saveQuestionImage} from '../lib/questionImageStore'
-import {QUESTION_CROPS} from '../lib/questionCrops'
+import {questionCropForParts} from '../lib/questionCrops'
 import {expandNormalizedCrop,type NormalizedCrop} from '../lib/questionVisuals'
-import type {PracticeQuestion} from '../types'
+import type {PracticeQuestion,SourceCrop} from '../types'
 
 GlobalWorkerOptions.workerSrc=new URL('pdfjs-dist/build/pdf.worker.min.mjs',import.meta.url).toString()
 
@@ -21,9 +21,9 @@ function canvasToBlob(canvas:HTMLCanvasElement):Promise<Blob>{
   return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('Could not create visual image.')),'image/png'))
 }
 
-type Props={question:PracticeQuestion;bytes:ArrayBuffer;crop:NormalizedCrop;alt:string}
+type Props={question:PracticeQuestion;bytes:ArrayBuffer;crop:NormalizedCrop;alt:string;expand?:boolean;sourceCrop?:SourceCrop|null}
 
-export default function QuestionVisualSlice({question,bytes,crop,alt}:Props){
+export default function QuestionVisualSlice({question,bytes,crop,alt,expand=true,sourceCrop}:Props){
   const[src,setSrc]=useState('')
   const[error,setError]=useState('')
 
@@ -31,7 +31,7 @@ export default function QuestionVisualSlice({question,bytes,crop,alt}:Props){
     let cancelled=false
     let objectUrl=''
     let renderTask:{cancel:()=>void;promise:Promise<void>}|null=null
-    const expandedCrop=expandNormalizedCrop(crop)
+    const expandedCrop=expand?expandNormalizedCrop(crop):crop
     // Bump the cache version when crop/render behavior changes so browsers do not keep a clipped image.
     const imageKey=`visual-v2:${bytes.byteLength}:${question.id}:${expandedCrop.x}:${expandedCrop.y}:${expandedCrop.width}:${expandedCrop.height}`
 
@@ -47,7 +47,7 @@ export default function QuestionVisualSlice({question,bytes,crop,alt}:Props){
         const existing=await getQuestionImage(imageKey)
         if(existing){await showBlob(existing);return}
 
-        const questionCrop=QUESTION_CROPS[question.module]?.[question.number]
+        const questionCrop=sourceCrop??question.sourceCrop??questionCropForParts(question.practiceTestId,question.module,question.number)
         if(!questionCrop)throw new Error(`Question ${question.number} crop is not configured.`)
 
         const doc=await loadPdf(bytes)
@@ -97,7 +97,7 @@ export default function QuestionVisualSlice({question,bytes,crop,alt}:Props){
       try{renderTask?.cancel()}catch{}
       if(objectUrl)URL.revokeObjectURL(objectUrl)
     }
-  },[question,bytes,crop])
+  },[question,bytes,crop,expand,sourceCrop])
 
   return <div className="question-visual-slice" role="img" aria-label={alt}>
     {error?<div className="source-error">{error}</div>:src?<img src={src} alt={alt}/>:<div className="source-loading">Preparing figure…</div>}

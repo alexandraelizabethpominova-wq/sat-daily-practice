@@ -9,10 +9,10 @@ vi.mock('./SourceViewer',()=>({default:({pdfKey,questionNumber}:{pdfKey:string;q
 describe('QuestionStatsTable review drawer',()=>{
   it('opens a drawer with the question and original explanation source',()=>{
     const question:QuestionPerformance={
-      questionId:'rw2-8',subject:'english',module:'rw2',questionNumber:8,attempts:2,correct:1,successRate:50,averageMs:42000,lastAttemptAt:'2026-09-18T12:00:00.000Z',
+      questionId:'rw2-8',practiceTestId:'practice-test-4',subject:'english',module:'rw2',questionNumber:8,attempts:2,correct:1,successRate:50,averageMs:42000,lastAttemptAt:'2026-09-18T12:00:00.000Z',
     }
     render(<QuestionStatsTable questions={[question]} answersPdf={new ArrayBuffer(8)}/>)
-    fireEvent.click(screen.getByRole('button',{name:'Review Reading and Writing question 8'}))
+    fireEvent.click(screen.getByRole('button',{name:'Review Practice Test 4 Reading and Writing question 8'}))
     expect(screen.getByText('Question review')).toBeInTheDocument()
     expect(screen.getByText('Rendered question rw2-8')).toBeInTheDocument()
     expect(screen.getByText('Original explanation')).toBeInTheDocument()
