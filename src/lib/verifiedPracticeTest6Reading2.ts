@@ -121,6 +121,13 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) NFM attitude has a strong negative effect on political knowledge and interest, and there is known to be a strong positive correlation between political knowledge and interest and the likelihood of voting.',
     'C) Political interest is known to have a strong positive effect on likelihood of voting but shows only a weak positive effect on political knowledge, and NFM attitude shows little correlation with either political knowledge or political interest.',
     'D) The likelihood of voting increases as political knowledge increases, and the relationship between NFM attitude and political knowledge tends to strengthen as the size of people’s social networks increases.',
+  ]),  17:q([
+    'The practice of logging (cutting down trees for commercial and other uses) is often thought to be at odds with forest conservation (the work of preserving forests). However, a massive study in forest management and preservation spanning 700,000 hectares in Oregon’s Malheur National Forest calls that view into question. So far, results of the study suggest that forest plots that have undergone limited logging (the careful removal of a controlled number of trees) may be more robust than plots that haven’t been logged at all. These results, in turn, suggest that _______',
+    'Which choice most logically completes the text?',
+    'A) logging may be useful for maintaining healthy forests, provided it is limited.',
+    'B) other forest management strategies are more effective than limited logging.',
+    'C) as time passes, it will be difficult to know whether limited logging has any benefits.',
+    'D) the best way to support forest health may be to leave large forests entirely untouched.',
   ]),
 }
 
