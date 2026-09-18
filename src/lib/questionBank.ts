@@ -30,12 +30,14 @@ function makeModule(module:ModuleKey,subject:Subject,count:number,practiceTestId
 
 export const QUESTION_BANK=[...makeModule('rw1','english',33),...makeModule('rw2','english',33),...makeModule('math1','math',27),...makeModule('math2','math',27)]
 
+function practiceTestNumber(id:PracticeTestId){return Number(id.replace('practice-test-',''))}
+
 export function availablePracticeTests(){
   const ids=[...new Set(QUESTION_BANK.map(question=>question.practiceTestId).filter((id):id is PracticeTestId=>Boolean(id)))]
-  return ids.sort((a,b)=>Number(a.split('-').at(-1))-Number(b.split('-').at(-1)))
+  return ids.sort((a,b)=>practiceTestNumber(a)-practiceTestNumber(b))
 }
 
-export function practiceTestLabel(id:PracticeTestId){return `Practice Test ${id.split('-').at(-1)}`}
+export function practiceTestLabel(id:PracticeTestId){return `Practice Test ${practiceTestNumber(id)}`}
 export function questionsForMode(mode:SubjectMode){return mode==='both'?QUESTION_BANK:QUESTION_BANK.filter(q=>q.subject===mode)}
 export function questionsForPractice(mode:SubjectMode,practiceTest:PracticeTestFilter='all'){
   return questionsForMode(mode).filter(question=>practiceTest==='all'||question.practiceTestId===practiceTest)
