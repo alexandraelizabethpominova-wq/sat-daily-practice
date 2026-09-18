@@ -100,7 +100,10 @@ export const VERIFIED_PRACTICE_TEST_6_MATH1:Record<number,VerifiedPracticeTest6M
 ,
   ]),  13:q([
     'The function $h$ is defined by $h(x)=\\frac{8}{5x+6}$. What is the value of $h(2)$?',
-  ]),
+  ]),  14:q([
+    'Note: Figure not drawn to scale.',
+    'The figure shows the lengths, in inches, of two sides of a right triangle. What is the area of the triangle, in square inches?',
+  ],true),
 }
 
 export function verifiedPracticeTest6Math1Content(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH1[questionNumber]}
