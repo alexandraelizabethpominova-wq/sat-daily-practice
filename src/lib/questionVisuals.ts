@@ -1,5 +1,5 @@
 export type NormalizedCrop={x:number;y:number;width:number;height:number}
-export type QuestionVisualSpec={afterLine:number;crop:NormalizedCrop}
+export type QuestionVisualSpec={afterLine:number;crop:NormalizedCrop;exact?:boolean}
 
 // Crops are normalized within the already-verified question crop, not the full PDF page.
 // Keep these deliberately a little generous so axes, labels, and geometry annotations are not clipped.
