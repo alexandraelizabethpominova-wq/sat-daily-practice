@@ -233,6 +233,13 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) Among the many botanical samples Doña María do Carmo Bandeira collected was Polytrichum juniperinum, a species of moss she collected from Serra de Itatiaia in 1925.',
     'C) Between 1924 and 1941, Doña María do Carmo Bandeira collected many botanical samples, such as Polytrichum juniperinum from Serra de Itatiaia and Sphagnum gracilescen from Ponte do Inferno.',
     'D) Between 1924 and 1941, Doña María do Carmo Bandeira collected samples of Polytrichum juniperinum and Sphagnum gracilescen, both species of moss.',
+  ]),  33:q([
+    'While researching a topic, a student has taken the following notes: • The US government classifies sensitive information according to the degree to which disclosure could affect the nation’s security. • Information that could cause “damage” to national security is classified as Confidential. • Information that could cause “serious damage” to national security is classified as Secret. • Most routine diplomatic correspondence, if disclosed, could cause damage but not serious damage to national security. • Diplomatic correspondence includes communication with both allies and adversaries. The student wants to indicate which category most routine diplomatic correspondence belongs in, based on how sensitive information is classified.',
+    'Which choice most effectively uses relevant information from the notes to accomplish this goal?',
+    'A) According to the US government, which classifies such sensitive information as routine diplomatic correspondence, Confidential information could damage national security if disclosed.',
+    'B) Most routine diplomatic correspondence is classified according to the degree to which disclosure could affect the nation’s security.',
+    'C) Having the potential to damage national security if disclosed, most routine diplomatic correspondence is classified as Confidential.',
+    'D) If disclosed, communication with both allies and adversaries could affect the nation’s security.',
   ]),
 }
 
