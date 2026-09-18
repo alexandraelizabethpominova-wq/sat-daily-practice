@@ -35,7 +35,7 @@ export default function QuestionSourceReview({question,questionsPdf,answersPdf=n
           <AlexText sx={{fontSize:12,fontWeight:800,color:'#475467',textTransform:'uppercase',letterSpacing:'.07em'}}>Original source</AlexText>
         </AlexBox>
         {hasQuestionSource&&resolvedQuestionsPdf
-          ?<SourceViewer pdfKey="questions" bytes={resolvedQuestionsPdf} page={question.sourcePage} questionNumber={question.number} alt={`${label} original PDF`} practiceTestId={question.practiceTestId} module={question.module}/>
+          ?<SourceViewer pdfKey="questions" bytes={resolvedQuestionsPdf} page={question.sourcePage} questionNumber={question.number} alt={`${label} original PDF`} practiceTestId={question.practiceTestId} module={question.module} sourceCrop={question.sourceCrop}/>
           :<AlexBox sx={{p:3}}><AlexText sx={{fontSize:14,color:'#667085'}}>Source PDF is not available on this device. Add it in Resources to compare against the original layout.</AlexText></AlexBox>}
       </AlexSurface>
     </AlexBox>
@@ -45,7 +45,7 @@ export default function QuestionSourceReview({question,questionsPdf,answersPdf=n
         <AlexText sx={{fontSize:12,fontWeight:800,color:'#475467',textTransform:'uppercase',letterSpacing:'.07em'}}>Explanation</AlexText>
       </AlexBox>
       {resolvedAnswersPdf
-        ?<SourceViewer pdfKey="answers" bytes={resolvedAnswersPdf} page={question.answerPage} questionNumber={question.number} alt={`Original explanation for ${label}`} label="Original explanation" practiceTestId={question.practiceTestId} module={question.module}/>
+        ?<SourceViewer pdfKey="answers" bytes={resolvedAnswersPdf} page={question.answerPage} questionNumber={question.number} alt={`Original explanation for ${label}`} label="Original explanation" practiceTestId={question.practiceTestId} module={question.module} sourceCrop={question.sourceCrop}/>
         :<AlexBox sx={{p:3}}><AlexText sx={{fontSize:14,color:'#667085'}}>Answer-explanation PDF is not available on this device. Add it in Resources to view the original explanation.</AlexText></AlexBox>}
     </AlexSurface>}
   </AlexBox>
