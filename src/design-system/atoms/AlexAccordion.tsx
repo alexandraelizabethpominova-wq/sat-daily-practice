@@ -10,13 +10,15 @@ export default function AlexAccordion({summary,children,sx,...props}:Props){
   return <Accordion
     disableGutters
     elevation={0}
-    sx={{
-      border:'1px solid #E4E7EC',
-      borderRadius:'12px !important',
-      overflow:'hidden',
-      '&:before':{display:'none'},
-      ...sx,
-    }}
+    sx={[
+      {
+        border:'1px solid #E4E7EC',
+        borderRadius:'12px !important',
+        overflow:'hidden',
+        '&:before':{display:'none'},
+      },
+      ...(Array.isArray(sx)?sx:[sx]),
+    ]}
     {...props}
   >
     <AccordionSummary
