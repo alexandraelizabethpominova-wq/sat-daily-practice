@@ -12,9 +12,10 @@ type Props={
   questionsPdf:ArrayBuffer|null
   answersPdf?:ArrayBuffer|null
   showExplanation?:boolean
+  revision?:number
 }
 
-export default function QuestionSourceReview({question,questionsPdf,answersPdf=null,showExplanation=false}:Props){
+export default function QuestionSourceReview({question,questionsPdf,answersPdf=null,showExplanation=false,revision=0}:Props){
   const label=`${moduleLabel(question.module)} · Q${question.number}`
   const hasQuestionSource=Boolean(questionsPdf?.byteLength)
 
@@ -24,7 +25,7 @@ export default function QuestionSourceReview({question,questionsPdf,answersPdf=n
         <AlexBox sx={{px:2,py:1.25,borderBottom:'1px solid #E6E2DB',bgcolor:'#F7F6F2'}}>
           <AlexText sx={{fontSize:12,fontWeight:800,color:'#475467',textTransform:'uppercase',letterSpacing:'.07em'}}>Text reconstruction</AlexText>
         </AlexBox>
-        <QuestionContent question={question} bytes={questionsPdf} alt={`${label} text`} showOriginalLayout={false} reflowProse/>
+        <QuestionContent key={`question-${question.id}-${revision}`} question={question} bytes={questionsPdf} alt={`${label} text`} showOriginalLayout={false} reflowProse/>
       </AlexSurface>
 
       <AlexSurface sx={{border:'1px solid #E6E2DB',borderRadius:2.5,overflow:'hidden',minWidth:0}}>
@@ -42,7 +43,7 @@ export default function QuestionSourceReview({question,questionsPdf,answersPdf=n
         <AlexText sx={{fontSize:12,fontWeight:800,color:'#475467',textTransform:'uppercase',letterSpacing:'.07em'}}>Explanation</AlexText>
       </AlexBox>
       <AlexBox sx={{p:{xs:1.5,md:2}}}>
-        <ExplanationContent question={question} bytes={answersPdf}/>
+        <ExplanationContent key={`explanation-${question.id}-${revision}`} question={question} bytes={answersPdf}/>
       </AlexBox>
     </AlexSurface>}
   </AlexBox>
