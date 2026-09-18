@@ -230,6 +230,12 @@ export async function importPracticeMaterials(questionPdf:ArrayBuffer,answerPdf:
   const questions=QUESTION_BANK.filter(question=>(question.practiceTestId??'practice-test-4')===practiceTestId)
   const total=questions.length
   for(const question of questions){
+    if(question.practiceTestId==='practice-test-5'&&question.module==='math1'){
+      await ensureQuestionText(question,questionPdf)
+      done++
+      onProgress?.(done,total)
+      continue
+    }
     let existing=await getQuestionContent(question.id)
     try{
       const questionLines=existing?.questionLines.length?existing.questionLines:await extractQuestionLines(question,questionPdf)
