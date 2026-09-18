@@ -14,7 +14,7 @@ import type {PracticeQuestion} from '../../types'
 type Props={question:PracticeQuestion;bytes:ArrayBuffer|null;alt:string;showOriginalLayout?:boolean;reflowProse?:boolean}
 
 function RenderQuestionLines({question,lines,reflowProse=false}:{question:PracticeQuestion;lines:string[];reflowProse?:boolean}){
-  return question.subject==='english'?<ReadingQuestionLines lines={lines}/>:<StructuredQuestionLines lines={lines} reflowProse={reflowProse}/>
+  return question.subject==='english'?<ReadingQuestionLines lines={lines} questionId={question.id}/>:<StructuredQuestionLines lines={lines} reflowProse={reflowProse}/>
 }
 
 function LinesWithSourceVisual({question,bytes,lines,alt,reflowProse=false}:{question:PracticeQuestion;bytes:ArrayBuffer|null;lines:string[];alt:string;reflowProse?:boolean}){
