@@ -2,7 +2,7 @@ import {useEffect,useState} from 'react'
 import {GlobalWorkerOptions,getDocument,type PDFDocumentProxy,type PDFPageProxy} from 'pdfjs-dist'
 import {getQuestionImage,saveQuestionImage} from '../lib/questionImageStore'
 import {questionCropForParts} from '../lib/questionCrops'
-import type {ModuleKey,PracticeTestId} from '../types'
+import type {ModuleKey,PracticeTestId,SourceCrop} from '../types'
 
 GlobalWorkerOptions.workerSrc=new URL('pdfjs-dist/build/pdf.worker.min.mjs',import.meta.url).toString()
 
@@ -61,9 +61,9 @@ async function dynamicQuestionBounds(page:PDFPageProxy,scale:number,questionNumb
 
 function canvasToBlob(canvas:HTMLCanvasElement):Promise<Blob>{return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('Could not create image.')),'image/png'))}
 
-type Props={pdfKey:string;bytes:ArrayBuffer;page:number;questionNumber:number;alt:string;zoom?:number;practiceTestId:PracticeTestId;module?:ModuleKey}
+type Props={pdfKey:string;bytes:ArrayBuffer;page:number;questionNumber:number;alt:string;zoom?:number;practiceTestId:PracticeTestId;module?:ModuleKey;sourceCrop?:SourceCrop|null}
 
-export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt,zoom=1,practiceTestId,module}:Props){
+export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt,zoom=1,practiceTestId,module,sourceCrop}:Props){
   const[src,setSrc]=useState('');const[error,setError]=useState('');const isQuestion=pdfKey==='questions'
   useEffect(()=>{
     let cancelled=false;let objectUrl='';let renderTask:{cancel:()=>void;promise:Promise<void>}|null=null
@@ -78,7 +78,7 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt,zoom=1
           scale=2.4
           const resolvedModule=module??moduleForPage(page)
           if(!resolvedModule)throw new Error(`Question ${questionNumber} has an unsupported source page.`)
-          const crop=questionCropForParts(practiceTestId,resolvedModule,questionNumber)
+          const crop=sourceCrop??questionCropForParts(practiceTestId,resolvedModule,questionNumber)
           if(crop){
             viewport=pdfPage.getViewport({scale})
             left=crop.x*scale;right=(crop.x+crop.width)*scale;top=crop.y*scale;bottom=(crop.y+crop.height)*scale
@@ -98,6 +98,6 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt,zoom=1
     }
     void render()
     return()=>{cancelled=true;try{renderTask?.cancel()}catch{};if(objectUrl)URL.revokeObjectURL(objectUrl)}
-  },[pdfKey,bytes,page,questionNumber,isQuestion,practiceTestId,module])
+  },[pdfKey,bytes,page,questionNumber,isQuestion,practiceTestId,module,sourceCrop])
   return <div className={`source-slice ${isQuestion?'question-source':''}`} role="img" aria-label={alt}><div className="source-slice-content">{error?<div className="source-error">{error}</div>:src?<img src={src} alt={alt} style={zoom!==1?{transform:`scale(${zoom})`}:undefined}/>:<div className="source-loading">{isQuestion?'Preparing question…':'Preparing explanation…'}</div>}</div></div>
 }
