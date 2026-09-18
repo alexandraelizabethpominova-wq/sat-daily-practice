@@ -3,7 +3,7 @@ import AlexBox from '../atoms/AlexBox'
 import SideNavigation from '../molecules/SideNavigation'
 import {getCurrentAuthUser,loadUserProfile,subscribeToAuth,type AuthUser,type UserProfile} from '../../lib/supabase'
 
-type NavKey='study'|'practice-tests'|'practice-setup'|'question-bank'|'performance'|'resources'
+type NavKey='study'|'practice-tests'|'practice-setup'|'question-bank'|'parsing-issues'|'performance'|'resources'
 
 type Props={
   active:NavKey
@@ -13,6 +13,7 @@ type Props={
   onPracticeTests:()=>void
   onPracticeSetup:()=>void
   onQuestionBank:()=>void
+  onParsingIssues:()=>void
   onPerformance:()=>void
   onResources:()=>void
   onSettings:()=>void
@@ -20,7 +21,7 @@ type Props={
   contentBackground?:string
 }
 
-export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onStudyPlan,onPracticeTests,onPracticeSetup,onQuestionBank,onPerformance,onResources,onSettings,children,contentBackground='#FFFFFF'}:Props){
+export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onStudyPlan,onPracticeTests,onPracticeSetup,onQuestionBank,onParsingIssues,onPerformance,onResources,onSettings,children,contentBackground='#FFFFFF'}:Props){
   const[user,setUser]=useState<AuthUser|null>(null)
   const[profile,setProfile]=useState<UserProfile|null>(null)
 
@@ -62,6 +63,7 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onS
         {key:'practice-tests',label:'Practice Tests',active:active==='practice-tests',onClick:onPracticeTests},
         {key:'practice-setup',label:'Practice Setup',active:active==='practice-setup',onClick:onPracticeSetup},
         {key:'question-bank',label:'Question Bank',active:active==='question-bank',onClick:onQuestionBank},
+        {key:'parsing-issues',label:'Parsing Issues',active:active==='parsing-issues',onClick:onParsingIssues},
         {key:'performance',label:'Performance',active:active==='performance',onClick:onPerformance},
       ]}
       secondary={[{key:'resources',label:'Resources',active:active==='resources',onClick:onResources}]}
