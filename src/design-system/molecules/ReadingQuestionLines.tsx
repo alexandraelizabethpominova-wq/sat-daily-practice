@@ -1,47 +1,62 @@
 import AlexRichText from '../atoms/AlexRichText'
+import {READING_PARAGRAPH_BREAK} from '../../lib/readingQuestionFormat'
 
 const LABELED_CHOICE=/^([A-D])(?:[.)]\s*|\s+)(.+)$/i
 const QUESTION_STEM=/^(Which|What|How|Why|According to|Based on|As used in|The student wants|To which|Which finding|Which quotation|Which choice|Which statement|Which response|The passage|The text|The main purpose|The author|The speaker)\b/i
 const INTRO_START=/^The following text is (?:from|adapted from)\b/i
 
 export type ReadingChoice={label:string;text:string}
-export type ParsedReadingQuestion={intro:string;stimulus:string[];stem:string;choices:ReadingChoice[];isQuote:boolean;isVerse:boolean}
+export type ParsedReadingQuestion={intro:string[];stimulusBlocks:string[][];stem:string;choices:ReadingChoice[];isQuote:boolean;isVerse:boolean}
 
 function clean(value:string){return value.replace(/\s+/g,' ').trim()}
+function isBreak(value:string){return value===READING_PARAGRAPH_BREAK}
+
+function splitBlocks(lines:string[]){
+  const blocks:string[][]=[]
+  let current:string[]=[]
+  for(const line of lines){
+    if(isBreak(line)){if(current.length){blocks.push(current);current=[]};continue}
+    current.push(line)
+  }
+  if(current.length)blocks.push(current)
+  return blocks
+}
 
 function stemStart(source:string[]){
-  for(let index=source.length-1;index>=0;index--){if(QUESTION_STEM.test(clean(source[index])))return index}
-  for(let index=source.length-1;index>=0;index--){if(/[?]$/.test(clean(source[index])))return index}
+  for(let index=source.length-1;index>=0;index--){if(!isBreak(source[index])&&QUESTION_STEM.test(clean(source[index])))return index}
+  for(let index=source.length-1;index>=0;index--){if(!isBreak(source[index])&&/[?]$/.test(clean(source[index])))return index}
   return Math.max(0,source.length-1)
 }
 
 function stemEnd(source:string[],start:number){
-  for(let index=start;index<source.length;index++){if(/[?]$/.test(clean(source[index])))return index}
+  for(let index=start;index<source.length;index++){if(!isBreak(source[index])&&/[?]$/.test(clean(source[index])))return index}
   return start
 }
 
-function splitIntro(lines:string[]){
-  if(!lines.length||!INTRO_START.test(clean(lines[0])))return {intro:'',body:lines}
-  const joined=lines.map(clean).join(' ')
-  const firstSentence=joined.match(/^(.*?[.!?][”\"']?)(?:\s+|$)/)
-  if(!firstSentence)return {intro:clean(lines[0]),body:lines.slice(1)}
-  const intro=firstSentence[1].trim()
-  let remainder=joined.slice(firstSentence[0].length).trim()
-  if(!remainder)return {intro,body:[] as string[]}
-  return {intro,body:[remainder]}
+function legacyIntroSplit(lines:string[]){
+  if(!lines.length||!INTRO_START.test(clean(lines[0])))return {intro:[] as string[],bodyBlocks:lines.length?[lines]:[]}
+  const body=[...lines]
+  const intro:string[]=[]
+  while(body.length){
+    const line=body.shift()!
+    intro.push(line)
+    if(/[.!?][”\"']?$/.test(clean(line)))break
+  }
+  return {intro,bodyBlocks:body.length?[body]:[]}
 }
 
-function looksLikeVerse(lines:string[]){
+function looksLikeVerse(intro:string[],blocks:string[][]){
+  if(/\bpoem\b/i.test(intro.map(clean).join(' ')))return true
+  const lines=blocks.flat()
   if(lines.length<3)return false
   const lengths=lines.map(line=>clean(line).length).filter(Boolean)
-  if(lengths.length<3)return false
   const average=lengths.reduce((sum,value)=>sum+value,0)/lengths.length
   const longLines=lengths.filter(length=>length>72).length
-  return average<=60&&longLines<=1
+  return average<=52&&longLines===0
 }
 
-function explicitlyQuoted(lines:string[]){
-  const text=lines.map(clean).filter(Boolean).join(' ')
+function explicitlyQuoted(blocks:string[][]){
+  const text=blocks.flat().map(clean).filter(Boolean).join(' ')
   return /^[“\"‘]/.test(text)||/[”\"’]$/.test(text)
 }
 
@@ -49,6 +64,7 @@ function parseChoices(lines:string[]){
   const choices:ReadingChoice[]=[]
   let current:ReadingChoice|null=null
   for(const raw of lines){
+    if(isBreak(raw))continue
     const line=clean(raw)
     const match=line.match(LABELED_CHOICE)
     if(match){
@@ -67,31 +83,40 @@ export function parseReadingQuestion(lines:string[]):ParsedReadingQuestion{
   const start=stemStart(source)
   const end=stemEnd(source,start)
   const rawStimulus=source.slice(0,start)
-  const {intro,body}=splitIntro(rawStimulus)
-  const stem=source.slice(start,end+1).map(clean).join(' ')
+  const blocks=splitBlocks(rawStimulus)
+  let intro:string[]=[]
+  let stimulusBlocks=blocks
+  if(blocks[0]?.length&&INTRO_START.test(clean(blocks[0][0]))){
+    intro=blocks[0]
+    stimulusBlocks=blocks.slice(1)
+    if(!stimulusBlocks.length){
+      const legacy=legacyIntroSplit(blocks[0])
+      intro=legacy.intro
+      stimulusBlocks=legacy.bodyBlocks
+    }
+  }
+  const stem=source.slice(start,end+1).filter(line=>!isBreak(line)).map(clean).join(' ')
   const choices=parseChoices(source.slice(end+1))
-  const isVerse=looksLikeVerse(body)
-  return {intro,stimulus:body,stem,choices,isVerse,isQuote:Boolean(intro)||isVerse||explicitlyQuoted(body)}
+  const isVerse=looksLikeVerse(intro,stimulusBlocks)
+  return {intro,stimulusBlocks,stem,choices,isVerse,isQuote:Boolean(intro.length)||isVerse||explicitlyQuoted(stimulusBlocks)}
 }
 
-export function hasCompleteReadingChoices(lines:string[]){
-  return parseReadingQuestion(lines).choices.map(choice=>choice.label).join('')==='ABCD'
-}
+export function hasCompleteReadingChoices(lines:string[]){return parseReadingQuestion(lines).choices.map(choice=>choice.label).join('')==='ABCD'}
+
+function JoinedBlock({lines}:{lines:string[]}){return <p><AlexRichText text={lines.map(clean).join(' ')}/></p>}
 
 export default function ReadingQuestionLines({lines}:{lines:string[]}){
   const parsed=parseReadingQuestion(lines)
   return <div className="reading-question-content">
-    {parsed.intro&&<p className="reading-intro"><AlexRichText text={parsed.intro}/></p>}
-    {parsed.stimulus.length>0&&(parsed.isQuote
-      ?<blockquote className={`reading-stimulus reading-quote${parsed.isVerse?' reading-verse':''}`}>
+    {parsed.intro.length>0&&<div className="reading-intro">{splitBlocks(parsed.intro).map((block,index)=><JoinedBlock key={`intro-${index}`} lines={block}/>)}</div>}
+    {parsed.stimulusBlocks.length>0&&(parsed.isQuote
+      ?<blockquote role="blockquote" className={`reading-stimulus reading-quote${parsed.isVerse?' reading-verse':''}`}>
         {parsed.isVerse
-          ?parsed.stimulus.map((line,index)=><span className="reading-verse-line" key={`verse-${index}`}><AlexRichText text={line}/></span>)
-          :<p><AlexRichText text={parsed.stimulus.map(clean).join(' ')}/></p>}
+          ?parsed.stimulusBlocks.flat().map((line,index)=><span className="reading-verse-line" key={`verse-${index}`}><AlexRichText text={line}/></span>)
+          :parsed.stimulusBlocks.map((block,index)=><JoinedBlock key={`quote-${index}`} lines={block}/>)}
       </blockquote>
-      :<div className="reading-stimulus"><p><AlexRichText text={parsed.stimulus.map(clean).join(' ')}/></p></div>)}
-
+      :<div className="reading-stimulus">{parsed.stimulusBlocks.map((block,index)=><JoinedBlock key={`stimulus-${index}`} lines={block}/>)}</div>)}
     {parsed.stem&&<p className="reading-question-stem"><AlexRichText text={parsed.stem}/></p>}
-
     {parsed.choices.length>0&&<div className="reading-answer-options" role="list" aria-label="Answer choices">
       {parsed.choices.map(choice=><div className="reading-answer-choice" role="listitem" key={choice.label}>
         <span className="reading-choice-label" aria-hidden="true">{choice.label})</span>
