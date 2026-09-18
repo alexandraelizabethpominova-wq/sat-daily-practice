@@ -29,6 +29,13 @@ function idMatchesPracticeTest(id:string,practiceTestId:string){
   return id.startsWith(`${practiceTestId}:`)
 }
 
+export function mergeQuestionBanks(bundled:PracticeQuestion[],shared:PracticeQuestion[]|null|undefined){
+  if(!shared?.length)return bundled
+  const merged=new Map(bundled.map(question=>[question.id,question]))
+  shared.forEach(question=>merged.set(question.id,question))
+  return [...merged.values()]
+}
+
 export async function loadSharedQuestionBank():Promise<PracticeQuestion[]|null>{
   if(!supabase)return null
   const {data,error}=await supabase
