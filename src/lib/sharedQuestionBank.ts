@@ -22,7 +22,8 @@ function parseOneVisualSpec(crop:unknown,afterLine:unknown):QuestionVisualSpec|n
   const line=Number(value.afterLine??afterLine)
   if([x,y,width,height,line].some(number=>Number.isNaN(number)))return null
   if(x<0||y<0||width<=0||height<=0||x+width>1||y+height>1||line<-1)return null
-  return {afterLine:line,crop:{x,y,width,height},exact:true}
+  const kind=value.kind==='choice-grid'?'choice-grid':value.kind==='figure'?'figure':undefined
+  return {afterLine:line,crop:{x,y,width,height},exact:true,kind}
 }
 
 function parseVisualSpecs(crop:unknown,afterLine:unknown):QuestionVisualSpec[]{
