@@ -1,7 +1,7 @@
 import {GlobalWorkerOptions,getDocument,type PDFDocumentProxy} from 'pdfjs-dist'
 import {QUESTION_BANK} from './questionBank'
 import {QUESTION_CROPS} from './questionCrops'
-import {getQuestionContent,saveQuestionContent,type StoredQuestionContent} from './questionContentStore'
+import {getQuestionContent,isCurrentQuestionContent,QUESTION_CONTENT_VERSION,saveQuestionContent,type StoredQuestionContent} from './questionContentStore'
 import type {PracticeQuestion} from '../types'
 
 GlobalWorkerOptions.workerSrc=new URL('pdfjs-dist/build/pdf.worker.min.mjs',import.meta.url).toString()
@@ -105,7 +105,7 @@ export async function extractExplanationLines(question:PracticeQuestion,answerPd
 
 export async function ensureQuestionText(question:PracticeQuestion,questionPdf:ArrayBuffer){
   const existing=await getQuestionContent(question.id)
-  if(existing?.questionLines.length)return existing
+  if(isCurrentQuestionContent(existing)&&existing?.questionLines.length)return existing
   const questionLines=await extractQuestionLines(question,questionPdf)
   const record:StoredQuestionContent={
     questionId:question.id,
@@ -115,6 +115,7 @@ export async function ensureQuestionText(question:PracticeQuestion,questionPdf:A
     explanationMode:existing?.explanationMode??'text',
     needsVisual:hasVisualReference(questionLines),
     importedAt:new Date().toISOString(),
+    contentVersion:QUESTION_CONTENT_VERSION,
   }
   await saveQuestionContent(record)
   return record
@@ -132,6 +133,7 @@ export async function ensureExplanationText(question:PracticeQuestion,answerPdf:
     explanationMode:explanationLines.length?'text':'image-fallback',
     needsVisual:existing?.needsVisual??false,
     importedAt:new Date().toISOString(),
+    contentVersion:existing?.contentVersion,
   }
   await saveQuestionContent(record)
   return record
@@ -153,6 +155,7 @@ export async function importPracticeMaterials(questionPdf:ArrayBuffer,answerPdf:
         explanationMode:explanationLines.length?'text':'image-fallback',
         needsVisual:hasVisualReference(questionLines),
         importedAt:new Date().toISOString(),
+        contentVersion:QUESTION_CONTENT_VERSION,
       }
       await saveQuestionContent(record)
       existing=record
@@ -165,6 +168,7 @@ export async function importPracticeMaterials(questionPdf:ArrayBuffer,answerPdf:
         explanationMode:existing?.explanationLines.length?'text':'image-fallback',
         needsVisual:existing?.needsVisual??false,
         importedAt:new Date().toISOString(),
+        contentVersion:existing?.contentVersion,
       })
     }
     done++
