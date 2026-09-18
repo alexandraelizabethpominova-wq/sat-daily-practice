@@ -4,6 +4,7 @@ import AlexDrawer from '../atoms/AlexDrawer'
 import AlexIconButton from '../atoms/AlexIconButton'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
+import ParsingIssueReporter from './ParsingIssueReporter'
 import SourceViewer from './SourceViewer'
 import QuestionContent from './QuestionContent'
 import {formatDuration} from '../../lib/practiceGamification'
@@ -32,6 +33,7 @@ export default function QuestionReviewDrawer({open,onClose,question,performance,
         <AlexBox sx={{px:2,py:1.25,borderBottom:'1px solid #E6E2DB',bgcolor:'#F7F6F2'}}><AlexText sx={{fontSize:12,fontWeight:800,color:'#475467',textTransform:'uppercase',letterSpacing:'.07em'}}>Question</AlexText></AlexBox>
         <QuestionContent question={question} bytes={questionsPdf} alt={`${moduleLabel(question.module)} question ${question.number}`} showOriginalLayout={false}/>
       </AlexSurface>
+      <ParsingIssueReporter question={question} context="performance"/>
       <AlexSurface sx={{border:'1px solid #E6E2DB',borderRadius:2.5,overflow:'hidden'}}>
         <AlexBox sx={{px:2,py:1.25,borderBottom:'1px solid #E6E2DB',bgcolor:'#F7F6F2'}}><AlexText sx={{fontSize:12,fontWeight:800,color:'#475467',textTransform:'uppercase',letterSpacing:'.07em'}}>Original explanation</AlexText></AlexBox>
         {answersPdf
