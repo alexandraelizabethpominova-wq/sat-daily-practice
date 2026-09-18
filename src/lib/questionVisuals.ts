@@ -11,10 +11,10 @@ export const QUESTION_VISUALS:Record<string,QuestionVisualSpec>={
   'practice-test-6:rw1-14':{afterLine:-1,crop:{x:.04,y:.035,width:.40,height:.39},exact:true},
   'practice-test-6:rw1-15':{afterLine:-1,crop:{x:.10,y:.035,width:.88,height:.375},exact:true},
   'practice-test-6:rw2-13':{afterLine:-1,crop:{x:.02,y:.02,width:.46,height:.56},exact:true},
-  'practice-test-6:math1-5':{afterLine:-1,crop:{x:.08,y:.03,width:.84,height:.42},exact:true},
-  'practice-test-6:math1-14':{afterLine:-1,crop:{x:.10,y:.03,width:.82,height:.55},exact:true,kind:'figure'},
-  'practice-test-6:math1-15':{afterLine:-1,crop:{x:.06,y:.03,width:.88,height:.44},exact:true,kind:'figure'},
-  'practice-test-6:math1-21':{afterLine:-1,crop:{x:.05,y:.03,width:.90,height:.61},exact:true,kind:'figure'},
+  'practice-test-6:math1-5':{afterLine:-1,crop:{x:.08,y:.03,width:.84,height:.42},exact:true,kind:'figure'},
+  'practice-test-6:math1-14':{afterLine:-1,crop:{x:.10,y:.03,width:.82,height:.36},exact:true,kind:'figure'},
+  'practice-test-6:math1-15':{afterLine:-1,crop:{x:.06,y:.07,width:.88,height:.43},exact:true,kind:'figure'},
+  'practice-test-6:math1-21':{afterLine:-1,crop:{x:.05,y:.08,width:.90,height:.58},exact:true,kind:'figure'},
   'practice-test-6:math1-23':{afterLine:-1,crop:{x:.08,y:.02,width:.84,height:.24},exact:true,kind:'figure'},
   'practice-test-6:math1-24':{afterLine:-1,crop:{x:.08,y:.02,width:.84,height:.28},exact:true,kind:'figure'},
   'practice-test-6:math2-2':{afterLine:-1,crop:{x:.15,y:.03,width:.70,height:.35},exact:true},
@@ -33,8 +33,8 @@ export const QUESTION_VISUALS:Record<string,QuestionVisualSpec>={
 
 const QUESTION_VISUAL_GROUPS:Record<string,QuestionVisualSpec[]>={
   'practice-test-6:math1-2':[
-    {afterLine:0,crop:{x:.14,y:.065,width:.40,height:.27},exact:true,kind:'figure'},
-    {afterLine:1,crop:{x:.03,y:.46,width:.94,height:.52},exact:true,kind:'choice-grid'},
+    {afterLine:0,crop:{x:.17,y:.09,width:.34,height:.27},exact:true,kind:'figure'},
+    {afterLine:1,crop:{x:.02,y:.40,width:.96,height:.60},exact:true,kind:'choice-grid'},
   ],
 }
 
