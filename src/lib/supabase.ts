@@ -114,6 +114,7 @@ function attemptRow(a:Attempt,userId:string){
     user_id:userId,
     session_id:a.sessionId,
     question_id:a.questionId,
+    practice_test_id:a.practiceTestId??'practice-test-4',
     subject:a.subject,
     module:a.module,
     question_number:a.questionNumber,
@@ -156,7 +157,7 @@ export async function loadCloudHistory():Promise<{attempts:Attempt[];sessions:Se
   if(!userId)return null
   const [sessionResult,attemptResult]=await Promise.all([
     supabase.from('sat_sessions').select('id,started_at,ended_at,mode,question_count').eq('user_id',userId).not('ended_at','is',null).order('started_at',{ascending:true}),
-    supabase.from('sat_attempts').select('id,session_id,question_id,subject,module,question_number,selected_answer,correct_answer,correct,self_graded,elapsed_ms,created_at').eq('user_id',userId).order('created_at',{ascending:true}),
+    supabase.from('sat_attempts').select('id,session_id,question_id,practice_test_id,subject,module,question_number,selected_answer,correct_answer,correct,self_graded,elapsed_ms,created_at').eq('user_id',userId).order('created_at',{ascending:true}),
   ])
   if(sessionResult.error)throw sessionResult.error
   if(attemptResult.error)throw attemptResult.error
@@ -164,6 +165,7 @@ export async function loadCloudHistory():Promise<{attempts:Attempt[];sessions:Se
     id:row.id,
     sessionId:row.session_id,
     questionId:row.question_id,
+    practiceTestId:row.practice_test_id??'practice-test-4',
     subject:row.subject as Attempt['subject'],
     module:row.module as Attempt['module'],
     questionNumber:row.question_number,
