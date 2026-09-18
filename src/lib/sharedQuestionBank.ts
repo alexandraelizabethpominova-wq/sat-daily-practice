@@ -7,12 +7,13 @@ export async function loadSharedQuestionBank():Promise<PracticeQuestion[]|null>{
   if(!supabase)return null
   const {data,error}=await supabase
     .from('sat_question_bank')
-    .select('id,subject,module,question_number,source_page,answer_page,correct_answer,accepted_answers,response_type')
+    .select('id,practice_test_id,subject,module,question_number,source_page,answer_page,correct_answer,accepted_answers,response_type')
     .order('module',{ascending:true})
     .order('question_number',{ascending:true})
   if(error)throw error
   return (data??[]).map(row=>({
     id:row.id,
+    practiceTestId:row.practice_test_id,
     subject:row.subject as Subject,
     module:row.module as ModuleKey,
     number:row.question_number,
