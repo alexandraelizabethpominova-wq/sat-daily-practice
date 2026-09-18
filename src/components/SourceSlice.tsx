@@ -82,8 +82,10 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt,zoom=1
           if(crop){
             viewport=pdfPage.getViewport({scale})
             left=crop.x*scale;right=(crop.x+crop.width)*scale;top=crop.y*scale;bottom=(crop.y+crop.height)*scale
-          }else{
+          }else if(practiceTestId==='practice-test-4'){
             const bounds=await dynamicQuestionBounds(pdfPage,scale,questionNumber);viewport=bounds.viewport;({left,right,top,bottom}=bounds)
+          }else{
+            throw new Error(`No verified source crop exists for ${practiceTestId} ${resolvedModule} question ${questionNumber}.`)
           }
         }else{const bounds=await explanationBounds(pdfPage,scale,questionNumber);viewport=bounds.viewport;({left,right,top,bottom}=bounds)}
         const full=document.createElement('canvas');const fullCtx=full.getContext('2d')!;full.width=Math.ceil(viewport.width*dpr);full.height=Math.ceil(viewport.height*dpr)
