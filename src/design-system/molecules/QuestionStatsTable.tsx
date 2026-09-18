@@ -1,41 +1,68 @@
-import {useMemo,useState} from 'react'
+import {useEffect,useMemo,useState} from 'react'
 import {ChevronRight} from 'lucide-react'
 import AlexBox from '../atoms/AlexBox'
 import AlexButtonBase from '../atoms/AlexButtonBase'
+import AlexDropdown from '../atoms/AlexDropdown'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
 import QuestionReviewDrawer from './QuestionReviewDrawer'
 import {formatDuration} from '../../lib/practiceGamification'
-import {QUESTION_BANK} from '../../lib/questionBank'
+import {practiceTestLabel,QUESTION_BANK} from '../../lib/questionBank'
+import {loadSharedQuestionBank} from '../../lib/sharedQuestionBank'
 import type {QuestionPerformance} from '../../lib/performanceAnalytics'
+import type {PracticeQuestion,PracticeTestFilter,PracticeTestId} from '../../types'
 
 type Props={questions:QuestionPerformance[];questionsPdf?:ArrayBuffer|null;answersPdf?:ArrayBuffer|null}
 
 export default function QuestionStatsTable({questions,questionsPdf=null,answersPdf=null}:Props){
   const[selectedId,setSelectedId]=useState<string|null>(null)
-  const selectedPerformance=questions.find(question=>question.questionId===selectedId)??null
-  const selectedQuestion=useMemo(()=>QUESTION_BANK.find(question=>question.id===selectedId)??null,[selectedId])
+  const[practiceTestFilter,setPracticeTestFilter]=useState<PracticeTestFilter>('all')
+  const[bank,setBank]=useState<PracticeQuestion[]>(QUESTION_BANK)
+
+  useEffect(()=>{
+    let cancelled=false
+    void loadSharedQuestionBank().then(shared=>{if(!cancelled&&shared?.length)setBank(shared)}).catch(()=>{})
+    return()=>{cancelled=true}
+  },[])
+
+  const practiceTests=useMemo(()=>{
+    const ids=[...new Set(questions.map(question=>question.practiceTestId).filter((id):id is PracticeTestId=>Boolean(id)))]
+    return ids.sort((a,b)=>Number(a.replace('practice-test-',''))-Number(b.replace('practice-test-','')))
+  },[questions])
+  const filteredQuestions=useMemo(()=>questions.filter(question=>practiceTestFilter==='all'||question.practiceTestId===practiceTestFilter),[questions,practiceTestFilter])
+  const selectedPerformance=filteredQuestions.find(question=>question.questionId===selectedId)??null
+  const selectedQuestion=useMemo(()=>bank.find(question=>question.id===selectedId)??QUESTION_BANK.find(question=>question.id===selectedId)??null,[bank,selectedId])
+  const options=[{value:'all' as const,label:'All practice tests'},...practiceTests.map(value=>({value,label:practiceTestLabel(value)}))]
+
+  useEffect(()=>{
+    if(selectedId&&!filteredQuestions.some(question=>question.questionId===selectedId))setSelectedId(null)
+  },[filteredQuestions,selectedId])
 
   return <>
     <AlexSurface sx={{border:'1px solid #E6E2DB',borderRadius:3,overflow:'hidden'}}>
-      <AlexBox sx={{p:{xs:2,md:2.5},borderBottom:'1px solid #E6E2DB'}}>
-        <AlexText component="h2" sx={{fontSize:18,fontWeight:800,color:'#08275B'}}>Question details</AlexText>
-        <AlexText sx={{fontSize:13,color:'#667085',mt:.5}}>Sorted from lowest success rate upward. Select any question to review the question and explanation.</AlexText>
+      <AlexBox sx={{p:{xs:2,md:2.5},borderBottom:'1px solid #E6E2DB',display:'flex',justifyContent:'space-between',gap:2,alignItems:{xs:'stretch',sm:'flex-end'},flexDirection:{xs:'column',sm:'row'}}}>
+        <AlexBox>
+          <AlexText component="h2" sx={{fontSize:18,fontWeight:800,color:'#08275B'}}>Question details</AlexText>
+          <AlexText sx={{fontSize:13,color:'#667085',mt:.5}}>Sorted from lowest success rate upward. Filter by Practice Test, then select a question to review it or flag a parsing problem.</AlexText>
+        </AlexBox>
+        <AlexBox sx={{width:{xs:'100%',sm:220},flex:'0 0 auto'}}>
+          <AlexDropdown id="question-stats-practice-test" label="Practice test" value={practiceTestFilter} options={options} onChange={setPracticeTestFilter}/>
+        </AlexBox>
       </AlexBox>
       <AlexBox sx={{overflowX:'auto',maxHeight:520,overflowY:'auto'}}>
         <AlexBox sx={{minWidth:790}}>
           <AlexBox sx={{display:'grid',gridTemplateColumns:'1.8fr .9fr .8fr .8fr .9fr .55fr',gap:1,p:'10px 16px',position:'sticky',top:0,bgcolor:'#F7F6F2',borderBottom:'1px solid #E6E2DB',zIndex:1}}>
             {['Question','Attempts','Correct','Success','Avg. time','Review'].map(label=><AlexText key={label} sx={{fontSize:12,fontWeight:800,color:'#475467'}}>{label}</AlexText>)}
           </AlexBox>
-          {questions.map(question=><AlexButtonBase
+          {filteredQuestions.map(question=><AlexButtonBase
             key={question.questionId}
             onClick={()=>setSelectedId(question.questionId)}
-            aria-label={`Review ${question.subject==='math'?'Math':'Reading and Writing'} question ${question.questionNumber}`}
+            aria-label={`Review ${practiceTestLabel(question.practiceTestId)} ${question.subject==='math'?'Math':'Reading and Writing'} question ${question.questionNumber}`}
             sx={{display:'grid',gridTemplateColumns:'1.8fr .9fr .8fr .8fr .9fr .55fr',gap:1,p:'12px 16px',alignItems:'center',width:'100%',textAlign:'left',borderBottom:'1px solid #F0EDE7','&:hover':{bgcolor:'#F8FAFC'},'&:focus-visible':{outline:'2px solid #6558F5',outlineOffset:-2}}}
           >
             <AlexBox>
               <AlexText sx={{fontSize:14,fontWeight:750,color:'#08275B'}}>{question.subject==='math'?'Math':'Reading & Writing'} · Q{question.questionNumber}</AlexText>
-              <AlexText sx={{fontSize:12,color:'#667085'}}>{question.module.toUpperCase()}</AlexText>
+              <AlexText sx={{fontSize:12,color:'#667085'}}>{practiceTestLabel(question.practiceTestId)} · {question.module.toUpperCase()}</AlexText>
             </AlexBox>
             <AlexText sx={{fontSize:14}}>{question.attempts}</AlexText>
             <AlexText sx={{fontSize:14}}>{question.correct}</AlexText>
@@ -43,6 +70,7 @@ export default function QuestionStatsTable({questions,questionsPdf=null,answersP
             <AlexText sx={{fontSize:14}}>{formatDuration(question.averageMs)}</AlexText>
             <AlexBox sx={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:.5,color:'#6558F5'}}><AlexText sx={{fontSize:12,fontWeight:800,color:'inherit'}}>Open</AlexText><ChevronRight size={15}/></AlexBox>
           </AlexButtonBase>)}
+          {!filteredQuestions.length&&<AlexBox sx={{p:3}}><AlexText sx={{fontSize:14,color:'#667085'}}>No question statistics match this Practice Test filter yet.</AlexText></AlexBox>}
         </AlexBox>
       </AlexBox>
     </AlexSurface>
