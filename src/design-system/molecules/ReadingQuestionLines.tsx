@@ -60,29 +60,52 @@ function parseChoiceSequence(lines:string[]){
   return choices
 }
 
-function stemEnd(source:string[],start:number){
-  for(let index=start;index<source.length;index++){
-    if(!isBreak(source[index])&&/[?]$/.test(clean(source[index])))return index
+function findChoiceBlock(source:string[]){
+  for(let start=source.length-1;start>=0;start--){
+    if(isBreak(source[start]))continue
+    const parts=choiceParts(source[start])
+    if(parts?.label!=='A')continue
+    const choices=parseChoiceSequence(source.slice(start))
+    if(choices.map(choice=>choice.label).join('')==='ABCD')return {start,choices}
   }
+  return null
+}
+
+function previousContentIndex(source:string[],from:number){
+  for(let index=from;index>=0;index--){if(!isBreak(source[index]))return index}
   return -1
 }
 
+function stemBlockStart(source:string[],end:number){
+  let blockStart=end
+  while(blockStart>0&&!isBreak(source[blockStart-1]))blockStart--
+
+  for(let index=blockStart;index<=end;index++){
+    if(!isBreak(source[index])&&QUESTION_STEM.test(clean(source[index])))return index
+  }
+
+  for(let index=end;index>=0;index--){
+    if(isBreak(source[index]))break
+    if(QUESTION_STEM.test(clean(source[index])))return index
+  }
+
+  return blockStart
+}
+
 function findQuestionStructure(source:string[]){
-  for(let start=source.length-1;start>=0;start--){
-    if(isBreak(source[start])||!QUESTION_STEM.test(clean(source[start])))continue
-    const end=stemEnd(source,start)
-    if(end<start)continue
-    const choices=parseChoiceSequence(source.slice(end+1))
-    if(choices.map(choice=>choice.label).join('')==='ABCD')return {start,end,choices}
-  }
+  const choiceBlock=findChoiceBlock(source)
+  if(!choiceBlock)return null
 
-  for(let start=source.length-1;start>=0;start--){
-    if(isBreak(source[start])||!/[?]$/.test(clean(source[start])))continue
-    const choices=parseChoiceSequence(source.slice(start+1))
-    if(choices.map(choice=>choice.label).join('')==='ABCD')return {start,end:start,choices}
+  let end=previousContentIndex(source,choiceBlock.start-1)
+  while(end>=0&&!/[?]$/.test(clean(source[end]))){
+    const previous=previousContentIndex(source,end-1)
+    if(previous<0||isBreak(source[end-1]))break
+    end=previous
   }
+  if(end<0)return null
 
-  return null
+  const start=stemBlockStart(source,end)
+  return {start,end,choices:choiceBlock.choices}
 }
 
 function legacyIntroSplit(lines:string[]){
