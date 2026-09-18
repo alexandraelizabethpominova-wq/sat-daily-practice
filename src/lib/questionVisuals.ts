@@ -10,7 +10,7 @@ export const QUESTION_VISUALS:Record<string,QuestionVisualSpec>={
   'rw2-13':{afterLine:-1,crop:{x:.02,y:.065,width:.46,height:.36}},
   'practice-test-6:rw1-14':{afterLine:-1,crop:{x:.04,y:.035,width:.40,height:.39},exact:true},
   'practice-test-6:rw1-15':{afterLine:-1,crop:{x:.10,y:.035,width:.88,height:.375},exact:true},
-  'practice-test-6:rw2-13':{afterLine:-1,crop:{x:.05,y:.025,width:.90,height:.50},exact:true},
+  'practice-test-6:rw2-13':{afterLine:-1,crop:{x:.02,y:.02,width:.46,height:.56},exact:true},
   'practice-test-6:math1-5':{afterLine:-1,crop:{x:.08,y:.03,width:.84,height:.42},exact:true},
   'practice-test-6:math1-14':{afterLine:-1,crop:{x:.10,y:.03,width:.82,height:.55},exact:true},
   'practice-test-6:math1-15':{afterLine:-1,crop:{x:.06,y:.03,width:.88,height:.44},exact:true},
