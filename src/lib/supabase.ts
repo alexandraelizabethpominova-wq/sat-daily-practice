@@ -15,9 +15,10 @@ export type UserProfile={
   parentGuardianName:string
   parentGuardianEmail:string
   about:string
+  isAdmin:boolean
 }
 
-export const EMPTY_USER_PROFILE:UserProfile={displayName:'',school:'',grade:'',parentGuardianName:'',parentGuardianEmail:'',about:''}
+export const EMPTY_USER_PROFILE:UserProfile={displayName:'',school:'',grade:'',parentGuardianName:'',parentGuardianEmail:'',about:'',isAdmin:false}
 
 const toAuthUser=(user:User|null):AuthUser|null=>user?{id:user.id,email:user.email??null}:null
 
@@ -71,7 +72,7 @@ export async function loadUserProfile():Promise<UserProfile|null>{
   const userId=await currentUserId()
   if(!userId)return null
   const {data,error}=await supabase.from('sat_user_profiles')
-    .select('display_name,school,grade,parent_guardian_name,parent_guardian_email,about')
+    .select('display_name,school,grade,parent_guardian_name,parent_guardian_email,about,is_admin')
     .eq('user_id',userId)
     .maybeSingle()
   if(error)throw error
@@ -83,6 +84,7 @@ export async function loadUserProfile():Promise<UserProfile|null>{
     parentGuardianName:data.parent_guardian_name??'',
     parentGuardianEmail:data.parent_guardian_email??'',
     about:data.about??'',
+    isAdmin:Boolean(data.is_admin),
   }
 }
 
@@ -104,7 +106,7 @@ export async function saveUserProfile(profile:UserProfile):Promise<UserProfile>{
   if(error)throw error
   return {
     displayName:row.display_name??'',school:row.school??'',grade:row.grade??'',
-    parentGuardianName:row.parent_guardian_name??'',parentGuardianEmail:row.parent_guardian_email??'',about:row.about??'',
+    parentGuardianName:row.parent_guardian_name??'',parentGuardianEmail:row.parent_guardian_email??'',about:row.about??'',isAdmin:profile.isAdmin,
   }
 }
 
