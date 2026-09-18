@@ -5,7 +5,10 @@ import AlexNumberField from '../atoms/AlexNumberField'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexSwitch from '../atoms/AlexSwitch'
 import AlexText from '../atoms/AlexText'
+import PracticeGoalSettings from '../molecules/PracticeGoalSettings'
 import PracticeSettingField from '../molecules/PracticeSettingField'
+import StudyPlanRecommendation from './StudyPlanRecommendation'
+import type {PracticePlanRecommendation} from '../../lib/practicePlan'
 import type {PracticeTestFilter,Settings} from '../../types'
 
 type PracticeTestOption={value:PracticeTestFilter;label:string}
@@ -17,9 +20,10 @@ type Props={
   onChange:(settings:Settings)=>void
   onStart:()=>void
   onClearHistory:()=>void
+  recommendation:PracticePlanRecommendation
 }
 
-export default function PracticeSetupPanel({settings,practiceTests,failedQuestionCount,onChange,onStart,onClearHistory}:Props){
+export default function PracticeSetupPanel({settings,practiceTests,failedQuestionCount,onChange,onStart,onClearHistory,recommendation}:Props){
   const selectionMode=settings.selectionMode??'adaptive'
   const practiceTest=settings.practiceTest??'all'
   const failedOnly=settings.failedOnly??false
@@ -60,7 +64,14 @@ export default function PracticeSetupPanel({settings,practiceTests,failedQuestio
       control={<AlexSwitch label="Failed questions only" checked={failedOnly} disabled={!failedQuestionCount&&!failedOnly} onChange={checked=>onChange({...settings,failedOnly:checked})}/>} 
     />
 
-    <AlexBox sx={{display:'flex',gap:1.25,flexWrap:'wrap',pt:2.5,mt:1,borderTop:'1px solid #EAECF0'}}>
+    <AlexBox sx={{mt:2.5,pt:2.5,borderTop:'1px solid #EAECF0'}}>
+      <AlexText component="h3" sx={{fontSize:17,fontWeight:850,color:'#08275B',mb:.75}}>Study goal</AlexText>
+      <PracticeGoalSettings settings={settings} onChange={onChange}/>
+    </AlexBox>
+
+    <AlexBox sx={{mt:2.5}}><StudyPlanRecommendation recommendation={recommendation}/></AlexBox>
+
+    <AlexBox sx={{display:'flex',gap:1.25,flexWrap:'wrap',pt:2.5,mt:2.5,borderTop:'1px solid #EAECF0'}}>
       <AlexButton onClick={onStart} disabled={failedOnly&&failedQuestionCount===0}>Start with these settings</AlexButton>
       <AlexButton tone="secondary" onClick={onClearHistory}>Clear history & start fresh</AlexButton>
     </AlexBox>
