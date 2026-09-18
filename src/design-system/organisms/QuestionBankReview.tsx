@@ -4,12 +4,13 @@ import AlexButtonBase from '../atoms/AlexButtonBase'
 import AlexDropdown from '../atoms/AlexDropdown'
 import AlexTextField from '../atoms/AlexTextField'
 import AlexText from '../atoms/AlexText'
+import ParsingIssueReporter from '../molecules/ParsingIssueReporter'
 import QuestionContent from '../molecules/QuestionContent'
 import SourceViewer from '../molecules/SourceViewer'
-import {QUESTION_BANK,moduleLabel} from '../../lib/questionBank'
+import {availablePracticeTests,moduleLabel,practiceTestLabel,QUESTION_BANK} from '../../lib/questionBank'
 import {groupQuestionsByModule} from '../../lib/questionBankGroups'
 import {loadSharedQuestionBank} from '../../lib/sharedQuestionBank'
-import type {PracticeQuestion} from '../../types'
+import type {PracticeQuestion,PracticeTestFilter} from '../../types'
 
 type Props={questionsPdf:ArrayBuffer|null}
 type ModuleFilter='all'|'math1'|'math2'|'rw1'|'rw2'
@@ -17,6 +18,7 @@ type ModuleFilter='all'|'math1'|'math2'|'rw1'|'rw2'
 function questionLabel(question:PracticeQuestion){return `${moduleLabel(question.module)} · Q${question.number}`}
 
 export default function QuestionBankReview({questionsPdf}:Props){
+  const[practiceTestFilter,setPracticeTestFilter]=useState<PracticeTestFilter>('all')
   const[moduleFilter,setModuleFilter]=useState<ModuleFilter>('all')
   const[search,setSearch]=useState('')
   const[bank,setBank]=useState<PracticeQuestion[]>(QUESTION_BANK)
@@ -35,13 +37,15 @@ export default function QuestionBankReview({questionsPdf}:Props){
   const questions=useMemo(()=>{
     const needle=search.trim().toLowerCase()
     return bank.filter(question=>{
+      if(practiceTestFilter!=='all'&&question.practiceTestId!==practiceTestFilter)return false
       if(moduleFilter!=='all'&&question.module!==moduleFilter)return false
       if(!needle)return true
       return question.id.toLowerCase().includes(needle)||questionLabel(question).toLowerCase().includes(needle)||String(question.number)===needle
     })
-  },[bank,moduleFilter,search])
+  },[bank,practiceTestFilter,moduleFilter,search])
 
   const groupedQuestions=useMemo(()=>groupQuestionsByModule(questions),[questions])
+  const practiceTestOptions=[{value:'all' as const,label:'All practice tests'},...availablePracticeTests(bank).map(value=>({value,label:practiceTestLabel(value)}))]
   const selected=bank.find(question=>question.id===selectedId)??questions[0]
 
   return <main className="question-bank-page">
@@ -52,6 +56,7 @@ export default function QuestionBankReview({questionsPdf}:Props){
         <p>Browse the shared question bank. Original-PDF comparison is optional and appears when the source PDF is available on this device.</p>
       </div>
       <div className="question-bank-filters">
+        <AlexDropdown id="question-bank-practice-test" label="Practice test" value={practiceTestFilter} options={practiceTestOptions} onChange={setPracticeTestFilter}/>
         <AlexDropdown id="question-bank-module" label="Module" value={moduleFilter} options={[
           {value:'all',label:'All modules'},
           {value:'math1',label:'Math · Module 1'},
@@ -79,8 +84,8 @@ export default function QuestionBankReview({questionsPdf}:Props){
               className={question.id===selected?.id?'question-bank-row active':'question-bank-row'}
               onClick={()=>setSelectedId(question.id)}
               aria-pressed={question.id===selected?.id}
-              aria-label={`${moduleLabel(question.module)} Question ${question.number}`}
-            >Question {question.number}</AlexButtonBase>)}</div>
+              aria-label={`${practiceTestLabel(question.practiceTestId??'practice-test-4')} ${moduleLabel(question.module)} Question ${question.number}`}
+            ><span>Question {question.number}</span><small>{practiceTestLabel(question.practiceTestId??'practice-test-4')}</small></AlexButtonBase>)}</div>
           </section>)}
           {!questions.length&&<p className="question-bank-no-results">No questions match this filter.</p>}
         </div>
@@ -88,9 +93,10 @@ export default function QuestionBankReview({questionsPdf}:Props){
 
       {selected&&<section className="question-bank-viewer">
         <div className="question-bank-viewer-header">
-          <div><span>{selected.subject==='math'?'Math':'Reading & Writing'}</span><h2>{questionLabel(selected)}</h2></div>
+          <div><span>{practiceTestLabel(selected.practiceTestId??'practice-test-4')} · {selected.subject==='math'?'Math':'Reading & Writing'}</span><h2>{questionLabel(selected)}</h2></div>
           <AlexText component="span" sx={{fontSize:12,color:'#667085'}}>{hasQuestionsPdf?`PDF page ${selected.sourcePage}`:'Shared bank'}</AlexText>
         </div>
+        <ParsingIssueReporter question={selected} context="question-bank"/>
         <div className="question-bank-compare">
           <article className="question-bank-pane text-pane">
             <div className="question-bank-pane-label">Text reconstruction</div>
