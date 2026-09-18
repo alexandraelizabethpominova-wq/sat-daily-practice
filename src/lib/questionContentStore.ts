@@ -1,6 +1,6 @@
 export type ContentMode='text'|'image-fallback'
 
-export const QUESTION_CONTENT_VERSION=2
+export const QUESTION_CONTENT_VERSION=3
 
 export interface StoredQuestionContent{
   questionId:string
@@ -14,7 +14,7 @@ export interface StoredQuestionContent{
 }
 
 const DB_NAME='sat-practice-content'
-const DB_VERSION=2
+const DB_VERSION=3
 const STORE='questions'
 
 function openDb():Promise<IDBDatabase>{
