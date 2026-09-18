@@ -29,7 +29,8 @@ export function parseReadingQuestion(lines:string[]):ParsedReadingQuestion{
   const choiceIndex=firstChoice<0?source.length:firstChoice
   let stemIndex=source.slice(0,choiceIndex).findIndex(line=>QUESTION_STEM.test(clean(line)))
   if(stemIndex<0){
-    const fallback=source.slice(0,choiceIndex).findLastIndex(line=>/[?]$/.test(clean(line)))
+    let fallback=-1
+    for(let index=choiceIndex-1;index>=0;index--){if(/[?]$/.test(clean(source[index]))){fallback=index;break}}
     stemIndex=fallback>=0?fallback:Math.max(0,choiceIndex-1)
   }
 
