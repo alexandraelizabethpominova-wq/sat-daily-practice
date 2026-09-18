@@ -142,6 +142,13 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) they do affect our weather.',
     'C) do they affect our weather?',
     'D) they do affect our weather?',
+  ]),  20:q([
+    'One of the few African American global explorers during the turn of the 20th century, _______',
+    'Which choice completes the text so that it conforms to the conventions of Standard English?',
+    'A) Matthew Henson made several treks across Greenland between 1891 and 1909.',
+    'B) 1891 and 1909 were the years between which Matthew Henson made several treks across Greenland.',
+    'C) Greenland was where Matthew Henson made several treks between 1891 and 1909.',
+    'D) several treks across Greenland were made by Matthew Henson between 1891 and 1909.',
   ]),
 }
 
