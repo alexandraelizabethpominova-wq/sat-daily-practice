@@ -3,7 +3,8 @@ import {QUESTION_BANK} from './questionBank'
 import {QUESTION_CROPS} from './questionCrops'
 import {getQuestionContent,isCurrentQuestionContent,QUESTION_CONTENT_VERSION,saveQuestionContent,type StoredQuestionContent} from './questionContentStore'
 import {READING_PARAGRAPH_BREAK} from './readingQuestionFormat'
-import {expandNormalizedCrop,questionVisualSpec} from './questionVisuals'
+import {expandNormalizedCrop,questionVisualSpec,type NormalizedCrop} from './questionVisuals'
+import {readingTableSpec} from './readingTables'
 import type {PracticeQuestion} from '../types'
 
 GlobalWorkerOptions.workerSrc=new URL('pdfjs-dist/build/pdf.worker.min.mjs',import.meta.url).toString()
@@ -92,15 +93,21 @@ function cleanQuestionLines(lines:string[],questionNumber:number){
   })
 }
 
-function withoutKnownVisualText(question:PracticeQuestion,crop:{x:number;y:number;width:number;height:number},items:TextItem[]){
-  const spec=questionVisualSpec(question.id)
-  if(!spec)return items
-  const visual=expandNormalizedCrop(spec.crop,.012,.008)
-  const left=crop.x+crop.width*visual.x
-  const top=crop.y+crop.height*visual.y
-  const right=crop.x+crop.width*(visual.x+visual.width)
-  const bottom=crop.y+crop.height*(visual.y+visual.height)
+function withoutNormalizedRegion(crop:{x:number;y:number;width:number;height:number},region:NormalizedCrop,items:TextItem[]){
+  const left=crop.x+crop.width*region.x
+  const top=crop.y+crop.height*region.y
+  const right=crop.x+crop.width*(region.x+region.width)
+  const bottom=crop.y+crop.height*(region.y+region.height)
   return items.filter(item=>item.x<left||item.x>right||item.y<top||item.y>bottom)
+}
+
+function withoutKnownVisualText(question:PracticeQuestion,crop:{x:number;y:number;width:number;height:number},items:TextItem[]){
+  let result=items
+  const visual=questionVisualSpec(question.id)
+  if(visual)result=withoutNormalizedRegion(crop,expandNormalizedCrop(visual.crop,.012,.008),result)
+  const table=readingTableSpec(question.id)
+  if(table)result=withoutNormalizedRegion(crop,table.sourceCrop,result)
+  return result
 }
 
 function cleanExplanationLines(lines:string[],questionNumber:number){
@@ -117,7 +124,7 @@ function cleanExplanationLines(lines:string[],questionNumber:number){
 
 function hasVisualReference(lines:string[]){
   const text=lines.join(' ').toLowerCase()
-  return /\b(graph|scatterplot|diagram|figure|line graph|bar graph|table|chart)\b/.test(text)
+  return /\b(graph|scatterplot|diagram|figure|line graph|bar graph|chart)\b/.test(text)
 }
 
 export async function extractQuestionLines(question:PracticeQuestion,questionPdf:ArrayBuffer){
