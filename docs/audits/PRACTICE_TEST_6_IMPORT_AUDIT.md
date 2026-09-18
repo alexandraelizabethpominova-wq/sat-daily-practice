@@ -42,15 +42,15 @@ crops were capped above STOP/footer material.
 
 ## Rendering mode
 
-Reading & Writing Module 1 has now completed the structured-content QA pass.
-All 33 questions are stored as verified semantic text. Question 11's data table
-is reconstructed semantically, and only questions 14 and 15 retain source-image
-graph crops. The graph crops were individually checked against the source PDF.
+Both Reading & Writing modules have now completed the structured-content QA pass.
+All 66 reading questions are stored as verified semantic text. Module 1 question
+11 and Module 2 question 15 use semantic tables. Module 1 questions 14 and 15
+and Module 2 question 13 retain only the necessary source-image graph regions;
+their graph crops were individually checked against the source PDF.
 
-Reading & Writing Module 2 and both Math modules remain in the verified
-`image-fallback` state until their separate wording, symbol, table, and visual
-QA passes are complete. Their verified source crops remain authoritative in the
-meantime.
+Both Math modules remain in the verified `image-fallback` state until their
+separate wording, symbol, table, and visual QA passes are complete. Their verified
+source crops remain authoritative in the meantime.
 
 ## Source isolation
 
