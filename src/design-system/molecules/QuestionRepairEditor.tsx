@@ -10,6 +10,7 @@ import {getQuestionContent} from '../../lib/questionContentStore'
 import {loadSharedQuestionContent,saveSharedQuestionRepair} from '../../lib/sharedQuestionBank'
 import {verifiedMathContent} from '../../lib/verifiedMathQuestions'
 import {verifiedPracticeTest5Math1Content} from '../../lib/verifiedPracticeTest5Math1'
+import {verifiedPracticeTest6Reading1Content} from '../../lib/verifiedPracticeTest6Reading1'
 import {questionVisualSpec,type QuestionVisualSpec} from '../../lib/questionVisuals'
 import usePracticeTestPdf from '../../hooks/usePracticeTestPdf'
 import type {PracticeQuestion} from '../../types'
@@ -38,9 +39,11 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
       try{
         const shared=await loadSharedQuestionContent(question.id,question.practiceTestId).catch(()=>null)
         let local=await getQuestionContent(question.id).catch(()=>undefined)
-        const verified=question.practiceTestId==='practice-test-5'&&question.module==='math1'
-          ?verifiedPracticeTest5Math1Content(question.number)
-          :question.practiceTestId==='practice-test-4'&&question.subject==='math'?verifiedMathContent(question.id):undefined
+        const verified=question.practiceTestId==='practice-test-6'&&question.module==='rw1'
+          ?verifiedPracticeTest6Reading1Content(question.number)
+          :question.practiceTestId==='practice-test-5'&&question.module==='math1'
+            ?verifiedPracticeTest5Math1Content(question.number)
+            :question.practiceTestId==='practice-test-4'&&question.subject==='math'?verifiedMathContent(question.id):undefined
 
         if(!local?.questionLines.length&&resolvedQuestionsPdf&&!verified){
           local=await ensureQuestionText(question,resolvedQuestionsPdf).catch(()=>local)
@@ -49,7 +52,8 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
 
         const questionLines=shared?.questionLines.length?shared.questionLines:verified?.lines?.length?verified.lines:local?.questionLines??[]
         const bundledVisual=questionVisualSpec(question.id)??null
-        const sharedControlsVisual=Boolean(shared&&shared.contentStatus!=='metadata')
+        const sharedHasText=Boolean(shared?.questionLines.length)
+        const sharedControlsVisual=Boolean(shared&&shared.contentStatus!=='metadata'&&!(verified&&!sharedHasText))
         const resolvedVisual=shared?.visualSpec??(sharedControlsVisual&&!shared?.needsVisual?null:bundledVisual)
 
         setQuestionText(questionLines.join('\n'))
