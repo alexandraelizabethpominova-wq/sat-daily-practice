@@ -5,7 +5,7 @@ import AlexIconButton from '../atoms/AlexIconButton'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
 import ParsingIssueReporter from './ParsingIssueReporter'
-import SourceViewer from './SourceViewer'
+import ExplanationContent from './ExplanationContent'
 import QuestionContent from './QuestionContent'
 import {formatDuration} from '../../lib/practiceGamification'
 import {moduleLabel} from '../../lib/questionBank'
@@ -36,9 +36,7 @@ export default function QuestionReviewDrawer({open,onClose,question,performance,
       <ParsingIssueReporter question={question} context="performance"/>
       <AlexSurface sx={{border:'1px solid #E6E2DB',borderRadius:2.5,overflow:'hidden'}}>
         <AlexBox sx={{px:2,py:1.25,borderBottom:'1px solid #E6E2DB',bgcolor:'#F7F6F2'}}><AlexText sx={{fontSize:12,fontWeight:800,color:'#475467',textTransform:'uppercase',letterSpacing:'.07em'}}>Original explanation</AlexText></AlexBox>
-        {answersPdf
-          ?<SourceViewer pdfKey="answers" bytes={answersPdf} page={question.answerPage} questionNumber={question.number} alt={`Original explanation for question ${question.number}`}/>
-          :<AlexBox sx={{p:4,textAlign:'center'}}><AlexText sx={{fontSize:14,color:'#667085'}}>Original explanation is loading from the SAT answer source…</AlexText></AlexBox>}
+        <ExplanationContent question={question} bytes={answersPdf}/>
       </AlexSurface>
     </AlexBox>}
   </AlexDrawer>
