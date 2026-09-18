@@ -12,6 +12,7 @@ import {verifiedMathContent} from '../../lib/verifiedMathQuestions'
 import {verifiedPracticeTest5Math1Content} from '../../lib/verifiedPracticeTest5Math1'
 import {verifiedPracticeTest6Reading1Content} from '../../lib/verifiedPracticeTest6Reading1'
 import {verifiedPracticeTest6Reading2Content} from '../../lib/verifiedPracticeTest6Reading2'
+import {verifiedPracticeTest6Math1Content} from '../../lib/verifiedPracticeTest6Math1'
 import {questionVisualSpec,type QuestionVisualSpec} from '../../lib/questionVisuals'
 import usePracticeTestPdf from '../../hooks/usePracticeTestPdf'
 import type {PracticeQuestion} from '../../types'
@@ -40,8 +41,12 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
       try{
         const shared=await loadSharedQuestionContent(question.id,question.practiceTestId).catch(()=>null)
         let local=await getQuestionContent(question.id).catch(()=>undefined)
-        const verified=question.practiceTestId==='practice-test-6'&&(question.module==='rw1'||question.module==='rw2')
-          ?question.module==='rw1'?verifiedPracticeTest6Reading1Content(question.number):verifiedPracticeTest6Reading2Content(question.number)
+        const verified=question.practiceTestId==='practice-test-6'&&(question.module==='rw1'||question.module==='rw2'||question.module==='math1')
+          ?question.module==='rw1'
+            ?verifiedPracticeTest6Reading1Content(question.number)
+            :question.module==='rw2'
+              ?verifiedPracticeTest6Reading2Content(question.number)
+              :verifiedPracticeTest6Math1Content(question.number)
           :question.practiceTestId==='practice-test-5'&&question.module==='math1'
             ?verifiedPracticeTest5Math1Content(question.number)
             :question.practiceTestId==='practice-test-4'&&question.subject==='math'?verifiedMathContent(question.id):undefined
