@@ -10,7 +10,7 @@ import PerformanceChartCard from '../molecules/PerformanceChartCard'
 import QuestionStatsTable from '../molecules/QuestionStatsTable'
 import type {PerformanceAnalytics} from '../../lib/performanceAnalytics'
 
-type Props={summary:PerformanceAnalytics;hasHistory:boolean;onClearHistory?:()=>void;compact?:boolean}
+type Props={summary:PerformanceAnalytics;hasHistory:boolean;onClearHistory?:()=>void;compact?:boolean;questionsPdf?:ArrayBuffer|null;answersPdf?:ArrayBuffer|null}
 
 const chartTheme={
   text:{fontSize:12,fill:'#475467'},
@@ -19,7 +19,7 @@ const chartTheme={
   tooltip:{container:{fontSize:12,borderRadius:8,boxShadow:'0 8px 30px rgba(16,24,40,.14)'}},
 }
 
-export default function PerformanceDashboard({summary,hasHistory,onClearHistory,compact=false}:Props){
+export default function PerformanceDashboard({summary,hasHistory,onClearHistory,compact=false,questionsPdf=null,answersPdf=null}:Props){
   const sectionAccuracy=summary.sections.filter(section=>section.attempts>0).map(section=>({section:section.label,success:section.successRate}))
   const sectionTime=summary.sections.filter(section=>section.attempts>0).map(section=>({section:section.label,seconds:Math.round(section.averageMs/1000)}))
   const questionStats=summary.questions.slice(0,18)
@@ -183,7 +183,7 @@ export default function PerformanceDashboard({summary,hasHistory,onClearHistory,
         </PerformanceChartCard>
       </AlexBox>
 
-      <AlexBox sx={{mt:2}}><QuestionStatsTable questions={summary.questions}/></AlexBox>
+      <AlexBox sx={{mt:2}}><QuestionStatsTable questions={summary.questions} questionsPdf={questionsPdf} answersPdf={answersPdf}/></AlexBox>
     </>}
   </AlexBox>
 }
