@@ -65,14 +65,12 @@ export async function loadSharedQuestionContent(questionId:string):Promise<Share
 export async function saveSharedQuestionRepair(input:{
   questionId:string
   questionLines:string[]
-  explanationLines:string[]
   visualSpec:QuestionVisualSpec|null
 }){
   if(!supabase)throw new Error('Supabase is not configured for shared question repairs.')
   const visual=input.visualSpec
   const {error}=await supabase.from('sat_question_bank').update({
     question_lines:input.questionLines,
-    explanation_lines:input.explanationLines,
     needs_visual:Boolean(visual),
     visual_crop:visual?visual.crop:null,
     visual_after_line:visual?visual.afterLine:null,
