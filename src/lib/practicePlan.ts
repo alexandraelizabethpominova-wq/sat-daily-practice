@@ -26,7 +26,7 @@ function daysUntil(dateValue:string){
 export function buildPracticePlanRecommendation(settings:Settings,questions:PracticeQuestion[],attempts:Attempt[]):PracticePlanRecommendation{
   const bankQuestionCount=questions.length
   const availablePracticeSetCount=new Set(questions.map(question=>question.practiceTestId).filter(Boolean)).size
-  const targetPracticeSets=Math.max(1,Math.round(settings.targetPracticeSets??availablePracticeSetCount||1))
+  const targetPracticeSets=Math.max(1,Math.round(settings.targetPracticeSets??(availablePracticeSetCount||1)))
   const coverage=Math.max(1,Math.min(100,settings.targetCoveragePercent??100))/100
   const targetQuestions=Math.ceil(bankQuestionCount*coverage)
   const questionIds=new Set(questions.map(question=>question.id))
