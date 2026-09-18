@@ -9,6 +9,7 @@ import {ensureQuestionText} from '../../lib/pdfStructuredImport'
 import {getQuestionContent} from '../../lib/questionContentStore'
 import {loadSharedQuestionContent,saveSharedQuestionRepair} from '../../lib/sharedQuestionBank'
 import {verifiedMathContent} from '../../lib/verifiedMathQuestions'
+import {verifiedPracticeTest5Math1Content} from '../../lib/verifiedPracticeTest5Math1'
 import {questionVisualSpec,type QuestionVisualSpec} from '../../lib/questionVisuals'
 import type {PracticeQuestion} from '../../types'
 
@@ -35,14 +36,16 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
       try{
         const shared=await loadSharedQuestionContent(question.id).catch(()=>null)
         let local=await getQuestionContent(question.id).catch(()=>undefined)
-        const verified=question.subject==='math'?verifiedMathContent(question.id):undefined
+        const verified=question.practiceTestId==='practice-test-5'&&question.module==='math1'
+          ?verifiedPracticeTest5Math1Content(question.number)
+          :question.practiceTestId==='practice-test-4'&&question.subject==='math'?verifiedMathContent(question.id):undefined
 
-        if(!local?.questionLines.length&&questionsPdf){
+        if(!local?.questionLines.length&&questionsPdf&&!verified){
           local=await ensureQuestionText(question,questionsPdf).catch(()=>local)
         }
         if(cancelled)return
 
-        const questionLines=shared?.questionLines.length?shared.questionLines:verified?.lines.length?verified.lines:local?.questionLines??[]
+        const questionLines=shared?.questionLines.length?shared.questionLines:verified?.lines?.length?verified.lines:local?.questionLines??[]
         const bundledVisual=questionVisualSpec(question.id)??null
         const sharedControlsVisual=Boolean(shared&&shared.contentStatus!=='metadata')
         const resolvedVisual=shared?.visualSpec??(sharedControlsVisual&&!shared?.needsVisual?null:bundledVisual)
