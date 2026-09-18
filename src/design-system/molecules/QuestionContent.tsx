@@ -25,7 +25,7 @@ function LinesWithSourceVisual({question,bytes,lines,alt,visual,reflowProse=fals
   const after=lines.slice(split)
   return <>
     {before.length>0&&<RenderQuestionLines question={question} lines={before} reflowProse={reflowProse}/>} 
-    <QuestionVisualSlice question={question} bytes={sourceBytes} crop={visual.crop} alt={`${alt} figure from source PDF`} expand={!visual.exact}/>
+    <QuestionVisualSlice question={question} bytes={bytes} crop={visual.crop} alt={`${alt} figure from source PDF`} expand={!visual.exact}/>
     {after.length>0&&<RenderQuestionLines question={question} lines={after} reflowProse={reflowProse}/>} 
   </>
 }
