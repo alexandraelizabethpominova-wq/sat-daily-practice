@@ -32,8 +32,8 @@ export const QUESTION_BANK=[...makeModule('rw1','english',33),...makeModule('rw2
 
 function practiceTestNumber(id:PracticeTestId){return Number(id.replace('practice-test-',''))}
 
-export function availablePracticeTests(){
-  const ids=[...new Set(QUESTION_BANK.map(question=>question.practiceTestId).filter((id):id is PracticeTestId=>Boolean(id)))]
+export function availablePracticeTests(questions:PracticeQuestion[]=QUESTION_BANK){
+  const ids=[...new Set(questions.map(question=>question.practiceTestId).filter((id):id is PracticeTestId=>Boolean(id)))]
   return ids.sort((a,b)=>practiceTestNumber(a)-practiceTestNumber(b))
 }
 
