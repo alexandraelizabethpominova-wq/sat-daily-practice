@@ -198,6 +198,13 @@ export const VERIFIED_PRACTICE_TEST_6_READING2:Record<number,VerifiedPracticeTes
     'B) On the contrary,',
     'C) Earlier,',
     'D) Finally,',
+  ]),  28:q([
+    'The liquid metals in Earth’s core circulate constantly, and this circulation generates electrical currents that flow between Earth’s North and South magnetic poles. These electrical currents, _______ create a barrier around Earth that protects us from radiation and charged particles coming from space.',
+    'Which choice completes the text with the most logical transition?',
+    'A) in turn,',
+    'B) likewise,',
+    'C) nevertheless,',
+    'D) in reality,',
   ]),
 }
 
