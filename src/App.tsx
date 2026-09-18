@@ -22,7 +22,7 @@ import {clearPdfs,getPdf,savePdf} from './lib/pdfStore'
 import {clearQuestionContent,countQuestionContent} from './lib/questionContentStore'
 import {availablePracticeTests,moduleLabel,practiceTestLabel,QUESTION_BANK} from './lib/questionBank'
 import {buildPracticePlanRecommendation} from './lib/practicePlan'
-import {loadSharedQuestionBank} from './lib/sharedQuestionBank'
+import {loadSharedQuestionBank,mergeQuestionBanks} from './lib/sharedQuestionBank'
 import {importPracticeMaterials} from './lib/pdfStructuredImport'
 import {choosePracticeQuestions,countFailedPracticeQuestions,formatDuration,summarizePerformance,summarizeSession} from './lib/practiceGamification'
 import {addAttempt,clearHistory,getAttempts,getSessions,getSettings,prepareHistoryForUser,replaceHistory,saveSession,saveSettings} from './lib/storage'
@@ -53,10 +53,10 @@ export default function App(){
   const[contentCount,setContentCount]=useState(0)
   const[importProgress,setImportProgress]=useState('')
   const[authUser,setAuthUser]=useState<AuthUser|null>(null)
-  const[questionBank,setQuestionBank]=useState<PracticeQuestion[]>([])
+  const[questionBank,setQuestionBank]=useState<PracticeQuestion[]>(()=>QUESTION_BANK)
 
   useEffect(()=>{
-    void loadSharedQuestionBank().then(shared=>{if(shared?.length)setQuestionBank(shared)}).catch(error=>console.warn('Shared question bank load failed',error))
+    void loadSharedQuestionBank().then(shared=>setQuestionBank(mergeQuestionBanks(QUESTION_BANK,shared))).catch(error=>console.warn('Shared question bank load failed; using bundled metadata.',error))
     Promise.all([getPdf('questions'),getPdf('answers'),countQuestionContent()]).then(([questionsPdf,answersPdf,count])=>{
       setQpdf(questionsPdf)
       setApdf(answersPdf)
