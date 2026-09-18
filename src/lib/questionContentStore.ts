@@ -14,7 +14,7 @@ export interface StoredQuestionContent{
 }
 
 const DB_NAME='sat-practice-content'
-const DB_VERSION=1
+const DB_VERSION=2
 const STORE='questions'
 
 function openDb():Promise<IDBDatabase>{
@@ -23,6 +23,7 @@ function openDb():Promise<IDBDatabase>{
     request.onupgradeneeded=()=>{
       const db=request.result
       if(!db.objectStoreNames.contains(STORE))db.createObjectStore(STORE,{keyPath:'questionId'})
+      else request.transaction?.objectStore(STORE).clear()
     }
     request.onsuccess=()=>resolve(request.result)
     request.onerror=()=>reject(request.error??new Error('Unable to open question database.'))
