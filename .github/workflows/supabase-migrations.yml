@@ -1,12 +1,6 @@
-name: Deploy Supabase migrations
+name: Manual Supabase migration recovery
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'supabase/migrations/**'
-      - '.github/workflows/supabase-migrations.yml'
   workflow_dispatch:
 
 permissions:
@@ -20,7 +14,7 @@ jobs:
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
       SUPABASE_PROJECT_ID: gnhmfhvvirpgawijsrej
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: supabase/setup-cli@v1
         with:
           version: latest
@@ -30,3 +24,7 @@ jobs:
         run: supabase db push --dry-run
       - name: Apply pending migrations
         run: supabase db push
+      - name: Verify migration history
+        run: |
+          supabase migration list
+          supabase db push --dry-run
