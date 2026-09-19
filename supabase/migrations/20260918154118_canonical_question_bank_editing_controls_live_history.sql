@@ -1,0 +1,5 @@
+-- Migration-history compatibility marker.
+-- Production recorded the canonical question-bank editing controls under
+-- version 20260918154118 after the equivalent repository migration
+-- 20260918153000_canonical_question_bank_editing_controls.sql had already been applied live.
+-- This file is intentionally a no-op so local and remote migration versions match.
