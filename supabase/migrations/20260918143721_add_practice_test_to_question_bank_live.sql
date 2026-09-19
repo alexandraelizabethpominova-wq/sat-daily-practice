@@ -1,0 +1,5 @@
+-- Migration-history compatibility marker.
+-- Production recorded the practice-test question-bank schema repair under
+-- version 20260918143721 after the equivalent repository migration
+-- 20260918141000_add_practice_test_to_question_bank.sql had already been applied live.
+-- This file is intentionally a no-op so local and remote migration versions match.
