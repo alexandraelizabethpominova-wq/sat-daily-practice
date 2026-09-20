@@ -63,9 +63,11 @@ export default function PracticeSetupPanel({settings,practiceTests,failedQuestio
     />
 
     <PracticeSettingField
-      label="Retry missed questions"
-      helperText={failedQuestionCount?`${failedQuestionCount} missed question${failedQuestionCount===1?'':'s'} match the current filters.`:'No missed questions match the current filters.'}
-      control={<AlexSwitch label="Missed questions only" checked={failedOnly} disabled={!failedQuestionCount&&!failedOnly} onChange={checked=>onChange({...settings,failedOnly:checked})}/>}
+      label="Previously incorrect questions"
+      helperText={failedQuestionCount
+        ?`Use only questions answered incorrectly at least once. ${failedQuestionCount} question${failedQuestionCount===1?'':'s'} match the selected practice test and subject.`
+        :'No previously incorrect questions match the selected practice test and subject.'}
+      control={<AlexSwitch label="Previously incorrect only" checked={failedOnly} disabled={!failedQuestionCount&&!failedOnly} onChange={checked=>onChange({...settings,failedOnly:checked})}/>}
     />
 
     <AlexAccordion
