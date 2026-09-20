@@ -52,6 +52,23 @@ describe('reflowProseLines',()=>{
   })
 })
 
+
+describe('StructuredQuestionLines rich text',()=>{
+  it('keeps SAT currency amounts as literal text instead of treating the prose between dollar signs as math',()=>{
+    const {container}=render(<StructuredQuestionLines lines={[
+      'A customer spent $27 to purchase oranges at $3 per pound. How many pounds of oranges did the customer purchase?',
+    ]}/>)
+    expect(screen.getByText('A customer spent $27 to purchase oranges at $3 per pound. How many pounds of oranges did the customer purchase?')).toBeInTheDocument()
+    expect(container.querySelector('.rich-math')).not.toBeInTheDocument()
+  })
+
+  it('still renders genuine inline math with KaTeX',()=>{
+    const {container}=render(<StructuredQuestionLines lines={['If $x+3=7$, what is x?']}/>)
+    expect(container.querySelector('.rich-math.inline')).toBeInTheDocument()
+    expect(screen.getByText(/If/)).toBeInTheDocument()
+  })
+})
+
 describe('StructuredQuestionLines tables',()=>{
   it('renders a two-column function table as a real table',()=>{
     render(<StructuredQuestionLines lines={[
