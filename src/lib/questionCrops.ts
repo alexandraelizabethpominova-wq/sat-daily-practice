@@ -1,5 +1,6 @@
 import type { ModuleKey,PracticeTestId } from '../types'
 import {PRACTICE_TEST_5_MATH1_CROPS} from './practiceTest5Math1Layout'
+import {PRACTICE_TEST_7_CROPS} from './practiceTest7Data'
 
 export type QuestionCrop={x:number;y:number;width:number;height:number}
 
@@ -9,5 +10,6 @@ export const QUESTION_CROPS:Record<ModuleKey,Record<number,QuestionCrop>>={"rw1"
 export function questionCropForParts(practiceTestId:PracticeTestId,module:ModuleKey,questionNumber:number):QuestionCrop|undefined{
   if(practiceTestId==='practice-test-4')return QUESTION_CROPS[module]?.[questionNumber]
   if(practiceTestId==='practice-test-5'&&module==='math1')return PRACTICE_TEST_5_MATH1_CROPS[questionNumber]
+  if(practiceTestId==='practice-test-7')return PRACTICE_TEST_7_CROPS[module]?.[questionNumber]
   return undefined
 }
