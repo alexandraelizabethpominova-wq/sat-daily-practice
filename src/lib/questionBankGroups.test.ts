@@ -8,6 +8,7 @@ describe('Question Bank grouping',()=>{
     expect(groups.map(group=>group.practiceTestId)).toContain('practice-test-4')
     expect(groups.map(group=>group.practiceTestId)).toContain('practice-test-5')
     expect(groups.map(group=>group.practiceTestId)).toContain('practice-test-6')
+    expect(groups.map(group=>group.practiceTestId)).toContain('practice-test-7')
     expect(groups.every(group=>group.modules.length>0)).toBe(true)
   })
 
