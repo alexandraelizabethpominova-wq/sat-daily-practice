@@ -67,6 +67,19 @@ describe('StructuredQuestionLines rich text',()=>{
     expect(container.querySelector('.rich-math.inline')).toBeInTheDocument()
     expect(screen.getByText(/If/)).toBeInTheDocument()
   })
+
+  it('keeps currency literal when the same sentence also contains real inline math',()=>{
+    const {container}=render(<StructuredQuestionLines lines={['A ticket costs $5. If $x+1=3$, what is x?']}/>)
+    expect(container.textContent).toContain('A ticket costs $5.')
+    expect(container.querySelectorAll('.rich-math.inline')).toHaveLength(1)
+  })
+
+  it('keeps formatted currency amounts literal',()=>{
+    const {container}=render(<StructuredQuestionLines lines={['The total was $1,200.50 and the fee was $3.']}/>)
+    expect(container.textContent).toContain('$1,200.50')
+    expect(container.textContent).toContain('$3')
+    expect(container.querySelector('.rich-math')).not.toBeInTheDocument()
+  })
 })
 
 describe('StructuredQuestionLines tables',()=>{
