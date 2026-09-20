@@ -73,11 +73,6 @@ export default function QuestionBankReview({questionsPdf}:Props){
       </div>
     </header>
 
-    {!hasQuestionsPdf&&<section className="question-bank-empty">
-      <h2>Shared Question Bank</h2>
-      <p>The question list is available without a local PDF. Source comparison and visual-only figures appear when the source PDF is available.</p>
-    </section>}
-
     <div className="question-bank-workspace">
       <aside className="question-bank-list" aria-label="Questions">
         <div className="question-bank-list-header"><b>{questions.length} questions</b><span>Select a question</span></div>
