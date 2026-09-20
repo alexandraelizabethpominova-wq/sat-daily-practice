@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'supabase/migrations/**'
+      - 'supabase/functions/**'
       - '.github/workflows/supabase-migrations.yml'
   workflow_dispatch:
 
@@ -30,3 +31,5 @@ jobs:
         run: supabase db push --dry-run
       - name: Apply pending migrations
         run: supabase db push
+      - name: Deploy SAT source proxy
+        run: supabase functions deploy sat-question-source --project-ref "$SUPABASE_PROJECT_ID" --no-verify-jwt
