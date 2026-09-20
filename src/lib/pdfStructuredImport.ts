@@ -88,7 +88,7 @@ function cleanQuestionLines(lines:string[],questionNumber:number){
     const normalized=line.trim()
     if(!normalized)return false
     if(normalized.length>=8&&/^[.·•\s]+$/.test(normalized))return false
-    if(/^[\\s\\-~_]+$/.test(normalized))return false
+    if(/^[\s.\-~_]+$/.test(normalized))return false
     if(/^(?:I\s*){5,}$/.test(normalized))return false
     if(normalized===String(questionNumber))return false
     if(/^Module\s+\d+$/i.test(normalized))return false
