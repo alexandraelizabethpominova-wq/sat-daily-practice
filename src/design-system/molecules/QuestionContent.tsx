@@ -15,6 +15,7 @@ import {verifiedPracticeTest6Reading1Content} from '../../lib/verifiedPracticeTe
 import {verifiedPracticeTest6Reading2Content} from '../../lib/verifiedPracticeTest6Reading2'
 import {verifiedPracticeTest6Math1Content} from '../../lib/verifiedPracticeTest6Math1'
 import {verifiedPracticeTest7Math1Content} from '../../lib/verifiedPracticeTest7Math1'
+import {verifiedPracticeTest7Math2Content} from '../../lib/verifiedPracticeTest7Math2'
 import usePracticeTestPdf from '../../hooks/usePracticeTestPdf'
 import type {PracticeQuestion} from '../../types'
 
@@ -88,8 +89,12 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
               :question.module==='math1'
                 ?verifiedPracticeTest6Math1Content(question.number)
                 :undefined
-          :question.practiceTestId==='practice-test-7'&&question.module==='math1'
-            ?verifiedPracticeTest7Math1Content(question.number)
+          :question.practiceTestId==='practice-test-7'
+            ?question.module==='math1'
+              ?verifiedPracticeTest7Math1Content(question.number)
+              :question.module==='math2'
+                ?verifiedPracticeTest7Math2Content(question.number)
+                :undefined
             :undefined
         const sharedHasText=Boolean(shared?.questionLines.length)
         const sharedControlsVisual=Boolean(shared&&shared.contentStatus!=='metadata'&&!(verifiedBundled&&!sharedHasText))
