@@ -173,6 +173,24 @@ describe('ReadingQuestionLines',()=>{
     expect(screen.getByText(/which allows them to fly long distances/).closest('[role="listitem"]')).not.toBeNull()
   })
 
+  it('renders inline research-note bullets as separate list items',()=>{
+    const lines=[
+      'While researching a topic, a student has taken the following notes: • The ancient Arab dhow was a sailing vessel distinguishable by its triangular sails and stitched hull construction. • Dhows were used primarily for trade along the coasts of Arab, South Asian, and East African countries. • Contemporary shipbuilders in Oman use a mix of modern and traditional materials to build replicas of ancient dhows. • Most of the materials used are traditional. • Replica hulls are stitched together using the same traditional coconut palm fiber rope used on the hulls of ancient dhows. The student wants to make a generalization about the materials used in dhow replicas.',
+      'Which choice most effectively uses relevant information from the notes to accomplish this goal?',
+      'A) A traditional material that was used to stitch together the hulls of ancient dhows, coconut palm fiber rope is still used by shipbuilders.',
+      'B) The ancient Arab dhow was a sailing vessel used primarily for trade and distinguishable by its triangular sails.',
+      'C) Although most materials used in dhow replicas are traditional, some modern materials are used.',
+      'D) Contemporary shipbuilders in Oman build replicas of the dhow, which was an ancient sailing vessel with a stitched hull construction.',
+    ]
+    render(<ReadingQuestionLines lines={lines}/>)
+    const items=screen.getAllByRole('listitem')
+    expect(items).toHaveLength(9)
+    expect(items[0]).toHaveTextContent('The ancient Arab dhow was a sailing vessel')
+    expect(items[4]).toHaveTextContent('Replica hulls are stitched together')
+    expect(screen.getByText(/The student wants to make a generalization/)).toBeInTheDocument()
+  })
+
+
   it('reflows prose paragraphs but keeps answer choices as separate rows',()=>{
     const lines=[
       'As a young historian in Australia in the 1950s, Jill Roe became dismayed',
