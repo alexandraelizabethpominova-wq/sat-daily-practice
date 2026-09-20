@@ -1,0 +1,6 @@
+-- Migration-history compatibility marker.
+-- The production project recorded the user-profile schema under version
+-- 20260917164133 before the repository migration history was normalized.
+-- The actual reproducible schema migration remains
+-- 20260917165000_add_user_profiles.sql.
+-- This file is intentionally a no-op so local and remote migration versions match.
