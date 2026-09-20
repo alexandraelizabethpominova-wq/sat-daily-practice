@@ -174,6 +174,47 @@ export function hasCompleteReadingChoices(lines:string[]){return parseReadingQue
 
 function JoinedBlock({lines}:{lines:string[]}){return <p><AlexRichText text={lines.map(clean).join(' ')}/></p>}
 
+type BulletNotes={intro:string;items:string[];trailing:string}
+
+function parseBulletNotes(lines:string[]):BulletNotes|null{
+  const text=lines.map(clean).filter(Boolean).join(' ')
+  if(!/[•●▪◦]/.test(text))return null
+
+  const firstMarker=text.search(/[•●▪◦]/)
+  if(firstMarker<0)return null
+
+  const intro=clean(text.slice(0,firstMarker))
+  const parts=text.slice(firstMarker)
+    .split(/\s*[•●▪◦]\s*/)
+    .map(clean)
+    .filter(Boolean)
+  if(!parts.length)return null
+
+  let trailing=''
+  const lastIndex=parts.length-1
+  const trailingMatch=parts[lastIndex].match(/^(.*?[.!?])\s+(The student\b[\s\S]*)$/i)
+  if(trailingMatch){
+    parts[lastIndex]=clean(trailingMatch[1])
+    trailing=clean(trailingMatch[2])
+  }
+
+  const items=parts.filter(Boolean)
+  return items.length?{intro,items,trailing}:null
+}
+
+function ReadingStimulusBlock({lines}:{lines:string[]}){
+  const notes=parseBulletNotes(lines)
+  if(!notes)return <JoinedBlock lines={lines}/>
+
+  return <div className="reading-notes">
+    {notes.intro&&<p className="reading-notes-intro"><AlexRichText text={notes.intro}/></p>}
+    <ul className="reading-notes-list">
+      {notes.items.map((item,index)=><li key={'note-'+index}><AlexRichText text={item}/></li>)}
+    </ul>
+    {notes.trailing&&<p className="reading-notes-goal"><AlexRichText text={notes.trailing}/></p>}
+  </div>
+}
+
 type PairedTextSection={label:string;lines:string[]}
 
 function pairedTextSections(blocks:string[][]):PairedTextSection[]|null{
@@ -215,7 +256,7 @@ export default function ReadingQuestionLines({lines,questionId}:{lines:string[];
             ?parsed.stimulusBlocks.flat().map((line,index)=><span className="reading-verse-line" key={`verse-${index}`}><AlexRichText text={line}/></span>)
             :parsed.stimulusBlocks.map((block,index)=><JoinedBlock key={`quote-${index}`} lines={block}/>)}
         </blockquote>
-        :<div className="reading-stimulus">{parsed.stimulusBlocks.map((block,index)=><JoinedBlock key={`stimulus-${index}`} lines={block}/>)}</div>)}
+        :<div className="reading-stimulus">{parsed.stimulusBlocks.map((block,index)=><ReadingStimulusBlock key={`stimulus-${index}`} lines={block}/>)}</div>)}
     {parsed.stem&&<p className="reading-question-stem"><AlexRichText text={parsed.stem}/></p>}
     {parsed.choices.length>0&&<div className="reading-answer-options" role="list" aria-label="Answer choices">
       {parsed.choices.map(choice=><div className="reading-answer-choice" role="listitem" key={choice.label}>
