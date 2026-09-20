@@ -12,6 +12,19 @@ function renderMath(math:string,displayMode:boolean,key:string){
   />
 }
 
+const NATURAL_LANGUAGE_WORD=/\b(?:a|an|and|at|by|each|for|from|in|is|of|on|or|per|purchase|than|that|the|to|was|were|with)\b/i
+
+export function isLikelyMathToken(math:string,displayMode=false){
+  if(displayMode)return true
+  const value=math.trim()
+  if(!value)return false
+  if(/\\[A-Za-z]+|[=<>^_{}]|[+*/]|[≤≥≈≠±×÷√∞π]/.test(value))return true
+  if(NATURAL_LANGUAGE_WORD.test(value))return false
+  const plainWords=value.match(/[A-Za-z]{2,}/g)??[]
+  if(plainWords.some(word=>word===word.toLowerCase()&&!/^(sin|cos|tan|log|ln|max|min)$/i.test(word)))return false
+  return /^[A-Za-z0-9\s.,:;()\[\]|'′″%\-]+$/.test(value)
+}
+
 export default function AlexRichText({text,className}:Props){
   const nodes:ReactNode[]=[]
   const pattern=/(\$\$[\s\S]+?\$\$|\$[^$]+?\$)/g
@@ -21,9 +34,10 @@ export default function AlexRichText({text,className}:Props){
   while((match=pattern.exec(text))){
     if(match.index>cursor)nodes.push(text.slice(cursor,match.index))
     const token=match[0]
-    const displayMode=token.startsWith('$$')
+    const displayMode=token.startsWith('$')
     const math=displayMode?token.slice(2,-2):token.slice(1,-1)
-    nodes.push(renderMath(math,displayMode,`math-${index++}`))
+    if(isLikelyMathToken(math,displayMode))nodes.push(renderMath(math,displayMode,`math-${index++}`))
+    else nodes.push(token)
     cursor=match.index+token.length
   }
   if(cursor<text.length)nodes.push(text.slice(cursor))
