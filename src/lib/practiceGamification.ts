@@ -16,6 +16,10 @@ function latestAttemptByQuestion(attempts:Attempt[]){
   return latest
 }
 
+function incorrectlyAnsweredQuestionIds(attempts:Attempt[]){
+  return new Set(attempts.filter(attempt=>!attempt.correct).map(attempt=>attempt.questionId))
+}
+
 function eligibleQuestions(settings:Settings,questions:PracticeQuestion[]){
   return questions.filter(question=>
     (settings.mode==='both'||question.subject===settings.mode)&&
@@ -25,14 +29,25 @@ function eligibleQuestions(settings:Settings,questions:PracticeQuestion[]){
 
 export function practiceQuestionPool(settings:Settings,attempts:Attempt[],questions:PracticeQuestion[]=QUESTION_BANK):PracticeQuestion[]{
   const pool=eligibleQuestions(settings,questions)
-  if(!settings.failedOnly)return pool
+  if(settings.failedEverOnly){
+    const failedIds=incorrectlyAnsweredQuestionIds(attempts)
+    return pool.filter(question=>failedIds.has(question.id))
+  }
+  if(settings.failedOnly){
+    const latest=latestAttemptByQuestion(attempts)
+    return pool.filter(question=>latest.get(question.id)?.correct===false)
+  }
+  return pool
+}
+
+export function countMissedPracticeQuestions(settings:Settings,attempts:Attempt[],questions:PracticeQuestion[]=QUESTION_BANK){
   const latest=latestAttemptByQuestion(attempts)
-  return pool.filter(question=>latest.get(question.id)?.correct===false)
+  return eligibleQuestions(settings,questions).filter(question=>latest.get(question.id)?.correct===false).length
 }
 
 export function countFailedPracticeQuestions(settings:Settings,attempts:Attempt[],questions:PracticeQuestion[]=QUESTION_BANK){
-  const latest=latestAttemptByQuestion(attempts)
-  return eligibleQuestions(settings,questions).filter(question=>latest.get(question.id)?.correct===false).length
+  const failedIds=incorrectlyAnsweredQuestionIds(attempts)
+  return eligibleQuestions(settings,questions).filter(question=>failedIds.has(question.id)).length
 }
 
 export function choosePracticeQuestions(settings:Settings,attempts:Attempt[],random:()=>number=Math.random,questions:PracticeQuestion[]=QUESTION_BANK):PracticeQuestion[]{

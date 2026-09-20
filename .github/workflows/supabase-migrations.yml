@@ -24,6 +24,8 @@ jobs:
         run: supabase db push --dry-run
       - name: Apply pending migrations
         run: supabase db push
+      - name: Deploy SAT source proxy
+        run: supabase functions deploy sat-question-source --project-ref "$SUPABASE_PROJECT_ID" --no-verify-jwt
       - name: Verify migration history
         run: |
           supabase migration list

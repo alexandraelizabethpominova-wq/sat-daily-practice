@@ -18,6 +18,28 @@ const TABLES:Record<string,ReadingTableSpec>={
     ],
     sourceCrop:{x:.01,y:.04,width:.98,height:.13},
   },
+  'practice-test-7:rw2-12':{
+    title:'Percentage of Bus Shelters with Shade in a County by Areas’ Highest Average Summer Surface Temperature',
+    headers:['Highest average surface temperature (Fahrenheit)','Percentage of bus stops with shaded shelter'],
+    rows:[
+      ['90.2°','15%'],
+      ['97.7°','22%'],
+      ['102.7°','24%'],
+      ['111.2°','28%'],
+      ['125.6°','29%'],
+    ],
+    sourceCrop:{x:.04,y:.035,width:.92,height:.24},
+  },
+  'practice-test-7:rw2-13':{
+    title:'Total Areas and 2022 Populations of Smallest Arabian Peninsula Countries',
+    headers:['Country','Total area (square miles)','Population'],
+    rows:[
+      ['Kuwait','6,880','4,268,873'],
+      ['Bahrain','304','1,472,233'],
+      ['Qatar','4,471','2,695,122'],
+    ],
+    sourceCrop:{x:.12,y:.075,width:.78,height:.36},
+  },
   'rw1-17':{
     title:'Effects of Mycorrhizal Fungi on 3 Plant Species',
     headers:['Plant species','Mycorrhizal host','Average mass of plants grown in soil containing mycorrhizal fungi (in grams)','Average mass of plants grown in soil treated to kill fungi (in grams)'],

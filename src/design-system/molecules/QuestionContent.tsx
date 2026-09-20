@@ -14,6 +14,8 @@ import {verifiedPracticeTest5Math1Content} from '../../lib/verifiedPracticeTest5
 import {verifiedPracticeTest6Reading1Content} from '../../lib/verifiedPracticeTest6Reading1'
 import {verifiedPracticeTest6Reading2Content} from '../../lib/verifiedPracticeTest6Reading2'
 import {verifiedPracticeTest6Math1Content} from '../../lib/verifiedPracticeTest6Math1'
+import {verifiedPracticeTest7Math1Content} from '../../lib/verifiedPracticeTest7Math1'
+import {verifiedPracticeTest7Math2Content} from '../../lib/verifiedPracticeTest7Math2'
 import usePracticeTestPdf from '../../hooks/usePracticeTestPdf'
 import type {PracticeQuestion} from '../../types'
 
@@ -79,7 +81,7 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
         if(cancelled)return
 
         const bundledVisuals=questionVisualSpecs(question.id)
-        const verifiedPracticeTest6Bundled=question.practiceTestId==='practice-test-6'
+        const verifiedBundled=question.practiceTestId==='practice-test-6'
           ?question.module==='rw1'
             ?verifiedPracticeTest6Reading1Content(question.number)
             :question.module==='rw2'
@@ -87,9 +89,15 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
               :question.module==='math1'
                 ?verifiedPracticeTest6Math1Content(question.number)
                 :undefined
-          :undefined
+          :question.practiceTestId==='practice-test-7'
+            ?question.module==='math1'
+              ?verifiedPracticeTest7Math1Content(question.number)
+              :question.module==='math2'
+                ?verifiedPracticeTest7Math2Content(question.number)
+                :undefined
+            :undefined
         const sharedHasText=Boolean(shared?.questionLines.length)
-        const sharedControlsVisual=Boolean(shared&&shared.contentStatus!=='metadata'&&!(verifiedPracticeTest6Bundled&&!sharedHasText))
+        const sharedControlsVisual=Boolean(shared&&shared.contentStatus!=='metadata'&&!(verifiedBundled&&!sharedHasText))
         const sharedVisuals=shared?.visualSpecs??[]
         const resolvedVisuals=sharedVisuals.length?sharedVisuals:(sharedControlsVisual&&!shared?.needsVisual?[]:bundledVisuals)
         setVisuals(resolvedVisuals)
@@ -99,8 +107,8 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
           return
         }
 
-        if(verifiedPracticeTest6Bundled){
-          setContent(storedFromShared(question.id,verifiedPracticeTest6Bundled.lines,shared?.explanationLines??[],resolvedVisuals.length>0||Boolean(verifiedPracticeTest6Bundled.needsVisual),'text'))
+        if(verifiedBundled){
+          setContent(storedFromShared(question.id,verifiedBundled.lines,shared?.explanationLines??[],resolvedVisuals.length>0||Boolean(verifiedBundled.needsVisual),'text'))
           return
         }
 
@@ -132,7 +140,8 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
           return
         }
 
-        if(question.practiceTestId!=='practice-test-4'&&!isPracticeTest5Math1Verified(question.id)&&!shared?.questionLines.length){
+        const sourceExtractable=question.practiceTestId==='practice-test-7'&&(question.module==='rw1'||question.module==='rw2')&&question.contentStatus==='verified'
+        if(question.practiceTestId!=='practice-test-4'&&!isPracticeTest5Math1Verified(question.id)&&!sourceExtractable&&!shared?.questionLines.length){
           setError('This question has not been parsed and verified for this practice set yet.')
           return
         }

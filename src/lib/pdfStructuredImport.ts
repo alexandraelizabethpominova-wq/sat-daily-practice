@@ -56,7 +56,10 @@ function groupReadingLines(items:TextItem[]){
 }
 
 function groupReadingQuestionItems(question:PracticeQuestion,crop:{x:number;y:number;width:number;height:number},items:TextItem[]){
-  if(question.id!=='rw2-13')return groupReadingLines(items)
+  const spansColumns=question.id==='rw2-13'||(
+    question.practiceTestId==='practice-test-7'&&question.module==='rw1'&&[13,14,15,16].includes(question.number)
+  )
+  if(!spansColumns)return groupReadingLines(items)
   const divider=crop.x+crop.width*.5
   const left=items.filter(item=>item.x<divider)
   const right=items.filter(item=>item.x>=divider)
@@ -85,7 +88,7 @@ function cleanQuestionLines(lines:string[],questionNumber:number){
     const normalized=line.trim()
     if(!normalized)return false
     if(normalized.length>=8&&/^[.·•\s]+$/.test(normalized))return false
-    if(/^-{3,}$/.test(normalized))return false
+    if(/^[\s.\-~_]+$/.test(normalized))return false
     if(/^(?:I\s*){5,}$/.test(normalized))return false
     if(normalized===String(questionNumber))return false
     if(/^Module\s+\d+$/i.test(normalized))return false

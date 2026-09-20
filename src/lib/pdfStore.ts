@@ -14,6 +14,10 @@ const OFFICIAL_SOURCES:Record<PracticeTestId,{questions:string;answers:string}>=
     questions:'https://satsuite.collegeboard.org/media/pdf/sat-practice-test-6-digital.pdf',
     answers:'https://satsuite.collegeboard.org/media/pdf/sat-practice-test-6-answers-digital.pdf',
   },
+  'practice-test-7':{
+    questions:'https://satsuite.collegeboard.org/media/pdf/sat-practice-test-7-digital.pdf',
+    answers:'https://satsuite.collegeboard.org/media/pdf/sat-practice-test-7-answers-digital.pdf',
+  },
 }
 const supabaseUrl=import.meta.env.VITE_SUPABASE_URL as string|undefined
 export type PdfKind='questions'|'answers'

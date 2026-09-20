@@ -24,7 +24,7 @@ import {availablePracticeTests,moduleLabel,practiceTestLabel,QUESTION_BANK} from
 import {buildPracticePlanRecommendation} from './lib/practicePlan'
 import {loadSharedQuestionBank,mergeQuestionBanks} from './lib/sharedQuestionBank'
 import {importPracticeMaterials} from './lib/pdfStructuredImport'
-import {choosePracticeQuestions,countFailedPracticeQuestions,formatDuration,summarizePerformance,summarizeSession} from './lib/practiceGamification'
+import {choosePracticeQuestions,countFailedPracticeQuestions,countMissedPracticeQuestions,formatDuration,summarizePerformance,summarizeSession} from './lib/practiceGamification'
 import {addAttempt,clearHistory,getAttempts,getSessions,getSettings,prepareHistoryForUser,replaceHistory,saveSession,saveSettings} from './lib/storage'
 import {clearCloudHistory,getCurrentAuthUser,loadCloudHistory,subscribeToAuth,syncSession,type AuthUser} from './lib/supabase'
 import type {Attempt,PracticeQuestion,SessionSummary,Settings,SubjectMode} from './types'
@@ -106,13 +106,14 @@ export default function App(){
   const current=qs[i]
   const currentRec=current?currentAttempts.find(attempt=>attempt.questionId===current.id):undefined
   const performance=summarizePerformance(attempts,sessions,questionBank.length)
+  const missedQuestionCount=countMissedPracticeQuestions(settings,attempts,questionBank)
   const failedQuestionCount=countFailedPracticeQuestions(settings,attempts,questionBank)
   const practiceRecommendation=buildPracticePlanRecommendation(settings,questionBank,attempts,performance)
   const practiceTestOptions=[
     {value:'all' as const,label:'All available tests'},
     ...availablePracticeTests(questionBank).map(value=>({value,label:practiceTestLabel(value)})),
   ]
-  const practiceSummary=[settings.selectionMode==='random'?'Random':'Adaptive',settings.failedOnly?'Missed questions only':''].filter(Boolean).join(' · ')
+  const practiceSummary=[settings.selectionMode==='random'?'Random':'Adaptive',settings.failedOnly?'Missed questions only':settings.failedEverOnly?'Failed questions only':''].filter(Boolean).join(' · ')
   const practiceTestSummaries=availablePracticeTests(questionBank).map(value=>{
     const questions=questionBank.filter(question=>question.practiceTestId===value)
     const practicedIds=new Set(attempts.filter(attempt=>attempt.practiceTestId===value).map(attempt=>attempt.questionId))
@@ -133,7 +134,7 @@ export default function App(){
     const nextSettings={...settings,mode:nextMode,practiceTest:nextPracticeTest}
     const nextQuestions=choosePracticeQuestions(nextSettings,attempts,Math.random,questionBank)
     if(!nextQuestions.length){
-      window.alert('No questions match these practice settings yet. Adjust the practice test, subject, or failed-question filter.')
+      window.alert('No questions match these practice settings yet. Adjust the practice test, subject, or question-history filter.')
       setView('settings')
       return
     }
@@ -316,6 +317,7 @@ export default function App(){
     <PracticeSetupPanel
       settings={settings}
       practiceTests={practiceTestOptions}
+      missedQuestionCount={missedQuestionCount}
       failedQuestionCount={failedQuestionCount}
       onChange={setSettings}
       onStart={()=>beginPractice(settings.mode)}

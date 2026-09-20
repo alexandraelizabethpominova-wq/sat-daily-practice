@@ -17,6 +17,7 @@ type PracticeTestOption={value:PracticeTestFilter;label:string}
 type Props={
   settings:Settings
   practiceTests:PracticeTestOption[]
+  missedQuestionCount:number
   failedQuestionCount:number
   onChange:(settings:Settings)=>void
   onStart:()=>void
@@ -24,10 +25,11 @@ type Props={
   recommendation:PracticePlanRecommendation
 }
 
-export default function PracticeSetupPanel({settings,practiceTests,failedQuestionCount,onChange,onStart,onClearHistory,recommendation}:Props){
+export default function PracticeSetupPanel({settings,practiceTests,missedQuestionCount,failedQuestionCount,onChange,onStart,onClearHistory,recommendation}:Props){
   const selectionMode=settings.selectionMode??'adaptive'
   const practiceTest=settings.practiceTest??'all'
-  const failedOnly=settings.failedOnly??false
+  const missedOnly=settings.failedOnly??false
+  const failedEverOnly=settings.failedEverOnly??false
   const dailyLabel=recommendation.estimatedDailyMinutes>0
     ?`${recommendation.estimatedDailyMinutes} min/day`
     :'On track'
@@ -64,8 +66,28 @@ export default function PracticeSetupPanel({settings,practiceTests,failedQuestio
 
     <PracticeSettingField
       label="Retry missed questions"
-      helperText={failedQuestionCount?`${failedQuestionCount} missed question${failedQuestionCount===1?'':'s'} match the current filters.`:'No missed questions match the current filters.'}
-      control={<AlexSwitch label="Missed questions only" checked={failedOnly} disabled={!failedQuestionCount&&!failedOnly} onChange={checked=>onChange({...settings,failedOnly:checked})}/>}
+      helperText={missedQuestionCount
+        ?`${missedQuestionCount} missed question${missedQuestionCount===1?'':'s'} match the current filters. A missed question is one whose most recent answer was incorrect.`
+        :'No missed questions match the current filters.'}
+      control={<AlexSwitch
+        label="Missed questions only"
+        checked={missedOnly}
+        disabled={!missedQuestionCount&&!missedOnly}
+        onChange={checked=>onChange({...settings,failedOnly:checked,failedEverOnly:checked?false:failedEverOnly})}
+      />}
+    />
+
+    <PracticeSettingField
+      label="Failed questions"
+      helperText={failedQuestionCount
+        ?`${failedQuestionCount} failed question${failedQuestionCount===1?'':'s'} match the current filters. A failed question is one you answered incorrectly at least once, even if you later answered it correctly.`
+        :'No failed questions match the current filters.'}
+      control={<AlexSwitch
+        label="Failed questions only"
+        checked={failedEverOnly}
+        disabled={!failedQuestionCount&&!failedEverOnly}
+        onChange={checked=>onChange({...settings,failedEverOnly:checked,failedOnly:checked?false:missedOnly})}
+      />}
     />
 
     <AlexAccordion
@@ -85,7 +107,7 @@ export default function PracticeSetupPanel({settings,practiceTests,failedQuestio
     </AlexAccordion>
 
     <AlexBox sx={{display:'flex',gap:1.25,flexWrap:'wrap',pt:2.5,mt:2.5,borderTop:'1px solid #EAECF0'}}>
-      <AlexButton onClick={onStart} disabled={failedOnly&&failedQuestionCount===0}>Start practice</AlexButton>
+      <AlexButton onClick={onStart} disabled={(missedOnly&&missedQuestionCount===0)||(failedEverOnly&&failedQuestionCount===0)}>Start practice</AlexButton>
       <AlexButton tone="quiet" onClick={onClearHistory}>Clear history</AlexButton>
     </AlexBox>
   </AlexSurface>
