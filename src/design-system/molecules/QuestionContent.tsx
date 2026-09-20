@@ -140,7 +140,7 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
           return
         }
 
-        const sourceExtractable=question.practiceTestId==='practice-test-7'&&question.module==='rw1'&&question.contentStatus==='verified'
+        const sourceExtractable=question.practiceTestId==='practice-test-7'&&(question.module==='rw1'||question.module==='rw2')&&question.contentStatus==='verified'
         if(question.practiceTestId!=='practice-test-4'&&!isPracticeTest5Math1Verified(question.id)&&!sourceExtractable&&!shared?.questionLines.length){
           setError('This question has not been parsed and verified for this practice set yet.')
           return
