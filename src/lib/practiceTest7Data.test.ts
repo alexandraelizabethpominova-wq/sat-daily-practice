@@ -77,7 +77,7 @@ describe('Practice Test 7 Math Module 2 quality import',()=>{
       const crop=PRACTICE_TEST_7_CROPS.math2[question.number]
       expect(question.sourceCrop).toEqual(crop)
       expect(question.contentStatus).toBe('verified')
-      expect(question.questionMode).toBe('image-fallback')
+      expect(question.questionMode).toBe('text')
       expect(crop.x).toBeGreaterThanOrEqual(0)
       expect(crop.y).toBeGreaterThanOrEqual(0)
       expect(crop.width).toBeGreaterThan(0)
