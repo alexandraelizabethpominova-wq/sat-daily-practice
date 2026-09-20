@@ -66,6 +66,7 @@ export const QUESTION_BANK=[
   ...makePracticeTest('practice-test-6',PRACTICE_TEST_6_PAGES,PRACTICE_TEST_6_ANSWER_PAGES,PRACTICE_TEST_6_ANSWERS,PRACTICE_TEST_6_ACCEPTED,{sourceCrops:PRACTICE_TEST_6_CROPS,contentStatus:'verified',questionMode:'image-fallback'})
     .map(question=>question.module==='rw1'||question.module==='rw2'||question.module==='math1'?{...question,questionMode:'text' as const}:question),
   ...makeModule('rw1','english',33,'practice-test-7',PRACTICE_TEST_7_PAGES,PRACTICE_TEST_7_ANSWER_PAGES,PRACTICE_TEST_7_ANSWERS,PRACTICE_TEST_7_ACCEPTED,{sourceCrops:PRACTICE_TEST_7_CROPS,contentStatus:'verified',questionMode:'text'}),
+  ...makeModule('rw2','english',33,'practice-test-7',PRACTICE_TEST_7_PAGES,PRACTICE_TEST_7_ANSWER_PAGES,PRACTICE_TEST_7_ANSWERS,PRACTICE_TEST_7_ACCEPTED,{sourceCrops:PRACTICE_TEST_7_CROPS,contentStatus:'verified',questionMode:'text'}),
   ...makeModule('math1','math',27,'practice-test-7',PRACTICE_TEST_7_PAGES,PRACTICE_TEST_7_ANSWER_PAGES,PRACTICE_TEST_7_ANSWERS,PRACTICE_TEST_7_ACCEPTED,{sourceCrops:PRACTICE_TEST_7_CROPS,contentStatus:'verified',questionMode:'text'}),
   ...makeModule('math2','math',27,'practice-test-7',PRACTICE_TEST_7_PAGES,PRACTICE_TEST_7_ANSWER_PAGES,PRACTICE_TEST_7_ANSWERS,PRACTICE_TEST_7_ACCEPTED,{sourceCrops:PRACTICE_TEST_7_CROPS,contentStatus:'verified',questionMode:'text'}),
 ]
