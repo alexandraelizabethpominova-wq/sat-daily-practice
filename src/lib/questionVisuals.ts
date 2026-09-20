@@ -26,6 +26,8 @@ export const QUESTION_VISUALS:Record<string,QuestionVisualSpec>={
   'practice-test-7:math1-8':{afterLine:-1,crop:{x:.04,y:.05,width:.93,height:.36},exact:true,kind:'figure'},
   'practice-test-7:math1-11':{afterLine:-1,crop:{x:.14,y:.045,width:.80,height:.29},exact:true,kind:'figure'},
   'practice-test-7:math1-20':{afterLine:0,crop:{x:.06,y:.26,width:.91,height:.44},exact:true,kind:'figure'},
+  'practice-test-7:math2-3':{afterLine:-1,crop:{x:.20,y:.04,width:.72,height:.58},exact:true,kind:'figure'},
+  'practice-test-7:math2-12':{afterLine:0,crop:{x:.15,y:.10,width:.76,height:.47},exact:true,kind:'figure'},
   'math1-1':{afterLine:-1,crop:{x:.08,y:.07,width:.84,height:.39}},
   'math1-9':{afterLine:0,crop:{x:.06,y:.09,width:.88,height:.29}},
   'math1-10':{afterLine:0,crop:{x:.08,y:.10,width:.84,height:.43}},
