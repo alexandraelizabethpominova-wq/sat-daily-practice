@@ -112,7 +112,7 @@ export default function App(){
     {value:'all' as const,label:'All available tests'},
     ...availablePracticeTests(questionBank).map(value=>({value,label:practiceTestLabel(value)})),
   ]
-  const practiceSummary=[settings.selectionMode==='random'?'Random':'Adaptive',settings.failedOnly?'Missed questions only':''].filter(Boolean).join(' · ')
+  const practiceSummary=[settings.selectionMode==='random'?'Random':'Adaptive',settings.failedOnly?'Previously incorrect only':''].filter(Boolean).join(' · ')
   const practiceTestSummaries=availablePracticeTests(questionBank).map(value=>{
     const questions=questionBank.filter(question=>question.practiceTestId===value)
     const practicedIds=new Set(attempts.filter(attempt=>attempt.practiceTestId===value).map(attempt=>attempt.questionId))
@@ -133,7 +133,7 @@ export default function App(){
     const nextSettings={...settings,mode:nextMode,practiceTest:nextPracticeTest}
     const nextQuestions=choosePracticeQuestions(nextSettings,attempts,Math.random,questionBank)
     if(!nextQuestions.length){
-      window.alert('No questions match these practice settings yet. Adjust the practice test, subject, or failed-question filter.')
+      window.alert('No questions match these practice settings yet. Adjust the practice test, subject, or previously-incorrect filter.')
       setView('settings')
       return
     }
