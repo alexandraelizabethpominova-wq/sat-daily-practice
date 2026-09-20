@@ -30,15 +30,35 @@ describe('choosePracticeQuestions',()=>{
     expect(chosen[0].id).toBe('math1-1')
   })
 
-  it('can practice only questions whose latest attempt is incorrect',()=>{
+  it('can practice only questions that were answered incorrectly at least once',()=>{
     const attempts=[
       attempt('math1-1',false,0),
       attempt('math1-2',false,1),
       attempt('math1-1',true,2),
+      attempt('math1-3',true,3),
     ]
     const failedSettings={...settings,failedOnly:true}
-    expect(practiceQuestionPool(failedSettings,attempts).map(question=>question.id)).toEqual(['math1-2'])
-    expect(countFailedPracticeQuestions(failedSettings,attempts)).toBe(1)
+    expect(practiceQuestionPool(failedSettings,attempts).map(question=>question.id)).toEqual(['math1-1','math1-2'])
+    expect(countFailedPracticeQuestions(failedSettings,attempts)).toBe(2)
+  })
+
+  it('keeps a previously missed question eligible after it is later answered correctly',()=>{
+    const attempts=[
+      attempt('math1-1',false,0),
+      attempt('math1-1',true,1),
+      attempt('math1-1',true,2),
+    ]
+    const failedSettings={...settings,failedOnly:true}
+    expect(practiceQuestionPool(failedSettings,attempts).map(question=>question.id)).toContain('math1-1')
+  })
+
+  it('does not include questions that have only ever been answered correctly',()=>{
+    const attempts=[
+      attempt('math1-1',true,0),
+      attempt('math1-1',true,1),
+    ]
+    const failedSettings={...settings,failedOnly:true}
+    expect(practiceQuestionPool(failedSettings,attempts).map(question=>question.id)).not.toContain('math1-1')
   })
 
   it('prioritizes unseen questions over already attempted questions',()=>{
