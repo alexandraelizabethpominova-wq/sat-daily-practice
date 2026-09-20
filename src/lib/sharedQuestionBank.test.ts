@@ -1,6 +1,6 @@
 import {describe,expect,it} from 'vitest'
 import type {PracticeQuestion} from '../types'
-import {mergeQuestionBanks} from './sharedQuestionBank'
+import {mergeQuestionBanks,questionLinesEqual} from './sharedQuestionBank'
 
 function question(id:string,practiceTestId:PracticeQuestion['practiceTestId'],correctAnswer:string):PracticeQuestion{
   return{
@@ -31,5 +31,17 @@ describe('mergeQuestionBanks',()=>{
     const merged=mergeQuestionBanks([bundled],[shared])
     expect(merged).toHaveLength(1)
     expect(merged[0].correctAnswer).toBe('D')
+  })
+})
+
+
+describe('questionLinesEqual',()=>{
+  it('accepts an exact Supabase round-trip of edited lines',()=>{
+    expect(questionLinesEqual(['Intro','• First bullet','• Second bullet'],['Intro','• First bullet','• Second bullet'])).toBe(true)
+  })
+
+  it('rejects missing or altered lines so saves cannot report false success',()=>{
+    expect(questionLinesEqual(['Intro • First bullet • Second bullet'],['Intro','• First bullet','• Second bullet'])).toBe(false)
+    expect(questionLinesEqual(null,['Intro'])).toBe(false)
   })
 })

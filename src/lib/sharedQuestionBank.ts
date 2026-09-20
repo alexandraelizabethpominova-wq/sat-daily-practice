@@ -99,6 +99,12 @@ export async function loadSharedQuestionContent(questionId:string,expectedPracti
   }
 }
 
+export function questionLinesEqual(actual:unknown,expected:string[]){
+  return Array.isArray(actual)
+    &&actual.length===expected.length
+    &&actual.every((line,index)=>typeof line==='string'&&line===expected[index])
+}
+
 export async function saveSharedQuestionRepair(input:{
   questionId:string
   questionLines:string[]
@@ -106,6 +112,8 @@ export async function saveSharedQuestionRepair(input:{
   visualSpecs?:QuestionVisualSpec[]
 }){
   if(!supabase)throw new Error('Supabase is not configured for shared question repairs.')
+  const {data:authData,error:authError}=await supabase.auth.getUser()
+  if(authError||!authData.user)throw new Error('Sign in before saving a shared Question Bank repair.')
   const visuals=input.visualSpecs??(input.visualSpec?[input.visualSpec]:[])
   const encodeVisual=(visual:QuestionVisualSpec,includeLine:boolean)=>({
     ...visual.crop,
@@ -115,7 +123,7 @@ export async function saveSharedQuestionRepair(input:{
   const visualCrop=visuals.length>1
     ?visuals.map(visual=>encodeVisual(visual,true))
     :visuals[0]?encodeVisual(visuals[0],false):null
-  const {error}=await supabase.from('sat_question_bank').update({
+  const {data,error}=await supabase.from('sat_question_bank').update({
     question_lines:input.questionLines,
     needs_visual:visuals.length>0,
     visual_crop:visualCrop,
@@ -123,6 +131,14 @@ export async function saveSharedQuestionRepair(input:{
     content_status:'verified',
     updated_at:new Date().toISOString(),
   }).eq('id',input.questionId)
+    .select('id,question_lines,updated_at')
+    .maybeSingle()
   if(error)throw error
+  if(!data)throw new Error('Supabase did not update this question. Reload, sign in again, and make sure shared Question Bank editing is enabled.')
+  if(data.id!==input.questionId||!questionLinesEqual(data.question_lines,input.questionLines)){
+    throw new Error('Supabase did not persist the exact edited question text. Reload the question before trying again.')
+  }
+  const savedLines=data.question_lines as string[]
   window.dispatchEvent(new CustomEvent('sat-question-content-updated',{detail:{questionId:input.questionId}}))
+  return {questionId:data.id,questionLines:savedLines,updatedAt:data.updated_at as string}
 }

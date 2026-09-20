@@ -50,6 +50,11 @@
 .reading-question-content{width:100%;max-width:100%;color:#10284f;font-family:'Minion Pro','Minion 3',Georgia,'Times New Roman',Times,serif;font-size:21px;line-height:1.5;font-weight:400}
 .reading-intro{margin:0 0 18px;max-width:none}.reading-intro p{margin:0}.reading-stimulus{margin:0 0 24px;max-width:none}.reading-stimulus p{margin:0 0 14px}.reading-stimulus p:last-child{margin-bottom:0}
 .reading-stimulus p{margin:0;white-space:normal}
+.reading-notes{display:grid;gap:10px;margin:0}
+.reading-notes-intro,.reading-notes-goal{margin:0}
+.reading-notes-list{margin:0;padding-left:30px}
+.reading-notes-list li{margin:0 0 8px;padding-left:4px}
+.reading-notes-list li:last-child{margin-bottom:0}
 .reading-quote{width:100%;box-sizing:border-box;margin:0 0 24px;padding:4px 6px 4px 18px;border-left:3px solid #98A2B3;background:transparent}
 .reading-quote p{margin:0}
 .reading-verse{padding-top:4px;padding-bottom:4px}
