@@ -75,8 +75,8 @@ export const PRACTICE_TEST_7_CROPS:Record<ModuleKey,Record<number,SourceCrop>>={
     29:{x:314.3,y:109.1,width:242.4,height:610.9},
     30:{x:53.9,y:109.1,width:242.4,height:610.9},
     31:{x:332.3,y:109.1,width:242.4,height:610.9},
-    32:{x:35.9,y:109.1,width:242.4,height:610.9},
-    33:{x:314.3,y:109.1,width:242.4,height:610.9},
+    32:{x:35.9,y:109.1,width:242.4,height:521.0},
+    33:{x:314.3,y:109.1,width:242.4,height:521.0},
   },
   rw2:{},
   math1:{
