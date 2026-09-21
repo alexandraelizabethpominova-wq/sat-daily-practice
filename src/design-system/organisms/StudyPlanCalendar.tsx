@@ -4,6 +4,7 @@ import AlexBox from '../atoms/AlexBox'
 import AlexIconButton from '../atoms/AlexIconButton'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
+import AlexTooltip from '../atoms/AlexTooltip'
 import {buildStudyPlanCalendarDays,type StudyPlanDayStatus} from '../../lib/studyPlanCalendar'
 import type {PracticePlanRecommendation} from '../../lib/practicePlan'
 import type {SessionSummary,Settings} from '../../types'
@@ -16,7 +17,7 @@ type Props={
 
 const STATUS_STYLE:Record<StudyPlanDayStatus,{bg:string;border:string;color:string;label:string}>={
   ahead:{bg:'#E5F7DC',border:'#AAD99A',color:'#315F25',label:'Ahead'},
-  'on-track':{bg:'#E5F1FF',border:'#A9CEF0',color:'#245F9E',label:'On plan'},
+  'on-track':{bg:'#E5F1FF',border:'#A9CEF0',color:'#245F9E',label:'On schedule'},
   behind:{bg:'#FFF0E7',border:'#F0C5AD',color:'#914D2C',label:'Behind'},
   planned:{bg:'#F2E9FF',border:'#DACAF0',color:'#6B4A91',label:'Planned'},
   neutral:{bg:'#FAFAF8',border:'#E8E4DD',color:'#98A2B3',label:'Not tracked'},
@@ -94,40 +95,42 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
         const isToday=day.date===todayKey
         const isExamDate=Boolean(settings.targetExamDate&&day.date===settings.targetExamDate)
         const title=[style.label,isExamDate?'Exam date':'',day.practiced?`${day.questionCount} questions practiced`:''].filter(Boolean).join(' · ')
-        return <AlexBox
-          key={day.date}
-          title={title}
-          aria-label={`${day.date}: ${title}`}
-          sx={{
-            width:'100%',
-            aspectRatio:'1 / 1',
-            maxWidth:30,
-            justifySelf:'center',
-            borderRadius:'50%',
-            border:'1px solid',
-            borderColor:isToday?'#6558F5':style.border,
-            bgcolor:style.bg,
-            color:day.status==='neutral'?'#7A8495':'#08275B',
-            display:'grid',
-            placeItems:'center',
-            position:'relative',
-            boxShadow:isToday?'0 0 0 1px #6558F5 inset':'none',
-          }}
-        >
-          <AlexText sx={{fontSize:{xs:9.5,sm:10.5},fontWeight:isToday?900:700,lineHeight:1}}>{day.day}</AlexText>
-          {isExamDate&&<Star
-            aria-hidden="true"
-            size={8}
-            strokeWidth={1.8}
-            fill="#F5C451"
-            color="#9B6A00"
-            style={{position:'absolute',right:-1,top:-2}}
-          />}
-          {day.practiced&&<AlexBox
-            aria-hidden="true"
-            sx={{position:'absolute',bottom:2.5,width:3.5,height:3.5,borderRadius:'50%',bgcolor:style.color}}
-          />}
-        </AlexBox>
+        return <AlexTooltip key={day.date} title={title} arrow placement="top">
+          <AlexBox
+            component="span"
+            aria-label={`${day.date}: ${title}`}
+            sx={{
+              width:'100%',
+              aspectRatio:'1 / 1',
+              maxWidth:30,
+              justifySelf:'center',
+              borderRadius:'50%',
+              border:'1px solid',
+              borderColor:isToday?'#6558F5':style.border,
+              bgcolor:style.bg,
+              color:day.status==='neutral'?'#7A8495':'#08275B',
+              display:'grid',
+              placeItems:'center',
+              position:'relative',
+              boxShadow:isToday?'0 0 0 1px #6558F5 inset':'none',
+              cursor:'default',
+            }}
+          >
+            <AlexText sx={{fontSize:{xs:9.5,sm:10.5},fontWeight:isToday?900:700,lineHeight:1}}>{day.day}</AlexText>
+            {isExamDate&&<Star
+              aria-hidden="true"
+              size={8}
+              strokeWidth={1.8}
+              fill="#F5C451"
+              color="#9B6A00"
+              style={{position:'absolute',right:-1,top:-2}}
+            />}
+            {day.practiced&&<AlexBox
+              aria-hidden="true"
+              sx={{position:'absolute',bottom:2.5,width:3.5,height:3.5,borderRadius:'50%',bgcolor:style.color}}
+            />}
+          </AlexBox>
+        </AlexTooltip>
       })}
     </AlexBox>
 
