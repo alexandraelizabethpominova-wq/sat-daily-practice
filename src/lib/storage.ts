@@ -1,5 +1,5 @@
 import type {Attempt,SessionSummary,Settings} from '../types'
-const ATTEMPTS_KEY='sat-practice-attempts-v1',SESSIONS_KEY='sat-practice-sessions-v1',SETTINGS_KEY='sat-practice-settings-v1',HISTORY_OWNER_KEY='sat-practice-history-owner-v1'
+const ATTEMPTS_KEY='sat-practice-attempts-v1',SESSIONS_KEY='sat-practice-sessions-v1',SETTINGS_KEY='sat-practice-settings-v1',HISTORY_OWNER_KEY='sat-practice-history-owner-v1',SETTINGS_OWNER_KEY='sat-practice-settings-owner-v1'
 function dateInDays(days:number){const date=new Date();date.setHours(12,0,0,0);date.setDate(date.getDate()+days);return date.toISOString().slice(0,10)}
 export const DEFAULT_SETTINGS:Settings={mode:'both',questionsPerSession:10,showExplanations:true,shuffle:true,practiceTest:'all',selectionMode:'adaptive',failedOnly:false,failedEverOnly:false,targetExamDate:dateInDays(30),targetPracticeSets:8,targetCoveragePercent:100,fallbackMinutesPerQuestion:2}
 function read<T>(key:string,fallback:T):T{try{return JSON.parse(localStorage.getItem(key)??'') as T}catch{return fallback}}
@@ -17,4 +17,10 @@ export function prepareHistoryForUser(userId:string){
 }
 export function getSettings():Settings{return {...DEFAULT_SETTINGS,...read<Partial<Settings>>(SETTINGS_KEY,{})}}
 export function saveSettings(s:Settings){localStorage.setItem(SETTINGS_KEY,JSON.stringify(s))}
+export function prepareSettingsForUser(userId:string){
+  const owner=localStorage.getItem(SETTINGS_OWNER_KEY)
+  if(owner&&owner!==userId)saveSettings({...DEFAULT_SETTINGS})
+  localStorage.setItem(SETTINGS_OWNER_KEY,userId)
+  return getSettings()
+}
 export function clearHistory(){localStorage.removeItem(ATTEMPTS_KEY);localStorage.removeItem(SESSIONS_KEY)}
