@@ -1,6 +1,7 @@
 import {useEffect,useState,type ReactNode} from 'react'
 import AlexBox from '../atoms/AlexBox'
 import SideNavigation from '../molecules/SideNavigation'
+import AlexFeedbackWidget from './AlexFeedbackWidget'
 import {getCurrentAuthUser,loadUserProfile,subscribeToAuth,type AuthUser,type UserProfile} from '../../lib/supabase'
 
 type NavKey='study'|'practice-tests'|'practice-setup'|'question-bank'|'parsing-issues'|'performance'|'resources'
@@ -104,5 +105,6 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onS
         {children}
       </AlexBox>
     </AlexBox>
+    <AlexFeedbackWidget context={active}/>
   </AlexBox>
 }
