@@ -32,12 +32,12 @@ export default function PracticeSetupPanel({settings,practiceTests,missedQuestio
   const failedEverOnly=settings.failedEverOnly??false
   const dailyLabel=recommendation.estimatedDailyMinutes>0
     ?`${recommendation.estimatedDailyMinutes} min/day`
-    :'On track'
+    :'Still locked in'
 
-  return <AlexSurface sx={{maxWidth:860,p:{xs:2.25,md:3.5},borderRadius:3,border:'1px solid #E4E7EC'}}>
+  return <AlexSurface sx={{maxWidth:860,p:{xs:2.25,md:3.5},borderRadius:4,border:'2px solid #E6E1F2',boxShadow:'0 6px 0 #ECE8F6'}}>
     <AlexBox sx={{display:'grid',gap:.5,mb:2}}>
-      <AlexText component="h2" sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:24,fontWeight:500,color:'#08275B'}}>Practice setup</AlexText>
-      <AlexText sx={{fontSize:14,color:'#667085',lineHeight:1.5}}>Choose what to practice and how long each session should be.</AlexText>
+      <AlexText component="h2" sx={{fontFamily:'ui-rounded, "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif',fontSize:28,fontWeight:900,color:'#251B4B'}}>Time to lock in</AlexText>
+      <AlexText sx={{fontSize:14,color:'#667085',lineHeight:1.5}}>Set Alex Mode: choose what to practice, how long to play, and what deserves your focus.</AlexText>
     </AlexBox>
 
     <PracticeSettingField
@@ -94,10 +94,10 @@ export default function PracticeSetupPanel({settings,practiceTests,missedQuestio
       sx={{mt:2.25}}
       summary={<AlexBox sx={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:2,width:'100%',pr:1}}>
         <AlexBox>
-          <AlexText sx={{fontSize:14,fontWeight:850,color:'#08275B'}}>Study plan</AlexText>
-          <AlexText sx={{fontSize:12.5,color:'#667085',mt:.15}}>Goals and recommended daily pace</AlexText>
+          <AlexText sx={{fontSize:14,fontWeight:850,color:'#08275B'}}>Your next move</AlexText>
+          <AlexText sx={{fontSize:12.5,color:'#667085',mt:.15}}>Goals, pace, and what to hit next</AlexText>
         </AlexBox>
-        <AlexText sx={{fontSize:14,fontWeight:850,color:'#6558F5',whiteSpace:'nowrap'}}>{dailyLabel}</AlexText>
+        <AlexText sx={{fontSize:14,fontWeight:850,color:'#6D5DFB',whiteSpace:'nowrap'}}>{dailyLabel}</AlexText>
       </AlexBox>}
     >
       <PracticeGoalSettings settings={settings} onChange={onChange}/>
@@ -107,7 +107,7 @@ export default function PracticeSetupPanel({settings,practiceTests,missedQuestio
     </AlexAccordion>
 
     <AlexBox sx={{display:'flex',gap:1.25,flexWrap:'wrap',pt:2.5,mt:2.5,borderTop:'1px solid #EAECF0'}}>
-      <AlexButton onClick={onStart} disabled={(missedOnly&&missedQuestionCount===0)||(failedEverOnly&&failedQuestionCount===0)}>Start practice</AlexButton>
+      <AlexButton onClick={onStart} disabled={(missedOnly&&missedQuestionCount===0)||(failedEverOnly&&failedQuestionCount===0)}>Activate Alex Mode</AlexButton>
       <AlexButton tone="quiet" onClick={onClearHistory}>Clear history</AlexButton>
     </AlexBox>
   </AlexSurface>
