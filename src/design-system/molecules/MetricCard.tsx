@@ -7,12 +7,12 @@ type MetricTone='default'|'blue'|'cream'|'lavender'|'green'|'peach'
 type Props={icon:ReactNode;label:string;value:string;tone?:MetricTone;compact?:boolean}
 
 const TONES:Record<MetricTone,{bg:string;border:string;icon:string}>={
-  default:{bg:'#fff',border:'#E6E2DB',icon:'#6558F5'},
-  blue:{bg:'#EEF6FF',border:'#D8E9FB',icon:'#286BA9'},
-  cream:{bg:'#FFF9E8',border:'#F2E4B8',icon:'#8A6818'},
-  lavender:{bg:'#F5EEFF',border:'#E5D8F8',icon:'#7553A4'},
-  green:{bg:'#EEFAE9',border:'#D8EDD0',icon:'#4E7C3E'},
-  peach:{bg:'#FFF1E8',border:'#F1DDD0',icon:'#A65D32'},
+  default:{bg:'#fff',border:'#E6E1F2',icon:'#6D5DFB'},
+  blue:{bg:'#EAF4FF',border:'#BBDDF8',icon:'#357EB8'},
+  cream:{bg:'#FFF7D9',border:'#F1D97D',icon:'#806014'},
+  lavender:{bg:'#EEE9FF',border:'#CFC5FF',icon:'#6D5DFB'},
+  green:{bg:'#DFF8ED',border:'#A7E6C9',icon:'#2C8B67'},
+  peach:{bg:'#FFE9E3',border:'#F4B9AA',icon:'#C65B45'},
 }
 
 export default function MetricCard({icon,label,value,tone='default',compact=false}:Props){
@@ -21,8 +21,8 @@ export default function MetricCard({icon,label,value,tone='default',compact=fals
     p:compact?2:2.2,
     minHeight:compact?158:undefined,
     border:`1px solid ${palette.border}`,
-    borderRadius:3,
-    boxShadow:'0 8px 24px rgba(9,35,79,.035)',
+    borderRadius:4,
+    boxShadow:'0 5px 0 rgba(57,43,105,.08)',
     bgcolor:palette.bg,
     display:'flex',
     flexDirection:'column',
@@ -50,12 +50,12 @@ export default function MetricCard({icon,label,value,tone='default',compact=fals
     <AlexText component="b" sx={{
       display:'block',
       mt:compact ? .55 : .5,
-      fontFamily:compact?'Georgia, "Times New Roman", serif':'inherit',
+      fontFamily:compact?'ui-rounded, "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif':'inherit',
       fontSize:compact?36:26,
       lineHeight:1,
       letterSpacing:compact?'-.025em':0,
       fontWeight:compact?700:850,
-      color:'#08275B',
+      color:'#251B4B',
     }}>{value}</AlexText>
   </AlexSurface>
 }
