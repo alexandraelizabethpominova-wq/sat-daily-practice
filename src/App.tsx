@@ -15,9 +15,7 @@ import PracticeSessionHeader from './design-system/organisms/PracticeSessionHead
 import PracticeSetupPanel from './design-system/organisms/PracticeSetupPanel'
 import PracticeTestsDashboard from './design-system/organisms/PracticeTestsDashboard'
 import StudyPlanCalendar from './design-system/organisms/StudyPlanCalendar'
-import StudyPlanGoalsPanel from './design-system/organisms/StudyPlanGoalsPanel'
 import StudyPlanHero from './design-system/organisms/StudyPlanHero'
-import StudyPlanRecommendation from './design-system/organisms/StudyPlanRecommendation'
 import QuestionBankReview from './design-system/organisms/QuestionBankReview'
 import {answerLabel,matchesAnswer} from './lib/answerCompare'
 import {clearPdfs,getPdf,savePdf} from './lib/pdfStore'
@@ -405,14 +403,15 @@ export default function App(){
     <AlexBox
       sx={{
         display:'grid',
-        gap:{xs:2.5,md:3},
+        gap:{xs:1.25,md:1.5},
         mt:{xs:2.5,md:3},
         pb:{xs:1,md:2},
       }}
     >
       <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
-      <StudyPlanGoalsPanel settings={settings} onChange={setSettings}/>
-      <StudyPlanRecommendation recommendation={practiceRecommendation}/>
+      <AlexBox sx={{display:'flex',justifyContent:'flex-end'}}>
+        <AlexButton tone="quiet" onClick={()=>setView('settings')}>Edit plan settings</AlexButton>
+      </AlexBox>
     </AlexBox>
   </main>,'#F7F6F2')
 
