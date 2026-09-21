@@ -1,5 +1,5 @@
 import {createClient,type User} from '@supabase/supabase-js'
-import type {Attempt,SessionSummary} from '../types'
+import type {Attempt,SessionSummary,Settings} from '../types'
 
 const url=import.meta.env.VITE_SUPABASE_URL as string|undefined
 const publishableKey=(import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY??import.meta.env.VITE_SUPABASE_ANON_KEY) as string|undefined
@@ -64,6 +64,31 @@ export async function signOut(){
 async function currentUserId(){
   const user=await getCurrentAuthUser()
   return user?.id??null
+}
+
+export async function loadUserSettings():Promise<Partial<Settings>|null>{
+  if(!supabase)return null
+  const userId=await currentUserId()
+  if(!userId)return null
+  const {data,error}=await supabase.from('sat_user_settings')
+    .select('settings')
+    .eq('user_id',userId)
+    .maybeSingle()
+  if(error)throw error
+  return data?.settings?data.settings as Partial<Settings>:null
+}
+
+export async function saveUserSettings(settings:Settings){
+  if(!supabase)return false
+  const userId=await currentUserId()
+  if(!userId)return false
+  const {error}=await supabase.from('sat_user_settings').upsert({
+    user_id:userId,
+    settings,
+    updated_at:new Date().toISOString(),
+  },{onConflict:'user_id'})
+  if(error)throw error
+  return true
 }
 
 export async function loadUserProfile():Promise<UserProfile|null>{
