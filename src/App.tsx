@@ -14,8 +14,8 @@ import PracticeAnswerPanel from './design-system/organisms/PracticeAnswerPanel'
 import PracticeSessionHeader from './design-system/organisms/PracticeSessionHeader'
 import PracticeSetupPanel from './design-system/organisms/PracticeSetupPanel'
 import PracticeTestsDashboard from './design-system/organisms/PracticeTestsDashboard'
-import StudyPlanGoalsPanel from './design-system/organisms/StudyPlanGoalsPanel'
-import StudyPlanRecommendation from './design-system/organisms/StudyPlanRecommendation'
+import StudyPlanCalendar from './design-system/organisms/StudyPlanCalendar'
+import StudyPlanHero from './design-system/organisms/StudyPlanHero'
 import QuestionBankReview from './design-system/organisms/QuestionBankReview'
 import {answerLabel,matchesAnswer} from './lib/answerCompare'
 import {clearPdfs,getPdf,savePdf} from './lib/pdfStore'
@@ -25,8 +25,8 @@ import {buildPracticePlanRecommendation} from './lib/practicePlan'
 import {loadSharedQuestionBank,mergeQuestionBanks} from './lib/sharedQuestionBank'
 import {importPracticeMaterials} from './lib/pdfStructuredImport'
 import {choosePracticeQuestions,countFailedPracticeQuestions,countMissedPracticeQuestions,formatDuration,summarizePerformance,summarizeSession} from './lib/practiceGamification'
-import {addAttempt,clearHistory,getAttempts,getSessions,getSettings,prepareHistoryForUser,replaceHistory,saveSession,saveSettings} from './lib/storage'
-import {clearCloudHistory,getCurrentAuthUser,loadCloudHistory,subscribeToAuth,syncSession,type AuthUser} from './lib/supabase'
+import {addAttempt,clearHistory,getAttempts,getSessions,getSettings,prepareHistoryForUser,prepareSettingsForUser,replaceHistory,saveSession,saveSettings} from './lib/storage'
+import {clearCloudHistory,getCurrentAuthUser,loadCloudHistory,loadUserSettings,saveUserSettings,subscribeToAuth,syncSession,type AuthUser} from './lib/supabase'
 import type {Attempt,PracticeQuestion,SessionSummary,Settings,SubjectMode} from './types'
 
 const uid=()=>crypto.randomUUID()
@@ -53,6 +53,8 @@ export default function App(){
   const[contentCount,setContentCount]=useState(0)
   const[importProgress,setImportProgress]=useState('')
   const[authUser,setAuthUser]=useState<AuthUser|null>(null)
+  const[authReady,setAuthReady]=useState(false)
+  const[settingsCloudReady,setSettingsCloudReady]=useState(false)
   const[questionBank,setQuestionBank]=useState<PracticeQuestion[]>(()=>QUESTION_BANK)
 
   useEffect(()=>{
@@ -65,8 +67,15 @@ export default function App(){
   },[])
   useEffect(()=>{
     let cancelled=false
-    void getCurrentAuthUser().then(user=>{if(!cancelled)setAuthUser(user)}).catch(error=>console.warn('Supabase auth check failed',error))
-    const unsubscribe=subscribeToAuth(user=>{if(!cancelled)setAuthUser(user)})
+    void getCurrentAuthUser()
+      .then(user=>{if(!cancelled)setAuthUser(user)})
+      .catch(error=>console.warn('Supabase auth check failed',error))
+      .finally(()=>{if(!cancelled)setAuthReady(true)})
+    const unsubscribe=subscribeToAuth(user=>{
+      if(cancelled)return
+      setAuthUser(user)
+      setAuthReady(true)
+    })
     return()=>{cancelled=true;unsubscribe()}
   },[])
   useEffect(()=>{
@@ -101,7 +110,42 @@ export default function App(){
     })()
     return()=>{cancelled=true}
   },[authUser?.id])
-  useEffect(()=>saveSettings(settings),[settings])
+  useEffect(()=>{
+    if(!authReady)return
+    if(!authUser){
+      setSettingsCloudReady(true)
+      return
+    }
+    let cancelled=false
+    setSettingsCloudReady(false)
+    void (async()=>{
+      try{
+        const localSettings=prepareSettingsForUser(authUser.id)
+        const cloudSettings=await loadUserSettings()
+        if(cancelled)return
+        if(cloudSettings){
+          const nextSettings={...localSettings,...cloudSettings}
+          saveSettings(nextSettings)
+          setSettings(nextSettings)
+        }else{
+          saveSettings(localSettings)
+          setSettings(localSettings)
+          await saveUserSettings(localSettings)
+        }
+      }catch(error){
+        console.warn('Supabase settings sync failed',error)
+      }finally{
+        if(!cancelled)setSettingsCloudReady(true)
+      }
+    })()
+    return()=>{cancelled=true}
+  },[authReady,authUser?.id])
+  useEffect(()=>{
+    saveSettings(settings)
+    if(authUser&&settingsCloudReady){
+      void saveUserSettings(settings).catch(error=>console.warn('Supabase settings backup failed',error))
+    }
+  },[settings,authUser?.id,settingsCloudReady])
 
   const current=qs[i]
   const currentRec=current?currentAttempts.find(attempt=>attempt.questionId===current.id):undefined
@@ -340,31 +384,33 @@ export default function App(){
   </main>)
 
   if(view==='study')return withSidebar('study',<main className="shell">
-    <section className="hero card">
-      <div>
-        <p className="eyebrow">Study Plan</p>
-        <h1>Your SAT practice plan</h1>
-        <p>Set your goal, track progress, and use the daily recommendation to stay on pace.</p>
-        <div className="hero-actions">
-          <AlexButton onClick={()=>setView('home')}>Choose a practice test</AlexButton>
-          <AlexButton tone="secondary" onClick={()=>beginPractice(settings.mode)}>Start {settings.questionsPerSession} questions</AlexButton>
-        </div>
-      </div>
-      <div className="score">{attempts.length?`${performance.accuracy}%`:'—'}<small>overall accuracy</small></div>
-    </section>
-
-    <PerformanceDashboard summary={performance} hasHistory={attempts.length>0} compact/>
+    <StudyPlanHero
+      accuracy={attempts.length?performance.accuracy:null}
+      estimatedScore={performance.latestScoreEstimate}
+      targetScore={practiceRecommendation.targetScore}
+      daysRemaining={practiceRecommendation.daysRemaining}
+      dailyMinutes={practiceRecommendation.estimatedDailyMinutes}
+      questionsPerSession={settings.questionsPerSession}
+      focusLabel={practiceRecommendation.focusLabel}
+      onChoosePracticeTest={()=>setView('home')}
+      onStartPractice={()=>beginPractice(settings.mode)}
+    />
 
     <AlexBox
       sx={{
         display:'grid',
-        gap:{xs:2.5,md:3},
-        mt:{xs:2.5,md:3},
-        pb:{xs:1,md:2},
+        gridTemplateColumns:{xs:'1fr',lg:'minmax(0,1fr) 340px'},
+        gap:{xs:2,md:2.25},
+        mt:{xs:2.25,md:2.75},
+        alignItems:'start',
       }}
     >
-      <StudyPlanGoalsPanel settings={settings} onChange={setSettings}/>
-      <StudyPlanRecommendation recommendation={practiceRecommendation}/>
+      <PerformanceDashboard summary={performance} hasHistory={attempts.length>0} compact/>
+      <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
+    </AlexBox>
+
+    <AlexBox sx={{display:'flex',justifyContent:'flex-end',mt:1.25,pb:{xs:1,md:2}}}>
+      <AlexButton tone="quiet" onClick={()=>setView('settings')}>Edit plan settings</AlexButton>
     </AlexBox>
   </main>,'#F7F6F2')
 

@@ -10,10 +10,8 @@ export function formatDuration(ms:number){
   return seconds<60?`${seconds}s`:`${Math.floor(seconds/60)}m ${seconds%60}s`
 }
 
-function latestAttemptByQuestion(attempts:Attempt[]){
-  const latest=new Map<string,Attempt>()
-  attempts.forEach(attempt=>latest.set(attempt.questionId,attempt))
-  return latest
+function attemptedQuestionIds(attempts:Attempt[]){
+  return new Set(attempts.map(attempt=>attempt.questionId))
 }
 
 function incorrectlyAnsweredQuestionIds(attempts:Attempt[]){
@@ -34,15 +32,15 @@ export function practiceQuestionPool(settings:Settings,attempts:Attempt[],questi
     return pool.filter(question=>failedIds.has(question.id))
   }
   if(settings.failedOnly){
-    const latest=latestAttemptByQuestion(attempts)
-    return pool.filter(question=>latest.get(question.id)?.correct===false)
+    const attemptedIds=attemptedQuestionIds(attempts)
+    return pool.filter(question=>!attemptedIds.has(question.id))
   }
   return pool
 }
 
 export function countMissedPracticeQuestions(settings:Settings,attempts:Attempt[],questions:PracticeQuestion[]=QUESTION_BANK){
-  const latest=latestAttemptByQuestion(attempts)
-  return eligibleQuestions(settings,questions).filter(question=>latest.get(question.id)?.correct===false).length
+  const attemptedIds=attemptedQuestionIds(attempts)
+  return eligibleQuestions(settings,questions).filter(question=>!attemptedIds.has(question.id)).length
 }
 
 export function countFailedPracticeQuestions(settings:Settings,attempts:Attempt[],questions:PracticeQuestion[]=QUESTION_BANK){

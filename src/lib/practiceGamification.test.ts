@@ -30,15 +30,26 @@ describe('choosePracticeQuestions',()=>{
     expect(chosen[0].id).toBe('math1-1')
   })
 
-  it('keeps missed questions limited to questions whose latest attempt is incorrect',()=>{
+  it('treats missed questions as questions the user has not attempted yet',()=>{
+    const questions=QUESTION_BANK.filter(question=>['math1-1','math1-2','math1-3'].includes(question.id))
     const attempts=[
       attempt('math1-1',false,0),
-      attempt('math1-2',false,1),
-      attempt('math1-1',true,2),
+      attempt('math1-2',true,1),
     ]
     const missedSettings={...settings,failedOnly:true,failedEverOnly:false}
-    expect(practiceQuestionPool(missedSettings,attempts).map(question=>question.id)).toEqual(['math1-2'])
-    expect(countMissedPracticeQuestions(missedSettings,attempts)).toBe(1)
+    expect(practiceQuestionPool(missedSettings,attempts,questions).map(question=>question.id)).toEqual(['math1-3'])
+    expect(countMissedPracticeQuestions(missedSettings,attempts,questions)).toBe(1)
+  })
+
+  it('does not count a previously attempted question as missed regardless of whether it was correct',()=>{
+    const questions=QUESTION_BANK.filter(question=>['math1-1','math1-2'].includes(question.id))
+    const attempts=[
+      attempt('math1-1',false,0),
+      attempt('math1-2',true,1),
+    ]
+    const missedSettings={...settings,failedOnly:true,failedEverOnly:false}
+    expect(practiceQuestionPool(missedSettings,attempts,questions)).toEqual([])
+    expect(countMissedPracticeQuestions(missedSettings,attempts,questions)).toBe(0)
   })
 
   it('can practice failed questions that were answered incorrectly at least once',()=>{

@@ -29,6 +29,24 @@ export default function PerformanceDashboard({summary,hasHistory,onClearHistory,
   const scoreTrend=[{id:'Practice score estimate',data:summary.scoreTrend.map((point,index)=>({x:`S${index+1}`,y:point.score}))}]
   const latestDelta=summary.scoreTrend.length?summary.scoreTrend[summary.scoreTrend.length-1].delta:0
 
+  if(compact)return <AlexBox sx={{display:'grid',gap:1.35,minWidth:0}}>
+    <AlexBox sx={{
+      display:'grid',
+      gridTemplateColumns:{xs:'repeat(2,minmax(0,1fr))',md:'repeat(4,minmax(0,1fr))'},
+      gap:1.2,
+    }}>
+      <MetricCard compact tone="blue" icon={<Target/>} label="Accuracy" value={hasHistory?`${summary.accuracy}%`:'—'}/>
+      <MetricCard compact tone="cream" icon={<Clock3/>} label="Avg. time" value={hasHistory?formatMs(summary.averageMs):'—'}/>
+      <MetricCard compact tone="green" icon={<BarChart3/>} label="Questions seen" value={`${summary.questionsSeen}/${summary.totalQuestions}`}/>
+      <MetricCard compact tone="peach" icon={<TrendingUp/>} label="Score estimate" value={summary.latestScoreEstimate?String(summary.latestScoreEstimate):'—'}/>
+    </AlexBox>
+    {hasHistory&&summary.recommendation&&<AlexSurface sx={{p:1.8,border:'1px solid #D8D2FF',borderRadius:3,bgcolor:'#F7F5FF'}}>
+      <AlexText sx={{fontSize:10,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:'#6558F5'}}>Recommended focus</AlexText>
+      <AlexText component="h2" sx={{fontSize:19,fontWeight:800,color:'#08275B',mt:.45}}>{summary.recommendation.label}</AlexText>
+      <AlexText sx={{color:'#475467',fontSize:12,lineHeight:1.45,mt:.45}}>{summary.recommendation.reason}</AlexText>
+    </AlexSurface>}
+  </AlexBox>
+
   return <AlexBox>
     {!compact&&<AlexBox sx={{display:'flex',justifyContent:'space-between',alignItems:{xs:'flex-start',md:'flex-end'},gap:2,flexDirection:{xs:'column',md:'row'}}}>
       <AlexBox>
@@ -40,11 +58,11 @@ export default function PerformanceDashboard({summary,hasHistory,onClearHistory,
     </AlexBox>}
 
     <AlexBox sx={{display:'grid',gridTemplateColumns:{xs:'1fr',sm:'1fr 1fr',lg:'repeat(5,1fr)'},gap:1.75,mt:compact?0:2.5}}>
-      <MetricCard icon={<Target/>} label="Accuracy" value={hasHistory?`${summary.accuracy}%`:'—'}/>
-      <MetricCard icon={<Clock3/>} label="Avg. time" value={hasHistory?formatMs(summary.averageMs):'—'}/>
-      <MetricCard icon={<BookOpen/>} label="Sessions" value={String(summary.sessions)}/>
-      <MetricCard icon={<BarChart3/>} label="Questions seen" value={`${summary.questionsSeen}/${summary.totalQuestions}`}/>
-      <MetricCard icon={<TrendingUp/>} label="Score estimate" value={summary.latestScoreEstimate?String(summary.latestScoreEstimate):'—'}/>
+      <MetricCard tone={compact?'blue':'default'} icon={<Target/>} label="Accuracy" value={hasHistory?`${summary.accuracy}%`:'—'}/>
+      <MetricCard tone={compact?'cream':'default'} icon={<Clock3/>} label="Avg. time" value={hasHistory?formatMs(summary.averageMs):'—'}/>
+      <MetricCard tone={compact?'lavender':'default'} icon={<BookOpen/>} label="Sessions" value={String(summary.sessions)}/>
+      <MetricCard tone={compact?'green':'default'} icon={<BarChart3/>} label="Questions seen" value={`${summary.questionsSeen}/${summary.totalQuestions}`}/>
+      <MetricCard tone={compact?'peach':'default'} icon={<TrendingUp/>} label="Score estimate" value={summary.latestScoreEstimate?String(summary.latestScoreEstimate):'—'}/>
     </AlexBox>
 
     {!hasHistory&&!compact&&<AlexSurface sx={{p:3.5,mt:2.5,border:'1px solid #E6E2DB',borderRadius:3}}>
