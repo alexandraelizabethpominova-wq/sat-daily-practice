@@ -56,7 +56,7 @@ export default function SideNavigation({brand='Alexified',primary,secondary=[],f
     <AlexBox sx={{display:'flex',alignItems:'center',gap:.5,mb:1.2}}>
       <AlexButtonBase onClick={primary[0]?.onClick} aria-label={brand} sx={{justifyContent:collapsed?'center':'flex-start',gap:1.1,color:'#fff',fontWeight:850,px:collapsed?.8:1.2,py:1.1,borderRadius:1.5,flex:1,minWidth:0}}>
         <Sparkles size={18} color="#FFD166"/>
-        {!collapsed&&<AlexText component="span" sx={{fontWeight:850}}>{brand}</AlexText>}
+        {!collapsed&&<AlexBox sx={{display:'grid',minWidth:0,textAlign:'left'}}><AlexText component="span" sx={{fontWeight:900,fontSize:16,lineHeight:1.05}}>{brand}</AlexText><AlexText component="span" sx={{fontSize:8.5,fontWeight:850,letterSpacing:'.11em',color:'#CFC8ED',mt:.3}}>SAT PREP, ALEXIFIED</AlexText></AlexBox>}
       </AlexButtonBase>
       {onToggleCollapsed&&<AlexTooltip title={collapsed?'Expand menu':'Collapse menu'} placement="right">
         <AlexButtonBase onClick={onToggleCollapsed} aria-label={collapsed?'Expand menu':'Collapse menu'} sx={{color:'#E8E3FF',width:30,height:30,minWidth:30,borderRadius:'50%'}}>
