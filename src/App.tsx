@@ -15,6 +15,7 @@ import PracticeSessionHeader from './design-system/organisms/PracticeSessionHead
 import PracticeSetupPanel from './design-system/organisms/PracticeSetupPanel'
 import PracticeTestsDashboard from './design-system/organisms/PracticeTestsDashboard'
 import StudyPlanGoalsPanel from './design-system/organisms/StudyPlanGoalsPanel'
+import StudyPlanHero from './design-system/organisms/StudyPlanHero'
 import StudyPlanRecommendation from './design-system/organisms/StudyPlanRecommendation'
 import QuestionBankReview from './design-system/organisms/QuestionBankReview'
 import {answerLabel,matchesAnswer} from './lib/answerCompare'
@@ -340,20 +341,21 @@ export default function App(){
   </main>)
 
   if(view==='study')return withSidebar('study',<main className="shell">
-    <section className="hero card">
-      <div>
-        <p className="eyebrow">Study Plan</p>
-        <h1>Your SAT practice plan</h1>
-        <p>Set your goal, track progress, and use the daily recommendation to stay on pace.</p>
-        <div className="hero-actions">
-          <AlexButton onClick={()=>setView('home')}>Choose a practice test</AlexButton>
-          <AlexButton tone="secondary" onClick={()=>beginPractice(settings.mode)}>Start {settings.questionsPerSession} questions</AlexButton>
-        </div>
-      </div>
-      <div className="score">{attempts.length?`${performance.accuracy}%`:'—'}<small>overall accuracy</small></div>
-    </section>
+    <StudyPlanHero
+      accuracy={attempts.length?performance.accuracy:null}
+      estimatedScore={performance.latestScoreEstimate}
+      targetScore={practiceRecommendation.targetScore}
+      daysRemaining={practiceRecommendation.daysRemaining}
+      dailyMinutes={practiceRecommendation.estimatedDailyMinutes}
+      questionsPerSession={settings.questionsPerSession}
+      focusLabel={practiceRecommendation.focusLabel}
+      onChoosePracticeTest={()=>setView('home')}
+      onStartPractice={()=>beginPractice(settings.mode)}
+    />
 
-    <PerformanceDashboard summary={performance} hasHistory={attempts.length>0} compact/>
+    <AlexBox sx={{mt:{xs:2.25,md:2.75}}}>
+      <PerformanceDashboard summary={performance} hasHistory={attempts.length>0} compact/>
+    </AlexBox>
 
     <AlexBox
       sx={{
