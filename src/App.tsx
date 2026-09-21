@@ -26,8 +26,8 @@ import {buildPracticePlanRecommendation} from './lib/practicePlan'
 import {loadSharedQuestionBank,mergeQuestionBanks} from './lib/sharedQuestionBank'
 import {importPracticeMaterials} from './lib/pdfStructuredImport'
 import {choosePracticeQuestions,countFailedPracticeQuestions,countMissedPracticeQuestions,formatDuration,summarizePerformance,summarizeSession} from './lib/practiceGamification'
-import {addAttempt,clearHistory,getAttempts,getSessions,getSettings,prepareHistoryForUser,replaceHistory,saveSession,saveSettings} from './lib/storage'
-import {clearCloudHistory,getCurrentAuthUser,loadCloudHistory,subscribeToAuth,syncSession,type AuthUser} from './lib/supabase'
+import {addAttempt,clearHistory,getAttempts,getSessions,getSettings,prepareHistoryForUser,prepareSettingsForUser,replaceHistory,saveSession,saveSettings} from './lib/storage'
+import {clearCloudHistory,getCurrentAuthUser,loadCloudHistory,loadUserSettings,saveUserSettings,subscribeToAuth,syncSession,type AuthUser} from './lib/supabase'
 import type {Attempt,PracticeQuestion,SessionSummary,Settings,SubjectMode} from './types'
 
 const uid=()=>crypto.randomUUID()
@@ -54,6 +54,8 @@ export default function App(){
   const[contentCount,setContentCount]=useState(0)
   const[importProgress,setImportProgress]=useState('')
   const[authUser,setAuthUser]=useState<AuthUser|null>(null)
+  const[authReady,setAuthReady]=useState(false)
+  const[settingsCloudReady,setSettingsCloudReady]=useState(false)
   const[questionBank,setQuestionBank]=useState<PracticeQuestion[]>(()=>QUESTION_BANK)
 
   useEffect(()=>{
@@ -66,8 +68,15 @@ export default function App(){
   },[])
   useEffect(()=>{
     let cancelled=false
-    void getCurrentAuthUser().then(user=>{if(!cancelled)setAuthUser(user)}).catch(error=>console.warn('Supabase auth check failed',error))
-    const unsubscribe=subscribeToAuth(user=>{if(!cancelled)setAuthUser(user)})
+    void getCurrentAuthUser()
+      .then(user=>{if(!cancelled)setAuthUser(user)})
+      .catch(error=>console.warn('Supabase auth check failed',error))
+      .finally(()=>{if(!cancelled)setAuthReady(true)})
+    const unsubscribe=subscribeToAuth(user=>{
+      if(cancelled)return
+      setAuthUser(user)
+      setAuthReady(true)
+    })
     return()=>{cancelled=true;unsubscribe()}
   },[])
   useEffect(()=>{
@@ -102,7 +111,42 @@ export default function App(){
     })()
     return()=>{cancelled=true}
   },[authUser?.id])
-  useEffect(()=>saveSettings(settings),[settings])
+  useEffect(()=>{
+    if(!authReady)return
+    if(!authUser){
+      setSettingsCloudReady(true)
+      return
+    }
+    let cancelled=false
+    setSettingsCloudReady(false)
+    void (async()=>{
+      try{
+        const localSettings=prepareSettingsForUser(authUser.id)
+        const cloudSettings=await loadUserSettings()
+        if(cancelled)return
+        if(cloudSettings){
+          const nextSettings={...localSettings,...cloudSettings}
+          saveSettings(nextSettings)
+          setSettings(nextSettings)
+        }else{
+          saveSettings(localSettings)
+          setSettings(localSettings)
+          await saveUserSettings(localSettings)
+        }
+      }catch(error){
+        console.warn('Supabase settings sync failed',error)
+      }finally{
+        if(!cancelled)setSettingsCloudReady(true)
+      }
+    })()
+    return()=>{cancelled=true}
+  },[authReady,authUser?.id])
+  useEffect(()=>{
+    saveSettings(settings)
+    if(authUser&&settingsCloudReady){
+      void saveUserSettings(settings).catch(error=>console.warn('Supabase settings backup failed',error))
+    }
+  },[settings,authUser?.id,settingsCloudReady])
 
   const current=qs[i]
   const currentRec=current?currentAttempts.find(attempt=>attempt.questionId===current.id):undefined
