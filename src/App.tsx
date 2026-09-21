@@ -399,7 +399,7 @@ export default function App(){
     <AlexBox
       sx={{
         display:'grid',
-        gridTemplateColumns:{xs:'1fr',lg:'minmax(0,1.15fr) minmax(300px,.85fr)'},
+        gridTemplateColumns:{xs:'1fr',lg:'minmax(0,1fr) 340px'},
         gap:{xs:2,md:2.25},
         mt:{xs:2.25,md:2.75},
         alignItems:'start',
