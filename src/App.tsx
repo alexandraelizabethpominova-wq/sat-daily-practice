@@ -396,22 +396,21 @@ export default function App(){
       onStartPractice={()=>beginPractice(settings.mode)}
     />
 
-    <AlexBox sx={{mt:{xs:2.25,md:2.75}}}>
-      <PerformanceDashboard summary={performance} hasHistory={attempts.length>0} compact/>
-    </AlexBox>
-
     <AlexBox
       sx={{
         display:'grid',
-        gap:{xs:1.25,md:1.5},
-        mt:{xs:2.5,md:3},
-        pb:{xs:1,md:2},
+        gridTemplateColumns:{xs:'1fr',lg:'minmax(0,1.15fr) minmax(300px,.85fr)'},
+        gap:{xs:2,md:2.25},
+        mt:{xs:2.25,md:2.75},
+        alignItems:'start',
       }}
     >
+      <PerformanceDashboard summary={performance} hasHistory={attempts.length>0} compact/>
       <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
-      <AlexBox sx={{display:'flex',justifyContent:'flex-end'}}>
-        <AlexButton tone="quiet" onClick={()=>setView('settings')}>Edit plan settings</AlexButton>
-      </AlexBox>
+    </AlexBox>
+
+    <AlexBox sx={{display:'flex',justifyContent:'flex-end',mt:1.25,pb:{xs:1,md:2}}}>
+      <AlexButton tone="quiet" onClick={()=>setView('settings')}>Edit plan settings</AlexButton>
     </AlexBox>
   </main>,'#F7F6F2')
 
