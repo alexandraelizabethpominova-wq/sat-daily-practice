@@ -17,9 +17,45 @@ const TONES:Record<MetricTone,{bg:string;border:string;icon:string}>={
 
 export default function MetricCard({icon,label,value,tone='default',compact=false}:Props){
   const palette=TONES[tone]
-  return <AlexSurface sx={{p:compact?1.45:2.2,border:`1px solid ${palette.border}`,borderRadius:3,boxShadow:'0 8px 24px rgba(9,35,79,.035)',bgcolor:palette.bg}}>
-    <AlexBox sx={{display:'grid',placeItems:'center',width:compact?28:32,height:compact?28:32,borderRadius:'50%',bgcolor:'rgba(255,255,255,.72)',color:palette.icon,'& svg':{width:compact?17:20,height:compact?17:20}}}>{icon}</AlexBox>
-    <AlexText sx={{mt:compact ? .7 : 1,color:'#667085',fontSize:compact?12.5:14}}>{label}</AlexText>
-    <AlexText component="b" sx={{display:'block',mt:compact ? .2 : .5,fontSize:compact?21:26,fontWeight:850,color:'#08275B'}}>{value}</AlexText>
+  return <AlexSurface sx={{
+    p:compact?2:2.2,
+    minHeight:compact?142:undefined,
+    border:`1px solid ${palette.border}`,
+    borderRadius:3,
+    boxShadow:'0 8px 24px rgba(9,35,79,.035)',
+    bgcolor:palette.bg,
+    display:'flex',
+    flexDirection:'column',
+    alignItems:'flex-start',
+  }}>
+    <AlexBox sx={{
+      display:'grid',
+      placeItems:'center',
+      width:compact?27:32,
+      height:compact?27:32,
+      borderRadius:'50%',
+      bgcolor:'rgba(255,255,255,.76)',
+      color:palette.icon,
+      '& svg':{width:compact?16:20,height:compact?16:20},
+    }}>{icon}</AlexBox>
+    <AlexText sx={{
+      mt:compact?1.5:1,
+      color:compact?'#5B6575':'#667085',
+      fontSize:compact?10.5:14,
+      lineHeight:1.2,
+      fontWeight:compact?800:400,
+      textTransform:compact?'uppercase':'none',
+      letterSpacing:compact?'.075em':0,
+    }}>{label}</AlexText>
+    <AlexText component="b" sx={{
+      display:'block',
+      mt:compact ? .55 : .5,
+      fontFamily:compact?'Georgia, "Times New Roman", serif':'inherit',
+      fontSize:compact?34:26,
+      lineHeight:1,
+      letterSpacing:compact?'-.025em':0,
+      fontWeight:compact?700:850,
+      color:'#08275B',
+    }}>{value}</AlexText>
   </AlexSurface>
 }
