@@ -21,7 +21,7 @@ type Props={
   contentBackground?:string
 }
 
-export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onStudyPlan,onPracticeTests,onPracticeSetup,onQuestionBank,onParsingIssues,onPerformance,onResources,onSettings,children,contentBackground='#FFFFFF'}:Props){
+export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onStudyPlan,onPracticeTests,onPracticeSetup,onQuestionBank,onParsingIssues,onPerformance,onResources,onSettings,children,contentBackground='#F8F7FF'}:Props){
   const[user,setUser]=useState<AuthUser|null>(null)
   const[profile,setProfile]=useState<UserProfile|null>(null)
 
@@ -61,7 +61,7 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onS
       gridTemplateColumns:`${sidebarWidth}px minmax(0,1fr)`,
       overflowX:'hidden',
       bgcolor:contentBackground,
-      color:'#08275B',
+      color:'#251B4B',
     }}
   >
     <SideNavigation
