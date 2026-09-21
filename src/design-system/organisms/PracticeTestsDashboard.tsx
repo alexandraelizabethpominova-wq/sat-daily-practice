@@ -22,15 +22,15 @@ type Props={
 export default function PracticeTestsDashboard({tests,sessionSummary,onStartTest,onOpenSetup}:Props){
   return <AlexBox component="section" sx={{width:'100%',px:{xs:2.5,sm:4,lg:5.5},py:{xs:3,lg:4.2}}}>
     <AlexBox sx={{maxWidth:960,mx:'auto'}}>
-      <AlexText component="h1" sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:30,lg:36},fontWeight:500,lineHeight:1.12,m:0,color:'#08275B'}}>Practice tests</AlexText>
-      <AlexText sx={{fontSize:15,color:'#667085',mt:1}}>Pick a question source and start with your current session setup.</AlexText>
+      <AlexText component="h1" sx={{fontFamily:'ui-rounded, "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif',fontSize:{xs:32,lg:40},fontWeight:900,lineHeight:1.12,m:0,color:'#251B4B'}}>Ready to get Alexified?</AlexText>
+      <AlexText sx={{fontSize:15,color:'#6D6785',mt:1}}>Pick a test, lock in, and make your next move.</AlexText>
 
-      <AlexSurface sx={{mt:3,p:2,border:'1px solid #E4E7EC',borderRadius:2.5,bgcolor:'#F8FAFC',display:'flex',alignItems:{xs:'flex-start',sm:'center'},justifyContent:'space-between',gap:2,flexDirection:{xs:'column',sm:'row'}}}>
+      <AlexSurface sx={{mt:3,p:2,border:'2px solid #E6E1F2',borderRadius:3.5,bgcolor:'#FFF7D9',boxShadow:'0 4px 0 #E4D49B',display:'flex',alignItems:{xs:'flex-start',sm:'center'},justifyContent:'space-between',gap:2,flexDirection:{xs:'column',sm:'row'}}}>
         <AlexBox>
-          <AlexText sx={{fontSize:12,fontWeight:800,textTransform:'uppercase',letterSpacing:'.06em',color:'#667085'}}>Current setup</AlexText>
+          <AlexText sx={{fontSize:12,fontWeight:800,textTransform:'uppercase',letterSpacing:'.06em',color:'#667085'}}>Your next move</AlexText>
           <AlexText sx={{mt:.35,fontSize:14.5,fontWeight:700,color:'#08275B'}}>{sessionSummary}</AlexText>
         </AlexBox>
-        <AlexButton tone="secondary" onClick={onOpenSetup}>Edit setup</AlexButton>
+        <AlexButton tone="secondary" onClick={onOpenSetup}>Tune setup</AlexButton>
       </AlexSurface>
 
       <AlexBox sx={{display:'grid',gridTemplateColumns:{xs:'1fr',md:'repeat(2,minmax(0,1fr))'},gap:1.5,mt:2}}>
