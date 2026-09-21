@@ -1,5 +1,5 @@
 import {useMemo,useState} from 'react'
-import {CalendarDays,ChevronLeft,ChevronRight} from 'lucide-react'
+import {CalendarDays,ChevronLeft,ChevronRight,Star} from 'lucide-react'
 import AlexBox from '../atoms/AlexBox'
 import AlexIconButton from '../atoms/AlexIconButton'
 import AlexSurface from '../atoms/AlexSurface'
@@ -92,10 +92,12 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
       {days.map(day=>{
         const style=STATUS_STYLE[day.status]
         const isToday=day.date===todayKey
+        const isExamDate=Boolean(settings.targetExamDate&&day.date===settings.targetExamDate)
+        const title=[style.label,isExamDate?'Exam date':'',day.practiced?`${day.questionCount} questions practiced`:''].filter(Boolean).join(' · ')
         return <AlexBox
           key={day.date}
-          title={`${style.label}${day.practiced?` · ${day.questionCount} questions practiced`:''}`}
-          aria-label={`${day.date}: ${style.label}${day.practiced?`, ${day.questionCount} questions practiced`:''}`}
+          title={title}
+          aria-label={`${day.date}: ${title}`}
           sx={{
             width:'100%',
             aspectRatio:'1 / 1',
@@ -113,6 +115,14 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
           }}
         >
           <AlexText sx={{fontSize:{xs:9.5,sm:10.5},fontWeight:isToday?900:700,lineHeight:1}}>{day.day}</AlexText>
+          {isExamDate&&<Star
+            aria-hidden="true"
+            size={8}
+            strokeWidth={1.8}
+            fill="#F5C451"
+            color="#9B6A00"
+            style={{position:'absolute',right:-1,top:-2}}
+          />}
           {day.practiced&&<AlexBox
             aria-hidden="true"
             sx={{position:'absolute',bottom:2.5,width:3.5,height:3.5,borderRadius:'50%',bgcolor:style.color}}
