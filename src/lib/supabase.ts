@@ -66,6 +66,23 @@ async function currentUserId(){
   return user?.id??null
 }
 
+export type AppFeedbackVibe='love-it'|'pretty-good'|'needs-work'
+
+export async function submitAppFeedback({vibe,message,context}:{vibe:AppFeedbackVibe|null;message:string;context?:string}){
+  if(!supabase)return false
+  const userId=await currentUserId()
+  const trimmed=message.trim()
+  if(!trimmed)return false
+  const {error}=await supabase.from('sat_feedback').insert({
+    user_id:userId,
+    vibe,
+    message:trimmed.slice(0,2000),
+    context:context?.slice(0,100)??null,
+  })
+  if(error)throw error
+  return true
+}
+
 export async function loadUserSettings():Promise<Partial<Settings>|null>{
   if(!supabase)return null
   const userId=await currentUserId()
