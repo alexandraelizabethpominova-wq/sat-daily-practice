@@ -19,7 +19,7 @@ export default function MetricCard({icon,label,value,tone='default',compact=fals
   const palette=TONES[tone]
   return <AlexSurface sx={{
     p:compact?2:2.2,
-    minHeight:compact?142:undefined,
+    minHeight:compact?158:undefined,
     border:`1px solid ${palette.border}`,
     borderRadius:3,
     boxShadow:'0 8px 24px rgba(9,35,79,.035)',
@@ -39,7 +39,7 @@ export default function MetricCard({icon,label,value,tone='default',compact=fals
       '& svg':{width:compact?16:20,height:compact?16:20},
     }}>{icon}</AlexBox>
     <AlexText sx={{
-      mt:compact?1.5:1,
+      mt:compact?1.65:1,
       color:compact?'#5B6575':'#667085',
       fontSize:compact?10.5:14,
       lineHeight:1.2,
@@ -51,7 +51,7 @@ export default function MetricCard({icon,label,value,tone='default',compact=fals
       display:'block',
       mt:compact ? .55 : .5,
       fontFamily:compact?'Georgia, "Times New Roman", serif':'inherit',
-      fontSize:compact?34:26,
+      fontSize:compact?36:26,
       lineHeight:1,
       letterSpacing:compact?'-.025em':0,
       fontWeight:compact?700:850,
