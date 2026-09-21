@@ -65,10 +65,10 @@ export default function PracticeSetupPanel({settings,practiceTests,missedQuestio
     />
 
     <PracticeSettingField
-      label="Retry missed questions"
+      label="Missed questions"
       helperText={missedQuestionCount
-        ?`${missedQuestionCount} missed question${missedQuestionCount===1?'':'s'} match the current filters. A missed question is one whose most recent answer was incorrect.`
-        :'No missed questions match the current filters.'}
+        ?`${missedQuestionCount} missed question${missedQuestionCount===1?'':'s'} match the current filters. Missed questions are new questions you have not practiced yet.`
+        :'No new questions match the current filters.'}
       control={<AlexSwitch
         label="Missed questions only"
         checked={missedOnly}
