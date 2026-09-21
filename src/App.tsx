@@ -14,6 +14,7 @@ import PracticeAnswerPanel from './design-system/organisms/PracticeAnswerPanel'
 import PracticeSessionHeader from './design-system/organisms/PracticeSessionHeader'
 import PracticeSetupPanel from './design-system/organisms/PracticeSetupPanel'
 import PracticeTestsDashboard from './design-system/organisms/PracticeTestsDashboard'
+import StudyPlanCalendar from './design-system/organisms/StudyPlanCalendar'
 import StudyPlanGoalsPanel from './design-system/organisms/StudyPlanGoalsPanel'
 import StudyPlanHero from './design-system/organisms/StudyPlanHero'
 import StudyPlanRecommendation from './design-system/organisms/StudyPlanRecommendation'
@@ -409,6 +410,7 @@ export default function App(){
         pb:{xs:1,md:2},
       }}
     >
+      <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
       <StudyPlanGoalsPanel settings={settings} onChange={setSettings}/>
       <StudyPlanRecommendation recommendation={practiceRecommendation}/>
     </AlexBox>
