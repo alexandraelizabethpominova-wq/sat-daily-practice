@@ -1,4 +1,5 @@
 import type {ReactNode} from 'react'
+import {ChevronDown} from 'lucide-react'
 import {Accordion,AccordionDetails,AccordionSummary,type AccordionProps} from '@mui/material'
 
 type Props=Omit<AccordionProps,'children'>&{
@@ -27,8 +28,13 @@ export default function AlexAccordion({summary,children,sx,...props}:Props){
     {...props}
   >
     <AccordionSummary
-      expandIcon={<span aria-hidden="true" style={{fontSize:18,lineHeight:1}}>⌄</span>}
-      sx={{minHeight:48,px:2,'& .MuiAccordionSummary-content':{my:1}}}
+      expandIcon={<ChevronDown aria-hidden="true" size={18} strokeWidth={1.8}/>} 
+      sx={{
+        minHeight:48,
+        px:2,
+        '& .MuiAccordionSummary-content':{my:1},
+        '& .MuiAccordionSummary-expandIconWrapper':{color:'#667085'},
+      }}
     >
       {summary}
     </AccordionSummary>
