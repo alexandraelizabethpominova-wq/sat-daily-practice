@@ -29,6 +29,20 @@ export default function PerformanceDashboard({summary,hasHistory,onClearHistory,
   const scoreTrend=[{id:'Practice score estimate',data:summary.scoreTrend.map((point,index)=>({x:`S${index+1}`,y:point.score}))}]
   const latestDelta=summary.scoreTrend.length?summary.scoreTrend[summary.scoreTrend.length-1].delta:0
 
+  if(compact)return <AlexBox sx={{display:'grid',gap:1.25,minWidth:0}}>
+    <AlexBox sx={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:1.15}}>
+      <MetricCard compact tone="blue" icon={<Target/>} label="Accuracy" value={hasHistory?`${summary.accuracy}%`:'—'}/>
+      <MetricCard compact tone="cream" icon={<Clock3/>} label="Avg. time" value={hasHistory?formatMs(summary.averageMs):'—'}/>
+      <MetricCard compact tone="green" icon={<BarChart3/>} label="Questions seen" value={`${summary.questionsSeen}/${summary.totalQuestions}`}/>
+      <MetricCard compact tone="peach" icon={<TrendingUp/>} label="Score estimate" value={summary.latestScoreEstimate?String(summary.latestScoreEstimate):'—'}/>
+    </AlexBox>
+    {hasHistory&&summary.recommendation&&<AlexSurface sx={{p:1.7,border:'1px solid #D8D2FF',borderRadius:3,bgcolor:'#F7F5FF'}}>
+      <AlexText sx={{fontSize:10.5,fontWeight:850,textTransform:'uppercase',letterSpacing:'.09em',color:'#6558F5'}}>Recommended focus</AlexText>
+      <AlexText component="h2" sx={{fontSize:18,fontWeight:800,color:'#08275B',mt:.35}}>{summary.recommendation.label}</AlexText>
+      <AlexText sx={{color:'#475467',fontSize:12.5,lineHeight:1.45,mt:.45}}>{summary.recommendation.reason}</AlexText>
+    </AlexSurface>}
+  </AlexBox>
+
   return <AlexBox>
     {!compact&&<AlexBox sx={{display:'flex',justifyContent:'space-between',alignItems:{xs:'flex-start',md:'flex-end'},gap:2,flexDirection:{xs:'column',md:'row'}}}>
       <AlexBox>
