@@ -95,9 +95,21 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
         const isToday=day.date===todayKey
         const isExamDate=Boolean(settings.targetExamDate&&day.date===settings.targetExamDate)
         const title=[style.label,isExamDate?'Exam date':'',day.practiced?`${day.questionCount} questions practiced`:''].filter(Boolean).join(' · ')
-        return <AlexTooltip key={day.date} title={title} arrow placement="top">
+        return <AlexTooltip
+          key={day.date}
+          title={title}
+          arrow
+          placement="top"
+          enterDelay={100}
+          enterNextDelay={50}
+          leaveDelay={80}
+          describeChild
+          slotProps={{popper:{sx:{zIndex:1600}}}}
+        >
           <AlexBox
             component="span"
+            tabIndex={0}
+            title={title}
             aria-label={`${day.date}: ${title}`}
             sx={{
               width:'100%',
@@ -113,7 +125,9 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
               placeItems:'center',
               position:'relative',
               boxShadow:!isExamDate&&isToday?'0 0 0 1px #6558F5 inset':'none',
-              cursor:'default',
+              cursor:'help',
+              outline:'none',
+              '&:focus-visible':{boxShadow:'0 0 0 2px #6558F5'},
             }}
           >
             {isExamDate&&<Star
