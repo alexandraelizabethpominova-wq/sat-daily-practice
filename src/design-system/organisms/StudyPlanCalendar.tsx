@@ -104,30 +104,45 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
               aspectRatio:'1 / 1',
               maxWidth:30,
               justifySelf:'center',
-              borderRadius:'50%',
-              border:'1px solid',
+              borderRadius:isExamDate?0:'50%',
+              border:isExamDate?'none':'1px solid',
               borderColor:isToday?'#6558F5':style.border,
-              bgcolor:style.bg,
+              bgcolor:isExamDate?'transparent':style.bg,
               color:day.status==='neutral'?'#7A8495':'#08275B',
               display:'grid',
               placeItems:'center',
               position:'relative',
-              boxShadow:isToday?'0 0 0 1px #6558F5 inset':'none',
+              boxShadow:!isExamDate&&isToday?'0 0 0 1px #6558F5 inset':'none',
               cursor:'default',
             }}
           >
-            <AlexText sx={{fontSize:{xs:9.5,sm:10.5},fontWeight:isToday?900:700,lineHeight:1}}>{day.day}</AlexText>
             {isExamDate&&<Star
               aria-hidden="true"
-              size={8}
-              strokeWidth={1.8}
+              size={30}
+              strokeWidth={1.7}
               fill="#F5C451"
-              color="#9B6A00"
-              style={{position:'absolute',right:-1,top:-2}}
+              color={isToday?'#6558F5':'#9B6A00'}
+              style={{position:'absolute',inset:0}}
             />}
+            <AlexText sx={{
+              position:'relative',
+              zIndex:1,
+              fontSize:{xs:9.5,sm:10.5},
+              fontWeight:isExamDate||isToday?900:700,
+              lineHeight:1,
+              color:isExamDate?'#08275B':'inherit',
+            }}>{day.day}</AlexText>
             {day.practiced&&<AlexBox
               aria-hidden="true"
-              sx={{position:'absolute',bottom:2.5,width:3.5,height:3.5,borderRadius:'50%',bgcolor:style.color}}
+              sx={{
+                position:'absolute',
+                zIndex:1,
+                bottom:isExamDate?5:2.5,
+                width:3.5,
+                height:3.5,
+                borderRadius:'50%',
+                bgcolor:isExamDate?'#08275B':style.color,
+              }}
             />}
           </AlexBox>
         </AlexTooltip>
