@@ -18,11 +18,11 @@ type Props={
 
 export default function PracticeSessionHeader({moduleLabel,subjectLabel,current,total,canGoPrevious,canGoNext,isLast,onPrevious,onNext}:Props){
   return <AlexBox component="header" className="practice-topbar">
-    <AlexBox className="practice-title"><AlexText component="span">SAT PRACTICE</AlexText><AlexText component="b">{moduleLabel}</AlexText></AlexBox>
+    <AlexBox className="practice-title"><AlexText component="span">ALEX MODE ACTIVATED</AlexText><AlexText component="b">{moduleLabel}</AlexText></AlexBox>
     <AlexBox className="progress-block"><PracticeProgress label={subjectLabel} current={current} total={total}/></AlexBox>
     <AlexBox className="question-nav">
       <AlexButton tone="secondary" startIcon={<ChevronLeft size={18}/>} onClick={onPrevious} disabled={!canGoPrevious}>Previous</AlexButton>
-      <AlexButton endIcon={<ChevronRight size={18}/>} onClick={onNext} disabled={!canGoNext}>{isLast?'Finish':'Next'}</AlexButton>
+      <AlexButton endIcon={<ChevronRight size={18}/>} onClick={onNext} disabled={!canGoNext}>{isLast?'Complete mode':'Next'}</AlexButton>
     </AlexBox>
   </AlexBox>
 }
