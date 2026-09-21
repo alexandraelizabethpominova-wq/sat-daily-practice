@@ -1,5 +1,5 @@
 import {beforeEach,describe,expect,it} from 'vitest'
-import {DEFAULT_SETTINGS,addAttempt,clearHistory,getAttempts,getSessions,getSettings,prepareHistoryForUser,saveSession,saveSettings} from './storage'
+import {DEFAULT_SETTINGS,addAttempt,clearHistory,getAttempts,getSessions,getSettings,prepareHistoryForUser,prepareSettingsForUser,saveSession,saveSettings} from './storage'
 import type {Attempt,SessionSummary,Settings} from '../types'
 
 const attempt:Attempt={id:'a1',sessionId:'s1',questionId:'math1-1',subject:'math',module:'math1',questionNumber:1,selectedAnswer:'B',correctAnswer:'B',correct:true,elapsedMs:12000,createdAt:'2026-09-17T12:00:00.000Z'}
@@ -41,6 +41,21 @@ describe('practice storage',()=>{
     prepareHistoryForUser('user-a')
     expect(getAttempts()).toEqual([attempt])
     expect(getSessions()).toEqual([session])
+  })
+
+  it('keeps settings for the same signed-in account',()=>{
+    prepareSettingsForUser('user-a')
+    saveSettings({...settings,targetScore:1500,targetExamDate:'2027-03-05'})
+    prepareSettingsForUser('user-a')
+    expect(getSettings()).toMatchObject({targetScore:1500,targetExamDate:'2027-03-05'})
+  })
+
+  it('does not leak local goal settings into a different account',()=>{
+    prepareSettingsForUser('user-a')
+    saveSettings({...settings,targetScore:1500,targetExamDate:'2027-03-05'})
+    const next=prepareSettingsForUser('user-b')
+    expect(next.targetScore).toBeUndefined()
+    expect(next.targetExamDate).toBe(DEFAULT_SETTINGS.targetExamDate)
   })
 
   it('clears local history before a different account loads its cloud data',()=>{
