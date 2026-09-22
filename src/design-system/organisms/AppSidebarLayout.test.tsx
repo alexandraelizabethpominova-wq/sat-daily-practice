@@ -3,7 +3,7 @@ import {describe,expect,it,vi} from 'vitest'
 import AppSidebarLayout from './AppSidebarLayout'
 
 describe('AppSidebarLayout',()=>{
-  it('keeps Practice Setup and Question Bank as separate destinations',()=>{
+  it('keeps Loadout and Level Select as separate destinations',()=>{
     const onPracticeSetup=vi.fn()
     const onQuestionBank=vi.fn()
 
@@ -25,8 +25,8 @@ describe('AppSidebarLayout',()=>{
       </AppSidebarLayout>,
     )
 
-    const practiceSetup=screen.getByRole('button',{name:'Practice Setup'})
-    const questionBank=screen.getByRole('button',{name:'Question Bank'})
+    const practiceSetup=screen.getByRole('button',{name:'Loadout'})
+    const questionBank=screen.getByRole('button',{name:'Level Select'})
 
     expect(practiceSetup).toBeInTheDocument()
     expect(questionBank).toBeInTheDocument()
