@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useEffect,useState} from 'react'
 import {Flag} from 'lucide-react'
 import AlexBox from '../atoms/AlexBox'
 import AlexButton from '../atoms/AlexButton'
@@ -18,18 +18,25 @@ export default function ParsingIssueReporter({question,context,compact=false}:Pr
   const[saving,setSaving]=useState(false)
   const[status,setStatus]=useState('')
 
+  useEffect(()=>{
+    setOpen(false)
+    setMessage('')
+    setSaving(false)
+    setStatus('')
+  },[question.id])
+
   async function submit(){
     setSaving(true);setStatus('')
     try{
       const result=await createParsingIssueReport(question,context,message)
-      setMessage('');setOpen(false);setStatus(result.syncedToAdmin?'Reported. It is now in the shared Parsing Issues queue.':'Saved on this device. Sign in to send reports to the shared Parsing Issues queue.')
+      setMessage('');setOpen(false);setStatus(result.syncedToAdmin?'Parsing issue reported.':'Saved locally — sign in to sync.')
     }catch(error){
       console.error('Parsing issue report failed',error)
       setStatus('The report could not be sent to the shared queue. Please try again.')
     }finally{setSaving(false)}
   }
 
-  return <AlexBox sx={compact?{position:'relative',display:'inline-grid',flex:'0 0 auto'}:{display:'grid',gap:1}}>
+  return <AlexBox sx={compact?{position:'relative',display:'inline-flex',alignItems:'center',gap:.75,flex:'0 0 auto'}:{display:'grid',gap:1}}>
     {!open&&<AlexTooltip title="Report parsing issue" placement="top"><AlexButtonBase aria-label="Report parsing issue" onClick={()=>{setOpen(true);setStatus('')}} sx={{justifySelf:'start',width:32,height:32,borderRadius:'50%',border:'1px solid #E6E2DB',bgcolor:'#fff',color:'#667085','&:hover':{bgcolor:'#F7F5FF',borderColor:'#D7CFFF',color:'#4B3FCE'}}}><Flag size={16}/></AlexButtonBase></AlexTooltip>}
     {open&&<AlexSurface sx={{p:1.5,border:'1px solid #E6E2DB',borderRadius:2,bgcolor:'#FBFAF8',...(compact?{position:'absolute',top:38,left:0,width:'min(360px, calc(100vw - 48px))',zIndex:60,boxShadow:'0 12px 30px rgba(9,35,79,.16)'}:{})}}>
       <AlexText sx={{fontSize:13.5,fontWeight:800,color:'#08275B'}}>Flag a parsing or formatting problem</AlexText>
@@ -40,6 +47,6 @@ export default function ParsingIssueReporter({question,context,compact=false}:Pr
         <AlexButton size="small" tone="secondary" disabled={saving} onClick={()=>{setOpen(false);setMessage('')}}>Cancel</AlexButton>
       </AlexBox>
     </AlexSurface>}
-    {status&&<AlexText role="status" sx={{fontSize:12.5,color:status.startsWith('Reported')||status.startsWith('Saved')?'#067647':'#B42318',...(compact?{position:'absolute',top:38,left:0,width:280,p:1,bgcolor:'#fff',border:'1px solid #E6E2DB',borderRadius:1.5,zIndex:60,boxShadow:'0 8px 22px rgba(9,35,79,.12)'}:{})}}>{status}</AlexText>}
+    {status&&<AlexText role="status" sx={{fontSize:12.5,fontWeight:700,whiteSpace:'nowrap',color:status.startsWith('Parsing issue')||status.startsWith('Saved')?'#067647':'#B42318'}}>{status}</AlexText>}
   </AlexBox>
 }
