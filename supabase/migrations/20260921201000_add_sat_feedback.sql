@@ -8,6 +8,9 @@ create table if not exists public.sat_feedback (
   created_at timestamptz not null default now()
 );
 
+alter table public.sat_feedback
+  add column if not exists is_public boolean not null default false;
+
 alter table public.sat_feedback enable row level security;
 
 drop policy if exists "Anyone can submit SAT feedback" on public.sat_feedback;
