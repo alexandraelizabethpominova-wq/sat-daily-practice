@@ -52,7 +52,7 @@ function NavItem({item,collapsed}:{item:Item;collapsed:boolean}){
 export default function SideNavigation({brand='SAT',primary,secondary=[],footerLabel='Sign in',footerDetail='',signedIn=false,collapsed=false,onToggleCollapsed,onFooterClick}:Props){
   const width=collapsed?76:244
   const tooltipLabel=signedIn?footerLabel:'Sign in'
-  return <AlexBox component="aside" sx={{width,minWidth:width,minHeight:'100vh',bgcolor:'#08275B',color:'#fff',display:'flex',flexDirection:'column',px:collapsed?1:1.5,py:2.2,position:'sticky',top:0,height:'100vh',transition:'width .18s ease, min-width .18s ease',zIndex:30}}>
+  return <AlexBox component="aside" sx={{width,minWidth:width,height:'100dvh',maxHeight:'100dvh',boxSizing:'border-box',bgcolor:'#08275B',color:'#fff',display:'flex',flexDirection:'column',px:collapsed?1:1.5,py:2.2,position:'fixed',top:0,left:0,overflowY:'auto',overflowX:'hidden',transition:'width .18s ease, min-width .18s ease',zIndex:30}}>
     <AlexBox sx={{display:'flex',alignItems:'center',gap:.5,mb:1.2}}>
       <AlexButtonBase onClick={primary[0]?.onClick} aria-label={brand} sx={{justifyContent:collapsed?'center':'flex-start',gap:1.1,color:'#fff',fontWeight:850,px:collapsed?.8:1.2,py:1.1,borderRadius:1.5,flex:1,minWidth:0}}>
         <Sparkles size={18} color="#C9FF98"/>
