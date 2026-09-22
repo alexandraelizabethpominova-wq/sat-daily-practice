@@ -19,6 +19,7 @@ describe('AppSidebarLayout',()=>{
         onParsingIssues={()=>undefined}
         onPerformance={()=>undefined}
         onResources={()=>undefined}
+        onFanClub={()=>undefined}
         onSettings={()=>undefined}
       >
         <div>Practice setup content</div>
@@ -51,6 +52,7 @@ describe('AppSidebarLayout',()=>{
         onParsingIssues={()=>undefined}
         onPerformance={()=>undefined}
         onResources={()=>undefined}
+        onFanClub={()=>undefined}
         onSettings={()=>undefined}
       >
         <div>Responsive content</div>
@@ -69,4 +71,31 @@ describe('AppSidebarLayout',()=>{
     })
   })
 
+
+  it('opens Alexified Fan Club as its own destination',()=>{
+    const onFanClub=vi.fn()
+    render(
+      <AppSidebarLayout
+        active="fan-club"
+        collapsed={false}
+        onToggleCollapsed={()=>undefined}
+        onStudyPlan={()=>undefined}
+        onPracticeTests={()=>undefined}
+        onPracticeSetup={()=>undefined}
+        onQuestionBank={()=>undefined}
+        onParsingIssues={()=>undefined}
+        onPerformance={()=>undefined}
+        onResources={()=>undefined}
+        onFanClub={onFanClub}
+        onSettings={()=>undefined}
+      >
+        <div>Fan club wall</div>
+      </AppSidebarLayout>,
+    )
+
+    const fanClub=screen.getByRole('button',{name:'Alexified Fan Club'})
+    expect(fanClub).toBeInTheDocument()
+    fireEvent.click(fanClub)
+    expect(onFanClub).toHaveBeenCalledTimes(1)
+  })
 })
