@@ -16,7 +16,7 @@ describe('AlexFeedbackWidget',()=>{
     expect(screen.getByText('Enjoy being Alexified? Tell me more!')).toBeInTheDocument()
     expect(screen.getByRole('textbox',{name:'Drop a line'})).toBeInTheDocument()
     expect(screen.getByRole('button',{name:'Send to Alex'})).toBeDisabled()
-  
+  })
 
   it('opens from the Alexified Fan Club event',async()=>{
     render(<ThemeProvider theme={alexTheme}><AlexFeedbackWidget context="study"/></ThemeProvider>)
@@ -26,5 +26,4 @@ describe('AlexFeedbackWidget',()=>{
     expect(await screen.findByRole('heading',{name:'Hi — it’s Alex.'})).toBeInTheDocument()
     expect(screen.getByRole('textbox',{name:'Drop a line'})).toBeInTheDocument()
   })
-})
 })
