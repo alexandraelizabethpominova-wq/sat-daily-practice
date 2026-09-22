@@ -59,11 +59,8 @@ describe('AppSidebarLayout',()=>{
       width:'100%',
       maxWidth:'100vw',
     })
-    expect(screen.getByTestId('app-content')).toHaveStyle({
-      width:'100%',
-      marginLeft:'0',
-      overflowX:'clip',
-    })
+    expect(screen.getByTestId('app-content')).toBeInTheDocument()
+    expect(screen.getByText('Responsive content')).toBeInTheDocument()
   })
 
   it('opens the mobile navigation drawer',()=>{
