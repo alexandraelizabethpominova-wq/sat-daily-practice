@@ -51,6 +51,7 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onS
   const accountLabel=user?(profile?.displayName.trim()||user.email?.split('@')[0]||'Account'):'Sign in'
   const accountDetail=user?(profile?.grade?`Grade ${profile.grade}`:user.email??'Signed in'):''
   const sidebarWidth=collapsed?76:244
+  const openFanClub=()=>window.dispatchEvent(new CustomEvent('alexified-open-feedback'))
 
   return <AlexBox
     data-testid="app-layout"
@@ -80,7 +81,10 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onS
         {key:'parsing-issues',label:'Bug Hunt',active:active==='parsing-issues',onClick:onParsingIssues},
         {key:'performance',label:'Player Stats',active:active==='performance',onClick:onPerformance},
       ]}
-      secondary={[{key:'resources',label:'Guidebook',active:active==='resources',onClick:onResources}]}
+      secondary={[
+        {key:'resources',label:'Guidebook',active:active==='resources',onClick:onResources},
+        {key:'fan-club',label:'Alexified Fan Club',onClick:openFanClub},
+      ]}
     />
     <AlexBox
       data-testid="app-content"
