@@ -1,4 +1,4 @@
-import {BarChart3,BookOpen,Bug,ChevronLeft,ChevronRight,Gamepad2,Layers3,LogIn,Map,Settings,SlidersHorizontal,Sparkles,Trophy} from 'lucide-react'
+import {BarChart3,BookOpen,Bug,ChevronLeft,ChevronRight,Gamepad2,Heart,Layers3,LogIn,Map,Settings,SlidersHorizontal,Sparkles,Trophy} from 'lucide-react'
 import type {ReactNode} from 'react'
 import AlexBox from '../atoms/AlexBox'
 import AlexButtonBase from '../atoms/AlexButtonBase'
@@ -28,6 +28,7 @@ const defaultIcon=(key:string)=>{
   if(key==='parsing-issues')return <Bug size={19}/>
   if(key==='performance')return <BarChart3 size={19}/>
   if(key==='resources')return <BookOpen size={19}/>
+  if(key==='fan-club')return <Heart size={19}/>
   return <Gamepad2 size={19}/>
 }
 
