@@ -28,10 +28,10 @@ function AlexAvatar({size=44}:{size?:number}){
       height:size,
       flex:`0 0 ${size}px`,
       borderRadius:'50%',
-      display:'grid',
-      placeItems:'center',
       bgcolor:'#FFD166',
       color:'#251B4B',
+      display:'grid',
+      placeItems:'center',
       fontFamily:'ui-rounded, "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif',
       fontSize:size*.38,
       fontWeight:950,
@@ -42,11 +42,10 @@ function AlexAvatar({size=44}:{size?:number}){
     }}
   >
     A
-    <AlexBox
-      component="img"
+    <img
       src={ALEX_PHOTO}
       alt=""
-      sx={{
+      style={{
         position:'absolute',
         inset:0,
         width:'100%',
@@ -105,38 +104,25 @@ export default function AlexFeedbackWidget({context}:Props){
         right:{xs:12,sm:18,md:22},
         bottom:{xs:12,sm:18,md:22},
         zIndex:1150,
-        width:56,
-        height:56,
-        minWidth:56,
+        width:52,
+        height:52,
+        minWidth:52,
         p:0,
         borderRadius:'50%',
-        bgcolor:'transparent',
-        overflow:'visible',
-        transition:'transform .16s ease, filter .16s ease',
-        '&:hover':{
-          transform:'translateY(-2px) scale(1.03)',
-          filter:'brightness(1.03)',
-        },
-        '&:active':{transform:'translateY(0) scale(.98)'},
-      }}
-    >
-      <AlexAvatar size={52}/>
-      <AlexBox sx={{
-        position:'absolute',
-        right:-2,
-        bottom:-1,
-        width:22,
-        height:22,
-        borderRadius:'50%',
-        display:'grid',
-        placeItems:'center',
         bgcolor:'#6D5DFB',
         color:'#fff',
         border:'2px solid #fff',
-        boxShadow:'0 2px 6px rgba(37,27,75,.22)',
-      }}>
-        <MessageCircle size={12} strokeWidth={2.5}/>
-      </AlexBox>
+        boxShadow:'0 0 0 2px #4B3FCE, 0 5px 14px rgba(37,27,75,.24)',
+        transition:'transform .16s ease, box-shadow .16s ease, background-color .16s ease',
+        '&:hover':{
+          transform:'translateY(-2px)',
+          bgcolor:'#5F50E8',
+          boxShadow:'0 0 0 2px #4B3FCE, 0 8px 18px rgba(37,27,75,.28)',
+        },
+        '&:active':{transform:'translateY(0) scale(.97)'},
+      }}
+    >
+      <MessageCircle size={22} strokeWidth={2.4}/>
     </AlexButtonBase>
 
     <AlexDrawer
