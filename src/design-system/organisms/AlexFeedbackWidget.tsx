@@ -21,28 +21,39 @@ const ALEX_PHOTO='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA0JCgw
 
 function AlexAvatar({size=44}:{size?:number}){
   return <AlexBox
-    aria-hidden="true"
+    aria-label="Alex"
     sx={{
       position:'relative',
       width:size,
       height:size,
       flex:`0 0 ${size}px`,
       borderRadius:'50%',
+      display:'grid',
+      placeItems:'center',
+      bgcolor:'#FFD166',
+      color:'#251B4B',
+      fontFamily:'ui-rounded, "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif',
+      fontSize:size*.38,
+      fontWeight:950,
+      lineHeight:1,
+      border:'2px solid #fff',
+      boxShadow:'0 0 0 2px #251B4B, 0 4px 12px rgba(37,27,75,.20)',
+      overflow:'hidden',
     }}
   >
+    A
     <AlexBox
       component="img"
       src={ALEX_PHOTO}
-      alt="Alex"
+      alt=""
       sx={{
+        position:'absolute',
+        inset:0,
         width:'100%',
         height:'100%',
         display:'block',
         objectFit:'cover',
         objectPosition:'center 42%',
-        borderRadius:'50%',
-        border:'2px solid #fff',
-        boxShadow:'0 0 0 2px #251B4B, 0 4px 12px rgba(37,27,75,.20)',
       }}
     />
   </AlexBox>
