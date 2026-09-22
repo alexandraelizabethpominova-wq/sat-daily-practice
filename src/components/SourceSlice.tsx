@@ -39,7 +39,14 @@ async function explanationBounds(page:PDFPageProxy,scale:number,questionNumber:n
   const top=Math.max(0,current.y-28*scale);const bottom=Math.min(viewport.height,next?next.y-18*scale:viewport.height-12*scale)
   const blockItems=items.filter(item=>item.text&&item.y>=top&&item.y<=bottom)
   if(!blockItems.length)return{left:0,right:viewport.width,top,bottom,viewport}
-  const padding=18*scale;const left=Math.max(0,Math.min(...blockItems.map(item=>item.x))-padding);const right=Math.min(viewport.width,Math.max(...blockItems.map(item=>item.x+item.width))+padding)
+  // Running page headers above the question can span most of the PDF width and
+  // make the explanation crop look tiny. Prefer the question heading/body when
+  // calculating horizontal bounds, while keeping the original vertical crop.
+  const bodyItems=blockItems.filter(item=>item.y>=current.y-4*scale)
+  const horizontalItems=bodyItems.length?bodyItems:blockItems
+  const padding=18*scale
+  const left=Math.max(0,Math.min(...horizontalItems.map(item=>item.x))-padding)
+  const right=Math.min(viewport.width,Math.max(...horizontalItems.map(item=>item.x+item.width))+padding)
   return{left,right,top,bottom,viewport}
 }
 
@@ -68,7 +75,7 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt,zoom=1
   useEffect(()=>{
     let cancelled=false;let objectUrl='';let renderTask:{cancel:()=>void;promise:Promise<void>}|null=null
     const cropKey=sourceCrop?`${sourceCrop.x},${sourceCrop.y},${sourceCrop.width},${sourceCrop.height}`:'auto'
-    const imageKey=`v10:${practiceTestId}:${pdfKey}:${bytes.byteLength}:${page}:${questionNumber}:${cropKey}`
+    const imageKey=`v11:${practiceTestId}:${pdfKey}:${bytes.byteLength}:${page}:${questionNumber}:${cropKey}`
     async function showBlob(blob:Blob){objectUrl=URL.createObjectURL(blob);if(!cancelled)setSrc(objectUrl)}
     async function render(){
       try{
@@ -100,5 +107,14 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt,zoom=1
     void render()
     return()=>{cancelled=true;try{renderTask?.cancel()}catch{};if(objectUrl)URL.revokeObjectURL(objectUrl)}
   },[pdfKey,bytes,page,questionNumber,isQuestion,practiceTestId,module,sourceCrop])
-  return <div className={`source-slice ${isQuestion?'question-source':''}`} role="img" aria-label={alt}><div className="source-slice-content">{error?<div className="source-error">{error}</div>:src?<img src={src} alt={alt} style={zoom!==1?{transform:`scale(${zoom})`}:undefined}/>:<div className="source-loading">{isQuestion?'Preparing question…':'Preparing explanation…'}</div>}</div></div>
+  const zoomWidth=`${Math.round(zoom*10000)/100}%`
+  return <div className={`source-slice ${isQuestion?'question-source':''}`} role="img" aria-label={alt}>
+    <div className="source-slice-content">
+      {error?<div className="source-error">{error}</div>:src?
+        <div className="source-slice-zoom" style={{width:zoomWidth,margin:zoom<=1?'0 auto':'0'}}>
+          <img src={src} alt={alt}/>
+        </div>
+        :<div className="source-loading">{isQuestion?'Preparing question…':'Preparing explanation…'}</div>}
+    </div>
+  </div>
 }
