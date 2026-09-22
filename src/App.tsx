@@ -309,8 +309,8 @@ export default function App(){
               <b>{current.subject==='math'?'Math':'Reading & Writing'}</b>
             </div>
             <AlexBox sx={{display:'flex',alignItems:'center',gap:.65,flex:'0 0 auto'}}>
-              <AlexStatusChip>READY</AlexStatusChip>
               <ParsingIssueReporter question={current} context="practice" compact/>
+              <AlexStatusChip>READY</AlexStatusChip>
             </AlexBox>
           </div>
           <QuestionContent question={current} bytes={qpdf} alt={`${moduleLabel(current.module)} question ${current.number}`}/>
