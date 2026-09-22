@@ -74,7 +74,7 @@ export type PublicFeedbackPost={
   createdAt:string
 }
 
-export async function submitAppFeedback({vibe,message,context,isPublic=false}:{vibe:AppFeedbackVibe|null;message:string;context?:string;isPublic?:boolean}){
+export async function submitAppFeedback({vibe,message,context}:{vibe:AppFeedbackVibe|null;message:string;context?:string}){
   if(!supabase)return false
   const userId=await currentUserId()
   const trimmed=message.trim()
@@ -84,7 +84,7 @@ export async function submitAppFeedback({vibe,message,context,isPublic=false}:{v
     vibe,
     message:trimmed.slice(0,2000),
     context:context?.slice(0,100)??null,
-    is_public:isPublic,
+    is_public:true,
   })
   if(error)throw error
   return true
