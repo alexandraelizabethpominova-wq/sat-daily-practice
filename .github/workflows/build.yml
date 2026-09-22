@@ -28,6 +28,35 @@ jobs:
         with:
           node-version: 20
 
+      - name: Guard PR-only Supabase SQL
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if find supabase/migrations -maxdepth 1 -type f \( -name '*_pr_*' -o -name '*.pr.sql' \) | grep -q .; then
+            echo "::error::PR-only SQL must live in supabase/pr-migrations, never supabase/migrations."
+            exit 1
+          fi
+
+          mapfile -t PR_SQL < <(find supabase/pr-migrations -maxdepth 1 -type f -name '*.sql' 2>/dev/null | sort || true)
+
+          if [ "${#PR_SQL[@]}" -gt 0 ]; then
+            printf 'PR-only Supabase SQL found:\n%s\n' "${PR_SQL[*]}"
+
+            if [ "$GITHUB_EVENT_NAME" = "push" ] && [ "$GITHUB_REF" = "refs/heads/main" ]; then
+              echo "::error::PR-only database SQL cannot be merged to main. Promote it to a real migration or remove it first."
+              exit 1
+            fi
+
+            if [ "$GITHUB_EVENT_NAME" = "pull_request" ] && [ "${{ github.event.pull_request.draft }}" != "true" ]; then
+              echo "::error::PR-only database SQL is allowed only while the PR is draft. Remove it or promote it before review/merge."
+              exit 1
+            fi
+
+            echo "::notice::PR-only database SQL is isolated from production migration history."
+          fi
+
+
       - name: Install dependencies
         run: npm install
 
