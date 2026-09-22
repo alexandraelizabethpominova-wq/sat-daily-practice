@@ -72,6 +72,7 @@ export default function AlexFeedbackWidget({context}:Props){
   useEffect(()=>{
     const openFromFanClub=()=>{
       setSourceContext('fan-club')
+      setPostPublic(false)
       setSent(false)
       setError('')
       setOpen(true)
@@ -114,7 +115,7 @@ export default function AlexFeedbackWidget({context}:Props){
     <AlexButtonBase
       aria-label="Open feedback form"
       title="Tell Alex what you think"
-      onClick={()=>{setSourceContext(context);setOpen(true);setSent(false);setError('')}}
+      onClick={()=>{setSourceContext(context);setPostPublic(false);setOpen(true);setSent(false);setError('')}}
       sx={{
         position:'fixed',
         right:{xs:12,sm:18,md:22},
