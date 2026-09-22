@@ -1,9 +1,10 @@
 import {useEffect,useState,type ReactNode} from 'react'
 import AlexBox from '../atoms/AlexBox'
 import SideNavigation from '../molecules/SideNavigation'
+import AlexFeedbackWidget from './AlexFeedbackWidget'
 import {getCurrentAuthUser,loadUserProfile,subscribeToAuth,type AuthUser,type UserProfile} from '../../lib/supabase'
 
-type NavKey='study'|'practice-tests'|'practice-setup'|'question-bank'|'parsing-issues'|'performance'|'resources'
+type NavKey='study'|'practice-tests'|'practice-setup'|'question-bank'|'parsing-issues'|'performance'|'resources'|'fan-club'
 
 type Props={
   active:NavKey
@@ -16,12 +17,13 @@ type Props={
   onParsingIssues:()=>void
   onPerformance:()=>void
   onResources:()=>void
+  onFanClub:()=>void
   onSettings:()=>void
   children:ReactNode
   contentBackground?:string
 }
 
-export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onStudyPlan,onPracticeTests,onPracticeSetup,onQuestionBank,onParsingIssues,onPerformance,onResources,onSettings,children,contentBackground='#FFFFFF'}:Props){
+export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onStudyPlan,onPracticeTests,onPracticeSetup,onQuestionBank,onParsingIssues,onPerformance,onResources,onFanClub,onSettings,children,contentBackground='#F8F7FF'}:Props){
   const[user,setUser]=useState<AuthUser|null>(null)
   const[profile,setProfile]=useState<UserProfile|null>(null)
 
@@ -61,7 +63,7 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onS
       gridTemplateColumns:`${sidebarWidth}px minmax(0,1fr)`,
       overflowX:'hidden',
       bgcolor:contentBackground,
-      color:'#08275B',
+      color:'#251B4B',
     }}
   >
     <SideNavigation
@@ -72,14 +74,17 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onS
       footerDetail={accountDetail}
       signedIn={Boolean(user)}
       primary={[
-        {key:'study',label:'Study Plan',active:active==='study',onClick:onStudyPlan},
-        {key:'practice-tests',label:'Practice Tests',active:active==='practice-tests',onClick:onPracticeTests},
-        {key:'practice-setup',label:'Practice Setup',active:active==='practice-setup',onClick:onPracticeSetup},
-        {key:'question-bank',label:'Question Bank',active:active==='question-bank',onClick:onQuestionBank},
-        {key:'parsing-issues',label:'Parsing Issues',active:active==='parsing-issues',onClick:onParsingIssues},
-        {key:'performance',label:'Performance',active:active==='performance',onClick:onPerformance},
+        {key:'study',label:'Quest Map',active:active==='study',onClick:onStudyPlan},
+        {key:'practice-tests',label:'Challenge Runs',active:active==='practice-tests',onClick:onPracticeTests},
+        {key:'practice-setup',label:'Loadout',active:active==='practice-setup',onClick:onPracticeSetup},
+        {key:'question-bank',label:'Level Select',active:active==='question-bank',onClick:onQuestionBank},
+        {key:'parsing-issues',label:'Bug Hunt',active:active==='parsing-issues',onClick:onParsingIssues},
+        {key:'performance',label:'Player Stats',active:active==='performance',onClick:onPerformance},
       ]}
-      secondary={[{key:'resources',label:'Resources',active:active==='resources',onClick:onResources}]}
+      secondary={[
+        {key:'resources',label:'Guidebook',active:active==='resources',onClick:onResources},
+        {key:'fan-club',label:'Alexified Fan Club',active:active==='fan-club',onClick:onFanClub},
+      ]}
     />
     <AlexBox
       data-testid="app-content"
@@ -104,5 +109,6 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onS
         {children}
       </AlexBox>
     </AlexBox>
+    <AlexFeedbackWidget context={active}/>
   </AlexBox>
 }

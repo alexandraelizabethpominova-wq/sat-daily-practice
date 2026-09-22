@@ -15,10 +15,10 @@ type Props={
   recommendation:PracticePlanRecommendation
 }
 
-const STATUS_STYLE:Record<StudyPlanDayStatus,{bg:string;border:string;color:string;label:string}>={
-  ahead:{bg:'#E5F7DC',border:'#AAD99A',color:'#315F25',label:'Ahead'},
-  'on-track':{bg:'#E5F1FF',border:'#A9CEF0',color:'#245F9E',label:'On schedule'},
-  behind:{bg:'#FFF0E7',border:'#F0C5AD',color:'#914D2C',label:'Behind'},
+const STATUS_STYLE:Record<StudyPlanDayStatus,{bg:string;border:string;color:string;label:string;vibe?:string}>={
+  ahead:{bg:'#DFF8ED',border:'#A7E6C9',color:'#235D48',label:'Ahead',vibe:"You're cooking"},
+  'on-track':{bg:'#EEE9FF',border:'#CFC5FF',color:'#4B3FCE',label:'On schedule',vibe:'Still locked in'},
+  behind:{bg:'#FFE9E3',border:'#F4B9AA',color:'#9A4331',label:'Behind',vibe:'Time to lock in'},
   planned:{bg:'#F2E9FF',border:'#DACAF0',color:'#6B4A91',label:'Planned'},
   neutral:{bg:'#FAFAF8',border:'#E8E4DD',color:'#98A2B3',label:'Not tracked'},
 }
@@ -68,7 +68,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
   >
     <AlexBox sx={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:1.25,mb:1.15}}>
       <AlexBox sx={{display:'flex',alignItems:'center',gap:.75,minWidth:0}}>
-        <CalendarDays size={16} color="#6558F5"/>
+        <CalendarDays size={16} color="#6D5DFB"/>
         <AlexText sx={{fontSize:12,fontWeight:850,color:'#08275B'}}>Practice calendar</AlexText>
       </AlexBox>
       <AlexText sx={{fontSize:10.5,fontWeight:800,color:'#667085',whiteSpace:'nowrap'}}>
@@ -94,7 +94,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
         const style=STATUS_STYLE[day.status]
         const isToday=day.date===todayKey
         const isExamDate=Boolean(settings.targetExamDate&&day.date===settings.targetExamDate)
-        const title=[style.label,isExamDate?'Exam date':'',day.practiced?`${day.questionCount} questions practiced`:''].filter(Boolean).join(' · ')
+        const title=[style.label,style.vibe??'',isExamDate?'Exam date':'',day.practiced?`${day.questionCount} questions practiced`:''].filter(Boolean).join(' · ')
         return <AlexTooltip
           key={day.date}
           title={title}
@@ -118,16 +118,16 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
               justifySelf:'center',
               borderRadius:isExamDate?0:'50%',
               border:isExamDate?'none':'1px solid',
-              borderColor:isToday?'#6558F5':style.border,
+              borderColor:isToday?'#6D5DFB':style.border,
               bgcolor:isExamDate?'transparent':style.bg,
               color:day.status==='neutral'?'#7A8495':'#08275B',
               display:'grid',
               placeItems:'center',
               position:'relative',
-              boxShadow:!isExamDate&&isToday?'0 0 0 1px #6558F5 inset':'none',
+              boxShadow:!isExamDate&&isToday?'0 0 0 1px #6D5DFB inset':'none',
               cursor:'help',
               outline:'none',
-              '&:focus-visible':{boxShadow:'0 0 0 2px #6558F5'},
+              '&:focus-visible':{boxShadow:'0 0 0 2px #6D5DFB'},
             }}
           >
             {isExamDate&&<Star
@@ -135,7 +135,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
               size={30}
               strokeWidth={1.7}
               fill="#F5C451"
-              color={isToday?'#6558F5':'#9B6A00'}
+              color={isToday?'#6D5DFB':'#9B6A00'}
               style={{position:'absolute',inset:0}}
             />}
             <AlexText sx={{

@@ -73,3 +73,99 @@ nav>div{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
   .question-bank-filters{flex-direction:column;align-items:stretch}
   .question-bank-filter-practice-test,.question-bank-filter-module,.question-bank-search{width:100%;max-width:100%}
 }
+
+
+/* Alexified teen theme --------------------------------------------------- */
+body{
+  background:#F8F7FF;
+  color:#251B4B;
+}
+button:focus-visible,
+[tabindex="0"]:focus-visible{
+  outline:3px solid rgba(109,93,251,.28);
+  outline-offset:2px;
+}
+.card,.stat,.answer-panel,.question-panel{
+  border:2px solid #E6E1F2;
+  border-radius:18px;
+  box-shadow:0 5px 0 rgba(57,43,105,.08);
+}
+.eyebrow{color:#6D5DFB;font-weight:900}
+.logo{color:#251B4B}
+
+.practice{
+  background:#F8F7FF;
+}
+.practice-topbar{
+  background:rgba(248,247,255,.96);
+  border-bottom:2px solid #E6E1F2;
+}
+.practice-title span{
+  color:#6D5DFB;
+  font-weight:950;
+}
+.practice-title b{
+  font-family:ui-rounded,"Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;
+  color:#251B4B;
+  font-weight:900;
+}
+.progress-block span{color:#6D6785}
+.progress-block progress{accent-color:#6D5DFB}
+.question-heading{
+  background:#F4F0FF;
+  border-bottom:2px solid #E6E1F2;
+}
+.question-heading span{color:#4B3FCE}
+.question-heading b,.answer-kicker,.answer-helper,.review-note{color:#6D6785}
+.answer-panel{
+  box-shadow:0 6px 0 rgba(57,43,105,.09);
+}
+.feedback{
+  border-radius:14px;
+  background:#F2EFFF;
+}
+.good{background:#DFF8ED;color:#216849}
+.bad{background:#FFE9E3;color:#923D31}
+.alex-status-chip{
+  border-radius:999px;
+  background:#E9E4FF;
+  color:#4B3FCE;
+  border:1px solid #D7CFFF;
+}
+
+.results{
+  border-radius:24px;
+}
+.results h1,.page-heading h1{
+  font-family:ui-rounded,"Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;
+  color:#251B4B;
+  font-weight:900;
+}
+.review-item{
+  border:2px solid #E6E1F2;
+  border-radius:18px;
+  box-shadow:0 4px 0 rgba(57,43,105,.06);
+}
+.review-head span,.muted{color:#6D6785}
+
+.uploads label{
+  border:2px dashed #CFC5FF;
+  border-radius:18px;
+  background:#FCFBFF;
+}
+.uploads label:hover{
+  border-color:#6D5DFB;
+  background:#F4F0FF;
+}
+
+.question-bank-list,.question-bank-viewer,.question-bank-empty{
+  border:2px solid #E6E1F2;
+  border-radius:18px;
+  box-shadow:0 5px 0 rgba(57,43,105,.06);
+}
+.question-bank-row.active{
+  background:#EEE9FF!important;
+  box-shadow:inset 4px 0 #6D5DFB;
+}
+.question-bank-row:hover{background:#F7F4FF!important}
+.question-bank-viewer-header,.question-bank-list-header{background:#F7F4FF}

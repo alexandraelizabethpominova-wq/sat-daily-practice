@@ -41,7 +41,7 @@ export default function PerformanceDashboard({summary,hasHistory,onClearHistory,
       <MetricCard compact tone="peach" icon={<TrendingUp/>} label="Score estimate" value={summary.latestScoreEstimate?String(summary.latestScoreEstimate):'—'}/>
     </AlexBox>
     {hasHistory&&summary.recommendation&&<AlexSurface sx={{p:1.8,border:'1px solid #D8D2FF',borderRadius:3,bgcolor:'#F7F5FF'}}>
-      <AlexText sx={{fontSize:10,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:'#6558F5'}}>Recommended focus</AlexText>
+      <AlexText sx={{fontSize:10,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:'#6558F5'}}>Your next move</AlexText>
       <AlexText component="h2" sx={{fontSize:19,fontWeight:800,color:'#08275B',mt:.45}}>{summary.recommendation.label}</AlexText>
       <AlexText sx={{color:'#475467',fontSize:12,lineHeight:1.45,mt:.45}}>{summary.recommendation.reason}</AlexText>
     </AlexSurface>}
@@ -50,9 +50,9 @@ export default function PerformanceDashboard({summary,hasHistory,onClearHistory,
   return <AlexBox>
     {!compact&&<AlexBox sx={{display:'flex',justifyContent:'space-between',alignItems:{xs:'flex-start',md:'flex-end'},gap:2,flexDirection:{xs:'column',md:'row'}}}>
       <AlexBox>
-        <AlexText sx={{fontSize:12,textTransform:'uppercase',letterSpacing:'.12em',fontWeight:800,color:'#6558F5'}}>Performance</AlexText>
-        <AlexText component="h1" sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:32,md:46},lineHeight:1.08,my:1,color:'#08275B'}}>Your practice trends</AlexText>
-        <AlexText sx={{color:'#667085',maxWidth:720}}>Track success rate, response time, repeat attempts, session progress, and a practice-only score estimate from your own history.</AlexText>
+        <AlexText sx={{fontSize:12,textTransform:'uppercase',letterSpacing:'.12em',fontWeight:800,color:'#6558F5'}}>Alexified stats</AlexText>
+        <AlexText component="h1" sx={{fontFamily:'ui-rounded, "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif',fontSize:{xs:34,md:48},fontWeight:900,lineHeight:1.05,my:1,color:'#251B4B'}}>Leveling up</AlexText>
+        <AlexText sx={{color:'#667085',maxWidth:720}}>See what is clicking, what needs another round, and how your practice score is moving over time.</AlexText>
       </AlexBox>
       {hasHistory&&onClearHistory&&<AlexButton tone="secondary" onClick={onClearHistory}>Clear history & start fresh</AlexButton>}
     </AlexBox>}
@@ -66,12 +66,12 @@ export default function PerformanceDashboard({summary,hasHistory,onClearHistory,
     </AlexBox>
 
     {!hasHistory&&!compact&&<AlexSurface sx={{p:3.5,mt:2.5,border:'1px solid #E6E2DB',borderRadius:3}}>
-      <AlexText component="h2" sx={{fontSize:22,fontWeight:750,mb:1}}>Fresh start</AlexText>
-      <AlexText sx={{color:'#667085'}}>No practice history is stored yet. Your next session will begin building question, section, timing, and session statistics.</AlexText>
+      <AlexText component="h2" sx={{fontSize:22,fontWeight:750,mb:1}}>Ready when you are</AlexText>
+      <AlexText sx={{color:'#667085'}}>No stats yet. Activate Alex Mode and your first session will start building accuracy, timing, section, and question trends.</AlexText>
     </AlexSurface>}
 
     {hasHistory&&summary.recommendation&&<AlexSurface sx={{p:{xs:2.25,md:2.75},mt:2.5,border:'1px solid #D8D2FF',borderRadius:3,bgcolor:'#F7F5FF'}}>
-      <AlexText sx={{fontSize:12,fontWeight:850,textTransform:'uppercase',letterSpacing:'.09em',color:'#6558F5'}}>Recommended focus</AlexText>
+      <AlexText sx={{fontSize:12,fontWeight:850,textTransform:'uppercase',letterSpacing:'.09em',color:'#6558F5'}}>Your next move</AlexText>
       <AlexText component="h2" sx={{fontSize:22,fontWeight:800,color:'#08275B',mt:.5}}>{summary.recommendation.label}</AlexText>
       <AlexText sx={{color:'#475467',mt:.75}}>{summary.recommendation.reason}</AlexText>
     </AlexSurface>}

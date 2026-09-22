@@ -3,7 +3,7 @@ import {describe,expect,it,vi} from 'vitest'
 import AppSidebarLayout from './AppSidebarLayout'
 
 describe('AppSidebarLayout',()=>{
-  it('keeps Practice Setup and Question Bank as separate destinations',()=>{
+  it('keeps Loadout and Level Select as separate destinations',()=>{
     const onPracticeSetup=vi.fn()
     const onQuestionBank=vi.fn()
 
@@ -19,14 +19,15 @@ describe('AppSidebarLayout',()=>{
         onParsingIssues={()=>undefined}
         onPerformance={()=>undefined}
         onResources={()=>undefined}
+        onFanClub={()=>undefined}
         onSettings={()=>undefined}
       >
         <div>Practice setup content</div>
       </AppSidebarLayout>,
     )
 
-    const practiceSetup=screen.getByRole('button',{name:'Practice Setup'})
-    const questionBank=screen.getByRole('button',{name:'Question Bank'})
+    const practiceSetup=screen.getByRole('button',{name:'Loadout'})
+    const questionBank=screen.getByRole('button',{name:'Level Select'})
 
     expect(practiceSetup).toBeInTheDocument()
     expect(questionBank).toBeInTheDocument()
@@ -51,6 +52,7 @@ describe('AppSidebarLayout',()=>{
         onParsingIssues={()=>undefined}
         onPerformance={()=>undefined}
         onResources={()=>undefined}
+        onFanClub={()=>undefined}
         onSettings={()=>undefined}
       >
         <div>Responsive content</div>
@@ -69,4 +71,31 @@ describe('AppSidebarLayout',()=>{
     })
   })
 
+
+  it('opens Alexified Fan Club as its own destination',()=>{
+    const onFanClub=vi.fn()
+    render(
+      <AppSidebarLayout
+        active="fan-club"
+        collapsed={false}
+        onToggleCollapsed={()=>undefined}
+        onStudyPlan={()=>undefined}
+        onPracticeTests={()=>undefined}
+        onPracticeSetup={()=>undefined}
+        onQuestionBank={()=>undefined}
+        onParsingIssues={()=>undefined}
+        onPerformance={()=>undefined}
+        onResources={()=>undefined}
+        onFanClub={onFanClub}
+        onSettings={()=>undefined}
+      >
+        <div>Fan club wall</div>
+      </AppSidebarLayout>,
+    )
+
+    const fanClub=screen.getByRole('button',{name:'Alexified Fan Club'})
+    expect(fanClub).toBeInTheDocument()
+    fireEvent.click(fanClub)
+    expect(onFanClub).toHaveBeenCalledTimes(1)
+  })
 })

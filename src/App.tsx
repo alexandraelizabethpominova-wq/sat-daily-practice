@@ -8,6 +8,7 @@ import ParsingIssueReporter from './design-system/molecules/ParsingIssueReporter
 import QuestionContent from './design-system/molecules/QuestionContent'
 import AccountAuthPanel from './design-system/organisms/AccountAuthPanel'
 import AppSidebarLayout from './design-system/organisms/AppSidebarLayout'
+import FanClubWall from './design-system/organisms/FanClubWall'
 import ParsingIssuesDashboard from './design-system/organisms/ParsingIssuesDashboard'
 import PerformanceDashboard from './design-system/organisms/PerformanceDashboard'
 import PracticeAnswerPanel from './design-system/organisms/PracticeAnswerPanel'
@@ -31,8 +32,8 @@ import type {Attempt,PracticeQuestion,SessionSummary,Settings,SubjectMode} from 
 
 const uid=()=>crypto.randomUUID()
 
-type View='study'|'home'|'practice'|'results'|'stats'|'settings'|'sources'|'question-bank'|'parsing-issues'|'account'
-type SidebarKey='study'|'practice-tests'|'practice-setup'|'question-bank'|'parsing-issues'|'performance'|'resources'
+type View='study'|'home'|'practice'|'results'|'stats'|'settings'|'sources'|'question-bank'|'parsing-issues'|'fan-club'|'account'
+type SidebarKey='study'|'practice-tests'|'practice-setup'|'question-bank'|'parsing-issues'|'performance'|'resources'|'fan-club'
 
 export default function App(){
   const[settings,setSettings]=useState<Settings>(()=>getSettings())
@@ -283,6 +284,7 @@ export default function App(){
       onParsingIssues={()=>setView('parsing-issues')}
       onPerformance={()=>setView('stats')}
       onResources={()=>setView('sources')}
+      onFanClub={()=>setView('fan-club')}
       onSettings={()=>setView('account')}
       contentBackground={background}
     >{content}</AppSidebarLayout>
@@ -303,7 +305,7 @@ export default function App(){
       />
       <div className="practice-workspace">
         <section className="question-panel">
-          <div className="question-heading"><div><span>QUESTION {current.number}</span><b>{current.subject==='math'?'Math':'Reading & Writing'}</b></div><AlexStatusChip>READY</AlexStatusChip></div>
+          <div className="question-heading"><div><span>QUESTION {current.number}</span><b>{current.subject==='math'?'Math':'Reading & Writing'}</b></div><AlexStatusChip>LOCKED IN</AlexStatusChip></div>
           <ParsingIssueReporter question={current} context="practice"/>
           <QuestionContent question={current} bytes={qpdf} alt={`${moduleLabel(current.module)} question ${current.number}`}/>
         </section>
@@ -317,16 +319,17 @@ export default function App(){
           onSubmit={submit}
         />
       </div>
-    </main>,'#F7F6F2')
+    </main>,'#F8F7FF')
   }
 
   if(view==='results'){
     const session=summarizeSession(currentAttempts)
+    const sessionVibe=session.total>0&&session.correct===session.total?'Alex ate':session.accuracy>=80?"You're cooking":'Leveling up'
     return withSidebar('practice-tests',<main className="shell">
       <section className="card results">
-        <p className="eyebrow">Session complete</p>
-        <h1>{session.accuracy}% accuracy</h1>
-        <p>{session.correct} of {session.total} correct · {formatDuration(session.averageMs)} average</p>
+        <p className="eyebrow">Alex Mode complete</p>
+        <h1>{sessionVibe}</h1>
+        <p><b>{session.accuracy}% accuracy</b> · {session.correct} of {session.total} correct · {formatDuration(session.averageMs)} average</p>
         <div className="review-list">
           <h2>Session review</h2>
           {currentAttempts.map((attempt,index)=>{
@@ -340,21 +343,23 @@ export default function App(){
             </article>
           })}
         </div>
-        <div className="hero-actions"><AlexButton onClick={start}>Start another session</AlexButton><AlexButton tone="secondary" onClick={()=>setView('home')}>Back to practice tests</AlexButton></div>
+        <div className="hero-actions"><AlexButton onClick={start}>Lock in again</AlexButton><AlexButton tone="secondary" onClick={()=>setView('home')}>Pick another test</AlexButton></div>
       </section>
     </main>)
   }
 
   if(view==='stats')return withSidebar('performance',<main className="shell"><PerformanceDashboard summary={performance} hasHistory={attempts.length>0} onClearHistory={resetHistory} questionsPdf={qpdf} answersPdf={apdf}/></main>)
 
-  if(view==='question-bank')return withSidebar('question-bank',<QuestionBankReview questionsPdf={qpdf}/>,'#F7F6F2')
+  if(view==='question-bank')return withSidebar('question-bank',<QuestionBankReview questionsPdf={qpdf}/>,'#F8F7FF')
 
-  if(view==='parsing-issues')return withSidebar('parsing-issues',<ParsingIssuesDashboard questionsPdf={qpdf} answersPdf={apdf}/>,'#F7F6F2')
+  if(view==='parsing-issues')return withSidebar('parsing-issues',<ParsingIssuesDashboard questionsPdf={qpdf} answersPdf={apdf}/>,'#F8F7FF')
+
+  if(view==='fan-club')return withSidebar('fan-club',<FanClubWall/>,'#F8F7FF')
 
   if(view==='account')return withSidebar('practice-tests',<main className="shell">
     <div className="page-heading"><div><p className="eyebrow">Account</p><h1>Account & sync</h1></div></div>
     <AccountAuthPanel email={authUser?.email??null}/>
-  </main>,'#F7F6F2')
+  </main>,'#F8F7FF')
 
   if(view==='settings')return withSidebar('practice-setup',<main className="shell">
     <div className="page-heading"><div><p className="eyebrow">Practice Setup</p><h1>Practice setup</h1></div></div>
@@ -412,7 +417,7 @@ export default function App(){
     <AlexBox sx={{display:'flex',justifyContent:'flex-end',mt:1.25,pb:{xs:1,md:2}}}>
       <AlexButton tone="quiet" onClick={()=>setView('settings')}>Edit plan settings</AlexButton>
     </AlexBox>
-  </main>,'#F7F6F2')
+  </main>,'#F8F7FF')
 
   return withSidebar('practice-tests',<PracticeTestsDashboard
     tests={practiceTestSummaries}
