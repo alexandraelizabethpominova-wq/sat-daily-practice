@@ -26,8 +26,8 @@ export default function StudyPlanHero({
     sx={{
       position:'relative',overflow:'hidden',borderRadius:3.5,border:'1px solid #D9E7F8',
       bgcolor:'#EAF3FF',boxShadow:'0 10px 30px rgba(9,35,79,.055)',
-      p:{xs:2.5,md:4},display:'grid',gridTemplateColumns:{xs:'1fr',lg:'minmax(0,1.35fr) minmax(300px,.65fr)'},
-      gap:{xs:3,lg:4},alignItems:'center',
+      p:{xs:2,sm:2.75,md:3.5,lg:4},display:'grid',gridTemplateColumns:{xs:'1fr',md:'minmax(0,1.3fr) minmax(280px,.7fr)'},
+      gap:{xs:2.25,sm:3,lg:4},alignItems:'center',
     }}
   >
     <AlexBox sx={{position:'relative',zIndex:1}}>
@@ -35,16 +35,16 @@ export default function StudyPlanHero({
       <AlexText component="h1" sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:36,md:50},lineHeight:1.04,letterSpacing:'-.035em',mt:1,mb:1.5,color:'#08275B'}}>
         Your SAT practice plan
       </AlexText>
-      <AlexText sx={{color:'#3F5E86',fontSize:16,lineHeight:1.65,maxWidth:650}}>
+      <AlexText sx={{color:'#3F5E86',fontSize:{xs:14.5,sm:16},lineHeight:1.6,maxWidth:650}}>
         Keep your goal in view, focus on the questions that need attention, and make steady progress without overloading each day.
       </AlexText>
 
-      <AlexBox sx={{display:'flex',gap:1.25,flexWrap:'wrap',mt:2.5}}>
-        <AlexButton onClick={onChoosePracticeTest}>Choose a practice test</AlexButton>
-        <AlexButton tone="secondary" onClick={onStartPractice}>Start {questionsPerSession} questions</AlexButton>
+      <AlexBox sx={{display:'flex',gap:1,flexWrap:'wrap',mt:2.25,flexDirection:{xs:'column',sm:'row'}}}>
+        <AlexButton fullWidth onClick={onChoosePracticeTest} sx={{width:{xs:'100%',sm:'auto'}}}>Choose a practice test</AlexButton>
+        <AlexButton fullWidth tone="secondary" onClick={onStartPractice} sx={{width:{xs:'100%',sm:'auto'}}}>Start {questionsPerSession} questions</AlexButton>
       </AlexBox>
 
-      <AlexBox sx={{display:'flex',gap:1.25,flexWrap:'wrap',mt:2.5}}>
+      <AlexBox sx={{display:'flex',gap:.8,flexWrap:'wrap',mt:2}}>
         <AlexBox sx={{display:'flex',alignItems:'center',gap:.75,bgcolor:'rgba(255,255,255,.68)',border:'1px solid rgba(36,95,158,.16)',borderRadius:999,px:1.4,py:.75}}>
           <Sparkles size={16}/>
           <AlexText sx={{fontSize:13,fontWeight:800,color:'#214E80'}}>{todayLabel}</AlexText>
@@ -57,16 +57,16 @@ export default function StudyPlanHero({
     </AlexBox>
 
     <AlexBox sx={{display:'grid',gap:1.4,position:'relative',zIndex:1}}>
-      <AlexSurface sx={{position:'relative',minHeight:150,border:0,borderRadius:3,bgcolor:'#FFF9DD',overflow:'hidden',p:2.25}}>
+      <AlexSurface sx={{position:'relative',minHeight:{xs:132,sm:150},border:0,borderRadius:3,bgcolor:'#FFF9DD',overflow:'hidden',p:{xs:1.75,sm:2.25}}}>
         <AlexText sx={{fontSize:11,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:'#6B5A12'}}>Current estimate</AlexText>
-        <AlexText sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:34,fontWeight:700,color:'#08275B',mt:.45}}>
+        <AlexText sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:30,sm:34},fontWeight:700,color:'#08275B',mt:.45}}>
           {estimatedScore??'—'}
         </AlexText>
         <AlexText sx={{fontSize:12.5,color:'#667085',mt:.3}}>
           {accuracy!==null?`${accuracy}% overall accuracy`:'Complete a few questions to calibrate'}
         </AlexText>
-        <AlexBox sx={{position:'absolute',right:18,bottom:10,width:96,height:96,borderRadius:'50%',bgcolor:'#D9ECFF',display:'grid',placeItems:'center',transform:'rotate(-6deg)'}}>
-          <BookOpenCheck size={48} strokeWidth={1.6}/>
+        <AlexBox sx={{position:'absolute',right:{xs:12,sm:18},bottom:10,width:{xs:76,sm:96},height:{xs:76,sm:96},borderRadius:'50%',bgcolor:'#D9ECFF',display:'grid',placeItems:'center',transform:'rotate(-6deg)'}}>
+          <BookOpenCheck size={40} strokeWidth={1.6}/>
         </AlexBox>
         <Sparkles size={20} style={{position:'absolute',right:112,top:24}}/>
       </AlexSurface>
