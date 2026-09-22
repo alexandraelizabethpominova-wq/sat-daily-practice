@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useEffect,useState} from 'react'
 import {Heart,MessageCircle,Smile,Wrench,X} from 'lucide-react'
 import AlexBox from '../atoms/AlexBox'
 import AlexButton from '../atoms/AlexButton'
@@ -65,6 +65,18 @@ export default function AlexFeedbackWidget({context}:Props){
   const[sending,setSending]=useState(false)
   const[sent,setSent]=useState(false)
   const[error,setError]=useState('')
+  const[sourceContext,setSourceContext]=useState(context)
+
+  useEffect(()=>{
+    const openFromFanClub=()=>{
+      setSourceContext('fan-club')
+      setSent(false)
+      setError('')
+      setOpen(true)
+    }
+    window.addEventListener('alexified-open-feedback',openFromFanClub)
+    return()=>window.removeEventListener('alexified-open-feedback',openFromFanClub)
+  },[])
 
   function reset(){
     setVibe(null)
@@ -82,7 +94,7 @@ export default function AlexFeedbackWidget({context}:Props){
     setSending(true)
     setError('')
     try{
-      const stored=await submitAppFeedback({vibe,message:trimmed,context})
+      const stored=await submitAppFeedback({vibe,message:trimmed,context:sourceContext})
       if(!stored)throw new Error('Feedback storage is unavailable.')
       setSent(true)
       setMessage('')
@@ -98,7 +110,7 @@ export default function AlexFeedbackWidget({context}:Props){
     <AlexButtonBase
       aria-label="Open feedback form"
       title="Tell Alex what you think"
-      onClick={()=>{setOpen(true);setSent(false);setError('')}}
+      onClick={()=>{setSourceContext(context);setOpen(true);setSent(false);setError('')}}
       sx={{
         position:'fixed',
         right:{xs:12,sm:18,md:22},
