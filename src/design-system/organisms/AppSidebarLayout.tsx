@@ -73,14 +73,14 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onS
       footerDetail={accountDetail}
       signedIn={Boolean(user)}
       primary={[
-        {key:'study',label:'Study Plan',active:active==='study',onClick:onStudyPlan},
-        {key:'practice-tests',label:'Practice Tests',active:active==='practice-tests',onClick:onPracticeTests},
-        {key:'practice-setup',label:'Practice Setup',active:active==='practice-setup',onClick:onPracticeSetup},
-        {key:'question-bank',label:'Question Bank',active:active==='question-bank',onClick:onQuestionBank},
-        {key:'parsing-issues',label:'Parsing Issues',active:active==='parsing-issues',onClick:onParsingIssues},
-        {key:'performance',label:'Performance',active:active==='performance',onClick:onPerformance},
+        {key:'study',label:'Quest Map',active:active==='study',onClick:onStudyPlan},
+        {key:'practice-tests',label:'Challenge Runs',active:active==='practice-tests',onClick:onPracticeTests},
+        {key:'practice-setup',label:'Loadout',active:active==='practice-setup',onClick:onPracticeSetup},
+        {key:'question-bank',label:'Level Select',active:active==='question-bank',onClick:onQuestionBank},
+        {key:'parsing-issues',label:'Bug Hunt',active:active==='parsing-issues',onClick:onParsingIssues},
+        {key:'performance',label:'Player Stats',active:active==='performance',onClick:onPerformance},
       ]}
-      secondary={[{key:'resources',label:'Resources',active:active==='resources',onClick:onResources}]}
+      secondary={[{key:'resources',label:'Guidebook',active:active==='resources',onClick:onResources}]}
     />
     <AlexBox
       data-testid="app-content"
