@@ -29,9 +29,9 @@ export default function ParsingIssueReporter({question,context,compact=false}:Pr
     }finally{setSaving(false)}
   }
 
-  return <AlexBox sx={{display:'grid',gap:1}}>
+  return <AlexBox sx={compact?{position:'relative',display:'inline-grid',flex:'0 0 auto'}:{display:'grid',gap:1}}>
     {!open&&<AlexTooltip title="Report parsing issue" placement="top"><AlexButtonBase aria-label="Report parsing issue" onClick={()=>{setOpen(true);setStatus('')}} sx={{justifySelf:'start',width:32,height:32,borderRadius:'50%',border:'1px solid #E6E2DB',bgcolor:'#fff',color:'#667085','&:hover':{bgcolor:'#F7F5FF',borderColor:'#D7CFFF',color:'#4B3FCE'}}}><Flag size={16}/></AlexButtonBase></AlexTooltip>}
-    {open&&<AlexSurface sx={{p:1.5,border:'1px solid #E6E2DB',borderRadius:2,bgcolor:'#FBFAF8'}}>
+    {open&&<AlexSurface sx={{p:1.5,border:'1px solid #E6E2DB',borderRadius:2,bgcolor:'#FBFAF8',...(compact?{position:'absolute',top:38,left:0,width:'min(360px, calc(100vw - 48px))',zIndex:60,boxShadow:'0 12px 30px rgba(9,35,79,.16)'}:{})}}>
       <AlexText sx={{fontSize:13.5,fontWeight:800,color:'#08275B'}}>Flag a parsing or formatting problem</AlexText>
       <AlexText sx={{fontSize:12.5,color:'#667085',mt:.35,mb:1.1}}>The question is attached automatically. Add an optional note about what looks wrong.</AlexText>
       <AlexTextField multiline minRows={2} maxRows={5} value={message} onChange={event=>setMessage(event.target.value.slice(0,1000))} placeholder="Optional: describe the parsing problem" inputProps={{maxLength:1000}}/>
@@ -40,6 +40,6 @@ export default function ParsingIssueReporter({question,context,compact=false}:Pr
         <AlexButton size="small" tone="secondary" disabled={saving} onClick={()=>{setOpen(false);setMessage('')}}>Cancel</AlexButton>
       </AlexBox>
     </AlexSurface>}
-    {status&&<AlexText role="status" sx={{fontSize:12.5,color:status.startsWith('Reported')||status.startsWith('Saved')?'#067647':'#B42318'}}>{status}</AlexText>}
+    {status&&<AlexText role="status" sx={{fontSize:12.5,color:status.startsWith('Reported')||status.startsWith('Saved')?'#067647':'#B42318',...(compact?{position:'absolute',top:38,left:0,width:280,p:1,bgcolor:'#fff',border:'1px solid #E6E2DB',borderRadius:1.5,zIndex:60,boxShadow:'0 8px 22px rgba(9,35,79,.12)'}:{})}}>{status}</AlexText>}
   </AlexBox>
 }
