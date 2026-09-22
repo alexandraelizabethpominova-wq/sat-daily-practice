@@ -4,12 +4,15 @@ create table if not exists public.sat_feedback (
   vibe text check (vibe is null or vibe in ('love-it','pretty-good','needs-work')),
   message text not null check (char_length(message) between 1 and 2000),
   context text check (context is null or char_length(context) <= 100),
-  is_public boolean not null default false,
+  is_public boolean not null default true,
   created_at timestamptz not null default now()
 );
 
 alter table public.sat_feedback
-  add column if not exists is_public boolean not null default false;
+  add column if not exists is_public boolean not null default true;
+
+alter table public.sat_feedback alter column is_public set default true;
+update public.sat_feedback set is_public = true where is_public = false;
 
 alter table public.sat_feedback enable row level security;
 
