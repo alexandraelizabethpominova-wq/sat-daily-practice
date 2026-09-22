@@ -3,6 +3,7 @@ import {Heart,MessageCircle,Smile,Wrench,X} from 'lucide-react'
 import AlexBox from '../atoms/AlexBox'
 import AlexButton from '../atoms/AlexButton'
 import AlexButtonBase from '../atoms/AlexButtonBase'
+import AlexCheckbox from '../atoms/AlexCheckbox'
 import AlexDrawer from '../atoms/AlexDrawer'
 import AlexIconButton from '../atoms/AlexIconButton'
 import AlexText from '../atoms/AlexText'
@@ -66,6 +67,7 @@ export default function AlexFeedbackWidget({context}:Props){
   const[sent,setSent]=useState(false)
   const[error,setError]=useState('')
   const[sourceContext,setSourceContext]=useState(context)
+  const[postPublic,setPostPublic]=useState(false)
 
   useEffect(()=>{
     const openFromFanClub=()=>{
@@ -83,6 +85,7 @@ export default function AlexFeedbackWidget({context}:Props){
     setMessage('')
     setSent(false)
     setError('')
+    setPostPublic(false)
   }
 
   async function submit(){
@@ -94,10 +97,11 @@ export default function AlexFeedbackWidget({context}:Props){
     setSending(true)
     setError('')
     try{
-      const stored=await submitAppFeedback({vibe,message:trimmed,context:sourceContext})
+      const stored=await submitAppFeedback({vibe,message:trimmed,context:sourceContext,isPublic:postPublic})
       if(!stored)throw new Error('Feedback storage is unavailable.')
       setSent(true)
       setMessage('')
+      if(postPublic)window.dispatchEvent(new CustomEvent('alexified-feedback-posted'))
     }catch(err){
       console.warn('Feedback submit failed',err)
       setError('Could not send that one. Try again in a sec.')
@@ -191,7 +195,7 @@ export default function AlexFeedbackWidget({context}:Props){
           }}>
             <AlexText sx={{fontSize:28,lineHeight:1}}>💌</AlexText>
             <AlexText component="h3" sx={{mt:1,fontSize:19,fontWeight:950,color:'#251B4B'}}>Got it. Thanks!</AlexText>
-            <AlexText sx={{mt:.6,fontSize:13.5,color:'#526B61',lineHeight:1.5}}>Your note made it to Alex. Keep getting Alexified.</AlexText>
+            <AlexText sx={{mt:.6,fontSize:13.5,color:'#526B61',lineHeight:1.5}}>{postPublic?'Your note made it to Alex and the Fan Club wall.':'Your note made it to Alex. Keep getting Alexified.'}</AlexText>
             <AlexButton tone="secondary" sx={{mt:1.6}} onClick={reset}>Send another</AlexButton>
           </AlexBox>:<>
             <AlexBox>
@@ -237,6 +241,17 @@ export default function AlexFeedbackWidget({context}:Props){
                 '& .MuiFormHelperText-root':{mx:.25},
               }}
             />
+
+            <AlexBox sx={{p:1.35,borderRadius:3,bgcolor:'#F4F0FF',border:'1px solid #D7CFFF'}}>
+              <AlexCheckbox
+                label="Post to Alexified Fan Club"
+                checked={postPublic}
+                onChange={setPostPublic}
+              />
+              <AlexText sx={{mt:.35,ml:4,fontSize:11.5,lineHeight:1.45,color:'#746B8D'}}>
+                Public post. Your account and email will not be shown on the wall.
+              </AlexText>
+            </AlexBox>
 
             <AlexButton
               onClick={submit}
