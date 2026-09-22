@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import {Heart,MessageCircle,Smile,Sparkles,Wrench,X} from 'lucide-react'
+import {Heart,MessageCircle,Smile,Wrench,X} from 'lucide-react'
 import AlexBox from '../atoms/AlexBox'
 import AlexButton from '../atoms/AlexButton'
 import AlexButtonBase from '../atoms/AlexButtonBase'
@@ -17,6 +17,8 @@ const VIBES:Array<{value:AppFeedbackVibe;label:string;icon:typeof Heart}>= [
   {value:'needs-work',label:'Needs work',icon:Wrench},
 ]
 
+const ALEX_PHOTO=`${import.meta.env.BASE_URL}alex-feedback-avatar.jpg`
+
 function AlexAvatar({size=44}:{size?:number}){
   return <AlexBox
     aria-hidden="true"
@@ -26,34 +28,23 @@ function AlexAvatar({size=44}:{size?:number}){
       height:size,
       flex:`0 0 ${size}px`,
       borderRadius:'50%',
-      display:'grid',
-      placeItems:'center',
-      bgcolor:'#FFD166',
-      color:'#251B4B',
-      border:'2px solid #251B4B',
-      boxShadow:'0 3px 0 #251B4B',
-      fontFamily:'ui-rounded, "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif',
-      fontSize:size*.43,
-      fontWeight:950,
-      lineHeight:1,
     }}
   >
-    A
-    <AlexBox sx={{
-      position:'absolute',
-      right:-5,
-      top:-5,
-      width:18,
-      height:18,
-      borderRadius:'50%',
-      display:'grid',
-      placeItems:'center',
-      bgcolor:'#6D5DFB',
-      color:'#fff',
-      border:'2px solid #fff',
-    }}>
-      <Sparkles size={10}/>
-    </AlexBox>
+    <AlexBox
+      component="img"
+      src={ALEX_PHOTO}
+      alt=""
+      sx={{
+        width:'100%',
+        height:'100%',
+        display:'block',
+        objectFit:'cover',
+        objectPosition:'center 42%',
+        borderRadius:'50%',
+        border:'2px solid #fff',
+        boxShadow:'0 0 0 2px #251B4B, 0 4px 12px rgba(37,27,75,.20)',
+      }}
+    />
   </AlexBox>
 }
 
@@ -94,39 +85,48 @@ export default function AlexFeedbackWidget({context}:Props){
   }
 
   return <>
-    <AlexButton
-      tone="secondary"
+    <AlexButtonBase
       aria-label="Open feedback form"
+      title="Tell Alex what you think"
       onClick={()=>{setOpen(true);setSent(false);setError('')}}
-      startIcon={<AlexAvatar size={34}/>}
       sx={{
         position:'fixed',
-        right:{xs:8,md:14},
-        top:'52%',
-        transform:'translateY(-50%)',
+        right:{xs:12,sm:18,md:22},
+        bottom:{xs:12,sm:18,md:22},
         zIndex:1150,
-        minHeight:50,
-        pr:{xs:1.4,sm:1.8},
-        pl:.75,
-        bgcolor:'#FFF7D9',
-        color:'#251B4B',
-        borderColor:'#251B4B',
-        boxShadow:'0 4px 0 #251B4B',
+        width:56,
+        height:56,
+        minWidth:56,
+        p:0,
+        borderRadius:'50%',
+        bgcolor:'transparent',
+        overflow:'visible',
+        transition:'transform .16s ease, filter .16s ease',
         '&:hover':{
-          transform:'translateY(calc(-50% - 1px))',
-          bgcolor:'#FFF2BD',
-          borderColor:'#251B4B',
-          boxShadow:'0 5px 0 #251B4B',
+          transform:'translateY(-2px) scale(1.03)',
+          filter:'brightness(1.03)',
         },
-        '&:active':{transform:'translateY(calc(-50% + 1px))'},
+        '&:active':{transform:'translateY(0) scale(.98)'},
       }}
     >
-      <AlexBox component="span" sx={{display:{xs:'none',sm:'block'},textAlign:'left',lineHeight:1.1}}>
-        <AlexText component="span" sx={{display:'block',fontSize:11,fontWeight:950}}>DROP A LINE</AlexText>
-        <AlexText component="span" sx={{display:'block',fontSize:9.5,fontWeight:750,color:'#6D6785',mt:.2}}>Tell Alex</AlexText>
+      <AlexAvatar size={52}/>
+      <AlexBox sx={{
+        position:'absolute',
+        right:-2,
+        bottom:-1,
+        width:22,
+        height:22,
+        borderRadius:'50%',
+        display:'grid',
+        placeItems:'center',
+        bgcolor:'#6D5DFB',
+        color:'#fff',
+        border:'2px solid #fff',
+        boxShadow:'0 2px 6px rgba(37,27,75,.22)',
+      }}>
+        <MessageCircle size={12} strokeWidth={2.5}/>
       </AlexBox>
-      <MessageCircle size={17}/>
-    </AlexButton>
+    </AlexButtonBase>
 
     <AlexDrawer
       anchor="right"
@@ -154,14 +154,14 @@ export default function AlexFeedbackWidget({context}:Props){
         }}>
           <AlexBox sx={{position:'absolute',width:110,height:110,borderRadius:'50%',bgcolor:'rgba(255,209,102,.34)',right:-35,top:-42}}/>
           <AlexBox sx={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:2,position:'relative'}}>
-            <AlexBox sx={{display:'flex',alignItems:'center',gap:1.4}}>
-              <AlexAvatar size={54}/>
+            <AlexBox sx={{display:'flex',alignItems:'center',gap:1.6}}>
+              <AlexAvatar size={72}/>
               <AlexBox>
                 <AlexText sx={{fontSize:10.5,fontWeight:950,letterSpacing:'.11em',color:'#6D5DFB',textTransform:'uppercase'}}>Alexified feedback</AlexText>
                 <AlexText component="h2" sx={{
                   m:0,mt:.35,
                   fontFamily:'ui-rounded, "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif',
-                  fontSize:24,fontWeight:950,lineHeight:1.08,color:'#251B4B'
+                  fontSize:25,fontWeight:950,lineHeight:1.08,color:'#251B4B'
                 }}>Hi — it’s Alex.</AlexText>
               </AlexBox>
             </AlexBox>
@@ -171,7 +171,7 @@ export default function AlexFeedbackWidget({context}:Props){
             Enjoy being Alexified? Tell me more!
           </AlexText>
           <AlexText sx={{position:'relative',mt:.55,fontSize:13.5,lineHeight:1.5,color:'#6D6785'}}>
-            Drop me a line about what feels great, what feels weird, or what would make SAT prep better.
+            Drop me a line about what feels great, what feels weird, or what would make Alexified better.
           </AlexText>
         </AlexBox>
 
