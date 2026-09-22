@@ -84,6 +84,7 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onS
     <AlexBox
       data-testid="app-content"
       sx={{
+        gridColumn:'2',
         minWidth:0,
         width:'100%',
         maxWidth:`calc(100vw - ${sidebarWidth}px)`,
