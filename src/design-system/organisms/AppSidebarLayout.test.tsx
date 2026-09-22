@@ -65,7 +65,8 @@ describe('AppSidebarLayout',()=>{
     expect(screen.getByTestId('app-content')).toHaveStyle({
       width:'100%',
       maxWidth:'calc(100vw - 244px)',
-      overflowX:'hidden',
+      gridColumn:'2',
+      overflowX:'clip',
     })
   })
 

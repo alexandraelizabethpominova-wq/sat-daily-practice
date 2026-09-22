@@ -59,7 +59,7 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onS
       maxWidth:'100vw',
       display:'grid',
       gridTemplateColumns:`${sidebarWidth}px minmax(0,1fr)`,
-      overflowX:'hidden',
+      overflowX:'clip',
       bgcolor:contentBackground,
       color:'#08275B',
     }}
@@ -84,13 +84,14 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onS
     <AlexBox
       data-testid="app-content"
       sx={{
+        gridColumn:'2',
         minWidth:0,
         width:'100%',
         maxWidth:`calc(100vw - ${sidebarWidth}px)`,
         minHeight:'100vh',
         px:{xs:1.5,md:2},
         boxSizing:'border-box',
-        overflowX:'hidden',
+        overflowX:'clip',
       }}
     >
       <AlexBox sx={{
@@ -98,7 +99,7 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onS
         maxWidth:'100%',
         minWidth:0,
         mx:'auto',
-        overflowX:'hidden',
+        overflowX:'clip',
         '& > *':{width:'100%',maxWidth:'100%',minWidth:0},
       }}>
         {children}
