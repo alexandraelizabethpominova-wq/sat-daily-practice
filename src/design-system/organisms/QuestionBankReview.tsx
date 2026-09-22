@@ -50,6 +50,7 @@ export default function QuestionBankReview({questionsPdf}:Props){
   },[questions,selectedId])
   const practiceTestOptions=[{value:'all' as const,label:'All practice tests'},...availablePracticeTests(bank).map(value=>({value,label:practiceTestLabel(value)}))]
   const selected=questions.find(question=>question.id===selectedId)??questions[0]
+  const questionOptions=questions.map(question=>({value:question.id,label:`${practiceTestLabel(question.practiceTestId)} · ${moduleLabel(question.module)} · Q${question.number}`}))
 
   return <main className="question-bank-page">
     <header className="question-bank-heading">
@@ -73,6 +74,16 @@ export default function QuestionBankReview({questionsPdf}:Props){
         <div className="question-bank-search"><Search size={17}/><AlexTextField value={search} onChange={event=>setSearch(event.target.value)} placeholder="Find question"/></div>
       </div>
     </header>
+
+    {questions.length>0&&<div className="question-bank-mobile-selector">
+      <AlexDropdown
+        id="question-bank-question"
+        label="Question"
+        value={selected?.id??questions[0].id}
+        options={questionOptions}
+        onChange={setSelectedId}
+      />
+    </div>}
 
     <div className="question-bank-workspace">
       <aside className="question-bank-list" aria-label="Questions">
