@@ -109,10 +109,10 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt,zoom=1
   },[pdfKey,bytes,page,questionNumber,isQuestion,practiceTestId,module,sourceCrop])
   const zoomWidth=`${Math.round(zoom*10000)/100}%`
   return <div className={`source-slice ${isQuestion?'question-source':''}`} role="img" aria-label={alt}>
-    <div className="source-slice-content">
+    <div className="source-slice-content" style={{overflow:'auto',justifyContent:'flex-start'}}>
       {error?<div className="source-error">{error}</div>:src?
-        <div className="source-slice-zoom" style={{width:zoomWidth,margin:zoom<=1?'0 auto':'0'}}>
-          <img src={src} alt={alt}/>
+        <div className="source-slice-zoom" style={{width:zoomWidth,margin:zoom<=1?'0 auto':'0',flex:'0 0 auto',minWidth:0}}>
+          <img src={src} alt={alt} style={{display:'block',width:'100%',maxWidth:'none',height:'auto',transform:'none'}}/>
         </div>
         :<div className="source-loading">{isQuestion?'Preparing question…':'Preparing explanation…'}</div>}
     </div>
