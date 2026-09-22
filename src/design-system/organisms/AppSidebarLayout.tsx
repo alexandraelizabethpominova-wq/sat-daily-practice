@@ -4,7 +4,7 @@ import SideNavigation from '../molecules/SideNavigation'
 import AlexFeedbackWidget from './AlexFeedbackWidget'
 import {getCurrentAuthUser,loadUserProfile,subscribeToAuth,type AuthUser,type UserProfile} from '../../lib/supabase'
 
-type NavKey='study'|'practice-tests'|'practice-setup'|'question-bank'|'parsing-issues'|'performance'|'resources'
+type NavKey='study'|'practice-tests'|'practice-setup'|'question-bank'|'parsing-issues'|'performance'|'resources'|'fan-club'
 
 type Props={
   active:NavKey
@@ -17,12 +17,13 @@ type Props={
   onParsingIssues:()=>void
   onPerformance:()=>void
   onResources:()=>void
+  onFanClub:()=>void
   onSettings:()=>void
   children:ReactNode
   contentBackground?:string
 }
 
-export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onStudyPlan,onPracticeTests,onPracticeSetup,onQuestionBank,onParsingIssues,onPerformance,onResources,onSettings,children,contentBackground='#F8F7FF'}:Props){
+export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onStudyPlan,onPracticeTests,onPracticeSetup,onQuestionBank,onParsingIssues,onPerformance,onResources,onFanClub,onSettings,children,contentBackground='#F8F7FF'}:Props){
   const[user,setUser]=useState<AuthUser|null>(null)
   const[profile,setProfile]=useState<UserProfile|null>(null)
 
@@ -51,7 +52,6 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onS
   const accountLabel=user?(profile?.displayName.trim()||user.email?.split('@')[0]||'Account'):'Sign in'
   const accountDetail=user?(profile?.grade?`Grade ${profile.grade}`:user.email??'Signed in'):''
   const sidebarWidth=collapsed?76:244
-  const openFanClub=()=>window.dispatchEvent(new CustomEvent('alexified-open-feedback'))
 
   return <AlexBox
     data-testid="app-layout"
@@ -83,7 +83,7 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onS
       ]}
       secondary={[
         {key:'resources',label:'Guidebook',active:active==='resources',onClick:onResources},
-        {key:'fan-club',label:'Alexified Fan Club',onClick:openFanClub},
+        {key:'fan-club',label:'Alexified Fan Club',active:active==='fan-club',onClick:onFanClub},
       ]}
     />
     <AlexBox
