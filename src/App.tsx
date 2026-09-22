@@ -8,6 +8,7 @@ import ParsingIssueReporter from './design-system/molecules/ParsingIssueReporter
 import QuestionContent from './design-system/molecules/QuestionContent'
 import AccountAuthPanel from './design-system/organisms/AccountAuthPanel'
 import AppSidebarLayout from './design-system/organisms/AppSidebarLayout'
+import FanClubWall from './design-system/organisms/FanClubWall'
 import ParsingIssuesDashboard from './design-system/organisms/ParsingIssuesDashboard'
 import PerformanceDashboard from './design-system/organisms/PerformanceDashboard'
 import PracticeAnswerPanel from './design-system/organisms/PracticeAnswerPanel'
@@ -31,8 +32,8 @@ import type {Attempt,PracticeQuestion,SessionSummary,Settings,SubjectMode} from 
 
 const uid=()=>crypto.randomUUID()
 
-type View='study'|'home'|'practice'|'results'|'stats'|'settings'|'sources'|'question-bank'|'parsing-issues'|'account'
-type SidebarKey='study'|'practice-tests'|'practice-setup'|'question-bank'|'parsing-issues'|'performance'|'resources'
+type View='study'|'home'|'practice'|'results'|'stats'|'settings'|'sources'|'question-bank'|'parsing-issues'|'fan-club'|'account'
+type SidebarKey='study'|'practice-tests'|'practice-setup'|'question-bank'|'parsing-issues'|'performance'|'resources'|'fan-club'
 
 export default function App(){
   const[settings,setSettings]=useState<Settings>(()=>getSettings())
@@ -283,6 +284,7 @@ export default function App(){
       onParsingIssues={()=>setView('parsing-issues')}
       onPerformance={()=>setView('stats')}
       onResources={()=>setView('sources')}
+      onFanClub={()=>setView('fan-club')}
       onSettings={()=>setView('account')}
       contentBackground={background}
     >{content}</AppSidebarLayout>
@@ -351,6 +353,8 @@ export default function App(){
   if(view==='question-bank')return withSidebar('question-bank',<QuestionBankReview questionsPdf={qpdf}/>,'#F8F7FF')
 
   if(view==='parsing-issues')return withSidebar('parsing-issues',<ParsingIssuesDashboard questionsPdf={qpdf} answersPdf={apdf}/>,'#F8F7FF')
+
+  if(view==='fan-club')return withSidebar('fan-club',<FanClubWall/>,'#F8F7FF')
 
   if(view==='account')return withSidebar('practice-tests',<main className="shell">
     <div className="page-heading"><div><p className="eyebrow">Account</p><h1>Account & sync</h1></div></div>
