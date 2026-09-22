@@ -2,9 +2,11 @@ import {useState} from 'react'
 import {Flag} from 'lucide-react'
 import AlexBox from '../atoms/AlexBox'
 import AlexButton from '../atoms/AlexButton'
+import AlexButtonBase from '../atoms/AlexButtonBase'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
 import AlexTextField from '../atoms/AlexTextField'
+import AlexTooltip from '../atoms/AlexTooltip'
 import {createParsingIssueReport,type ParsingIssueContext} from '../../lib/parsingIssueReports'
 import type {PracticeQuestion} from '../../types'
 
@@ -28,7 +30,7 @@ export default function ParsingIssueReporter({question,context,compact=false}:Pr
   }
 
   return <AlexBox sx={{display:'grid',gap:1}}>
-    {!open&&<AlexButton tone="secondary" size="small" startIcon={<Flag size={15}/>} onClick={()=>{setOpen(true);setStatus('')}} sx={{justifySelf:'start'}}>Report parsing issue</AlexButton>}
+    {!open&&<AlexTooltip title="Report parsing issue" placement="top"><AlexButtonBase aria-label="Report parsing issue" onClick={()=>{setOpen(true);setStatus('')}} sx={{justifySelf:'start',width:32,height:32,borderRadius:'50%',border:'1px solid #E6E2DB',bgcolor:'#fff',color:'#667085','&:hover':{bgcolor:'#F7F5FF',borderColor:'#D7CFFF',color:'#4B3FCE'}}}><Flag size={16}/></AlexButtonBase></AlexTooltip>}
     {open&&<AlexSurface sx={{p:1.5,border:'1px solid #E6E2DB',borderRadius:2,bgcolor:'#FBFAF8'}}>
       <AlexText sx={{fontSize:13.5,fontWeight:800,color:'#08275B'}}>Flag a parsing or formatting problem</AlexText>
       <AlexText sx={{fontSize:12.5,color:'#667085',mt:.35,mb:1.1}}>The question is attached automatically. Add an optional note about what looks wrong.</AlexText>
