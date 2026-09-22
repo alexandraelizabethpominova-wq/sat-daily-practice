@@ -306,10 +306,12 @@ export default function App(){
           <div className="question-heading">
             <div>
               <span>QUESTION {current.number}</span>
-              <ParsingIssueReporter question={current} context="practice" compact/>
               <b>{current.subject==='math'?'Math':'Reading & Writing'}</b>
             </div>
-            <AlexStatusChip>READY</AlexStatusChip>
+            <AlexBox sx={{display:'flex',alignItems:'center',gap:.65,flex:'0 0 auto'}}>
+              <AlexStatusChip>READY</AlexStatusChip>
+              <ParsingIssueReporter question={current} context="practice" compact/>
+            </AlexBox>
           </div>
           <QuestionContent question={current} bytes={qpdf} alt={`${moduleLabel(current.module)} question ${current.number}`}/>
         </section>
