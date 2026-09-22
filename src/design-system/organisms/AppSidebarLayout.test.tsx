@@ -2,6 +2,20 @@ import {fireEvent,render,screen} from '@testing-library/react'
 import {describe,expect,it,vi} from 'vitest'
 import AppSidebarLayout from './AppSidebarLayout'
 
+const baseProps={
+  active:'practice-setup' as const,
+  collapsed:false,
+  onToggleCollapsed:()=>undefined,
+  onStudyPlan:()=>undefined,
+  onPracticeTests:()=>undefined,
+  onPracticeSetup:()=>undefined,
+  onQuestionBank:()=>undefined,
+  onParsingIssues:()=>undefined,
+  onPerformance:()=>undefined,
+  onResources:()=>undefined,
+  onSettings:()=>undefined,
+}
+
 describe('AppSidebarLayout',()=>{
   it('keeps Practice Setup and Question Bank as separate destinations',()=>{
     const onPracticeSetup=vi.fn()
@@ -9,27 +23,16 @@ describe('AppSidebarLayout',()=>{
 
     render(
       <AppSidebarLayout
-        active="practice-setup"
-        collapsed={false}
-        onToggleCollapsed={()=>undefined}
-        onStudyPlan={()=>undefined}
-        onPracticeTests={()=>undefined}
+        {...baseProps}
         onPracticeSetup={onPracticeSetup}
         onQuestionBank={onQuestionBank}
-        onParsingIssues={()=>undefined}
-        onPerformance={()=>undefined}
-        onResources={()=>undefined}
-        onSettings={()=>undefined}
       >
         <div>Practice setup content</div>
       </AppSidebarLayout>,
     )
 
-    const practiceSetup=screen.getByRole('button',{name:'Practice Setup'})
-    const questionBank=screen.getByRole('button',{name:'Question Bank'})
-
-    expect(practiceSetup).toBeInTheDocument()
-    expect(questionBank).toBeInTheDocument()
+    const practiceSetup=screen.getAllByRole('button',{name:'Practice Setup'})[0]
+    const questionBank=screen.getAllByRole('button',{name:'Question Bank'})[0]
 
     fireEvent.click(practiceSetup)
     fireEvent.click(questionBank)
@@ -38,36 +41,39 @@ describe('AppSidebarLayout',()=>{
     expect(onQuestionBank).toHaveBeenCalledTimes(1)
   })
 
-  it('clamps the app and content wrappers to the viewport',()=>{
+  it('renders phone navigation and a viewport-safe content wrapper',()=>{
     render(
-      <AppSidebarLayout
-        active="study"
-        collapsed={false}
-        onToggleCollapsed={()=>undefined}
-        onStudyPlan={()=>undefined}
-        onPracticeTests={()=>undefined}
-        onPracticeSetup={()=>undefined}
-        onQuestionBank={()=>undefined}
-        onParsingIssues={()=>undefined}
-        onPerformance={()=>undefined}
-        onResources={()=>undefined}
-        onSettings={()=>undefined}
-      >
+      <AppSidebarLayout {...baseProps}>
         <div>Responsive content</div>
       </AppSidebarLayout>,
     )
 
+    expect(screen.getByTestId('mobile-header')).toBeInTheDocument()
+    expect(screen.getByTestId('mobile-bottom-nav')).toBeInTheDocument()
+    expect(screen.getByRole('button',{name:'Plan'})).toBeInTheDocument()
+    expect(screen.getByRole('button',{name:'Tests'})).toBeInTheDocument()
+    expect(screen.getByRole('button',{name:'Stats'})).toBeInTheDocument()
+    expect(screen.getByRole('button',{name:'Menu'})).toBeInTheDocument()
+
     expect(screen.getByTestId('app-layout')).toHaveStyle({
-      width:'100vw',
+      width:'100%',
       maxWidth:'100vw',
-      display:'grid',
     })
     expect(screen.getByTestId('app-content')).toHaveStyle({
       width:'100%',
-      maxWidth:'calc(100vw - 244px)',
-      gridColumn:'2',
+      marginLeft:'0',
       overflowX:'clip',
     })
   })
 
+  it('opens the mobile navigation drawer',()=>{
+    render(
+      <AppSidebarLayout {...baseProps}>
+        <div>Responsive content</div>
+      </AppSidebarLayout>,
+    )
+
+    fireEvent.click(screen.getByRole('button',{name:'Open navigation'}))
+    expect(screen.getByRole('button',{name:'Close navigation'})).toBeInTheDocument()
+  })
 })
