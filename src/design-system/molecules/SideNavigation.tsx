@@ -1,4 +1,4 @@
-import {BarChart3,BookOpen,ChevronLeft,ChevronRight,ClipboardList,Compass,Flag,LogIn,Settings,SlidersHorizontal,Sparkles} from 'lucide-react'
+import {BarChart3,BookOpen,Bug,ChevronLeft,ChevronRight,Gamepad2,Layers3,LogIn,Map,Settings,SlidersHorizontal,Sparkles,Trophy} from 'lucide-react'
 import type {ReactNode} from 'react'
 import AlexBox from '../atoms/AlexBox'
 import AlexButtonBase from '../atoms/AlexButtonBase'
@@ -20,15 +20,15 @@ type Props={
   onFooterClick?:()=>void
 }
 
-const defaultIcon=(label:string)=>{
-  if(label==='Study Plan')return <Compass size={19}/>
-  if(label==='Practice Tests')return <ClipboardList size={19}/>
-  if(label==='Practice Setup')return <SlidersHorizontal size={19}/>
-  if(label==='Question Bank')return <BookOpen size={19}/>
-  if(label==='Parsing Issues')return <Flag size={19}/>
-  if(label==='Performance')return <BarChart3 size={19}/>
-  if(label==='Resources')return <BookOpen size={19}/>
-  return <Settings size={19}/>
+const defaultIcon=(key:string)=>{
+  if(key==='study')return <Map size={19}/>
+  if(key==='practice-tests')return <Trophy size={19}/>
+  if(key==='practice-setup')return <SlidersHorizontal size={19}/>
+  if(key==='question-bank')return <Layers3 size={19}/>
+  if(key==='parsing-issues')return <Bug size={19}/>
+  if(key==='performance')return <BarChart3 size={19}/>
+  if(key==='resources')return <BookOpen size={19}/>
+  return <Gamepad2 size={19}/>
 }
 
 function NavItem({item,collapsed}:{item:Item;collapsed:boolean}){
@@ -42,7 +42,7 @@ function NavItem({item,collapsed}:{item:Item;collapsed:boolean}){
         bgcolor:item.active?'#6D5DFB':'transparent',boxShadow:item.active?'inset 0 0 0 1px rgba(255,255,255,.12), 0 3px 0 #4B3FCE':'none','&:hover':{bgcolor:item.active?'#6D5DFB':'#372B69'},
       }}
     >
-      {item.icon??defaultIcon(item.label)}
+      {item.icon??defaultIcon(item.key)}
       {!collapsed&&<AlexText component="span" sx={{fontSize:14,fontWeight:650}}>{item.label}</AlexText>}
     </AlexButtonBase>
   )
@@ -69,7 +69,7 @@ export default function SideNavigation({brand='Alexified',primary,secondary=[],f
 
     {secondary.length>0&&<AlexBox sx={{mt:2.35}}>
       {!collapsed&&<AlexBox sx={{display:'flex',alignItems:'center',gap:1.1,px:1.25,mb:1}}>
-        <AlexText sx={{fontSize:10.5,letterSpacing:'.03em',whiteSpace:'nowrap',color:'#E8E3FF'}}>EXTRA TOOLS</AlexText>
+        <AlexText sx={{fontSize:10.5,letterSpacing:'.03em',whiteSpace:'nowrap',color:'#E8E3FF'}}>BONUS MENU</AlexText>
         <AlexBox sx={{height:'1px',bgcolor:'#766D99',flex:1}}/>
       </AlexBox>}
       <AlexStack spacing={.45}>{secondary.map(item=><NavItem item={item} collapsed={collapsed} key={item.key}/>)}</AlexStack>
