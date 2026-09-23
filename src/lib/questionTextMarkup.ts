@@ -18,11 +18,11 @@ export function underlineSelection(value:string,start:number,end:number){
 
   const wrapped=selected
     .split('\n')
-    .map(line=>line.trim()?\`${UNDERLINE_OPEN}${line}${UNDERLINE_CLOSE}\`:line)
+    .map(line=>line.trim()?UNDERLINE_OPEN+line+UNDERLINE_CLOSE:line)
     .join('\n')
 
   return {
-    value:\`${value.slice(0,start)}${wrapped}${value.slice(end)}\`,
+    value:value.slice(0,start)+wrapped+value.slice(end),
     start,
     end:start+wrapped.length,
   }
