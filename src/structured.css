@@ -83,34 +83,3 @@
 .reading-paired-text{display:grid;gap:7px}
 .reading-paired-label{font-weight:700;line-height:1.25}
 .reading-paired-quote{margin:0;padding-top:4px;padding-bottom:4px}
-
-
-/* Wide SAT reading tables that must remain readable inside a split review pane. */
-.reading-data-table--fit .reading-data-table-scroll{
-  overflow-x:hidden;
-}
-.reading-data-table--fit table{
-  width:100%;
-  max-width:100%;
-  table-layout:fixed;
-}
-.reading-data-table--fit th,
-.reading-data-table--fit td{
-  padding:5px 8px;
-  overflow-wrap:normal;
-  word-break:normal;
-  hyphens:none;
-}
-.reading-data-table--fit th{
-  font-size:.88em;
-  line-height:1.18;
-}
-@media(max-width:800px){
-  .reading-data-table--fit th,
-  .reading-data-table--fit td{
-    padding:4px 6px;
-  }
-  .reading-data-table--fit th{
-    font-size:.84em;
-  }
-}
