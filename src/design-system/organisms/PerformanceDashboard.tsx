@@ -1,7 +1,6 @@
 import {BarChart3,BookOpen,Clock3,Target,TrendingUp} from 'lucide-react'
 import AlexBarChart from '../atoms/AlexBarChart'
 import AlexBox from '../atoms/AlexBox'
-import AlexButton from '../atoms/AlexButton'
 import AlexLineChart from '../atoms/AlexLineChart'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
@@ -10,7 +9,7 @@ import PerformanceChartCard from '../molecules/PerformanceChartCard'
 import QuestionStatsTable from '../molecules/QuestionStatsTable'
 import type {PerformanceAnalytics} from '../../lib/performanceAnalytics'
 
-type Props={summary:PerformanceAnalytics;hasHistory:boolean;onClearHistory?:()=>void;compact?:boolean;questionsPdf?:ArrayBuffer|null;answersPdf?:ArrayBuffer|null}
+type Props={summary:PerformanceAnalytics;hasHistory:boolean;compact?:boolean;questionsPdf?:ArrayBuffer|null;answersPdf?:ArrayBuffer|null}
 
 const chartTheme={
   text:{fontSize:12,fill:'#475467'},
@@ -19,7 +18,7 @@ const chartTheme={
   tooltip:{container:{fontSize:12,borderRadius:8,boxShadow:'0 8px 30px rgba(16,24,40,.14)'}},
 }
 
-export default function PerformanceDashboard({summary,hasHistory,onClearHistory,compact=false,questionsPdf=null,answersPdf=null}:Props){
+export default function PerformanceDashboard({summary,hasHistory,compact=false,questionsPdf=null,answersPdf=null}:Props){
   const sectionAccuracy=summary.sections.filter(section=>section.attempts>0).map(section=>({section:section.label,success:section.successRate}))
   const sectionTime=summary.sections.filter(section=>section.attempts>0).map(section=>({section:section.label,seconds:Math.round(section.averageMs/1000)}))
   const questionStats=summary.questions.slice(0,18)
@@ -54,7 +53,6 @@ export default function PerformanceDashboard({summary,hasHistory,onClearHistory,
         <AlexText component="h1" sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:32,md:46},lineHeight:1.08,my:1,color:'#08275B'}}>Your practice trends</AlexText>
         <AlexText sx={{color:'#667085',maxWidth:720}}>Track success rate, response time, repeat attempts, session progress, and a practice-only score estimate from your own history.</AlexText>
       </AlexBox>
-      {hasHistory&&onClearHistory&&<AlexButton tone="secondary" onClick={onClearHistory}>Clear history & start fresh</AlexButton>}
     </AlexBox>}
 
     <AlexBox sx={{display:'grid',gridTemplateColumns:{xs:'repeat(2,minmax(0,1fr))',md:'repeat(3,minmax(0,1fr))',xl:'repeat(5,minmax(0,1fr))'},gap:{xs:1,sm:1.5,lg:1.75},mt:compact?0:2.5}}>
