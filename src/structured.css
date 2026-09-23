@@ -22,6 +22,7 @@
 .question-visual-slice .source-loading,.question-visual-slice .source-error{width:100%;padding:18px;text-align:center;font-family:Arial,sans-serif;font-size:.82rem;color:#667085;background:#fafafa;border:1px solid #eaecf0;border-radius:8px}
 .structured-explanation .structured-lines{font-family:inherit;font-size:.96rem;line-height:1.65;max-width:none;padding:12px 2px;color:#344054}
 .structured-loading{padding:52px 28px;text-align:center;color:#667085}
+.rich-underline{text-decoration-line:underline;text-decoration-thickness:.06em;text-underline-offset:.12em;text-decoration-skip-ink:auto}
 .rich-math.inline{display:inline;margin:0 .04em;max-width:100%;vertical-align:baseline;line-height:inherit}
 .rich-math.inline .katex{font-size:1em;line-height:inherit;vertical-align:baseline}
 .rich-math.display{display:block;overflow-x:auto;margin:14px 0;text-align:center;padding:2px 0;max-width:100%}
