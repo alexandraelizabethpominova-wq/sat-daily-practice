@@ -21,11 +21,10 @@ type Props={
   failedQuestionCount:number
   onChange:(settings:Settings)=>void
   onStart:()=>void
-  onClearHistory:()=>void
   recommendation:PracticePlanRecommendation
 }
 
-export default function PracticeSetupPanel({settings,practiceTests,missedQuestionCount,failedQuestionCount,onChange,onStart,onClearHistory,recommendation}:Props){
+export default function PracticeSetupPanel({settings,practiceTests,missedQuestionCount,failedQuestionCount,onChange,onStart,recommendation}:Props){
   const selectionMode=settings.selectionMode??'adaptive'
   const practiceTest=settings.practiceTest??'all'
   const missedOnly=settings.failedOnly??false
@@ -108,7 +107,6 @@ export default function PracticeSetupPanel({settings,practiceTests,missedQuestio
 
     <AlexBox sx={{display:'flex',gap:1,flexWrap:'wrap',pt:2.5,mt:2.5,borderTop:'1px solid #EAECF0',flexDirection:{xs:'column',sm:'row'}}}>
       <AlexButton fullWidth sx={{width:{xs:'100%',sm:'auto'}}} onClick={onStart} disabled={(missedOnly&&missedQuestionCount===0)||(failedEverOnly&&failedQuestionCount===0)}>Start practice</AlexButton>
-      <AlexButton fullWidth sx={{width:{xs:'100%',sm:'auto'}}} tone="quiet" onClick={onClearHistory}>Clear history</AlexButton>
     </AlexBox>
   </AlexSurface>
 }

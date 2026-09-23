@@ -132,10 +132,14 @@ function hasVisualReference(lines:string[]){
   return /\b(graph|scatterplot|diagram|figure|line graph|bar graph|chart)\b/.test(text)
 }
 
+export function questionExtractionCrop(question:PracticeQuestion){
+  return question.sourceCrop??questionCropForParts(question.practiceTestId,question.module,question.number)
+}
+
 export async function extractQuestionLines(question:PracticeQuestion,questionPdf:ArrayBuffer){
   const doc=await loadPdf('questions',questionPdf)
   const {items}=await pageItems(doc,question.sourcePage)
-  const crop=questionCropForParts(question.practiceTestId,question.module,question.number)
+  const crop=questionExtractionCrop(question)
   if(!crop)return[]
   const margin=4
   const selected=items.filter(item=>

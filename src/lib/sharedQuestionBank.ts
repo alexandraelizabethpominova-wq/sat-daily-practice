@@ -125,18 +125,19 @@ export async function saveSharedQuestionRepair(input:{
     :visuals[0]?encodeVisual(visuals[0],false):null
   const {data,error}=await supabase.from('sat_question_bank').update({
     question_lines:input.questionLines,
+    question_mode:'text',
     needs_visual:visuals.length>0,
     visual_crop:visualCrop,
     visual_after_line:visuals.length===1?visuals[0].afterLine:null,
     content_status:'verified',
     updated_at:new Date().toISOString(),
   }).eq('id',input.questionId)
-    .select('id,question_lines,updated_at')
+    .select('id,question_lines,question_mode,updated_at')
     .maybeSingle()
   if(error)throw error
   if(!data)throw new Error('Supabase did not update this question. Reload, sign in again, and make sure shared Question Bank editing is enabled.')
-  if(data.id!==input.questionId||!questionLinesEqual(data.question_lines,input.questionLines)){
-    throw new Error('Supabase did not persist the exact edited question text. Reload the question before trying again.')
+  if(data.id!==input.questionId||data.question_mode!=='text'||!questionLinesEqual(data.question_lines,input.questionLines)){
+    throw new Error('Supabase did not persist the exact edited question text in text mode. Reload the question before trying again.')
   }
   const savedLines=data.question_lines as string[]
   window.dispatchEvent(new CustomEvent('sat-question-content-updated',{detail:{questionId:input.questionId}}))

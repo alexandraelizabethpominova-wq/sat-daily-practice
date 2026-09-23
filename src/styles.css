@@ -530,3 +530,60 @@ button{touch-action:manipulation}
 }
 
 nav[aria-label="Mobile primary navigation"]{margin:0}
+
+
+/* Responsive source viewer ------------------------------------------------ */
+/*
+ * Mobile-first source rendering. At 100% the source fills the available
+ * viewer width instead of being constrained by viewport height. Zoom changes
+ * layout width (not transform position), so the scroll container can keep the
+ * source centered and fully reachable.
+ */
+.source-viewer .source-slice-content--zoomable{
+  display:flex;
+  align-items:flex-start;
+  justify-content:flex-start;
+  width:100%;
+  min-width:0;
+  overflow:auto;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+  padding:8px;
+}
+.source-viewer .source-slice-zoom{
+  flex:0 0 auto;
+  min-width:0;
+  max-width:none;
+  margin-inline:auto;
+}
+.source-viewer .source-slice-zoom img{
+  display:block;
+  width:100%;
+  max-width:none;
+  max-height:none;
+  height:auto;
+  object-fit:contain;
+  transform:none;
+}
+.source-viewer .question-source .source-slice-content--zoomable img{
+  width:100%;
+  max-width:none;
+  max-height:none;
+  height:auto;
+}
+
+@media(min-width:600px){
+  .source-viewer .source-slice-content--zoomable{
+    padding:12px;
+  }
+}
+
+@media(min-width:1200px){
+  .source-viewer .question-source .source-slice-content--zoomable{
+    height:calc(100dvh - 190px);
+    min-height:470px;
+    max-height:none;
+    overflow:auto;
+    padding:16px;
+  }
+}

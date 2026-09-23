@@ -151,6 +151,30 @@ describe('ReadingQuestionLines',()=>{
     expect(screen.getAllByText('20%')).toHaveLength(1)
   })
 
+  it('does not duplicate Q17 table text when a legacy editor save embedded the table in question_lines',()=>{
+    const lines=[
+      'Effects of Mycorrhizal Fungi on 3 Plant Species',
+      'Plant species',
+      'Mycorrhizal host',
+      'Average mass of plants grown in soil containing mycorrhizal fungi (in grams)',
+      'Average mass of plants grown in soil treated to kill fungi (in grams)',
+      'Corn yes 15.1 3.8',
+      'Marigold yes 10.2 2.4',
+      'Broccoli no 7.5 7',
+      'Mycorrhizal fungi in soil benefits many plants, substantially increasing the mass of some.',
+      'Which choice most effectively uses data from the table to complete the statement?',
+      'A) broccoli comparison',
+      'B) corn comparison',
+      'C) marigold comparison',
+      'D) treated-soil comparison',
+    ]
+    render(<ReadingQuestionLines lines={lines} questionId="rw1-17"/>)
+    expect(screen.getAllByText('Effects of Mycorrhizal Fungi on 3 Plant Species')).toHaveLength(1)
+    expect(screen.getAllByText('Corn')).toHaveLength(1)
+    expect(screen.getByText(/Mycorrhizal fungi in soil benefits many plants/)).toBeInTheDocument()
+    expect(screen.getAllByRole('listitem')).toHaveLength(4)
+  })
+
   it('keeps wrapped choice text attached to its answer label',()=>{
     const lines=[
       'Biologist Valentina Gómez-Bahamón and her team have investigated two subspecies.',
