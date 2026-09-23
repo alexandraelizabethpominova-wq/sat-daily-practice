@@ -1,5 +1,5 @@
 import {describe,expect,it} from 'vitest'
-import {stripEmbeddedReadingTableLines} from './readingTables'
+import {readingTableSpec,stripEmbeddedReadingTableLines} from './readingTables'
 
 describe('structured reading table round trips',()=>{
   const prose=[
@@ -32,5 +32,11 @@ describe('structured reading table round trips',()=>{
 
   it('does not change questions without a structured table definition',()=>{
     expect(stripEmbeddedReadingTableLines('rw1-14',prose)).toEqual(prose)
+  })
+
+  it('keeps Q17’s four-column table fitted to the review pane',()=>{
+    const table=readingTableSpec('rw1-17')
+    expect(table?.fitToPane).toBe(true)
+    expect(table?.columnWidths).toEqual(['20%','23%','29%','28%'])
   })
 })
