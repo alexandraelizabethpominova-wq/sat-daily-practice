@@ -247,7 +247,7 @@ export default function ReadingQuestionLines({lines,questionId}:{lines:string[];
   const table=canonicalTable?.table??(questionId?readingTableSpec(questionId):undefined)
   const pairedTexts=pairedTextSections(parsed.stimulusBlocks)
   return <div className="reading-question-content">
-    {table&&<ReadingDataTable table={table}/>} 
+    {table&&<ReadingDataTable table={table} questionId={questionId}/>} 
     {parsed.intro.length>0&&<div className="reading-intro">{splitBlocks(parsed.intro).map((block,index)=><JoinedBlock key={`intro-${index}`} lines={block}/>)}</div>}
     {pairedTexts
       ?<PairedTextPassages sections={pairedTexts}/>
