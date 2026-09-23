@@ -103,13 +103,28 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
         setVisuals(resolvedVisuals)
 
         if(sharedHasText&&shared){
-          setContent(storedFromShared(question.id,shared.questionLines,shared.explanationLines,resolvedVisuals.length>0,shared.questionMode))
+          setContent(storedFromShared(question.id,shared.questionLines,shared.explanationLines,resolvedVisuals.length>0,'text'))
           return
         }
 
         if(verifiedBundled){
           setContent(storedFromShared(question.id,verifiedBundled.lines,shared?.explanationLines??[],resolvedVisuals.length>0||Boolean(verifiedBundled.needsVisual),'text'))
           return
+        }
+
+        const canExtractVerifiedSource=Boolean(
+          sourceBytes
+          &&question.contentStatus==='verified'
+          &&question.sourceCrop
+        )
+
+        if(canExtractVerifiedSource&&sourceBytes){
+          const extracted=await ensureQuestionText(question,sourceBytes)
+          if(cancelled)return
+          if(extracted&&isCurrentQuestionContent(extracted)&&extracted.questionLines.length){
+            setContent({...extracted,questionMode:'text',needsVisual:resolvedVisuals.length>0||extracted.needsVisual})
+            return
+          }
         }
 
         if(shared?.questionMode==='image-fallback'){
@@ -140,7 +155,8 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
           return
         }
 
-        const sourceExtractable=question.practiceTestId==='practice-test-7'&&(question.module==='rw1'||question.module==='rw2')&&question.contentStatus==='verified'
+        const sourceExtractable=Boolean(sourceBytes&&question.sourceCrop&&question.contentStatus==='verified')
+          ||question.practiceTestId==='practice-test-7'&&(question.module==='rw1'||question.module==='rw2')&&question.contentStatus==='verified'
         if(question.practiceTestId!=='practice-test-4'&&!isPracticeTest5Math1Verified(question.id)&&!sourceExtractable&&!shared?.questionLines.length){
           setError('This question has not been parsed and verified for this practice set yet.')
           return
