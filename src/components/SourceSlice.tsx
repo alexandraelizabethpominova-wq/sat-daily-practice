@@ -2,6 +2,7 @@ import {useEffect,useRef,useState} from 'react'
 import {GlobalWorkerOptions,getDocument,type PDFDocumentProxy,type PDFPageProxy} from 'pdfjs-dist'
 import {getQuestionImage,saveQuestionImage} from '../lib/questionImageStore'
 import {questionCropForParts} from '../lib/questionCrops'
+import {nonWhiteContentBounds} from '../lib/sourceImageTrim'
 import type {ModuleKey,PracticeTestId,SourceCrop} from '../types'
 
 GlobalWorkerOptions.workerSrc=new URL('pdfjs-dist/build/pdf.worker.min.mjs',import.meta.url).toString()
@@ -117,15 +118,15 @@ async function dynamicQuestionBounds(page:PDFPageProxy,scale:number,questionNumb
 
 function canvasToBlob(canvas:HTMLCanvasElement):Promise<Blob>{return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('Could not create image.')),'image/png'))}
 
-type Props={pdfKey:string;bytes:ArrayBuffer;page:number;questionNumber:number;alt:string;zoom?:number;practiceTestId:PracticeTestId;module?:ModuleKey;sourceCrop?:SourceCrop|null;layout?:'standard'|'comparison'}
+type Props={pdfKey:string;bytes:ArrayBuffer;page:number;questionNumber:number;alt:string;zoom?:number;practiceTestId:PracticeTestId;module?:ModuleKey;sourceCrop?:SourceCrop|null;layout?:'standard'|'comparison';trimWhitespace?:boolean}
 
-export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt,zoom=1,practiceTestId,module,sourceCrop,layout='standard'}:Props){
+export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt,zoom=1,practiceTestId,module,sourceCrop,layout='standard',trimWhitespace=false}:Props){
   const[src,setSrc]=useState('');const[error,setError]=useState('');const isQuestion=pdfKey==='questions'
   const contentRef=useRef<HTMLDivElement|null>(null)
   useEffect(()=>{
     let cancelled=false;let objectUrl='';let renderTask:{cancel:()=>void;promise:Promise<void>}|null=null
     const cropKey=sourceCrop?`${sourceCrop.x},${sourceCrop.y},${sourceCrop.width},${sourceCrop.height}`:'auto'
-    const imageKey=`v12:${practiceTestId}:${pdfKey}:${bytes.byteLength}:${page}:${questionNumber}:${cropKey}`
+    const imageKey=`v13:${practiceTestId}:${pdfKey}:${bytes.byteLength}:${page}:${questionNumber}:${cropKey}:${trimWhitespace?'trim':'full'}`
     async function showBlob(blob:Blob){objectUrl=URL.createObjectURL(blob);if(!cancelled)setSrc(objectUrl)}
     async function render(){
       try{
@@ -151,12 +152,34 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt,zoom=1
         const srcX=Math.max(0,Math.floor(left*dpr)),srcY=Math.max(0,Math.floor(top*dpr)),srcRight=Math.min(full.width,Math.ceil(right*dpr)),srcBottom=Math.min(full.height,Math.ceil(bottom*dpr))
         const srcWidth=Math.max(1,srcRight-srcX),srcHeight=Math.max(1,srcBottom-srcY);const out=document.createElement('canvas');out.width=srcWidth;out.height=srcHeight
         const ctx=out.getContext('2d')!;ctx.fillStyle='#fff';ctx.fillRect(0,0,out.width,out.height);ctx.drawImage(full,srcX,srcY,srcWidth,srcHeight,0,0,out.width,out.height)
-        const blob=await canvasToBlob(out);await saveQuestionImage(imageKey,blob);if(!cancelled)await showBlob(blob)
+
+        let rendered=out
+        if(trimWhitespace){
+          const imageData=ctx.getImageData(0,0,out.width,out.height)
+          const bounds=nonWhiteContentBounds(imageData.data,out.width,out.height)
+          if(bounds){
+            const padding=Math.max(12,Math.round(8*scale*dpr))
+            const trimmedWidth=Math.min(out.width,bounds.right+padding)
+            const trimmedHeight=Math.min(out.height,bounds.bottom+padding)
+            if(trimmedWidth<out.width||trimmedHeight<out.height){
+              const trimmed=document.createElement('canvas')
+              trimmed.width=trimmedWidth
+              trimmed.height=trimmedHeight
+              const trimmedCtx=trimmed.getContext('2d')!
+              trimmedCtx.fillStyle='#fff'
+              trimmedCtx.fillRect(0,0,trimmed.width,trimmed.height)
+              trimmedCtx.drawImage(out,0,0,trimmedWidth,trimmedHeight,0,0,trimmedWidth,trimmedHeight)
+              rendered=trimmed
+            }
+          }
+        }
+
+        const blob=await canvasToBlob(rendered);await saveQuestionImage(imageKey,blob);if(!cancelled)await showBlob(blob)
       }catch(reason){if(!cancelled)setError(reason instanceof Error?reason.message:'Unable to render item.')}
     }
     void render()
     return()=>{cancelled=true;try{renderTask?.cancel()}catch{};if(objectUrl)URL.revokeObjectURL(objectUrl)}
-  },[pdfKey,bytes,page,questionNumber,isQuestion,practiceTestId,module,sourceCrop])
+  },[pdfKey,bytes,page,questionNumber,isQuestion,practiceTestId,module,sourceCrop,trimWhitespace])
   useEffect(()=>{
     const node=contentRef.current
     if(!node||!src)return
