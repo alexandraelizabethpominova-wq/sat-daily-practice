@@ -19,11 +19,12 @@ type Props={
   module?:ModuleKey
   sourceCrop?:SourceCrop|null
   layout?:'standard'|'comparison'
+  trimWhitespace?:boolean
 }
 
 export default function SourceViewer({
   pdfKey,bytes,page,questionNumber,alt,label,
-  minZoom=SOURCE_ZOOM_MIN,maxZoom=SOURCE_ZOOM_MAX,zoomStep=SOURCE_ZOOM_STEP,practiceTestId,module,sourceCrop,layout='standard',
+  minZoom=SOURCE_ZOOM_MIN,maxZoom=SOURCE_ZOOM_MAX,zoomStep=SOURCE_ZOOM_STEP,practiceTestId,module,sourceCrop,layout='standard',trimWhitespace=false,
 }:Props){
   const viewerRef=useRef<HTMLDivElement|null>(null)
   const manualZoomRef=useRef(false)
@@ -81,6 +82,6 @@ export default function SourceViewer({
         <AlexIconButton label={`Fit ${pdfKey==='questions'?'question':'explanation'} to viewer`} onClick={fitToViewer} disabled={Math.abs(zoom-fitZoom)<.001}><Maximize2 size={16}/></AlexIconButton>
       </div>
     </div>
-    <SourceSlice pdfKey={pdfKey} bytes={bytes} page={page} questionNumber={questionNumber} alt={alt} zoom={zoom} practiceTestId={practiceTestId} module={module} sourceCrop={sourceCrop} layout={layout}/>
+    <SourceSlice pdfKey={pdfKey} bytes={bytes} page={page} questionNumber={questionNumber} alt={alt} zoom={zoom} practiceTestId={practiceTestId} module={module} sourceCrop={sourceCrop} layout={layout} trimWhitespace={trimWhitespace}/>
   </div>
 }
