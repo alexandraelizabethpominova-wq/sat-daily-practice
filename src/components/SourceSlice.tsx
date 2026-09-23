@@ -1,4 +1,4 @@
-import {useEffect,useState} from 'react'
+import {useEffect,useRef,useState} from 'react'
 import {GlobalWorkerOptions,getDocument,type PDFDocumentProxy,type PDFPageProxy} from 'pdfjs-dist'
 import {getQuestionImage,saveQuestionImage} from '../lib/questionImageStore'
 import {questionCropForParts} from '../lib/questionCrops'
@@ -121,6 +121,7 @@ type Props={pdfKey:string;bytes:ArrayBuffer;page:number;questionNumber:number;al
 
 export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt,zoom=1,practiceTestId,module,sourceCrop}:Props){
   const[src,setSrc]=useState('');const[error,setError]=useState('');const isQuestion=pdfKey==='questions'
+  const contentRef=useRef<HTMLDivElement|null>(null)
   useEffect(()=>{
     let cancelled=false;let objectUrl='';let renderTask:{cancel:()=>void;promise:Promise<void>}|null=null
     const cropKey=sourceCrop?`${sourceCrop.x},${sourceCrop.y},${sourceCrop.width},${sourceCrop.height}`:'auto'
@@ -156,12 +157,21 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt,zoom=1
     void render()
     return()=>{cancelled=true;try{renderTask?.cancel()}catch{};if(objectUrl)URL.revokeObjectURL(objectUrl)}
   },[pdfKey,bytes,page,questionNumber,isQuestion,practiceTestId,module,sourceCrop])
+  useEffect(()=>{
+    const node=contentRef.current
+    if(!node||!src)return
+    const frame=requestAnimationFrame(()=>{
+      node.scrollLeft=Math.max(0,(node.scrollWidth-node.clientWidth)/2)
+    })
+    return()=>cancelAnimationFrame(frame)
+  },[zoom,src])
+
   const zoomWidth=`${Math.round(zoom*10000)/100}%`
   return <div className={`source-slice ${isQuestion?'question-source':''}`} role="img" aria-label={alt}>
-    <div className="source-slice-content" style={{overflow:'auto',justifyContent:'flex-start'}}>
+    <div className="source-slice-content source-slice-content--zoomable" ref={contentRef}>
       {error?<div className="source-error">{error}</div>:src?
-        <div className="source-slice-zoom" style={{width:zoomWidth,margin:zoom<=1?'0 auto':'0',flex:'0 0 auto',minWidth:0}}>
-          <img src={src} alt={alt} style={{display:'block',width:'100%',maxWidth:'none',height:'auto',transform:'none'}}/>
+        <div className="source-slice-zoom" style={{width:zoomWidth}}>
+          <img src={src} alt={alt}/>
         </div>
         :<div className="source-loading">{isQuestion?'Preparing question…':'Preparing explanation…'}</div>}
     </div>
