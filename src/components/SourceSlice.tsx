@@ -170,7 +170,12 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt,zoom=1
   return <div className={`source-slice ${isQuestion?'question-source':''} source-slice--${layout}`} role="img" aria-label={alt}>
     <div className="source-slice-content source-slice-content--zoomable" ref={contentRef}>
       {error?<div className="source-error">{error}</div>:src?
-        <div className="source-slice-zoom" style={{width:zoomWidth,marginInline:zoom<=1?'auto':0}}>
+        <div
+          className="source-slice-zoom"
+          style={layout==='comparison'
+            ?{width:zoomWidth,minWidth:zoomWidth,flexBasis:zoomWidth,marginInline:zoom<=1?'auto':0}
+            :{width:zoomWidth,marginInline:zoom<=1?'auto':0}}
+        >
           <img src={src} alt={alt}/>
         </div>
         :<div className="source-loading">{isQuestion?'Preparing question…':'Preparing explanation…'}</div>}
