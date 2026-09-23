@@ -25,8 +25,8 @@ import {buildPracticePlanRecommendation} from './lib/practicePlan'
 import {loadSharedQuestionBank,mergeQuestionBanks} from './lib/sharedQuestionBank'
 import {importPracticeMaterials} from './lib/pdfStructuredImport'
 import {choosePracticeQuestions,countFailedPracticeQuestions,countMissedPracticeQuestions,formatDuration,summarizePerformance,summarizeSession} from './lib/practiceGamification'
-import {addAttempt,clearHistory,getAttempts,getSessions,getSettings,prepareHistoryForUser,prepareSettingsForUser,replaceHistory,saveSession,saveSettings} from './lib/storage'
-import {clearCloudHistory,getCurrentAuthUser,loadCloudHistory,loadUserSettings,saveUserSettings,subscribeToAuth,syncSession,type AuthUser} from './lib/supabase'
+import {addAttempt,getAttempts,getSessions,getSettings,prepareHistoryForUser,prepareSettingsForUser,replaceHistory,saveSession,saveSettings} from './lib/storage'
+import {getCurrentAuthUser,loadCloudHistory,loadUserSettings,saveUserSettings,subscribeToAuth,syncSession,type AuthUser} from './lib/supabase'
 import type {Attempt,PracticeQuestion,SessionSummary,Settings,SubjectMode} from './types'
 
 const uid=()=>crypto.randomUUID()
@@ -238,28 +238,6 @@ export default function App(){
     goTo(i+1)
   }
 
-  async function resetHistory(){
-    if(!window.confirm('Delete all practice history and statistics? Your settings and uploaded question sources will be kept.'))return
-    try{
-      await clearCloudHistory()
-    }catch(error){
-      console.error('Supabase history deletion failed',error)
-      window.alert('Cloud history could not be cleared. Your local history was kept so the old data does not reappear later.')
-      return
-    }
-    clearHistory()
-    setAttempts([])
-    setSessions([])
-    setCurrentAttempts([])
-    setQs([])
-    setSid('')
-    setStarted('')
-    setI(0)
-    setSelected('')
-    setSubmitted(false)
-    setView('home')
-  }
-
   async function buildTextDatabase(){
     if(!qpdf||!apdf)return
     setImportProgress(`0/${QUESTION_BANK.length}`)
@@ -353,7 +331,7 @@ export default function App(){
     </main>)
   }
 
-  if(view==='stats')return withSidebar('performance',<main className="shell"><PerformanceDashboard summary={performance} hasHistory={attempts.length>0} onClearHistory={resetHistory} questionsPdf={qpdf} answersPdf={apdf}/></main>)
+  if(view==='stats')return withSidebar('performance',<main className="shell"><PerformanceDashboard summary={performance} hasHistory={attempts.length>0} questionsPdf={qpdf} answersPdf={apdf}/></main>)
 
   if(view==='question-bank')return withSidebar('question-bank',<QuestionBankReview questionsPdf={qpdf}/>,'#F7F6F2')
 
@@ -373,7 +351,6 @@ export default function App(){
       failedQuestionCount={failedQuestionCount}
       onChange={setSettings}
       onStart={()=>beginPractice(settings.mode)}
-      onClearHistory={resetHistory}
       recommendation={practiceRecommendation}
     />
   </main>)
