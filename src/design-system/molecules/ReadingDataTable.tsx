@@ -1,8 +1,9 @@
 import AlexRichText from '../atoms/AlexRichText'
 import type {ReadingTableSpec} from '../../lib/readingTables'
 
-export default function ReadingDataTable({table}:{table:ReadingTableSpec}){
-  return <figure className="reading-data-table">
+export default function ReadingDataTable({table,questionId}:{table:ReadingTableSpec;questionId?:string}){
+  const className=`reading-data-table${questionId==='rw1-17'?' reading-data-table--q17':''}`
+  return <figure className={className}>
     <figcaption><AlexRichText text={table.title}/></figcaption>
     <div className="reading-data-table-scroll">
       <table>
