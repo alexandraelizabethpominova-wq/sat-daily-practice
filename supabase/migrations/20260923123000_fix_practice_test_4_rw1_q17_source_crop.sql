@@ -1,12 +1,13 @@
--- Correct Practice Test 4 Reading & Writing Module 1 Q17 source crop.
--- Q17 was accidentally stored with nearly full-page width (541pt), leaving a large
--- blank area on the right. It belongs to the normal left SAT column (263pt).
+-- Preserve the full Practice Test 4 Reading & Writing Module 1 Q17 source crop.
+-- The full crop contains the complete four-column table and question text.
+-- Blank right/bottom whitespace is trimmed only in the rendered comparison preview,
+-- so display scaling can fill the pane without cutting source content.
 update public.sat_question_bank
 set
   source_crop = jsonb_build_object(
     'x', 28,
     'y', 107.03,
-    'width', 263,
+    'width', 541,
     'height', 627.97
   ),
   updated_at = now()
