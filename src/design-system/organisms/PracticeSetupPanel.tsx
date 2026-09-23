@@ -34,9 +34,9 @@ export default function PracticeSetupPanel({settings,practiceTests,missedQuestio
     ?`${recommendation.estimatedDailyMinutes} min/day`
     :'On track'
 
-  return <AlexSurface sx={{maxWidth:860,p:{xs:2.25,md:3.5},borderRadius:3,border:'1px solid #E4E7EC'}}>
+  return <AlexSurface sx={{width:'100%',maxWidth:860,p:{xs:1.6,sm:2.25,md:3.5},borderRadius:3,border:'1px solid #E4E7EC'}}>
     <AlexBox sx={{display:'grid',gap:.5,mb:2}}>
-      <AlexText component="h2" sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:24,fontWeight:500,color:'#08275B'}}>Practice setup</AlexText>
+      <AlexText component="h2" sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:22,sm:24},fontWeight:500,color:'#08275B'}}>Practice setup</AlexText>
       <AlexText sx={{fontSize:14,color:'#667085',lineHeight:1.5}}>Choose what to practice and how long each session should be.</AlexText>
     </AlexBox>
 
@@ -92,7 +92,7 @@ export default function PracticeSetupPanel({settings,practiceTests,missedQuestio
 
     <AlexAccordion
       sx={{mt:2.25}}
-      summary={<AlexBox sx={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:2,width:'100%',pr:1}}>
+      summary={<AlexBox sx={{display:'flex',alignItems:{xs:'flex-start',sm:'center'},justifyContent:'space-between',gap:1.25,width:'100%',pr:1,flexDirection:{xs:'column',sm:'row'}}}>
         <AlexBox>
           <AlexText sx={{fontSize:14,fontWeight:850,color:'#08275B'}}>Study plan</AlexText>
           <AlexText sx={{fontSize:12.5,color:'#667085',mt:.15}}>Goals and recommended daily pace</AlexText>
@@ -106,9 +106,9 @@ export default function PracticeSetupPanel({settings,practiceTests,missedQuestio
       </AlexBox>
     </AlexAccordion>
 
-    <AlexBox sx={{display:'flex',gap:1.25,flexWrap:'wrap',pt:2.5,mt:2.5,borderTop:'1px solid #EAECF0'}}>
-      <AlexButton onClick={onStart} disabled={(missedOnly&&missedQuestionCount===0)||(failedEverOnly&&failedQuestionCount===0)}>Start practice</AlexButton>
-      <AlexButton tone="quiet" onClick={onClearHistory}>Clear history</AlexButton>
+    <AlexBox sx={{display:'flex',gap:1,flexWrap:'wrap',pt:2.5,mt:2.5,borderTop:'1px solid #EAECF0',flexDirection:{xs:'column',sm:'row'}}}>
+      <AlexButton fullWidth sx={{width:{xs:'100%',sm:'auto'}}} onClick={onStart} disabled={(missedOnly&&missedQuestionCount===0)||(failedEverOnly&&failedQuestionCount===0)}>Start practice</AlexButton>
+      <AlexButton fullWidth sx={{width:{xs:'100%',sm:'auto'}}} tone="quiet" onClick={onClearHistory}>Clear history</AlexButton>
     </AlexBox>
   </AlexSurface>
 }

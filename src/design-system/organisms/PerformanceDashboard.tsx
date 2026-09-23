@@ -32,7 +32,7 @@ export default function PerformanceDashboard({summary,hasHistory,onClearHistory,
   if(compact)return <AlexBox sx={{display:'grid',gap:1.35,minWidth:0}}>
     <AlexBox sx={{
       display:'grid',
-      gridTemplateColumns:{xs:'repeat(2,minmax(0,1fr))',md:'repeat(4,minmax(0,1fr))'},
+      gridTemplateColumns:{xs:'repeat(2,minmax(0,1fr))',sm:'repeat(4,minmax(0,1fr))'},
       gap:1.2,
     }}>
       <MetricCard compact tone="blue" icon={<Target/>} label="Accuracy" value={hasHistory?`${summary.accuracy}%`:'—'}/>
@@ -57,7 +57,7 @@ export default function PerformanceDashboard({summary,hasHistory,onClearHistory,
       {hasHistory&&onClearHistory&&<AlexButton tone="secondary" onClick={onClearHistory}>Clear history & start fresh</AlexButton>}
     </AlexBox>}
 
-    <AlexBox sx={{display:'grid',gridTemplateColumns:{xs:'1fr',sm:'1fr 1fr',lg:'repeat(5,1fr)'},gap:1.75,mt:compact?0:2.5}}>
+    <AlexBox sx={{display:'grid',gridTemplateColumns:{xs:'repeat(2,minmax(0,1fr))',md:'repeat(3,minmax(0,1fr))',xl:'repeat(5,minmax(0,1fr))'},gap:{xs:1,sm:1.5,lg:1.75},mt:compact?0:2.5}}>
       <MetricCard tone={compact?'blue':'default'} icon={<Target/>} label="Accuracy" value={hasHistory?`${summary.accuracy}%`:'—'}/>
       <MetricCard tone={compact?'cream':'default'} icon={<Clock3/>} label="Avg. time" value={hasHistory?formatMs(summary.averageMs):'—'}/>
       <MetricCard tone={compact?'lavender':'default'} icon={<BookOpen/>} label="Sessions" value={String(summary.sessions)}/>
@@ -77,7 +77,7 @@ export default function PerformanceDashboard({summary,hasHistory,onClearHistory,
     </AlexSurface>}
 
     {hasHistory&&!compact&&<>
-      <AlexBox sx={{display:'grid',gridTemplateColumns:{xs:'1fr',lg:'1fr 1fr'},gap:2,mt:2.5}}>
+      <AlexBox sx={{display:'grid',gridTemplateColumns:{xs:'1fr',xl:'1fr 1fr'},gap:2,mt:2.5}}>
         <PerformanceChartCard title="Success by section" description="Correct answers as a percentage of all attempts in each section.">
           <AlexBarChart
             data={sectionAccuracy}
@@ -118,7 +118,7 @@ export default function PerformanceDashboard({summary,hasHistory,onClearHistory,
         </PerformanceChartCard>
       </AlexBox>
 
-      <AlexBox sx={{display:'grid',gridTemplateColumns:{xs:'1fr',lg:'1fr 1fr'},gap:2,mt:2}}>
+      <AlexBox sx={{display:'grid',gridTemplateColumns:{xs:'1fr',xl:'1fr 1fr'},gap:2,mt:2}}>
         <PerformanceChartCard title="Session success trend" description="Accuracy for each completed practice session.">
           <AlexLineChart
             data={sessionAccuracy}

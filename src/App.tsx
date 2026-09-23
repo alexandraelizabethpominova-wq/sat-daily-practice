@@ -303,8 +303,16 @@ export default function App(){
       />
       <div className="practice-workspace">
         <section className="question-panel">
-          <div className="question-heading"><div><span>QUESTION {current.number}</span><b>{current.subject==='math'?'Math':'Reading & Writing'}</b></div><AlexStatusChip>READY</AlexStatusChip></div>
-          <ParsingIssueReporter question={current} context="practice"/>
+          <div className="question-heading">
+            <div>
+              <span>QUESTION {current.number}</span>
+              <b>{current.subject==='math'?'Math':'Reading & Writing'}</b>
+            </div>
+            <AlexBox sx={{display:'flex',alignItems:'center',gap:.65,flex:'0 0 auto'}}>
+              <ParsingIssueReporter question={current} context="practice" compact/>
+              <AlexStatusChip>READY</AlexStatusChip>
+            </AlexBox>
+          </div>
           <QuestionContent question={current} bytes={qpdf} alt={`${moduleLabel(current.module)} question ${current.number}`}/>
         </section>
         <PracticeAnswerPanel

@@ -30,16 +30,72 @@ async function pageTextItems(page:PDFPageProxy,scale:number){
 
 async function explanationBounds(page:PDFPageProxy,scale:number,questionNumber:number){
   const {viewport,items}=await pageTextItems(page,scale)
-  const markers:Marker[]=[]
-  for(const item of items){for(let n=Math.max(1,questionNumber-2);n<=questionNumber+5;n++){if(isMarker(item.text,n)){markers.push({n,x:item.x,y:item.y});break}}}
-  const currentCandidates=markers.filter(marker=>marker.n===questionNumber)
-  if(!currentCandidates.length)return{left:0,right:viewport.width,top:0,bottom:viewport.height,viewport}
-  const current=[...currentCandidates].sort((a,b)=>a.y-b.y||a.x-b.x)[0]
-  const next=markers.filter(marker=>marker.n===questionNumber+1&&marker.y>current.y+14*scale).sort((a,b)=>a.y-b.y)[0]
-  const top=Math.max(0,current.y-28*scale);const bottom=Math.min(viewport.height,next?next.y-18*scale:viewport.height-12*scale)
-  const blockItems=items.filter(item=>item.text&&item.y>=top&&item.y<=bottom)
+
+  // PDF.js may return "QUESTION" and "14" as separate text items. Build visual
+  // rows first so we can reliably identify the current and next question heading.
+  const rowTolerance=4*scale
+  const rows:{y:number;items:typeof items;text:string}[]=[]
+  for(const item of [...items].filter(item=>item.text).sort((a,b)=>a.y-b.y||a.x-b.x)){
+    const row=rows.find(candidate=>Math.abs(candidate.y-item.y)<=rowTolerance)
+    if(row){
+      row.items.push(item)
+      row.items.sort((a,b)=>a.x-b.x)
+      row.text=row.items.map(part=>part.text).join(' ').replace(/\s+/g,' ').trim()
+    }else{
+      rows.push({y:item.y,items:[item],text:item.text.replace(/\s+/g,' ').trim()})
+    }
+  }
+
+  const headingFor=(n:number)=>rows.find(row=>new RegExp(`^QUESTION\\s*${n}(?:\\s|$)`,'i').test(row.text))
+  const currentHeading=headingFor(questionNumber)
+  const nextHeading=headingFor(questionNumber+1)
+
+  let current:Marker|undefined
+  let next:Marker|undefined
+
+  if(currentHeading){
+    current={
+      n:questionNumber,
+      x:Math.min(...currentHeading.items.map(item=>item.x)),
+      y:currentHeading.y,
+    }
+    if(nextHeading&&nextHeading.y>current.y){
+      next={
+        n:questionNumber+1,
+        x:Math.min(...nextHeading.items.map(item=>item.x)),
+        y:nextHeading.y,
+      }
+    }
+  }else{
+    // Fallback for answer PDFs that do not use an explicit QUESTION heading.
+    const markers:Marker[]=[]
+    for(const item of items){
+      for(let n=Math.max(1,questionNumber-2);n<=questionNumber+5;n++){
+        if(isMarker(item.text,n)){markers.push({n,x:item.x,y:item.y});break}
+      }
+    }
+    current=[...markers.filter(marker=>marker.n===questionNumber)].sort((a,b)=>a.y-b.y||a.x-b.x)[0]
+    if(current){
+      next=markers
+        .filter(marker=>marker.n===questionNumber+1&&marker.y>current!.y+8*scale)
+        .sort((a,b)=>a.y-b.y)[0]
+    }
+  }
+
+  if(!current)return{left:0,right:viewport.width,top:0,bottom:viewport.height,viewport}
+
+  // Start just above the current heading and stop just before the next heading.
+  // This intentionally excludes adjacent question explanations on the same page.
+  const top=Math.max(0,current.y-10*scale)
+  const bottom=Math.min(viewport.height,next?next.y-10*scale:viewport.height-12*scale)
+  const blockItems=items.filter(item=>item.text&&item.y>=top&&item.y<bottom)
   if(!blockItems.length)return{left:0,right:viewport.width,top,bottom,viewport}
-  const padding=18*scale;const left=Math.max(0,Math.min(...blockItems.map(item=>item.x))-padding);const right=Math.min(viewport.width,Math.max(...blockItems.map(item=>item.x+item.width))+padding)
+
+  const horizontalItems=blockItems.filter(item=>item.y>=current!.y-2*scale)
+  const measured=horizontalItems.length?horizontalItems:blockItems
+  const padding=14*scale
+  const left=Math.max(0,Math.min(...measured.map(item=>item.x))-padding)
+  const right=Math.min(viewport.width,Math.max(...measured.map(item=>item.x+item.width))+padding)
   return{left,right,top,bottom,viewport}
 }
 
@@ -68,7 +124,7 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt,zoom=1
   useEffect(()=>{
     let cancelled=false;let objectUrl='';let renderTask:{cancel:()=>void;promise:Promise<void>}|null=null
     const cropKey=sourceCrop?`${sourceCrop.x},${sourceCrop.y},${sourceCrop.width},${sourceCrop.height}`:'auto'
-    const imageKey=`v10:${practiceTestId}:${pdfKey}:${bytes.byteLength}:${page}:${questionNumber}:${cropKey}`
+    const imageKey=`v12:${practiceTestId}:${pdfKey}:${bytes.byteLength}:${page}:${questionNumber}:${cropKey}`
     async function showBlob(blob:Blob){objectUrl=URL.createObjectURL(blob);if(!cancelled)setSrc(objectUrl)}
     async function render(){
       try{
@@ -100,5 +156,14 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt,zoom=1
     void render()
     return()=>{cancelled=true;try{renderTask?.cancel()}catch{};if(objectUrl)URL.revokeObjectURL(objectUrl)}
   },[pdfKey,bytes,page,questionNumber,isQuestion,practiceTestId,module,sourceCrop])
-  return <div className={`source-slice ${isQuestion?'question-source':''}`} role="img" aria-label={alt}><div className="source-slice-content">{error?<div className="source-error">{error}</div>:src?<img src={src} alt={alt} style={zoom!==1?{transform:`scale(${zoom})`}:undefined}/>:<div className="source-loading">{isQuestion?'Preparing question…':'Preparing explanation…'}</div>}</div></div>
+  const zoomWidth=`${Math.round(zoom*10000)/100}%`
+  return <div className={`source-slice ${isQuestion?'question-source':''}`} role="img" aria-label={alt}>
+    <div className="source-slice-content" style={{overflow:'auto',justifyContent:'flex-start'}}>
+      {error?<div className="source-error">{error}</div>:src?
+        <div className="source-slice-zoom" style={{width:zoomWidth,margin:zoom<=1?'0 auto':'0',flex:'0 0 auto',minWidth:0}}>
+          <img src={src} alt={alt} style={{display:'block',width:'100%',maxWidth:'none',height:'auto',transform:'none'}}/>
+        </div>
+        :<div className="source-loading">{isQuestion?'Preparing question…':'Preparing explanation…'}</div>}
+    </div>
+  </div>
 }
