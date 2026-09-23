@@ -1,7 +1,7 @@
 import AlexRichText from '../atoms/AlexRichText'
 import ReadingDataTable from './ReadingDataTable'
 import {READING_PARAGRAPH_BREAK} from '../../lib/readingQuestionFormat'
-import {readingTableSpec,type ReadingTableSpec} from '../../lib/readingTables'
+import {readingTableSpec,stripEmbeddedReadingTableLines,type ReadingTableSpec} from '../../lib/readingTables'
 
 const LABELED_CHOICE=/^([A-D])(?:[.)]\s*|\s+)(.+)$/i
 const STANDALONE_CHOICE=/^([A-D])[.)]\s*$/i
@@ -241,8 +241,9 @@ function PairedTextPassages({sections}:{sections:PairedTextSection[]}){
 }
 
 export default function ReadingQuestionLines({lines,questionId}:{lines:string[];questionId?:string}){
-  const canonicalTable=canonicalTabTable(lines)
-  const parsed=parseReadingQuestion(canonicalTable?.content??lines)
+  const safeLines=questionId?stripEmbeddedReadingTableLines(questionId,lines):lines
+  const canonicalTable=canonicalTabTable(safeLines)
+  const parsed=parseReadingQuestion(canonicalTable?.content??safeLines)
   const table=canonicalTable?.table??(questionId?readingTableSpec(questionId):undefined)
   const pairedTexts=pairedTextSections(parsed.stimulusBlocks)
   return <div className="reading-question-content">
