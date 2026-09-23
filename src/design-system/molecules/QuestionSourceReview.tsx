@@ -30,8 +30,8 @@ export default function QuestionSourceReview({question,questionsPdf,answersPdf=n
         <QuestionContent key={`question-${question.id}-${revision}`} question={question} bytes={resolvedQuestionsPdf} alt={`${label} text`} showOriginalLayout={false} reflowProse/>
       </AlexSurface>
 
-      <AlexSurface sx={{border:'1px solid #E6E2DB',borderRadius:2.5,overflow:'hidden',minWidth:0}}>
-        <AlexBox sx={{px:2,py:1.25,borderBottom:'1px solid #E6E2DB',bgcolor:'#F7F6F2'}}>
+      <AlexSurface sx={{border:'1px solid #E6E2DB',borderRadius:2.5,overflow:'hidden',minWidth:0,display:'flex',flexDirection:'column'}}>
+        <AlexBox sx={{px:2,py:1.25,borderBottom:'1px solid #E6E2DB',bgcolor:'#F7F6F2',flex:'0 0 auto'}}>
           <AlexText sx={{fontSize:12,fontWeight:800,color:'#475467',textTransform:'uppercase',letterSpacing:'.07em'}}>Original source</AlexText>
         </AlexBox>
         {hasQuestionSource&&resolvedQuestionsPdf
