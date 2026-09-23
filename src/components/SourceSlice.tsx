@@ -117,9 +117,9 @@ async function dynamicQuestionBounds(page:PDFPageProxy,scale:number,questionNumb
 
 function canvasToBlob(canvas:HTMLCanvasElement):Promise<Blob>{return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('Could not create image.')),'image/png'))}
 
-type Props={pdfKey:string;bytes:ArrayBuffer;page:number;questionNumber:number;alt:string;zoom?:number;practiceTestId:PracticeTestId;module?:ModuleKey;sourceCrop?:SourceCrop|null}
+type Props={pdfKey:string;bytes:ArrayBuffer;page:number;questionNumber:number;alt:string;zoom?:number;practiceTestId:PracticeTestId;module?:ModuleKey;sourceCrop?:SourceCrop|null;layout?:'standard'|'comparison'}
 
-export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt,zoom=1,practiceTestId,module,sourceCrop}:Props){
+export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt,zoom=1,practiceTestId,module,sourceCrop,layout='standard'}:Props){
   const[src,setSrc]=useState('');const[error,setError]=useState('');const isQuestion=pdfKey==='questions'
   const contentRef=useRef<HTMLDivElement|null>(null)
   useEffect(()=>{
@@ -167,10 +167,10 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt,zoom=1
   },[zoom,src])
 
   const zoomWidth=`${Math.round(zoom*10000)/100}%`
-  return <div className={`source-slice ${isQuestion?'question-source':''}`} role="img" aria-label={alt}>
+  return <div className={`source-slice ${isQuestion?'question-source':''} source-slice--${layout}`} role="img" aria-label={alt}>
     <div className="source-slice-content source-slice-content--zoomable" ref={contentRef}>
       {error?<div className="source-error">{error}</div>:src?
-        <div className="source-slice-zoom" style={{width:zoomWidth}}>
+        <div className="source-slice-zoom" style={{width:zoomWidth,marginInline:zoom<=1?'auto':0}}>
           <img src={src} alt={alt}/>
         </div>
         :<div className="source-loading">{isQuestion?'Preparing question…':'Preparing explanation…'}</div>}
