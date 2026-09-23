@@ -15,3 +15,22 @@ describe('AlexRichText underline markup',()=>{
     expect(container.querySelector('u.rich-underline .katex')).toBeTruthy()
   })
 })
+
+
+describe('AlexRichText inline math markers',()=>{
+  it('renders short SAT variable tokens without showing literal dollar delimiters',()=>{
+    const {container}=render(<AlexRichText text={'In the $xy$-plane, points $A$ and $B$ lie on a circle.'}/>)
+    expect(container.textContent).toContain('xy')
+    expect(container.textContent).toContain('A')
+    expect(container.textContent).toContain('B')
+    expect(container.textContent).not.toContain('$')
+    expect(container.querySelectorAll('.katex')).toHaveLength(3)
+  })
+
+  it('does not let an unrecognized dollar pair swallow later valid math',()=>{
+    const {container}=render(<AlexRichText text={'Cost is $abc def$ and point $A$ is marked.'}/>)
+    expect(container.textContent).toContain('$abc def$')
+    expect(container.textContent).toContain('A')
+    expect(container.querySelectorAll('.katex')).toHaveLength(1)
+  })
+})
