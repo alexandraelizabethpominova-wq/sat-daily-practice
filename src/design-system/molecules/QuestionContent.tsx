@@ -14,6 +14,7 @@ import {verifiedPracticeTest5Math1Content} from '../../lib/verifiedPracticeTest5
 import {verifiedPracticeTest6Reading1Content} from '../../lib/verifiedPracticeTest6Reading1'
 import {verifiedPracticeTest6Reading2Content} from '../../lib/verifiedPracticeTest6Reading2'
 import {verifiedPracticeTest6Math1Content} from '../../lib/verifiedPracticeTest6Math1'
+import {verifiedPracticeTest6Math2Content} from '../../lib/verifiedPracticeTest6Math2'
 import {verifiedPracticeTest7Math1Content} from '../../lib/verifiedPracticeTest7Math1'
 import {verifiedPracticeTest7Math2Content} from '../../lib/verifiedPracticeTest7Math2'
 import usePracticeTestPdf from '../../hooks/usePracticeTestPdf'
@@ -88,7 +89,9 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
               ?verifiedPracticeTest6Reading2Content(question.number)
               :question.module==='math1'
                 ?verifiedPracticeTest6Math1Content(question.number)
-                :undefined
+                :question.module==='math2'
+                  ?verifiedPracticeTest6Math2Content(question.number)
+                  :undefined
           :question.practiceTestId==='practice-test-7'
             ?question.module==='math1'
               ?verifiedPracticeTest7Math1Content(question.number)
