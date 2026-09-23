@@ -8,6 +8,7 @@ import VisualCropEditor from './VisualCropEditor'
 import {ensureQuestionText,extractQuestionLines} from '../../lib/pdfStructuredImport'
 import {getQuestionContent} from '../../lib/questionContentStore'
 import {hasUnderlineMarkup,refersToUnderlinedText,underlineSelection} from '../../lib/questionTextMarkup'
+import {readingTableSpec,stripEmbeddedReadingTableLines} from '../../lib/readingTables'
 import {loadSharedQuestionContent,saveSharedQuestionRepair} from '../../lib/sharedQuestionBank'
 import {verifiedMathContent} from '../../lib/verifiedMathQuestions'
 import {verifiedPracticeTest5Math1Content} from '../../lib/verifiedPracticeTest5Math1'
@@ -76,7 +77,7 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
           ?shared.visualSpecs
           :sharedControlsVisual&&!shared?.needsVisual?[]:bundledVisuals
 
-        setQuestionText(questionLines.join('\n'))
+        setQuestionText(stripEmbeddedReadingTableLines(question.id,questionLines).join('\n'))
         setTextOrigin(origin)
         setVisualSpecs(resolvedVisuals)
         setVisualSpec(resolvedVisuals[0]?{...resolvedVisuals[0],exact:true}:null)
@@ -123,7 +124,7 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
   }
 
   async function save(){
-    const questionLines=toLines(questionText)
+    const questionLines=stripEmbeddedReadingTableLines(question.id,toLines(questionText))
     if(!questionLines.length){setError('Question text cannot be empty.');return}
     setSaving(true);setError('');setMessage('')
     try{
@@ -142,6 +143,10 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
     <AlexText component="h2" sx={{fontSize:19,fontWeight:850,color:'#08275B'}}>Fix parsed question</AlexText>
     <AlexText sx={{fontSize:13,color:'#667085',mt:.4,mb:1.75}}>Edit only the reconstructed question text and source visual. The explanation always stays in its original PDF format.</AlexText>
     {loading?<AlexText sx={{color:'#667085'}}>Preparing editable content…</AlexText>:<AlexBox sx={{display:'grid',gap:1.5}}>
+      {readingTableSpec(question.id)&&<AlexSurface sx={{p:1.4,border:'1px solid #B2CCFF',borderRadius:2,bgcolor:'#F5F8FF'}}>
+        <AlexText sx={{fontSize:12.5,fontWeight:800,color:'#1849A9'}}>Structured table preserved separately</AlexText>
+        <AlexText sx={{fontSize:12,color:'#475467',mt:.2}}>The table is not part of the editable prose. Editing and saving this text will preserve the structured table without duplicating it into the question body.</AlexText>
+      </AlexSurface>}
       {textOrigin!=='shared'&&<AlexSurface sx={{p:1.4,border:'1px solid #B2CCFF',borderRadius:2,bgcolor:'#F5F8FF'}}>
         <AlexBox sx={{display:'flex',alignItems:{xs:'flex-start',sm:'center'},justifyContent:'space-between',gap:1,flexWrap:'wrap'}}>
           <AlexBox>
