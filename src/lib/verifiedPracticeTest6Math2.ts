@@ -21,6 +21,13 @@ export const VERIFIED_PRACTICE_TEST_6_MATH2:Record<number,VerifiedPracticeTest6M
   17:q(["$$x^2=-841$$","How many distinct real solutions does the given equation have?","A) Exactly one","B) Exactly two","C) Infinitely many","D) Zero"]),
   18:q(["Line $k$ is defined by $y=7x+\\frac{1}{8}$. Line $j$ is perpendicular to line $k$ in the $xy$-plane. What is the slope of line $j$?","A) $-8$","B) $-\\frac{1}{7}$","C) $\\frac{1}{8}$","D) $7$"]),
   19:q(["The table shows the linear relationship between the number of cars, $c$, on a commuter train and the maximum number of passengers and crew, $p$, that the train can carry.","Number of cars\tMaximum number of passengers and crew","3\t174","5\t284","10\t559","Which equation represents the linear relationship between $c$ and $p$?","A) $55c-p=-9$","B) $55c-p=9$","C) $55p-c=-9$","D) $55p-c=9$"]),
+  25:q([
+    "In the $xy$-plane, a circle has center $C$ with coordinates $(h,k)$. Points $A$ and $B$ lie on the circle. Point $A$ has coordinates $(h+1,k+\\sqrt{102})$, and $\\angle ACB$ is a right angle. What is the length of $\\overline{AB}$?",
+    "A) $\\sqrt{206}$",
+    "B) $2\\sqrt{102}$",
+    "C) $103\\sqrt{2}$",
+    "D) $103\\sqrt{3}$",
+  ]),
 }
 
 export function verifiedPracticeTest6Math2Content(questionNumber:number){return VERIFIED_PRACTICE_TEST_6_MATH2[questionNumber]}
