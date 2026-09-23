@@ -5,6 +5,8 @@ export type ReadingTableSpec={
   headers:string[]
   rows:string[][]
   sourceCrop:NormalizedCrop
+  fitToPane?:boolean
+  columnWidths?:string[]
 }
 
 const TABLES:Record<string,ReadingTableSpec>={
@@ -49,6 +51,8 @@ const TABLES:Record<string,ReadingTableSpec>={
       ['Broccoli','no','7.5','7'],
     ],
     sourceCrop:{x:.005,y:.04,width:.99,height:.17},
+    fitToPane:true,
+    columnWidths:['20%','23%','29%','28%'],
   },
 }
 
