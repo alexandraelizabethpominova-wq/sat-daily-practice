@@ -53,3 +53,23 @@ const TABLES:Record<string,ReadingTableSpec>={
 }
 
 export function readingTableSpec(questionId:string){return TABLES[questionId]}
+
+function normalizeTableLine(value:string){
+  return value.replace(/\s+/g,' ').trim().toLowerCase()
+}
+
+export function stripEmbeddedReadingTableLines(questionId:string,lines:string[]){
+  const table=readingTableSpec(questionId)
+  if(!table)return lines
+
+  const forms=new Set<string>([
+    table.title,
+    ...table.headers,
+    table.headers.join(' '),
+    ...table.rows.map(row=>row.join(' ')),
+  ].map(normalizeTableLine))
+
+  let index=0
+  while(index<lines.length&&forms.has(normalizeTableLine(lines[index])))index++
+  return index>0?lines.slice(index):lines
+}
