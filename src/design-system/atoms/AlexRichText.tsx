@@ -21,6 +21,7 @@ export function isLikelyMathToken(math:string,displayMode=false){
   const value=math.trim()
   if(!value)return false
   if(/\\[A-Za-z]+|[=<>^_{}]|[+*/]|[≤≥≈≠±×÷√∞π]/.test(value))return true
+  if(/^[A-Za-z]{1,3}$/.test(value))return true
   if(NATURAL_LANGUAGE_WORD.test(value))return false
   const plainWords=value.match(/[A-Za-z]{2,}/g)??[]
   if(plainWords.some(word=>word===word.toLowerCase()&&!/^(sin|cos|tan|log|ln|max|min)$/i.test(word)))return false
@@ -83,8 +84,8 @@ function renderMathAwareText(text:string,keyPrefix:string){
       continue
     }
 
-    pushText('$')
-    cursor=dollar+1
+    pushText(text.slice(dollar,end+1))
+    cursor=end+1
   }
 
   return nodes.length?nodes:[text]
