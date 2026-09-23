@@ -21,7 +21,7 @@ export default function ParsingIssuesDashboard({questionsPdf,answersPdf}:Props){
   const[bank,setBank]=useState<PracticeQuestion[]>(()=>QUESTION_BANK)
   const[selectedId,setSelectedId]=useState<string|null>(null)
   const[practiceTest,setPracticeTest]=useState<PracticeTestFilter>('all')
-  const[statusFilter,setStatusFilter]=useState<StatusFilter>('all')
+  const[statusFilter,setStatusFilter]=useState<StatusFilter>('open')
   const[loading,setLoading]=useState(true)
   const[error,setError]=useState('')
   const[revision,setRevision]=useState(0)
