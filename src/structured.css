@@ -83,3 +83,23 @@
 .reading-paired-text{display:grid;gap:7px}
 .reading-paired-label{font-weight:700;line-height:1.25}
 .reading-paired-quote{margin:0;padding-top:4px;padding-bottom:4px}
+
+
+/* Q17 keeps the original table structure; only typography is compacted so
+ * the four-column SAT table fits comfortably in the reconstruction pane. */
+.reading-data-table--q17 table{
+  font-size:.82em;
+  line-height:1.2;
+}
+.reading-data-table--q17 th,
+.reading-data-table--q17 td{
+  padding:4px 8px;
+}
+.reading-data-table--q17 figcaption{
+  font-size:1em;
+}
+@media(max-width:800px){
+  .reading-data-table--q17 table{font-size:.78em}
+  .reading-data-table--q17 th,
+  .reading-data-table--q17 td{padding:4px 6px}
+}
