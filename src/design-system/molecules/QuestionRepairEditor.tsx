@@ -97,7 +97,7 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
     try{
       const lines=await extractQuestionLines(question,resolvedQuestionsPdf)
       if(!lines.length)throw new Error('No text could be extracted from this question’s verified source crop.')
-      setQuestionText(lines.join('\n'))
+      setQuestionText(stripEmbeddedReadingTableLines(question.id,lines).join('\n'))
       setTextOrigin('source')
       setMessage('Loaded fresh text from the source PDF. Review formatting, then save it to the shared Question Bank.')
     }catch(reason){
