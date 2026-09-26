@@ -1,5 +1,5 @@
 import {describe,expect,it} from 'vitest'
-import {buildPerformanceAnalytics,estimateSectionPracticeScore} from './performanceAnalytics'
+import {buildPerformanceAnalytics,estimateSectionPracticeScore,SCORE_SESSION_WINDOW} from './performanceAnalytics'
 import type {Attempt,SessionSummary} from '../types'
 
 const makeAttempt=(id:string,sessionId:string,questionId:string,subject:Attempt['subject'],module:Attempt['module'],questionNumber:number,correct:boolean,elapsedMs:number,createdAt:string):Attempt=>({
@@ -42,13 +42,60 @@ describe('performance analytics',()=>{
     expect(analytics.recommendation?.subject).toBe('math')
   })
 
-  it('tracks per-session accuracy and cumulative practice score changes',()=>{
+  it('tracks session accuracy separately from the question-mastery score estimate',()=>{
     const analytics=buildPerformanceAnalytics(attempts,sessions,98)
     expect(analytics.sessionMetrics.map(session=>session.accuracy)).toEqual([50,100])
     expect(analytics.scoreTrend).toHaveLength(2)
-    expect(analytics.scoreTrend[1].score).toBeGreaterThan(analytics.scoreTrend[0].score)
-    expect(analytics.scoreTrend[1].delta).toBe(analytics.scoreTrend[1].score-analytics.scoreTrend[0].score)
+    expect(analytics.scoreTrend[1].score).toBe(analytics.scoreTrend[0].score)
+    expect(analytics.scoreTrend[1].delta).toBe(0)
     expect(analytics.latestScoreEstimate).toBe(analytics.scoreTrend[1].score)
+  })
+
+  it('counts a failed question as correct for prediction after two correct answers after the latest failure',()=>{
+    const retryAttempts:Attempt[]=[
+      makeAttempt('e1','s1','e-1','english','rw1',1,false,1000,'2026-09-01T12:00:01.000Z'),
+      makeAttempt('e2','s1','e-2','english','rw1',2,false,1000,'2026-09-01T12:00:02.000Z'),
+      makeAttempt('e3','s1','e-3','english','rw1',3,false,1000,'2026-09-01T12:00:03.000Z'),
+      makeAttempt('m1','s1','m-1','math','math1',1,false,1000,'2026-09-01T12:00:04.000Z'),
+      makeAttempt('m2','s1','m-2','math','math1',2,false,1000,'2026-09-01T12:00:05.000Z'),
+      makeAttempt('m3','s1','m-3','math','math1',3,false,1000,'2026-09-01T12:00:06.000Z'),
+      ...['e-1','e-2','e-3'].map((id,index)=>makeAttempt(`e-r1-${index}`,'s2',id,'english','rw1',index+1,true,1000,`2026-09-02T12:00:0${index+1}.000Z`)),
+      ...['m-1','m-2','m-3'].map((id,index)=>makeAttempt(`m-r1-${index}`,'s2',id,'math','math1',index+1,true,1000,`2026-09-02T12:00:1${index+1}.000Z`)),
+      ...['e-1','e-2','e-3'].map((id,index)=>makeAttempt(`e-r2-${index}`,'s3',id,'english','rw1',index+1,true,1000,`2026-09-03T12:00:0${index+1}.000Z`)),
+      ...['m-1','m-2','m-3'].map((id,index)=>makeAttempt(`m-r2-${index}`,'s3',id,'math','math1',index+1,true,1000,`2026-09-03T12:00:1${index+1}.000Z`)),
+    ]
+    const retrySessions:SessionSummary[]=['s1','s2','s3'].map((id,index)=>({
+      id,
+      startedAt:`2026-09-0${index+1}T12:00:00.000Z`,
+      endedAt:`2026-09-0${index+1}T12:05:00.000Z`,
+      mode:'both',
+      questionCount:6,
+      attempts:retryAttempts.filter(attempt=>attempt.sessionId===id),
+    }))
+    const analytics=buildPerformanceAnalytics(retryAttempts,retrySessions,98)
+    expect(analytics.scoreTrend.map(point=>point.score)).toEqual([400,400,1600])
+    expect(analytics.latestScoreEstimate).toBe(1600)
+  })
+
+  it('uses only the latest ten completed sessions for score prediction',()=>{
+    expect(SCORE_SESSION_WINDOW).toBe(10)
+    const oldFailures:Attempt[]=[
+      ...['e-1','e-2','e-3'].map((id,index)=>makeAttempt(`old-e-${index}`,'s1',id,'english','rw1',index+1,false,1000,`2026-08-01T12:00:0${index+1}.000Z`)),
+      ...['m-1','m-2','m-3'].map((id,index)=>makeAttempt(`old-m-${index}`,'s1',id,'math','math1',index+1,false,1000,`2026-08-01T12:00:1${index+1}.000Z`)),
+    ]
+    const recentCorrect:Attempt[]=[
+      ...['e-1','e-2','e-3'].map((id,index)=>makeAttempt(`new-e-${index}`,'s11',id,'english','rw1',index+1,true,1000,`2026-08-11T12:00:0${index+1}.000Z`)),
+      ...['m-1','m-2','m-3'].map((id,index)=>makeAttempt(`new-m-${index}`,'s11',id,'math','math1',index+1,true,1000,`2026-08-11T12:00:1${index+1}.000Z`)),
+    ]
+    const windowSessions:SessionSummary[]=Array.from({length:11},(_,index)=>{
+      const number=index+1
+      const id=`s${number}`
+      const day=String(number).padStart(2,'0')
+      const rows=[...oldFailures,...recentCorrect].filter(attempt=>attempt.sessionId===id)
+      return {id,startedAt:`2026-08-${day}T12:00:00.000Z`,endedAt:`2026-08-${day}T12:05:00.000Z`,mode:'both',questionCount:6,attempts:rows}
+    })
+    const analytics=buildPerformanceAnalytics([...oldFailures,...recentCorrect],windowSessions,98)
+    expect(analytics.latestScoreEstimate).toBe(1600)
   })
 
   it('does not produce an overall score estimate without enough data in both sections',()=>{
