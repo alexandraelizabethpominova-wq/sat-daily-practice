@@ -28,20 +28,20 @@ export default function MetricCard({icon,label,value,tone='default',compact=fals
     display:'flex',
     flexDirection:'column',
     alignItems:'flex-start',
-    justifyContent:compact?'center':undefined,
+    justifyContent:compact?'flex-start':undefined,
   }}>
     <AlexBox sx={{
       display:'grid',
       placeItems:'center',
-      width:compact?26:32,
-      height:compact?26:32,
+      width:compact?34:32,
+      height:compact?34:32,
       borderRadius:'50%',
       bgcolor:'rgba(255,255,255,.76)',
       color:palette.icon,
-      '& svg':{width:compact?15:20,height:compact?15:20},
+      '& svg':{width:compact?20:20,height:compact?20:20},
     }}>{icon}</AlexBox>
     <AlexText sx={{
-      mt:compact?1.35:1,
+      mt:compact?1.5:1,
       color:compact?'#5B6575':'#667085',
       fontSize:compact?10.2:14,
       lineHeight:1.2,
