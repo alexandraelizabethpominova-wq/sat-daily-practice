@@ -138,7 +138,7 @@ export function questionExtractionCrop(question:PracticeQuestion){
 }
 
 export async function extractQuestionLines(question:PracticeQuestion,questionPdf:ArrayBuffer){
-  const doc=await loadPdf('questions',questionPdf)
+  const doc=await loadPdf(`${question.practiceTestId}:questions`,questionPdf)
   const {items}=await pageItems(doc,question.sourcePage)
   const crop=questionExtractionCrop(question)
   if(!crop)return[]
@@ -153,7 +153,7 @@ export async function extractQuestionLines(question:PracticeQuestion,questionPdf
 }
 
 export async function extractExplanationLines(question:PracticeQuestion,answerPdf:ArrayBuffer){
-  const doc=await loadPdf('answers',answerPdf)
+  const doc=await loadPdf(`${question.practiceTestId}:answers`,answerPdf)
   const {items,viewport}=await pageItems(doc,question.answerPage)
   const markers=items
     .filter(item=>/^QUESTION\s+\d+$/i.test(item.text))
