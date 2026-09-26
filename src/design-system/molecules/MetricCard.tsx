@@ -4,7 +4,7 @@ import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
 
 type MetricTone='default'|'blue'|'cream'|'lavender'|'green'|'peach'
-type Props={icon:ReactNode;label:string;value:string;tone?:MetricTone;compact?:boolean;valueColor?:string}
+type Props={icon:ReactNode;label:string;value:string;tone?:MetricTone;compact?:boolean;valueColor?:string;valueFontSize?:number}
 
 const TONES:Record<MetricTone,{bg:string;border:string;icon:string}>={
   default:{bg:'#fff',border:'#E6E2DB',icon:'#6558F5'},
@@ -15,11 +15,12 @@ const TONES:Record<MetricTone,{bg:string;border:string;icon:string}>={
   peach:{bg:'#FFF1E8',border:'#F1DDD0',icon:'#A65D32'},
 }
 
-export default function MetricCard({icon,label,value,tone='default',compact=false,valueColor}:Props){
+export default function MetricCard({icon,label,value,tone='default',compact=false,valueColor,valueFontSize}:Props){
   const palette=TONES[tone]
   return <AlexSurface sx={{
     p:compact?1.9:2.2,
     minHeight:compact?172:undefined,
+    height:compact?'100%':undefined,
     border:`1px solid ${palette.border}`,
     borderRadius:3,
     boxShadow:'0 8px 24px rgba(9,35,79,.035)',
@@ -27,6 +28,7 @@ export default function MetricCard({icon,label,value,tone='default',compact=fals
     display:'flex',
     flexDirection:'column',
     alignItems:'flex-start',
+    justifyContent:compact?'center':undefined,
   }}>
     <AlexBox sx={{
       display:'grid',
@@ -51,7 +53,7 @@ export default function MetricCard({icon,label,value,tone='default',compact=fals
       display:'block',
       mt:compact?.5:.5,
       fontFamily:compact?'Georgia, "Times New Roman", serif':'inherit',
-      fontSize:compact?34:26,
+      fontSize:valueFontSize??(compact?34:26),
       lineHeight:1,
       letterSpacing:compact?'-.025em':0,
       fontWeight:compact?700:850,
