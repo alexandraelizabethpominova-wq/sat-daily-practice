@@ -1,69 +1,25 @@
-import {beforeEach,describe,expect,it} from 'vitest'
-import {DEFAULT_SETTINGS,addAttempt,clearHistory,getAttempts,getSessions,getSettings,prepareHistoryForUser,prepareSettingsForUser,saveSession,saveSettings} from './storage'
-import type {Attempt,SessionSummary,Settings} from '../types'
+import {describe,expect,it} from 'vitest'
+import {DEFAULT_SETTINGS} from './storage'
 
-const attempt:Attempt={id:'a1',sessionId:'s1',questionId:'math1-1',subject:'math',module:'math1',questionNumber:1,selectedAnswer:'B',correctAnswer:'B',correct:true,elapsedMs:12000,createdAt:'2026-09-17T12:00:00.000Z'}
-const session:SessionSummary={id:'s1',startedAt:'2026-09-17T12:00:00.000Z',endedAt:'2026-09-17T12:01:00.000Z',mode:'math',questionCount:1,attempts:[attempt]}
-const settings:Settings={mode:'math',questionsPerSession:7,showExplanations:false,shuffle:false}
-
-describe('practice storage',()=>{
-  beforeEach(()=>localStorage.clear())
-
-  it('appends attempts and sessions',()=>{
-    addAttempt(attempt)
-    saveSession(session)
-    expect(getAttempts()).toEqual([attempt])
-    expect(getSessions()).toEqual([session])
+describe('default practice settings',()=>{
+  it('provides cloud settings defaults without browser persistence',()=>{
+    expect(DEFAULT_SETTINGS).toMatchObject({
+      mode:'both',
+      questionsPerSession:10,
+      showExplanations:true,
+      shuffle:true,
+      practiceTest:'all',
+      selectionMode:'adaptive',
+      failedOnly:false,
+      failedEverOnly:false,
+      targetPracticeSets:8,
+      targetCoveragePercent:100,
+      fallbackMinutesPerQuestion:2,
+    })
   })
 
-  it('clears practice history without deleting user settings',()=>{
-    saveSettings(settings)
-    addAttempt(attempt)
-    saveSession(session)
-    clearHistory()
-    expect(getAttempts()).toEqual([])
-    expect(getSessions()).toEqual([])
-    expect(getSettings()).toEqual({...DEFAULT_SETTINGS,...settings})
-  })
-
-  it('lets the first signed-in account claim existing local history',()=>{
-    addAttempt(attempt)
-    saveSession(session)
-    prepareHistoryForUser('user-a')
-    expect(getAttempts()).toEqual([attempt])
-    expect(getSessions()).toEqual([session])
-  })
-
-  it('keeps history for the same signed-in account',()=>{
-    prepareHistoryForUser('user-a')
-    addAttempt(attempt)
-    saveSession(session)
-    prepareHistoryForUser('user-a')
-    expect(getAttempts()).toEqual([attempt])
-    expect(getSessions()).toEqual([session])
-  })
-
-  it('keeps settings for the same signed-in account',()=>{
-    prepareSettingsForUser('user-a')
-    saveSettings({...settings,targetScore:1500,targetExamDate:'2027-03-05'})
-    prepareSettingsForUser('user-a')
-    expect(getSettings()).toMatchObject({targetScore:1500,targetExamDate:'2027-03-05'})
-  })
-
-  it('does not leak local goal settings into a different account',()=>{
-    prepareSettingsForUser('user-a')
-    saveSettings({...settings,targetScore:1500,targetExamDate:'2027-03-05'})
-    const next=prepareSettingsForUser('user-b')
-    expect(next.targetScore).toBeUndefined()
-    expect(next.targetExamDate).toBe(DEFAULT_SETTINGS.targetExamDate)
-  })
-
-  it('clears local history before a different account loads its cloud data',()=>{
-    prepareHistoryForUser('user-a')
-    addAttempt(attempt)
-    saveSession(session)
-    prepareHistoryForUser('user-b')
-    expect(getAttempts()).toEqual([])
-    expect(getSessions()).toEqual([])
+  it('uses a future default exam date',()=>{
+    expect(DEFAULT_SETTINGS.targetExamDate).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+    expect(new Date(`${DEFAULT_SETTINGS.targetExamDate}T12:00:00`).getTime()).toBeGreaterThan(Date.now())
   })
 })

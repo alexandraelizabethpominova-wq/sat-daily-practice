@@ -1,11 +1,14 @@
 import {createClient,type User} from '@supabase/supabase-js'
-import type {Attempt,SessionSummary,Settings} from '../types'
+import type {ActivePracticeSession,Attempt,SessionSummary,Settings} from '../types'
 
-const url=import.meta.env.VITE_SUPABASE_URL as string|undefined
-const publishableKey=(import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY??import.meta.env.VITE_SUPABASE_ANON_KEY) as string|undefined
+const DEFAULT_SUPABASE_URL='https://gnhmfhvvirpgawijsrej.supabase.co'
+const DEFAULT_SUPABASE_PUBLISHABLE_KEY='sb_publishable_TiLvsCcbJ6zdAvDcPuEZ6g_A0UrArMy'
 
-export const supabase=url&&publishableKey?createClient(url,publishableKey):null
-export const isSupabaseConfigured=Boolean(supabase)
+const url=(import.meta.env.VITE_SUPABASE_URL as string|undefined)||DEFAULT_SUPABASE_URL
+const publishableKey=((import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY??import.meta.env.VITE_SUPABASE_ANON_KEY) as string|undefined)||DEFAULT_SUPABASE_PUBLISHABLE_KEY
+
+export const supabase=createClient(url,publishableKey)
+export const isSupabaseConfigured=true
 
 export type AuthUser={id:string;email:string|null}
 export type UserProfile={
@@ -152,41 +155,8 @@ function attemptRow(a:Attempt,userId:string){
   }
 }
 
-function sessionRow(s:SessionSummary,userId:string){
+function attemptFromRow(row:any):Attempt{
   return {
-    id:s.id,
-    user_id:userId,
-    started_at:s.startedAt,
-    ended_at:s.endedAt,
-    mode:s.mode,
-    question_count:s.questionCount,
-  }
-}
-
-export async function syncSession(s:SessionSummary){
-  if(!supabase)return false
-  const userId=await currentUserId()
-  if(!userId)return false
-  const {error:sessionError}=await supabase.from('sat_sessions').upsert(sessionRow(s,userId))
-  if(sessionError)throw sessionError
-  if(s.attempts.length){
-    const {error:attemptError}=await supabase.from('sat_attempts').upsert(s.attempts.map(a=>attemptRow(a,userId)))
-    if(attemptError)throw attemptError
-  }
-  return true
-}
-
-export async function loadCloudHistory():Promise<{attempts:Attempt[];sessions:SessionSummary[]}|null>{
-  if(!supabase)return null
-  const userId=await currentUserId()
-  if(!userId)return null
-  const [sessionResult,attemptResult]=await Promise.all([
-    supabase.from('sat_sessions').select('id,started_at,ended_at,mode,question_count').eq('user_id',userId).not('ended_at','is',null).order('started_at',{ascending:true}),
-    supabase.from('sat_attempts').select('id,session_id,question_id,practice_test_id,subject,module,question_number,selected_answer,correct_answer,correct,self_graded,elapsed_ms,created_at').eq('user_id',userId).order('created_at',{ascending:true}),
-  ])
-  if(sessionResult.error)throw sessionResult.error
-  if(attemptResult.error)throw attemptResult.error
-  const attempts:Attempt[]=(attemptResult.data??[]).map(row=>({
     id:row.id,
     sessionId:row.session_id,
     questionId:row.question_id,
@@ -200,7 +170,185 @@ export async function loadCloudHistory():Promise<{attempts:Attempt[];sessions:Se
     selfGraded:row.self_graded,
     elapsedMs:row.elapsed_ms,
     createdAt:row.created_at,
-  }))
+  }
+}
+
+function sessionRow(s:SessionSummary,userId:string){
+  return {
+    id:s.id,
+    user_id:userId,
+    started_at:s.startedAt,
+    ended_at:s.endedAt,
+    mode:s.mode,
+    question_count:s.questionCount,
+    status:'completed',
+    last_activity_at:s.endedAt,
+    updated_at:new Date().toISOString(),
+  }
+}
+
+export async function createActiveSession(session:ActivePracticeSession){
+  if(!supabase)return false
+  const userId=await currentUserId()
+  if(!userId)return false
+  const {error}=await supabase.from('sat_sessions').insert({
+    id:session.id,
+    user_id:userId,
+    started_at:session.startedAt,
+    ended_at:null,
+    mode:session.mode,
+    question_count:session.questionCount,
+    status:'active',
+    question_ids:session.questionIds,
+    current_index:session.currentIndex,
+    draft_answer:session.draftAnswer,
+    session_settings:session.settings,
+    last_activity_at:session.lastActivityAt,
+    updated_at:session.lastActivityAt,
+  })
+  if(error)throw error
+  return true
+}
+
+function isMissingResumableSessionSchema(error:unknown){
+  const value=error as {message?:string;details?:string;hint?:string;code?:string}|null
+  const text=`${value?.message??''} ${value?.details??''} ${value?.hint??''}`.toLowerCase()
+  const resumableColumns=['status','question_ids','current_index','draft_answer','session_settings','last_activity_at','updated_at']
+  return resumableColumns.some(column=>text.includes(column))
+    &&(text.includes('column')||text.includes('schema cache')||text.includes('does not exist')||value?.code==='42703'||value?.code==='PGRST204')
+}
+
+export async function loadActiveSession():Promise<ActivePracticeSession|null>{
+  if(!supabase)return null
+  const userId=await currentUserId()
+  if(!userId)return null
+  const {data,error}=await supabase.from('sat_sessions')
+    .select('id,started_at,mode,question_count,question_ids,current_index,draft_answer,session_settings,last_activity_at')
+    .eq('user_id',userId)
+    .eq('status','active')
+    .order('last_activity_at',{ascending:false})
+    .limit(1)
+    .maybeSingle()
+  if(error){
+    if(isMissingResumableSessionSchema(error))return null
+    throw error
+  }
+  if(!data)return null
+  const {data:attemptRows,error:attemptError}=await supabase.from('sat_attempts')
+    .select('id,session_id,question_id,practice_test_id,subject,module,question_number,selected_answer,correct_answer,correct,self_graded,elapsed_ms,created_at')
+    .eq('user_id',userId)
+    .eq('session_id',data.id)
+    .order('created_at',{ascending:true})
+  if(attemptError)throw attemptError
+  return {
+    id:data.id,
+    startedAt:data.started_at,
+    mode:data.mode as ActivePracticeSession['mode'],
+    questionCount:data.question_count,
+    questionIds:Array.isArray(data.question_ids)?data.question_ids as string[]:[],
+    currentIndex:data.current_index??0,
+    draftAnswer:data.draft_answer??'',
+    settings:(data.session_settings??{}) as Settings,
+    lastActivityAt:data.last_activity_at??data.started_at,
+    attempts:(attemptRows??[]).map(attemptFromRow),
+  }
+}
+
+export async function saveActiveSessionProgress(sessionId:string,currentIndex:number,draftAnswer:string){
+  if(!supabase)return false
+  const userId=await currentUserId()
+  if(!userId)return false
+  const now=new Date().toISOString()
+  const {error}=await supabase.from('sat_sessions').update({
+    current_index:Math.max(0,currentIndex),
+    draft_answer:draftAnswer,
+    last_activity_at:now,
+    updated_at:now,
+  }).eq('id',sessionId).eq('user_id',userId).eq('status','active')
+  if(error)throw error
+  return true
+}
+
+export async function syncActiveAttempt(attempt:Attempt){
+  if(!supabase)return false
+  const userId=await currentUserId()
+  if(!userId)return false
+  const {error}=await supabase.from('sat_attempts').upsert(attemptRow(attempt,userId))
+  if(error)throw error
+  const now=new Date().toISOString()
+  const {error:sessionError}=await supabase.from('sat_sessions').update({
+    last_activity_at:now,
+    updated_at:now,
+  }).eq('id',attempt.sessionId).eq('user_id',userId).eq('status','active')
+  if(sessionError)throw sessionError
+  return true
+}
+
+export async function abandonActiveSession(sessionId:string){
+  if(!supabase)return false
+  const userId=await currentUserId()
+  if(!userId)return false
+  const now=new Date().toISOString()
+  const {error}=await supabase.from('sat_sessions').update({
+    status:'abandoned',
+    ended_at:now,
+    draft_answer:'',
+    last_activity_at:now,
+    updated_at:now,
+  }).eq('id',sessionId).eq('user_id',userId).eq('status','active')
+  if(error)throw error
+  return true
+}
+
+export async function syncSession(s:SessionSummary){
+  if(!supabase)return false
+  const userId=await currentUserId()
+  if(!userId)return false
+  const {data:existing,error:lookupError}=await supabase.from('sat_sessions')
+    .select('id')
+    .eq('id',s.id)
+    .eq('user_id',userId)
+    .maybeSingle()
+  if(lookupError)throw lookupError
+  const row=sessionRow(s,userId)
+  const sessionResult=existing
+    ?await supabase.from('sat_sessions').update(row).eq('id',s.id).eq('user_id',userId)
+    :await supabase.from('sat_sessions').insert(row)
+  if(sessionResult.error)throw sessionResult.error
+  if(s.attempts.length){
+    const {error:attemptError}=await supabase.from('sat_attempts').upsert(s.attempts.map(a=>attemptRow(a,userId)))
+    if(attemptError)throw attemptError
+  }
+  return true
+}
+
+export async function loadCloudHistory():Promise<{attempts:Attempt[];sessions:SessionSummary[]}|null>{
+  const userId=await currentUserId()
+  if(!userId)return null
+
+  let sessionResult=await supabase.from('sat_sessions')
+    .select('id,started_at,ended_at,mode,question_count,status')
+    .eq('user_id',userId)
+    .eq('status','completed')
+    .not('ended_at','is',null)
+    .order('started_at',{ascending:true})
+
+  if(sessionResult.error&&isMissingResumableSessionSchema(sessionResult.error)){
+    sessionResult=await supabase.from('sat_sessions')
+      .select('id,started_at,ended_at,mode,question_count')
+      .eq('user_id',userId)
+      .not('ended_at','is',null)
+      .order('started_at',{ascending:true}) as typeof sessionResult
+  }
+
+  const attemptResult=await supabase.from('sat_attempts')
+    .select('id,session_id,question_id,practice_test_id,subject,module,question_number,selected_answer,correct_answer,correct,self_graded,elapsed_ms,created_at')
+    .eq('user_id',userId)
+    .order('created_at',{ascending:true})
+
+  if(sessionResult.error)throw sessionResult.error
+  if(attemptResult.error)throw attemptResult.error
+  const attempts:Attempt[]=(attemptResult.data??[]).map(attemptFromRow)
   const bySession=new Map<string,Attempt[]>()
   attempts.forEach(attempt=>bySession.set(attempt.sessionId,[...(bySession.get(attempt.sessionId)??[]),attempt]))
   const sessions:SessionSummary[]=(sessionResult.data??[]).map(row=>({

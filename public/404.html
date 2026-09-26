@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SAT Daily Practice</title>
+  <script>
+    (function(){
+      var base='/sat-daily-practice/';
+      var path=window.location.pathname;
+      var relative=path.indexOf(base)===0?path.slice(base.length):'';
+      var params=new URLSearchParams(window.location.search);
+      params.set('__route',relative);
+      var target=base+'?'+params.toString()+window.location.hash;
+      window.location.replace(target);
+    })();
+  </script>
+</head>
+<body></body>
+</html>

@@ -1,5 +1,6 @@
 import {QUESTION_BANK} from './questionBank'
 import {buildPerformanceAnalytics,type PerformanceAnalytics} from './performanceAnalytics'
+import {failedQuestionIds} from './questionMastery'
 import type {Attempt,PracticeQuestion,SessionSummary,Settings} from '../types'
 
 export type PerformanceSummary=PerformanceAnalytics
@@ -14,10 +15,6 @@ function attemptedQuestionIds(attempts:Attempt[]){
   return new Set(attempts.map(attempt=>attempt.questionId))
 }
 
-function incorrectlyAnsweredQuestionIds(attempts:Attempt[]){
-  return new Set(attempts.filter(attempt=>!attempt.correct).map(attempt=>attempt.questionId))
-}
-
 function eligibleQuestions(settings:Settings,questions:PracticeQuestion[]){
   return questions.filter(question=>
     (settings.mode==='both'||question.subject===settings.mode)&&
@@ -28,7 +25,7 @@ function eligibleQuestions(settings:Settings,questions:PracticeQuestion[]){
 export function practiceQuestionPool(settings:Settings,attempts:Attempt[],questions:PracticeQuestion[]=QUESTION_BANK):PracticeQuestion[]{
   const pool=eligibleQuestions(settings,questions)
   if(settings.failedEverOnly){
-    const failedIds=incorrectlyAnsweredQuestionIds(attempts)
+    const failedIds=failedQuestionIds(attempts)
     return pool.filter(question=>failedIds.has(question.id))
   }
   if(settings.failedOnly){
@@ -44,7 +41,7 @@ export function countMissedPracticeQuestions(settings:Settings,attempts:Attempt[
 }
 
 export function countFailedPracticeQuestions(settings:Settings,attempts:Attempt[],questions:PracticeQuestion[]=QUESTION_BANK){
-  const failedIds=incorrectlyAnsweredQuestionIds(attempts)
+  const failedIds=failedQuestionIds(attempts)
   return eligibleQuestions(settings,questions).filter(question=>failedIds.has(question.id)).length
 }
 

@@ -1,5 +1,5 @@
 import {describe,expect,it} from 'vitest'
-import {buildPerformanceAnalytics,estimateSectionPracticeScore} from './performanceAnalytics'
+import {buildPerformanceAnalytics,estimateSectionPracticeScore,SCORE_SESSION_WINDOW} from './performanceAnalytics'
 import type {Attempt,SessionSummary} from '../types'
 
 const makeAttempt=(id:string,sessionId:string,questionId:string,subject:Attempt['subject'],module:Attempt['module'],questionNumber:number,correct:boolean,elapsedMs:number,createdAt:string):Attempt=>({
@@ -29,35 +29,83 @@ const sessions:SessionSummary[]=[
 describe('performance analytics',()=>{
   it('aggregates attempts per question with success rate and response time',()=>{
     const analytics=buildPerformanceAnalytics(attempts,sessions,98)
-    const rw1=analytics.questions.find(question=>question.questionId==='rw1-1')
-    expect(rw1).toMatchObject({attempts:2,correct:2,successRate:100,averageMs:11000})
+    expect(analytics.questions.find(question=>question.questionId==='rw1-1'))
+      .toMatchObject({attempts:2,correct:2,successRate:100,averageMs:11000})
   })
 
   it('summarizes each section and recommends the weaker section',()=>{
     const analytics=buildPerformanceAnalytics(attempts,sessions,98)
-    const english=analytics.sections.find(section=>section.subject==='english')
-    const math=analytics.sections.find(section=>section.subject==='math')
-    expect(english).toMatchObject({attempts:6,correct:5,successRate:83})
-    expect(math).toMatchObject({attempts:6,correct:4,successRate:67})
+    expect(analytics.sections.find(section=>section.subject==='english')).toMatchObject({attempts:6,correct:5,successRate:83})
+    expect(analytics.sections.find(section=>section.subject==='math')).toMatchObject({attempts:6,correct:4,successRate:67})
     expect(analytics.recommendation?.subject).toBe('math')
   })
 
-  it('tracks per-session accuracy and cumulative practice score changes',()=>{
+  it('predicts from equal-weight per-question success rates rather than binary mastery',()=>{
     const analytics=buildPerformanceAnalytics(attempts,sessions,98)
     expect(analytics.sessionMetrics.map(session=>session.accuracy)).toEqual([50,100])
-    expect(analytics.scoreTrend).toHaveLength(2)
-    expect(analytics.scoreTrend[1].score).toBeGreaterThan(analytics.scoreTrend[0].score)
-    expect(analytics.scoreTrend[1].delta).toBe(analytics.scoreTrend[1].score-analytics.scoreTrend[0].score)
-    expect(analytics.latestScoreEstimate).toBe(analytics.scoreTrend[1].score)
+    expect(analytics.scoreTrend.map(point=>point.score)).toEqual([1000,1300])
+    expect(analytics.scoreTrend.every(point=>point.calibrating)).toBe(true)
+    expect(analytics.scorePredictionBasis).toMatchObject({
+      sessionCount:2,
+      questionCount:6,
+      averageQuestionSuccessRate:75,
+    })
   })
 
-  it('does not produce an overall score estimate without enough data in both sections',()=>{
-    const mathOnly=attempts.filter(attempt=>attempt.subject==='math').slice(0,2)
-    const analytics=buildPerformanceAnalytics(mathOnly,[],98)
-    expect(analytics.latestScoreEstimate).toBeNull()
+  it('incorporates a 50% repeat-question success rate into the prediction',()=>{
+    const repeat:Attempt[]=[
+      makeAttempt('e1','s1','e-1','english','rw1',1,false,1000,'2026-09-01T12:00:01.000Z'),
+      makeAttempt('e2','s1','e-2','english','rw1',2,true,1000,'2026-09-01T12:00:02.000Z'),
+      makeAttempt('e3','s1','e-3','english','rw1',3,true,1000,'2026-09-01T12:00:03.000Z'),
+      makeAttempt('m1','s1','m-1','math','math1',1,false,1000,'2026-09-01T12:00:04.000Z'),
+      makeAttempt('m2','s1','m-2','math','math1',2,true,1000,'2026-09-01T12:00:05.000Z'),
+      makeAttempt('m3','s1','m-3','math','math1',3,true,1000,'2026-09-01T12:00:06.000Z'),
+      makeAttempt('e1b','s2','e-1','english','rw1',1,true,1000,'2026-09-02T12:00:01.000Z'),
+      makeAttempt('m1b','s2','m-1','math','math1',1,true,1000,'2026-09-02T12:00:02.000Z'),
+    ]
+    const repeatSessions:SessionSummary[]=[
+      {id:'s1',startedAt:'2026-09-01T12:00:00.000Z',endedAt:'2026-09-01T12:05:00.000Z',mode:'both',questionCount:6,attempts:repeat.slice(0,6)},
+      {id:'s2',startedAt:'2026-09-02T12:00:00.000Z',endedAt:'2026-09-02T12:05:00.000Z',mode:'both',questionCount:2,attempts:repeat.slice(6)},
+    ]
+    const analytics=buildPerformanceAnalytics(repeat,repeatSessions,98)
+    expect(analytics.scorePredictionBasis?.sections).toEqual([
+      {subject:'english',label:'Reading & Writing',questions:3,successRate:83},
+      {subject:'math',label:'Math',questions:3,successRate:83},
+    ])
+    expect(analytics.latestScoreEstimate).toBe(1400)
   })
 
-  it('keeps the section estimate within the SAT section score range',()=>{
+  it('uses only the latest ten completed sessions for the prediction pool',()=>{
+    expect(SCORE_SESSION_WINDOW).toBe(10)
+    const oldFailures:Attempt[]=[
+      ...['e-1','e-2','e-3'].map((id,index)=>makeAttempt(`old-e-${index}`,'s1',id,'english','rw1',index+1,false,1000,`2026-08-01T12:00:0${index+1}.000Z`)),
+      ...['m-1','m-2','m-3'].map((id,index)=>makeAttempt(`old-m-${index}`,'s1',id,'math','math1',index+1,false,1000,`2026-08-01T12:00:1${index+1}.000Z`)),
+    ]
+    const recentCorrect:Attempt[]=[
+      ...['e-1','e-2','e-3'].map((id,index)=>makeAttempt(`new-e-${index}`,'s11',id,'english','rw1',index+1,true,1000,`2026-08-11T12:00:0${index+1}.000Z`)),
+      ...['m-1','m-2','m-3'].map((id,index)=>makeAttempt(`new-m-${index}`,'s11',id,'math','math1',index+1,true,1000,`2026-08-11T12:00:1${index+1}.000Z`)),
+    ]
+    const all=[...oldFailures,...recentCorrect]
+    const windowSessions:SessionSummary[]=Array.from({length:11},(_,index)=>{
+      const number=index+1
+      const id=`s${number}`
+      const day=String(number).padStart(2,'0')
+      const rows=all.filter(attempt=>attempt.sessionId===id)
+      return {id,startedAt:`2026-08-${day}T12:00:00.000Z`,endedAt:`2026-08-${day}T12:05:00.000Z`,mode:'both',questionCount:6,attempts:rows}
+    })
+    const analytics=buildPerformanceAnalytics(all,windowSessions,98)
+    expect(analytics.latestScoreEstimate).toBe(1600)
+    expect(analytics.scoreTrend.find(point=>point.sessionNumber===9)?.calibrating).toBe(true)
+    expect(analytics.scoreTrend.find(point=>point.sessionNumber===10)?.calibrating).toBe(false)
+    expect(analytics.scoreTrend.find(point=>point.sessionNumber===11)?.calibrating).toBe(false)
+    expect(analytics.scorePredictionBasis).toMatchObject({
+      sessionCount:10,
+      questionCount:6,
+      averageQuestionSuccessRate:100,
+    })
+  })
+
+  it('keeps section estimates within the SAT section score range',()=>{
     expect(estimateSectionPracticeScore(0)).toBe(200)
     expect(estimateSectionPracticeScore(100)).toBe(800)
   })

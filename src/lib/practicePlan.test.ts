@@ -11,7 +11,7 @@ const baseSettings:Settings={
 
 const performance=(score:number|null,focus:'english'|'math'='math'):PerformanceAnalytics=>({
   accuracy:70,averageMs:60000,sessions:3,questionsSeen:20,totalQuestions:QUESTION_BANK.length,
-  sections:[],questions:[],sessionMetrics:[],scoreTrend:[],latestScoreEstimate:score,
+  sections:[],questions:[],sessionMetrics:[],scoreTrend:[],latestScoreEstimate:score,scorePredictionBasis:null,
   recommendation:{subject:focus,label:focus==='math'?'Math':'Reading & Writing',reason:'Lower practice performance'},
 })
 

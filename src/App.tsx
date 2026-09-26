@@ -1,5 +1,4 @@
 import {useEffect,useState,type ReactNode} from 'react'
-import {Upload} from 'lucide-react'
 import AlexBox from './design-system/atoms/AlexBox'
 import AlexButton from './design-system/atoms/AlexButton'
 import AlexStatusChip from './design-system/atoms/AlexStatusChip'
@@ -18,28 +17,27 @@ import StudyPlanCalendar from './design-system/organisms/StudyPlanCalendar'
 import StudyPlanHero from './design-system/organisms/StudyPlanHero'
 import QuestionBankReview from './design-system/organisms/QuestionBankReview'
 import {answerLabel,matchesAnswer} from './lib/answerCompare'
-import {clearPdfs,getPdf,savePdf} from './lib/pdfStore'
-import {clearQuestionContent,countQuestionContent} from './lib/questionContentStore'
+import {getPdf} from './lib/pdfStore'
 import {availablePracticeTests,moduleLabel,practiceTestLabel,QUESTION_BANK} from './lib/questionBank'
 import {buildPracticePlanRecommendation} from './lib/practicePlan'
 import {loadSharedQuestionBank,mergeQuestionBanks} from './lib/sharedQuestionBank'
-import {importPracticeMaterials} from './lib/pdfStructuredImport'
 import {choosePracticeQuestions,countFailedPracticeQuestions,countMissedPracticeQuestions,formatDuration,summarizePerformance,summarizeSession} from './lib/practiceGamification'
-import {addAttempt,getAttempts,getSessions,getSettings,prepareHistoryForUser,prepareSettingsForUser,replaceHistory,saveSession,saveSettings} from './lib/storage'
-import {getCurrentAuthUser,loadCloudHistory,loadUserSettings,saveUserSettings,subscribeToAuth,syncSession,type AuthUser} from './lib/supabase'
-import type {Attempt,PracticeQuestion,SessionSummary,Settings,SubjectMode} from './types'
+import {pathForView,viewFromPathname,type AppRouteView} from './lib/appRoutes'
+import {DEFAULT_SETTINGS} from './lib/storage'
+import {abandonActiveSession,createActiveSession,getCurrentAuthUser,loadActiveSession,loadCloudHistory,loadUserSettings,saveActiveSessionProgress,saveUserSettings,subscribeToAuth,syncActiveAttempt,syncSession,type AuthUser} from './lib/supabase'
+import type {ActivePracticeSession,Attempt,PracticeQuestion,SessionSummary,Settings,SubjectMode} from './types'
 
 const uid=()=>crypto.randomUUID()
 
-type View='study'|'home'|'practice'|'results'|'stats'|'settings'|'sources'|'question-bank'|'parsing-issues'|'account'
-type SidebarKey='study'|'practice-tests'|'practice-setup'|'question-bank'|'parsing-issues'|'performance'|'resources'
+type View=AppRouteView
+type SidebarKey='dashboard'|'practice-tests'|'practice-setup'|'question-bank'|'parsing-issues'|'performance'|'resources'
 
 export default function App(){
-  const[settings,setSettings]=useState<Settings>(()=>getSettings())
+  const[settings,setSettings]=useState<Settings>(()=>({...DEFAULT_SETTINGS}))
   const[qpdf,setQpdf]=useState<ArrayBuffer|null>(null)
   const[apdf,setApdf]=useState<ArrayBuffer|null>(null)
-  const[attempts,setAttempts]=useState<Attempt[]>(()=>getAttempts())
-  const[sessions,setSessions]=useState<SessionSummary[]>(()=>getSessions())
+  const[attempts,setAttempts]=useState<Attempt[]>([])
+  const[sessions,setSessions]=useState<SessionSummary[]>([])
   const[qs,setQs]=useState<PracticeQuestion[]>([])
   const[sid,setSid]=useState('')
   const[started,setStarted]=useState('')
@@ -48,21 +46,36 @@ export default function App(){
   const[selected,setSelected]=useState('')
   const[submitted,setSubmitted]=useState(false)
   const[currentAttempts,setCurrentAttempts]=useState<Attempt[]>([])
-  const[view,setView]=useState<View>('home')
+  const[view,setView]=useState<View>(()=>viewFromPathname(window.location.pathname))
   const[sidebarCollapsed,setSidebarCollapsed]=useState(false)
-  const[contentCount,setContentCount]=useState(0)
-  const[importProgress,setImportProgress]=useState('')
   const[authUser,setAuthUser]=useState<AuthUser|null>(null)
   const[authReady,setAuthReady]=useState(false)
   const[settingsCloudReady,setSettingsCloudReady]=useState(false)
   const[questionBank,setQuestionBank]=useState<PracticeQuestion[]>(()=>QUESTION_BANK)
+  const[resumableSession,setResumableSession]=useState<ActivePracticeSession|null>(null)
+
+  function navigateTo(next:View,{replace=false}:{replace?:boolean}={}){
+    setView(next)
+    const path=pathForView(next)
+    if(window.location.pathname===path)return
+    if(replace)window.history.replaceState({},'',path)
+    else window.history.pushState({},'',path)
+  }
+
+  useEffect(()=>{
+    const handlePopState=()=>setView(viewFromPathname(window.location.pathname))
+    window.addEventListener('popstate',handlePopState)
+    const initial=viewFromPathname(window.location.pathname)
+    const canonical=pathForView(initial)
+    if(window.location.pathname!==canonical)window.history.replaceState({},'',canonical)
+    return()=>window.removeEventListener('popstate',handlePopState)
+  },[])
 
   useEffect(()=>{
     void loadSharedQuestionBank().then(shared=>setQuestionBank(mergeQuestionBanks(QUESTION_BANK,shared))).catch(error=>console.warn('Shared question bank load failed; using bundled metadata.',error))
-    Promise.all([getPdf('questions'),getPdf('answers'),countQuestionContent()]).then(([questionsPdf,answersPdf,count])=>{
+    Promise.all([getPdf('questions'),getPdf('answers')]).then(([questionsPdf,answersPdf])=>{
       setQpdf(questionsPdf)
       setApdf(answersPdf)
-      setContentCount(count)
     })
   },[])
   useEffect(()=>{
@@ -79,61 +92,45 @@ export default function App(){
     return()=>{cancelled=true;unsubscribe()}
   },[])
   useEffect(()=>{
-    if(!authUser)return
+    if(!authUser){
+      setAttempts([])
+      setSessions([])
+      setResumableSession(null)
+      return
+    }
     let cancelled=false
     void (async()=>{
-      try{
-        prepareHistoryForUser(authUser.id)
-        const localAttempts=getAttempts()
-        const localSessions=getSessions()
-        setAttempts(localAttempts)
-        setSessions(localSessions)
-        const cloud=await loadCloudHistory()
-        if(!cloud||cancelled)return
-        const mergeById=<T extends {id:string},>(local:T[],remote:T[])=>{
-          const merged=new Map<string,T>()
-          remote.forEach(item=>merged.set(item.id,item))
-          local.forEach(item=>merged.set(item.id,item))
-          return [...merged.values()]
-        }
-        const mergedAttempts=mergeById(localAttempts,cloud.attempts).sort((a,b)=>a.createdAt.localeCompare(b.createdAt))
-        const mergedSessions=mergeById(localSessions,cloud.sessions)
-          .map(session=>({...session,attempts:mergedAttempts.filter(attempt=>attempt.sessionId===session.id)}))
-          .sort((a,b)=>a.startedAt.localeCompare(b.startedAt))
-        replaceHistory(mergedAttempts,mergedSessions)
-        setAttempts(mergedAttempts)
-        setSessions(mergedSessions)
-        await Promise.allSettled(mergedSessions.map(syncSession))
-      }catch(error){
-        console.warn('Supabase history sync failed',error)
+      const [historyResult,activeResult]=await Promise.allSettled([loadCloudHistory(),loadActiveSession()])
+      if(cancelled)return
+      if(historyResult.status==='fulfilled'&&historyResult.value){
+        setAttempts(historyResult.value.attempts)
+        setSessions(historyResult.value.sessions)
+      }else if(historyResult.status==='rejected'){
+        console.warn('Supabase history load failed',historyResult.reason)
       }
+      if(activeResult.status==='fulfilled')setResumableSession(activeResult.value)
+      else console.warn('Supabase active-session load failed',activeResult.reason)
     })()
     return()=>{cancelled=true}
   },[authUser?.id])
   useEffect(()=>{
     if(!authReady)return
     if(!authUser){
-      setSettingsCloudReady(true)
+      setSettings({...DEFAULT_SETTINGS})
+      setSettingsCloudReady(false)
       return
     }
     let cancelled=false
     setSettingsCloudReady(false)
     void (async()=>{
       try{
-        const localSettings=prepareSettingsForUser(authUser.id)
         const cloudSettings=await loadUserSettings()
         if(cancelled)return
-        if(cloudSettings){
-          const nextSettings={...localSettings,...cloudSettings}
-          saveSettings(nextSettings)
-          setSettings(nextSettings)
-        }else{
-          saveSettings(localSettings)
-          setSettings(localSettings)
-          await saveUserSettings(localSettings)
-        }
+        const nextSettings={...DEFAULT_SETTINGS,...(cloudSettings??{})}
+        setSettings(nextSettings)
+        if(!cloudSettings)await saveUserSettings(nextSettings)
       }catch(error){
-        console.warn('Supabase settings sync failed',error)
+        console.warn('Supabase settings load failed',error)
       }finally{
         if(!cancelled)setSettingsCloudReady(true)
       }
@@ -141,11 +138,22 @@ export default function App(){
     return()=>{cancelled=true}
   },[authReady,authUser?.id])
   useEffect(()=>{
-    saveSettings(settings)
     if(authUser&&settingsCloudReady){
-      void saveUserSettings(settings).catch(error=>console.warn('Supabase settings backup failed',error))
+      void saveUserSettings(settings).catch(error=>console.warn('Supabase settings save failed',error))
     }
   },[settings,authUser?.id,settingsCloudReady])
+  useEffect(()=>{
+    if(!authUser||view!=='practice'||!sid)return
+    const lastActivityAt=new Date().toISOString()
+    setResumableSession(previous=>previous&&previous.id===sid
+      ?{...previous,currentIndex:i,draftAnswer:selected,lastActivityAt}
+      :previous)
+    const timeout=window.setTimeout(()=>{
+      void saveActiveSessionProgress(sid,i,selected).catch(error=>console.warn('Active session progress sync failed',error))
+    },400)
+    return()=>window.clearTimeout(timeout)
+  },[authUser?.id,view,sid,i,selected])
+
 
   const current=qs[i]
   const currentRec=current?currentAttempts.find(attempt=>attempt.questionId===current.id):undefined
@@ -164,37 +172,104 @@ export default function App(){
     return{value,label:practiceTestLabel(value),questionCount:questions.length,practicedCount:questions.filter(question=>practicedIds.has(question.id)).length}
   })
 
-  async function upload(kind:'questions'|'answers',file?:File){
-    if(!file)return
-    await savePdf(kind,file)
-    await clearQuestionContent()
-    setContentCount(0)
-    const bytes=await getPdf(kind)
-    if(kind==='questions')setQpdf(bytes)
-    else setApdf(bytes)
-  }
-
-  function beginPractice(nextMode:SubjectMode=settings.mode,nextPracticeTest=settings.practiceTest??'all'){
+  async function beginPractice(nextMode:SubjectMode=settings.mode,nextPracticeTest=settings.practiceTest??'all'){
+    if(!authUser){
+      window.alert('Sign in to practice so your progress stays identical across devices.')
+      navigateTo('account')
+      return
+    }
+    if(resumableSession){
+      const replace=window.confirm('You already have a practice session in progress. Start a new session and mark the unfinished one as ended?')
+      if(!replace)return
+      try{
+        await abandonActiveSession(resumableSession.id)
+        setResumableSession(null)
+      }catch(error){
+        console.warn('Unable to end previous active session',error)
+        window.alert('The previous active session could not be ended. Please try again before starting a new session.')
+        return
+      }
+    }
     const nextSettings={...settings,mode:nextMode,practiceTest:nextPracticeTest}
     const nextQuestions=choosePracticeQuestions(nextSettings,attempts,Math.random,questionBank)
     if(!nextQuestions.length){
       window.alert('No questions match these practice settings yet. Adjust the practice test, subject, or question-history filter.')
-      setView('settings')
+      navigateTo('settings')
       return
+    }
+    const sessionId=uid()
+    const startedAt=new Date().toISOString()
+    const active:ActivePracticeSession={
+      id:sessionId,
+      startedAt,
+      mode:nextMode,
+      questionCount:nextQuestions.length,
+      questionIds:nextQuestions.map(question=>question.id),
+      currentIndex:0,
+      draftAnswer:'',
+      lastActivityAt:startedAt,
+      settings:nextSettings,
+      attempts:[],
+    }
+    if(authUser){
+      try{
+        await createActiveSession(active)
+        setResumableSession(active)
+      }catch(error){
+        console.warn('Unable to create cloud active session',error)
+        window.alert('This session could not be saved to the cloud. Check your connection and try again so it can be resumed on another device.')
+        return
+      }
     }
     setSettings(nextSettings)
     setQs(nextQuestions)
-    setSid(uid())
-    setStarted(new Date().toISOString())
+    setSid(sessionId)
+    setStarted(startedAt)
     setCurrentAttempts([])
     setI(0)
     setSelected('')
     setSubmitted(false)
     setQStart(Date.now())
-    setView('practice')
+    navigateTo('practice')
   }
 
-  function start(){beginPractice(settings.mode)}
+  function resumeActiveSession(){
+    if(!resumableSession)return
+    const resumedQuestions=resumableSession.questionIds
+      .map(questionId=>questionBank.find(question=>question.id===questionId))
+      .filter((question):question is PracticeQuestion=>Boolean(question))
+    if(resumedQuestions.length!==resumableSession.questionIds.length){
+      window.alert('Some questions from this saved session are not available yet. Reload the app and try again.')
+      return
+    }
+    const nextIndex=Math.min(Math.max(resumableSession.currentIndex,0),Math.max(0,resumedQuestions.length-1))
+    const currentQuestion=resumedQuestions[nextIndex]
+    const priorAttempt=currentQuestion?resumableSession.attempts.find(attempt=>attempt.questionId===currentQuestion.id):undefined
+    setSettings({...settings,...resumableSession.settings})
+    setQs(resumedQuestions)
+    setSid(resumableSession.id)
+    setStarted(resumableSession.startedAt)
+    setCurrentAttempts(resumableSession.attempts)
+    setI(nextIndex)
+    setSelected(priorAttempt?.selectedAnswer??resumableSession.draftAnswer??'')
+    setSubmitted(Boolean(priorAttempt))
+    setQStart(Date.now())
+    navigateTo('practice')
+  }
+
+  async function endResumableSession(){
+    if(!resumableSession)return
+    if(!window.confirm('End this unfinished session? Your submitted answers will remain in your history, but the session will no longer be resumable.'))return
+    try{
+      await abandonActiveSession(resumableSession.id)
+      setResumableSession(null)
+    }catch(error){
+      console.warn('Unable to end active session',error)
+      window.alert('The session could not be ended. Please try again.')
+    }
+  }
+
+  function start(){void beginPractice(settings.mode)}
 
   async function record(correct:boolean,selfGraded=false){
     if(!current)return
@@ -203,9 +278,19 @@ export default function App(){
       questionNumber:current.number,selectedAnswer:selected,correctAnswer:answerLabel(current),correct,selfGraded,
       elapsedMs:Date.now()-qStart,createdAt:new Date().toISOString(),
     }
-    addAttempt(attempt)
-    setAttempts(previous=>[...previous,attempt])
-    setCurrentAttempts(previous=>[...previous,attempt])
+    if(!authUser)throw new Error('Sign in before recording practice progress.')
+    try{
+      await syncActiveAttempt(attempt)
+      setAttempts(previous=>[...previous,attempt])
+      setCurrentAttempts(previous=>[...previous,attempt])
+      setResumableSession(previous=>previous&&previous.id===attempt.sessionId
+        ?{...previous,attempts:[...previous.attempts,attempt],lastActivityAt:attempt.createdAt,draftAnswer:selected}
+        :previous)
+    }catch(error){
+      console.warn('Active attempt sync failed',error)
+      window.alert('Your answer could not be saved to the shared account yet. Check your connection and try again.')
+      throw error
+    }
   }
 
   async function submit(){
@@ -226,10 +311,15 @@ export default function App(){
 
   async function finish(){
     const session:SessionSummary={id:sid,startedAt:started,endedAt:new Date().toISOString(),mode:settings.mode,questionCount:qs.length,attempts:currentAttempts}
-    saveSession(session)
-    setSessions(previous=>[...previous,session])
-    void syncSession(session).catch(error=>console.warn('Supabase session backup failed',error))
-    setView('results')
+    try{
+      await syncSession(session)
+      setSessions(previous=>[...previous,session])
+      setResumableSession(previous=>previous?.id===sid?null:previous)
+      navigateTo('results')
+    }catch(error){
+      console.warn('Supabase session completion sync failed',error)
+      window.alert('The session could not be completed in your shared account yet. Check your connection and try again.')
+    }
   }
 
   async function next(){
@@ -238,32 +328,38 @@ export default function App(){
     goTo(i+1)
   }
 
-  async function buildTextDatabase(){
-    if(!qpdf||!apdf)return
-    setImportProgress(`0/${QUESTION_BANK.length}`)
-    try{
-      await importPracticeMaterials(qpdf,apdf,(done,total)=>setImportProgress(`${done}/${total}`))
-      setContentCount(await countQuestionContent())
-    }finally{
-      setImportProgress('')
-    }
-  }
-
   function withSidebar(active:SidebarKey,content:ReactNode,background='#fff'){
     return <AppSidebarLayout
       active={active}
       collapsed={sidebarCollapsed}
       onToggleCollapsed={()=>setSidebarCollapsed(value=>!value)}
-      onStudyPlan={()=>setView('study')}
-      onPracticeTests={()=>setView('home')}
-      onPracticeSetup={()=>setView('settings')}
-      onQuestionBank={()=>setView('question-bank')}
-      onParsingIssues={()=>setView('parsing-issues')}
-      onPerformance={()=>setView('stats')}
-      onResources={()=>setView('sources')}
-      onSettings={()=>setView('account')}
+      onDashboard={()=>navigateTo('study')}
+      onPracticeTests={()=>navigateTo('home')}
+      onPracticeSetup={()=>navigateTo('settings')}
+      onQuestionBank={()=>navigateTo('question-bank')}
+      onParsingIssues={()=>navigateTo('parsing-issues')}
+      onPerformance={()=>navigateTo('stats')}
+      onResources={()=>navigateTo('sources')}
+      onSettings={()=>navigateTo('account')}
       contentBackground={background}
     >{content}</AppSidebarLayout>
+  }
+
+  if(view==='practice'&&!current){
+    return withSidebar('practice-tests',<main className="shell">
+      <section className="card results">
+        <p className="eyebrow">Practice session</p>
+        <h1>{resumableSession?'Session ready to resume':'No active session found'}</h1>
+        <p>{resumableSession
+          ?`${resumableSession.attempts.length} of ${resumableSession.questionCount} questions answered. Continue the same session from this device.`
+          :'This link points to a practice session, but there is no resumable cloud session for this account.'}</p>
+        <div className="hero-actions">
+          {resumableSession&&<AlexButton onClick={resumeActiveSession}>Resume session</AlexButton>}
+          <AlexButton tone="secondary" onClick={()=>navigateTo('home')}>Practice tests</AlexButton>
+          <AlexButton tone="quiet" onClick={()=>navigateTo('study')}>Dashboard</AlexButton>
+        </div>
+      </section>
+    </main>)
   }
 
   if(view==='practice'&&current){
@@ -326,7 +422,7 @@ export default function App(){
             </article>
           })}
         </div>
-        <div className="hero-actions"><AlexButton onClick={start}>Start another session</AlexButton><AlexButton tone="secondary" onClick={()=>setView('home')}>Back to practice tests</AlexButton></div>
+        <div className="hero-actions"><AlexButton onClick={start}>Start another session</AlexButton><AlexButton tone="secondary" onClick={()=>navigateTo('home')}>Back to practice tests</AlexButton></div>
       </section>
     </main>)
   }
@@ -350,25 +446,21 @@ export default function App(){
       missedQuestionCount={missedQuestionCount}
       failedQuestionCount={failedQuestionCount}
       onChange={setSettings}
-      onStart={()=>beginPractice(settings.mode)}
+      onStart={()=>void beginPractice(settings.mode)}
       recommendation={practiceRecommendation}
     />
   </main>)
 
   if(view==='sources')return withSidebar('resources',<main className="shell">
-    <div className="page-heading"><div><p className="eyebrow">Resources</p><h1>Manage sources</h1></div></div>
+    <div className="page-heading"><div><p className="eyebrow">Resources</p><h1>Shared sources</h1></div></div>
     <section className="card sources">
-      <p>Practice Test 4 questions, source visuals, and answer explanations load from the official SAT sources automatically. You can still add local copies here to override them.</p>
-      <div className="uploads">
-        <label><Upload/><b>{qpdf?'Replace question source':'Add question source'}</b><span>{qpdf?'Ready for question visuals':'Optional local override'}</span><input type="file" accept="application/pdf" onChange={event=>upload('questions',event.target.files?.[0])}/></label>
-        <label><Upload/><b>{apdf?'Replace explanation source':'Add explanation source'}</b><span>{apdf?'Ready for walkthroughs and review':'Loading official explanation source'}</span><input type="file" accept="application/pdf" onChange={event=>upload('answers',event.target.files?.[0])}/></label>
-      </div>
-      <div className="structured-db-card"><div><b>Local question database</b><span>{contentCount}/{QUESTION_BANK.length} questions imported</span><small>Text stays in this browser. Formulas can be stored as LaTeX and rendered with KaTeX; verified source layouts remain the accuracy fallback.</small></div><div className="structured-db-actions"><AlexButton disabled={!qpdf||!apdf||Boolean(importProgress)} onClick={buildTextDatabase}>{importProgress?`Importing ${importProgress}`:'Build text database'}</AlexButton>{contentCount>0&&<AlexButton tone="secondary" onClick={async()=>{await clearQuestionContent();setContentCount(0)}}>Clear text database</AlexButton>}</div></div>
-      {(qpdf||apdf)&&<AlexButton tone="secondary" onClick={async()=>{await clearPdfs();await clearQuestionContent();setQpdf(null);setApdf(null);setContentCount(0)}}>Clear sources</AlexButton>}
+      <p>Question and explanation sources are shared for the whole app and load from the canonical source service on every device. There is no device-specific question database or user-visible local source override.</p>
+      <div className="structured-db-card"><div><b>Question sources</b><span>{qpdf?'Available':'Loading or unavailable'}</span><small>The same canonical Practice Test PDFs are used by Practice, Question Bank, Parsing Issues, and review.</small></div></div>
+      <div className="structured-db-card"><div><b>Answer explanations</b><span>{apdf?'Available':'Loading or unavailable'}</span><small>Explanation sources are shared as well; they are not uploaded separately per browser.</small></div></div>
     </section>
   </main>)
 
-  if(view==='study')return withSidebar('study',<main className="shell">
+  if(view==='study')return withSidebar('dashboard',<main className="shell">
     <StudyPlanHero
       accuracy={attempts.length?performance.accuracy:null}
       estimatedScore={performance.latestScoreEstimate}
@@ -377,8 +469,8 @@ export default function App(){
       dailyMinutes={practiceRecommendation.estimatedDailyMinutes}
       questionsPerSession={settings.questionsPerSession}
       focusLabel={practiceRecommendation.focusLabel}
-      onChoosePracticeTest={()=>setView('home')}
-      onStartPractice={()=>beginPractice(settings.mode)}
+      onChoosePracticeTest={()=>navigateTo('home')}
+      onStartPractice={()=>void beginPractice(settings.mode)}
     />
 
     <AlexBox
@@ -395,14 +487,21 @@ export default function App(){
     </AlexBox>
 
     <AlexBox sx={{display:'flex',justifyContent:'flex-end',mt:1.25,pb:{xs:1,md:2}}}>
-      <AlexButton tone="quiet" onClick={()=>setView('settings')}>Edit plan settings</AlexButton>
+      <AlexButton tone="quiet" onClick={()=>navigateTo('settings')}>Edit plan settings</AlexButton>
     </AlexBox>
   </main>,'#F7F6F2')
 
   return withSidebar('practice-tests',<PracticeTestsDashboard
     tests={practiceTestSummaries}
     sessionSummary={`${settings.questionsPerSession} questions · ${settings.mode==='both'?'Reading & Writing + Math':settings.mode==='english'?'Reading & Writing':'Math'} · ${practiceSummary}`}
-    onStartTest={value=>beginPractice(settings.mode,value)}
-    onOpenSetup={()=>setView('settings')}
+    activeSession={resumableSession?{
+      questionCount:resumableSession.questionCount,
+      answeredCount:resumableSession.attempts.length,
+      lastActivityAt:resumableSession.lastActivityAt,
+    }:null}
+    onStartTest={value=>void beginPractice(settings.mode,value)}
+    onOpenSetup={()=>navigateTo('settings')}
+    onResumeSession={resumeActiveSession}
+    onEndSession={()=>void endResumableSession()}
   />)
 }

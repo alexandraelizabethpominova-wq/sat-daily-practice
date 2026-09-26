@@ -1,8 +1,9 @@
 import {useEffect,useRef,useState} from 'react'
+
+GlobalWorkerOptions.workerSrc=new URL('pdfjs-dist/build/pdf.worker.min.mjs',import.meta.url).toString()
 import {GlobalWorkerOptions,getDocument,type PDFDocumentProxy} from 'pdfjs-dist'
 import QuestionText from './QuestionText'
 
-GlobalWorkerOptions.workerSrc=new URL('pdfjs-dist/build/pdf.worker.min.mjs',import.meta.url).toString()
 
 const cache=new Map<string,PDFDocumentProxy>()
 
