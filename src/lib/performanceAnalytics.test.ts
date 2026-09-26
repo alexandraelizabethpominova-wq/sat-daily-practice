@@ -75,6 +75,21 @@ describe('performance analytics',()=>{
     expect(analytics.latestScoreEstimate).toBe(1400)
   })
 
+  it('compares the latest prediction with the most recent prediction at least seven days earlier',()=>{
+    const weeklySessions:SessionSummary[]=[
+      {...sessions[0],startedAt:'2026-09-01T12:00:00.000Z',endedAt:'2026-09-01T12:05:00.000Z'},
+      {...sessions[1],startedAt:'2026-09-09T12:00:00.000Z',endedAt:'2026-09-09T12:05:00.000Z'},
+    ]
+    const analytics=buildPerformanceAnalytics(attempts,weeklySessions,98)
+    expect(analytics.scoreTrend.map(point=>point.score)).toEqual([1000,1300])
+    expect(analytics.weeklyScoreChange).toBe(300)
+  })
+
+  it('leaves weekly score change empty until there is a prediction at least seven days earlier',()=>{
+    const analytics=buildPerformanceAnalytics(attempts,sessions,98)
+    expect(analytics.weeklyScoreChange).toBeNull()
+  })
+
   it('uses only the latest ten completed sessions for the prediction pool',()=>{
     expect(SCORE_SESSION_WINDOW).toBe(10)
     const oldFailures:Attempt[]=[
