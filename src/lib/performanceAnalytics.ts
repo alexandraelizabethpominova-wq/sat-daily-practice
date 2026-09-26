@@ -1,3 +1,4 @@
+import {buildQuestionMastery} from './questionMastery'
 import type {Attempt,ModuleKey,PracticeTestId,SessionSummary,Subject} from '../types'
 
 export type SectionPerformance={
@@ -63,7 +64,8 @@ export type PerformanceAnalytics={
 const SECTION_LABELS:Record<Subject,string>={english:'Reading & Writing',math:'Math'}
 const SCORE_BASE=200
 const SCORE_RANGE=600
-const MIN_SECTION_ATTEMPTS_FOR_SCORE=3
+const MIN_SECTION_QUESTIONS_FOR_SCORE=3
+export const SCORE_SESSION_WINDOW=10
 
 const percent=(correct:number,total:number)=>total?Math.round(100*correct/total):0
 const average=(values:number[])=>values.length?values.reduce((sum,value)=>sum+value,0)/values.length:0
@@ -91,8 +93,31 @@ function buildSections(attempts:Attempt[]):SectionPerformance[]{
 function estimateOverallScore(sections:SectionPerformance[]){
   const english=sections.find(section=>section.subject==='english')
   const math=sections.find(section=>section.subject==='math')
-  if(!english||!math||english.attempts<MIN_SECTION_ATTEMPTS_FOR_SCORE||math.attempts<MIN_SECTION_ATTEMPTS_FOR_SCORE)return null
+  if(!english||!math||english.attempts<MIN_SECTION_QUESTIONS_FOR_SCORE||math.attempts<MIN_SECTION_QUESTIONS_FOR_SCORE)return null
   return estimateSectionPracticeScore(english.successRate)+estimateSectionPracticeScore(math.successRate)
+}
+
+function buildScoreSections(attempts:Attempt[]):SectionPerformance[]{
+  const mastery=buildQuestionMastery(attempts)
+  return (['english','math'] as Subject[]).map(subject=>{
+    const questions=[...mastery.values()].filter(state=>state.latestAttempt.subject===subject)
+    const correct=questions.filter(state=>state.mastered).length
+    const subjectAttempts=attempts.filter(attempt=>attempt.subject===subject)
+    return {
+      subject,
+      label:SECTION_LABELS[subject],
+      attempts:questions.length,
+      correct,
+      successRate:percent(correct,questions.length),
+      averageMs:average(subjectAttempts.map(attempt=>attempt.elapsedMs)),
+    }
+  })
+}
+
+function attemptsForSessionWindow(attempts:Attempt[],sessions:SessionSummary[],endIndex:number){
+  const first=Math.max(0,endIndex-SCORE_SESSION_WINDOW+1)
+  const ids=new Set(sessions.slice(first,endIndex+1).map(session=>session.id))
+  return attempts.filter(attempt=>ids.has(attempt.sessionId))
 }
 
 function buildQuestions(attempts:Attempt[]):QuestionPerformance[]{
@@ -136,12 +161,13 @@ function buildSessions(attempts:Attempt[],sessions:SessionSummary[]){
     }
   })
 
-  const cumulative:Attempt[]=[]
   const scoreTrend:ScoreTrendPoint[]=[]
   let previousScore:number|null=null
-  ordered.forEach(session=>{
-    cumulative.push(...(bySession.get(session.id)??[]))
-    const score=estimateOverallScore(buildSections(cumulative))
+  let latestScoreEstimate:number|null=null
+  ordered.forEach((session,index)=>{
+    const recentAttempts=attemptsForSessionWindow(attempts,ordered,index)
+    const score=estimateOverallScore(buildScoreSections(recentAttempts))
+    latestScoreEstimate=score
     if(score===null)return
     scoreTrend.push({
       sessionId:session.id,
@@ -152,7 +178,7 @@ function buildSessions(attempts:Attempt[],sessions:SessionSummary[]){
     previousScore=score
   })
 
-  return {sessionMetrics,scoreTrend}
+  return {sessionMetrics,scoreTrend,latestScoreEstimate}
 }
 
 function buildRecommendation(sections:SectionPerformance[]):PracticeRecommendation|null{
@@ -184,7 +210,7 @@ function buildRecommendation(sections:SectionPerformance[]):PracticeRecommendati
 export function buildPerformanceAnalytics(attempts:Attempt[],sessions:SessionSummary[],totalQuestions:number):PerformanceAnalytics{
   const correct=attempts.filter(attempt=>attempt.correct).length
   const sections=buildSections(attempts)
-  const {sessionMetrics,scoreTrend}=buildSessions(attempts,sessions)
+  const {sessionMetrics,scoreTrend,latestScoreEstimate}=buildSessions(attempts,sessions)
   return {
     accuracy:percent(correct,attempts.length),
     averageMs:average(attempts.map(attempt=>attempt.elapsedMs)),
@@ -195,7 +221,7 @@ export function buildPerformanceAnalytics(attempts:Attempt[],sessions:SessionSum
     questions:buildQuestions(attempts),
     sessionMetrics,
     scoreTrend,
-    latestScoreEstimate:scoreTrend.length?scoreTrend[scoreTrend.length-1].score:null,
+    latestScoreEstimate,
     recommendation:buildRecommendation(sections),
   }
 }
