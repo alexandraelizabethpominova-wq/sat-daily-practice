@@ -202,10 +202,7 @@ export default function App(){
 
   async function upload(kind:'questions'|'answers',file?:File){
     if(!file)return
-    await savePdf(kind,file)
-    await clearQuestionContent()
-    setContentCount(0)
-    const bytes=await getPdf(kind)
+    const bytes=await savePdf(kind,file)
     if(kind==='questions')setQpdf(bytes)
     else setApdf(bytes)
   }
@@ -498,13 +495,13 @@ export default function App(){
   if(view==='sources')return withSidebar('resources',<main className="shell">
     <div className="page-heading"><div><p className="eyebrow">Resources</p><h1>Manage sources</h1></div></div>
     <section className="card sources">
-      <p>Practice Test 4 questions, source visuals, and answer explanations load from the official SAT sources automatically. You can still add local copies here to override them.</p>
+      <p>Canonical question and explanation PDFs load from the shared source service automatically on every device. Browser copies are optional offline fallback only and never replace the shared source.</p>
       <div className="uploads">
-        <label><Upload/><b>{qpdf?'Replace question source':'Add question source'}</b><span>{qpdf?'Ready for question visuals':'Optional local override'}</span><input type="file" accept="application/pdf" onChange={event=>upload('questions',event.target.files?.[0])}/></label>
-        <label><Upload/><b>{apdf?'Replace explanation source':'Add explanation source'}</b><span>{apdf?'Ready for walkthroughs and review':'Loading official explanation source'}</span><input type="file" accept="application/pdf" onChange={event=>upload('answers',event.target.files?.[0])}/></label>
+        <label><Upload/><b>{qpdf?'Refresh offline question copy':'Add offline question copy'}</b><span>{qpdf?'Shared source available; browser fallback is ready':'Optional offline fallback only'}</span><input type="file" accept="application/pdf" onChange={event=>upload('questions',event.target.files?.[0])}/></label>
+        <label><Upload/><b>{apdf?'Refresh offline explanation copy':'Add offline explanation copy'}</b><span>{apdf?'Shared explanation available; browser fallback is ready':'Optional offline fallback only'}</span><input type="file" accept="application/pdf" onChange={event=>upload('answers',event.target.files?.[0])}/></label>
       </div>
       <div className="structured-db-card"><div><b>Local question database</b><span>{contentCount}/{QUESTION_BANK.length} questions imported</span><small>Text stays in this browser. Formulas can be stored as LaTeX and rendered with KaTeX; verified source layouts remain the accuracy fallback.</small></div><div className="structured-db-actions"><AlexButton disabled={!qpdf||!apdf||Boolean(importProgress)} onClick={buildTextDatabase}>{importProgress?`Importing ${importProgress}`:'Build text database'}</AlexButton>{contentCount>0&&<AlexButton tone="secondary" onClick={async()=>{await clearQuestionContent();setContentCount(0)}}>Clear text database</AlexButton>}</div></div>
-      {(qpdf||apdf)&&<AlexButton tone="secondary" onClick={async()=>{await clearPdfs();await clearQuestionContent();setQpdf(null);setApdf(null);setContentCount(0)}}>Clear sources</AlexButton>}
+      {(qpdf||apdf)&&<AlexButton tone="secondary" onClick={async()=>{await clearPdfs();setQpdf(null);setApdf(null)}}>Clear offline PDF cache</AlexButton>}
     </section>
   </main>)
 
