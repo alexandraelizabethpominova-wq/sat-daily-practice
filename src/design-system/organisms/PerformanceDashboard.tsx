@@ -38,7 +38,7 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
   const latestDelta=summary.scoreTrend.length?summary.scoreTrend[summary.scoreTrend.length-1].delta:0
   const scoreBasis=summary.scorePredictionBasis
   const scoreBasisText=scoreBasis
-    ?`Based on ${scoreBasis.sessionCount} recent completed session${scoreBasis.sessionCount===1?'':'s'} · ${scoreBasis.questionCount} unique questions · ${scoreBasis.masteredCount} currently mastered. ${scoreBasis.sections.map(section=>`${section.label}: ${section.mastered}/${section.questions}`).join(' · ')}.`
+    ?`Based on ${scoreBasis.sessionCount} recent completed session${scoreBasis.sessionCount===1?'':'s'} · ${scoreBasis.questionCount} unique questions · ${scoreBasis.averageQuestionSuccessRate}% average question success. ${scoreBasis.sections.map(section=>`${section.label}: ${section.successRate}% across ${section.questions} question${section.questions===1?'':'s'}`).join(' · ')}.`
     :''
   const isScoreCalibrating=Boolean(scoreBasis&&scoreBasis.sessionCount<10)
   const scoreCalibrationText=scoreBasis
@@ -71,7 +71,7 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
       <AlexBox>
         <AlexText sx={{fontSize:12,textTransform:'uppercase',letterSpacing:'.12em',fontWeight:800,color:'#6558F5'}}>Performance</AlexText>
         <AlexText component="h1" sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:32,md:46},lineHeight:1.08,my:1,color:'#08275B'}}>Your practice trends</AlexText>
-        <AlexText sx={{color:'#667085',maxWidth:720}}>Track success rate, response time, repeat attempts, session progress, and a practice-only score prediction based on recent question mastery.</AlexText>
+        <AlexText sx={{color:'#667085',maxWidth:720}}>Track success rate, response time, repeat attempts, session progress, and a practice-only score prediction based on recent per-question success rates.</AlexText>
       </AlexBox>
     </AlexBox>}
 
@@ -157,7 +157,7 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
             ariaLabel="Accuracy trend by practice session"
           />
         </PerformanceChartCard>
-        <PerformanceChartCard title="Practice score prediction" description={summary.latestScoreEstimate?`${scoreCalibrationText}. Latest prediction ${summary.latestScoreEstimate}${latestDelta===0?'':` · ${latestDelta>0?'+':''}${latestDelta} since the prior scored session`}. ${scoreBasisText} Sessions 1–9 are provisional; session 10 starts the full rolling 10-session question-pool prediction. This is a practice trend, not an official College Board score.`:'Answer at least 3 unique questions in both sections within your recent completed sessions to begin a score prediction.'}>
+        <PerformanceChartCard title="Practice score prediction" description={summary.latestScoreEstimate?`${scoreCalibrationText}. Latest prediction ${summary.latestScoreEstimate}${latestDelta===0?'':` · ${latestDelta>0?'+':''}${latestDelta} since the prior scored session`}. ${scoreBasisText} Sessions 1–9 are provisional; session 10 starts the full rolling 10-session question-pool prediction. Each unique question is weighted equally by its success rate within that window. This is a practice trend, not an official College Board score.`:'Answer at least 3 unique questions in both sections within your recent completed sessions to begin a score prediction.'}>
           {scoreTrend.length&&scoreTrend.some(series=>series.data.length)?<AlexLineChart
             data={scoreTrend}
             margin={{top:20,right:25,bottom:52,left:58}}
