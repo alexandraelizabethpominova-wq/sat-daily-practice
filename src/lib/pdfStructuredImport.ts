@@ -1,4 +1,4 @@
-import {GlobalWorkerOptions,getDocument,type PDFDocumentProxy} from 'pdfjs-dist'
+import {getDocument,type PDFDocumentProxy} from './pdfJs'
 import {QUESTION_BANK} from './questionBank'
 import {questionCropForParts} from './questionCrops'
 import {getQuestionContent,isCurrentQuestionContent,QUESTION_CONTENT_VERSION,saveQuestionContent,type StoredQuestionContent} from './questionContentStore'
@@ -9,7 +9,6 @@ import {isPracticeTest5Math1Verified,normalizePracticeTest5Math1Lines,PRACTICE_T
 import {verifiedPracticeTest5Math1Content} from './verifiedPracticeTest5Math1'
 import type {PracticeQuestion} from '../types'
 
-GlobalWorkerOptions.workerSrc=new URL('pdfjs-dist/build/pdf.worker.min.mjs',import.meta.url).toString()
 
 const pdfCache=new Map<string,PDFDocumentProxy>()
 
