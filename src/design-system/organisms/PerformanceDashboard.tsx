@@ -2,6 +2,7 @@ import {BarChart3,BookOpen,Clock3,Target,TrendingUp} from 'lucide-react'
 import AlexBarChart from '../atoms/AlexBarChart'
 import AlexBox from '../atoms/AlexBox'
 import AlexLineChart from '../atoms/AlexLineChart'
+import AlexProgressThumbIcon from '../atoms/AlexProgressThumbIcon'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
 import MetricCard from '../molecules/MetricCard'
@@ -40,6 +41,19 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
   const weeklyScoreColor=summary.weeklyScoreChange===null||summary.weeklyScoreChange===0
     ?'#667085'
     :summary.weeklyScoreChange>0?'#027A48':'#B42318'
+  const progressDelta=summary.weeklyScoreChange??latestDelta
+  const progressDirection=progressDelta<0?'down' as const:'up' as const
+  const progressWord=!hasHistory?'Building':progressDelta>0?'Improving':progressDelta<0?'Keep going':'Steady'
+  const progressCopy=!hasHistory
+    ?'Complete a few sessions to establish your trend.'
+    :progressDelta>0
+      ?'Your recent score trend is moving in the right direction.'
+      :progressDelta<0
+        ?'A short-term dip — keep working the recommended focus.'
+        :'Your recent score trend is holding steady.'
+  const progressPalette=progressDirection==='up'
+    ?{bg:'#F1FAF4',border:'#CFE8D8',color:'#027A48',iconBg:'#DDF4E5'}
+    :{bg:'#FFF4F2',border:'#F3D1CB',color:'#B42318',iconBg:'#FCE4E0'}
   const scoreBasis=summary.scorePredictionBasis
   const scoreBasisText=scoreBasis
     ?`Based on ${scoreBasis.sessionCount} recent completed session${scoreBasis.sessionCount===1?'':'s'} · ${scoreBasis.questionCount} unique questions · ${scoreBasis.averageQuestionSuccessRate}% average question success. ${scoreBasis.sections.map(section=>`${section.label}: ${section.successRate}% across ${section.questions} question${section.questions===1?'':'s'}`).join(' · ')}.`
@@ -51,22 +65,75 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
       :'Calibrated · rolling 10-session question pool'
     :''
 
-  if(compact)return <AlexBox sx={{display:'grid',gap:1.05,minWidth:0}}>
+  if(compact)return <AlexBox sx={{
+    display:'grid',
+    gridTemplateRows:'auto minmax(0,1fr)',
+    gap:1.1,
+    minWidth:0,
+    height:'100%',
+  }}>
     <AlexBox sx={{
       display:'grid',
       gridTemplateColumns:{xs:'repeat(2,minmax(0,1fr))',sm:'repeat(4,minmax(0,1fr))'},
-      gap:.9,
+      gap:1,
     }}>
       <MetricCard compact tone="blue" icon={<Target/>} label="Accuracy" value={hasHistory?`${summary.accuracy}%`:'—'}/>
       <MetricCard compact tone="cream" icon={<Clock3/>} label="Avg. time" value={hasHistory?formatMs(summary.averageMs):'—'}/>
       <MetricCard compact tone="green" icon={<BarChart3/>} label="Questions seen" value={`${summary.questionsSeen}/${summary.totalQuestions}`}/>
       <MetricCard compact tone="peach" icon={<TrendingUp/>} label="7-day score trend" value={weeklyScoreValue} valueColor={weeklyScoreColor}/>
     </AlexBox>
-    {hasHistory&&summary.recommendation&&<AlexSurface sx={{p:1.45,border:'1px solid #D8D2FF',borderRadius:3,bgcolor:'#F7F5FF'}}>
-      <AlexText sx={{fontSize:10,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:'#6558F5'}}>Recommended focus</AlexText>
-      <AlexText component="h2" sx={{fontSize:17,fontWeight:800,color:'#08275B',mt:.35}}>{summary.recommendation.label}</AlexText>
-      <AlexText sx={{color:'#475467',fontSize:11.5,lineHeight:1.4,mt:.35}}>{summary.recommendation.reason}</AlexText>
-    </AlexSurface>}
+
+    <AlexBox sx={{
+      display:'grid',
+      gridTemplateColumns:{xs:'1fr',sm:'minmax(0,1.2fr) minmax(210px,.8fr)'},
+      gap:1,
+      minHeight:0,
+    }}>
+      <AlexSurface sx={{
+        p:1.9,
+        border:'1px solid #D8D2FF',
+        borderRadius:3,
+        bgcolor:'#F7F5FF',
+        height:'100%',
+        display:'flex',
+        flexDirection:'column',
+        justifyContent:'center',
+      }}>
+        <AlexText sx={{fontSize:10,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:'#6558F5'}}>Recommended focus</AlexText>
+        <AlexText component="h2" sx={{fontSize:18,fontWeight:800,color:'#08275B',mt:.45}}>{summary.recommendation?.label??'Keep practicing'}</AlexText>
+        <AlexText sx={{color:'#475467',fontSize:11.5,lineHeight:1.45,mt:.45}}>
+          {summary.recommendation?.reason??'Complete a few sessions to identify the best area to focus on next.'}
+        </AlexText>
+      </AlexSurface>
+
+      <AlexSurface sx={{
+        p:1.9,
+        border:`1px solid ${progressPalette.border}`,
+        borderRadius:3,
+        bgcolor:progressPalette.bg,
+        height:'100%',
+        display:'flex',
+        flexDirection:'column',
+        justifyContent:'center',
+      }}>
+        <AlexBox sx={{
+          width:34,
+          height:34,
+          borderRadius:'50%',
+          bgcolor:progressPalette.iconBg,
+          color:progressPalette.color,
+          display:'grid',
+          placeItems:'center',
+          mb:1,
+          '& svg':{width:20,height:20},
+        }}>
+          <AlexProgressThumbIcon direction={progressDirection}/>
+        </AlexBox>
+        <AlexText sx={{fontSize:10,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:progressPalette.color}}>Overall progress</AlexText>
+        <AlexText component="h2" sx={{fontSize:20,fontWeight:850,color:progressPalette.color,mt:.4}}>{progressWord}</AlexText>
+        <AlexText sx={{color:'#475467',fontSize:11.5,lineHeight:1.4,mt:.4}}>{progressCopy}</AlexText>
+      </AlexSurface>
+    </AlexBox>
   </AlexBox>
 
   return <AlexBox>
