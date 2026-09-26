@@ -135,6 +135,25 @@ describe('performance analytics',()=>{
     expect(analytics.scorePredictionBasis?.masteredCount).toBe(0)
   })
 
+  it('excludes invalidated attempts from accuracy, mastery, questions seen, and score prediction',()=>{
+    const contaminated:Attempt={
+      ...attempts[0],
+      id:'invalid-q9',
+      questionId:'rw2-9',
+      module:'rw2',
+      questionNumber:9,
+      correct:true,
+      invalidatedAt:'2026-09-26T15:30:37.705Z',
+      invalidReason:'Question content/source mismatch',
+    }
+    const analytics=buildPerformanceAnalytics([...attempts,contaminated],sessions,98)
+    const baseline=buildPerformanceAnalytics(attempts,sessions,98)
+    expect(analytics.accuracy).toBe(baseline.accuracy)
+    expect(analytics.questionsSeen).toBe(baseline.questionsSeen)
+    expect(analytics.latestScoreEstimate).toBe(baseline.latestScoreEstimate)
+    expect(analytics.questions.some(question=>question.questionId==='rw2-9')).toBe(false)
+  })
+
   it('does not produce an overall score estimate without enough data in both sections',()=>{
     const mathOnly=attempts.filter(attempt=>attempt.subject==='math').slice(0,2)
     const analytics=buildPerformanceAnalytics(mathOnly,[],98)
