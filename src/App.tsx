@@ -154,6 +154,10 @@ export default function App(){
   },[settings,authUser?.id,settingsCloudReady])
   useEffect(()=>{
     if(!authUser||view!=='practice'||!sid)return
+    const lastActivityAt=new Date().toISOString()
+    setResumableSession(previous=>previous&&previous.id===sid
+      ?{...previous,currentIndex:i,draftAnswer:selected,lastActivityAt}
+      :previous)
     const timeout=window.setTimeout(()=>{
       void saveActiveSessionProgress(sid,i,selected).catch(error=>console.warn('Active session progress sync failed',error))
     },400)
