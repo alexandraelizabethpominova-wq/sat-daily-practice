@@ -587,3 +587,42 @@ nav[aria-label="Mobile primary navigation"]{margin:0}
     padding:16px;
   }
 }
+
+
+/* Parsing/source review panes --------------------------------------------- */
+/*
+ * The comparison grid stretches both cards to the height of the taller pane.
+ * Let the source viewer use that full stretched height as its scroll viewport
+ * instead of keeping the older viewport-based fixed height and leaving empty
+ * card space below the scrollbar.
+ */
+.question-source-review-pane{
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+}
+.question-source-review-pane--source>.source-viewer{
+  display:flex;
+  flex:1 1 auto;
+  min-height:0;
+  flex-direction:column;
+}
+.question-source-review-pane--source>.source-viewer>.source-slice{
+  display:flex;
+  flex:1 1 auto;
+  min-height:0;
+  flex-direction:column;
+}
+.question-source-review-pane--source>.source-viewer>.source-slice>.source-slice-content--zoomable{
+  flex:1 1 auto;
+  height:auto;
+  min-height:0;
+  max-height:none;
+  overflow:auto;
+}
+
+@media(max-width:1199.98px){
+  .question-source-review-pane--source>.source-viewer>.source-slice>.source-slice-content--zoomable{
+    min-height:340px;
+  }
+}

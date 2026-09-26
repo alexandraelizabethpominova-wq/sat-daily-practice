@@ -5,6 +5,7 @@ import AlexIconButton from '../atoms/AlexIconButton'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
 import AlexTooltip from '../atoms/AlexTooltip'
+import AlexCalendarStatusIcon from '../atoms/AlexCalendarStatusIcon'
 import {buildStudyPlanCalendarDays,type StudyPlanDayStatus} from '../../lib/studyPlanCalendar'
 import type {PracticePlanRecommendation} from '../../lib/practicePlan'
 import type {SessionSummary,Settings} from '../../types'
@@ -18,7 +19,7 @@ type Props={
 const STATUS_STYLE:Record<StudyPlanDayStatus,{bg:string;border:string;color:string;label:string}>={
   ahead:{bg:'#E5F7DC',border:'#AAD99A',color:'#315F25',label:'Ahead'},
   'on-track':{bg:'#E5F1FF',border:'#A9CEF0',color:'#245F9E',label:'On schedule'},
-  behind:{bg:'#FFF0E7',border:'#F0C5AD',color:'#914D2C',label:'Behind'},
+  behind:{bg:'#FFF0E7',border:'#F0C5AD',color:'#914D2C',label:'Below target'},
   planned:{bg:'#F2E9FF',border:'#DACAF0',color:'#6B4A91',label:'Planned'},
   neutral:{bg:'#FAFAF8',border:'#E8E4DD',color:'#98A2B3',label:'Not tracked'},
 }
@@ -44,12 +45,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
   }),[view.year,view.month,sessions,recommendation.recommendedSessionsPerDay,recommendation.questionsPerSession,settings.targetExamDate])
 
   const firstWeekday=new Date(view.year,view.month,1).getDay()
-  const targetQuestions=recommendation.recommendedSessionsPerDay*recommendation.questionsPerSession
-  const tracked=days.filter(day=>day.status==='ahead'||day.status==='on-track'||day.status==='behind')
-  const ahead=tracked.filter(day=>day.status==='ahead').length
-  const onTrack=tracked.filter(day=>day.status==='on-track').length
-  const behind=tracked.filter(day=>day.status==='behind').length
-
+  const targetSessions=Math.max(0,recommendation.recommendedSessionsPerDay)
   function moveMonth(delta:number){
     const next=new Date(view.year,view.month+delta,1)
     setView({year:next.getFullYear(),month:next.getMonth()})
@@ -64,6 +60,9 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
       bgcolor:'#fff',
       minWidth:0,
       height:'100%',
+      minHeight:{xs:360,md:420,lg:430},
+      display:'flex',
+      flexDirection:'column',
     }}
   >
     <AlexBox sx={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:1.25,mb:1.15}}>
@@ -72,7 +71,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
         <AlexText sx={{fontSize:12,fontWeight:850,color:'#08275B'}}>Practice calendar</AlexText>
       </AlexBox>
       <AlexText sx={{fontSize:10.5,fontWeight:800,color:'#667085',whiteSpace:'nowrap'}}>
-        {targetQuestions>0?`${targetQuestions} q/day`:'Flexible pace'}
+        {targetSessions>0?`${targetSessions} session${targetSessions===1?'':'s'}/day`:'Flexible pace'}
       </AlexText>
     </AlexBox>
 
@@ -84,17 +83,43 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
       <AlexIconButton label="Next month" onClick={()=>moveMonth(1)}><ChevronRight size={16}/></AlexIconButton>
     </AlexBox>
 
-    <AlexBox sx={{display:'grid',gridTemplateColumns:'repeat(7,minmax(0,1fr))',gap:.35,mb:.45}}>
+    <AlexBox sx={{
+      display:'grid',
+      gridTemplateColumns:'repeat(7,minmax(0,1fr))',
+      columnGap:.2,
+      width:'92%',
+      mx:'auto',
+      mb:.7,
+    }}>
       {WEEKDAYS.map((day,index)=><AlexText key={`${day}-${index}`} sx={{textAlign:'center',fontSize:9,fontWeight:850,color:'#667085'}}>{day}</AlexText>)}
     </AlexBox>
 
-    <AlexBox sx={{display:'grid',gridTemplateColumns:'repeat(7,minmax(0,1fr))',gap:.35}}>
+    <AlexBox sx={{
+      display:'grid',
+      gridTemplateColumns:'repeat(7,minmax(0,1fr))',
+      gridAutoRows:'minmax(42px,1fr)',
+      columnGap:.2,
+      rowGap:.65,
+      width:'92%',
+      mx:'auto',
+      flex:'1 1 auto',
+      minHeight:0,
+      alignItems:'center',
+      alignContent:'stretch',
+    }}>
       {Array.from({length:firstWeekday},(_,index)=><AlexBox key={`empty-${index}`} aria-hidden="true"/>)}
       {days.map(day=>{
         const style=STATUS_STYLE[day.status]
         const isToday=day.date===todayKey
         const isExamDate=Boolean(settings.targetExamDate&&day.date===settings.targetExamDate)
-        const title=[style.label,isExamDate?'Exam date':'',day.practiced?`${day.questionCount} questions practiced`:''].filter(Boolean).join(' · ')
+        const hasTrackedGoal=targetSessions>0&&(day.status==='ahead'||day.status==='on-track'||day.status==='behind')
+        const title=[
+          style.label,
+          isExamDate?'Exam date':'',
+          day.practiced
+            ?`${targetSessions>0?`${day.sessionCount} of ${targetSessions}`:day.sessionCount} session${targetSessions===1&&day.sessionCount===1?'':'s'} · ${day.questionCount} questions`
+            :hasTrackedGoal?'No practice recorded':'',
+        ].filter(Boolean).join(' · ')
         return <AlexTooltip
           key={day.date}
           title={title}
@@ -114,7 +139,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
             sx={{
               width:'100%',
               aspectRatio:'1 / 1',
-              maxWidth:30,
+              maxWidth:38,
               justifySelf:'center',
               borderRadius:isExamDate?0:'50%',
               border:isExamDate?'none':'1px solid',
@@ -132,7 +157,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
           >
             {isExamDate&&<Star
               aria-hidden="true"
-              size={30}
+              size={34}
               strokeWidth={1.7}
               fill="#F5C451"
               color={isToday?'#6558F5':'#9B6A00'}
@@ -141,7 +166,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
             <AlexText sx={{
               position:'relative',
               zIndex:1,
-              fontSize:{xs:9.5,sm:10.5},
+              fontSize:{xs:10,sm:11.5},
               fontWeight:isExamDate||isToday?900:700,
               lineHeight:1,
               color:isExamDate?'#08275B':'inherit',
@@ -150,32 +175,44 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
               aria-hidden="true"
               sx={{
                 position:'absolute',
-                zIndex:1,
-                bottom:isExamDate?5:2.5,
-                width:3.5,
-                height:3.5,
+                zIndex:3,
+                top:-2.5,
+                right:-2.5,
+                width:14,
+                height:14,
                 borderRadius:'50%',
-                bgcolor:isExamDate?'#08275B':style.color,
+                bgcolor:'#fff',
+                border:'1px solid #A6D8BE',
+                boxShadow:'0 1px 3px rgba(16,24,40,.14)',
+                display:'grid',
+                placeItems:'center',
               }}
-            />}
+            >
+              <AlexCalendarStatusIcon kind="check" sx={{width:10,height:10,color:'#027A48'}}/>
+            </AlexBox>}
+            {!day.practiced&&hasTrackedGoal&&day.status==='behind'&&<AlexBox
+              aria-hidden="true"
+              sx={{
+                position:'absolute',
+                zIndex:3,
+                top:-2.5,
+                right:-2.5,
+                width:13,
+                height:13,
+                borderRadius:'50%',
+                bgcolor:'#fff',
+                border:'1px solid #F1B5B0',
+                boxShadow:'0 1px 3px rgba(16,24,40,.14)',
+                display:'grid',
+                placeItems:'center',
+              }}
+            >
+              <AlexCalendarStatusIcon kind="close" sx={{width:9.5,height:9.5,color:'#B42318'}}/>
+            </AlexBox>}
           </AlexBox>
         </AlexTooltip>
       })}
     </AlexBox>
 
-    <AlexBox sx={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:.8,flexWrap:'wrap',mt:1.15,pt:1,borderTop:'1px solid #F0EDE7'}}>
-      <AlexBox sx={{display:'flex',gap:.8,flexWrap:'wrap'}}>
-        {(['ahead','on-track','behind'] as StudyPlanDayStatus[]).map(status=>{
-          const style=STATUS_STYLE[status]
-          return <AlexBox key={status} sx={{display:'flex',alignItems:'center',gap:.45}}>
-            <AlexBox sx={{width:8,height:8,borderRadius:'50%',bgcolor:style.bg,border:`1px solid ${style.border}`}}/>
-            <AlexText sx={{fontSize:9.5,color:'#667085'}}>{style.label}</AlexText>
-          </AlexBox>
-        })}
-      </AlexBox>
-      <AlexText sx={{fontSize:9.5,color:'#98A2B3'}}>
-        {ahead} ahead · {onTrack} on plan · {behind} behind
-      </AlexText>
-    </AlexBox>
   </AlexSurface>
 }

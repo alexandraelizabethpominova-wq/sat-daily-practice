@@ -43,7 +43,7 @@ export function buildStudyPlanCalendarDays({
   const todayKey=localDateKey(today)
   const sessionKeys=sessions.map(session=>localDateKey(session.startedAt)).filter(Boolean).sort()
   const trackingStart=sessionKeys[0]??todayKey
-  const targetQuestions=Math.max(0,recommendedSessionsPerDay)*Math.max(1,questionsPerSession)
+  const targetSessions=Math.max(0,recommendedSessionsPerDay)
   const totals=new Map<string,{sessions:number;questions:number}>()
 
   sessions.forEach(session=>{
@@ -65,12 +65,12 @@ export function buildStudyPlanCalendarDays({
     let status:StudyPlanDayStatus='neutral'
     if(date>=trackingStart&&(!examDate||date<=examDate)){
       if(date>todayKey){
-        status=targetQuestions>0?'planned':'neutral'
-      }else if(targetQuestions===0){
+        status=targetSessions>0?'planned':'neutral'
+      }else if(targetSessions===0){
         status=practiced?'ahead':'on-track'
-      }else if(total.questions>targetQuestions){
+      }else if(total.sessions>targetSessions){
         status='ahead'
-      }else if(total.questions>=targetQuestions){
+      }else if(total.sessions>=targetSessions){
         status='on-track'
       }else{
         status='behind'

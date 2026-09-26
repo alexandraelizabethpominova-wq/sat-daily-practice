@@ -2,10 +2,11 @@ import {describe,expect,it} from 'vitest'
 import {clampSourceZoom,sourceViewerFitZoom} from './sourceViewerZoom'
 
 describe('sourceViewerZoom',()=>{
-  it('uses mobile-first fit zoom values based on the viewer width',()=>{
+  it('fits sources to the available width at 100 percent on every viewport size',()=>{
     expect(sourceViewerFitZoom(360)).toBe(1)
-    expect(sourceViewerFitZoom(520)).toBe(1.1)
-    expect(sourceViewerFitZoom(760)).toBe(1.2)
+    expect(sourceViewerFitZoom(520)).toBe(1)
+    expect(sourceViewerFitZoom(760)).toBe(1)
+    expect(sourceViewerFitZoom(1200)).toBe(1)
   })
 
   it('clamps interactive zoom values',()=>{
