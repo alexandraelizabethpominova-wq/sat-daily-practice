@@ -1,11 +1,14 @@
 import {createClient,type User} from '@supabase/supabase-js'
 import type {ActivePracticeSession,Attempt,SessionSummary,Settings} from '../types'
 
-const url=import.meta.env.VITE_SUPABASE_URL as string|undefined
-const publishableKey=(import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY??import.meta.env.VITE_SUPABASE_ANON_KEY) as string|undefined
+const DEFAULT_SUPABASE_URL='https://gnhmfhvvirpgawijsrej.supabase.co'
+const DEFAULT_SUPABASE_PUBLISHABLE_KEY='sb_publishable_TiLvsCcbJ6zdAvDcPuEZ6g_A0UrArMy'
 
-export const supabase=url&&publishableKey?createClient(url,publishableKey):null
-export const isSupabaseConfigured=Boolean(supabase)
+const url=(import.meta.env.VITE_SUPABASE_URL as string|undefined)||DEFAULT_SUPABASE_URL
+const publishableKey=((import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY??import.meta.env.VITE_SUPABASE_ANON_KEY) as string|undefined)||DEFAULT_SUPABASE_PUBLISHABLE_KEY
+
+export const supabase=createClient(url,publishableKey)
+export const isSupabaseConfigured=true
 
 export type AuthUser={id:string;email:string|null}
 export type UserProfile={
@@ -207,6 +210,14 @@ export async function createActiveSession(session:ActivePracticeSession){
   return true
 }
 
+function isMissingResumableSessionSchema(error:unknown){
+  const value=error as {message?:string;details?:string;hint?:string;code?:string}|null
+  const text=`${value?.message??''} ${value?.details??''} ${value?.hint??''}`.toLowerCase()
+  const resumableColumns=['status','question_ids','current_index','draft_answer','session_settings','last_activity_at','updated_at']
+  return resumableColumns.some(column=>text.includes(column))
+    &&(text.includes('column')||text.includes('schema cache')||text.includes('does not exist')||value?.code==='42703'||value?.code==='PGRST204')
+}
+
 export async function loadActiveSession():Promise<ActivePracticeSession|null>{
   if(!supabase)return null
   const userId=await currentUserId()
@@ -218,7 +229,10 @@ export async function loadActiveSession():Promise<ActivePracticeSession|null>{
     .order('last_activity_at',{ascending:false})
     .limit(1)
     .maybeSingle()
-  if(error)throw error
+  if(error){
+    if(isMissingResumableSessionSchema(error))return null
+    throw error
+  }
   if(!data)return null
   const {data:attemptRows,error:attemptError}=await supabase.from('sat_attempts')
     .select('id,session_id,question_id,practice_test_id,subject,module,question_number,selected_answer,correct_answer,correct,self_graded,elapsed_ms,created_at')
@@ -309,13 +323,29 @@ export async function syncSession(s:SessionSummary){
 }
 
 export async function loadCloudHistory():Promise<{attempts:Attempt[];sessions:SessionSummary[]}|null>{
-  if(!supabase)return null
   const userId=await currentUserId()
   if(!userId)return null
-  const [sessionResult,attemptResult]=await Promise.all([
-    supabase.from('sat_sessions').select('id,started_at,ended_at,mode,question_count').eq('user_id',userId).eq('status','completed').not('ended_at','is',null).order('started_at',{ascending:true}),
-    supabase.from('sat_attempts').select('id,session_id,question_id,practice_test_id,subject,module,question_number,selected_answer,correct_answer,correct,self_graded,elapsed_ms,created_at').eq('user_id',userId).order('created_at',{ascending:true}),
-  ])
+
+  let sessionResult=await supabase.from('sat_sessions')
+    .select('id,started_at,ended_at,mode,question_count,status')
+    .eq('user_id',userId)
+    .eq('status','completed')
+    .not('ended_at','is',null)
+    .order('started_at',{ascending:true})
+
+  if(sessionResult.error&&isMissingResumableSessionSchema(sessionResult.error)){
+    sessionResult=await supabase.from('sat_sessions')
+      .select('id,started_at,ended_at,mode,question_count')
+      .eq('user_id',userId)
+      .not('ended_at','is',null)
+      .order('started_at',{ascending:true}) as typeof sessionResult
+  }
+
+  const attemptResult=await supabase.from('sat_attempts')
+    .select('id,session_id,question_id,practice_test_id,subject,module,question_number,selected_answer,correct_answer,correct,self_graded,elapsed_ms,created_at')
+    .eq('user_id',userId)
+    .order('created_at',{ascending:true})
+
   if(sessionResult.error)throw sessionResult.error
   if(attemptResult.error)throw attemptResult.error
   const attempts:Attempt[]=(attemptResult.data??[]).map(attemptFromRow)
