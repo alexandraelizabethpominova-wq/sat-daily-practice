@@ -468,6 +468,7 @@ export default function App(){
       estimatedScore={performance.latestScoreEstimate}
       nationalMeritChance={nationalMeritOutlook?.qualifyingChance??null}
       projectedSelectionIndex={nationalMeritOutlook?.projectedSelectionIndex??null}
+      estimateConfidence={performance.scoreEstimateConfidence}
       targetScore={practiceRecommendation.targetScore}
       daysRemaining={practiceRecommendation.daysRemaining}
       dailyMinutes={practiceRecommendation.estimatedDailyMinutes}
