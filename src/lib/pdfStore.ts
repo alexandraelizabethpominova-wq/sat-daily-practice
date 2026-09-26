@@ -98,9 +98,7 @@ export async function getPracticeTestPdf(testId:PracticeTestId,kind:PdfKind):Pro
   const key=memoryKey(testId,kind)
   const existing=inMemorySources.get(key)
   if(existing)return existing
-  const loading=loadSharedThenCache(testId,kind).finally(()=>{
-    if(!inMemorySources.get(key))inMemorySources.delete(key)
-  })
+  const loading=loadSharedThenCache(testId,kind)
   inMemorySources.set(key,loading)
   return loading
 }
