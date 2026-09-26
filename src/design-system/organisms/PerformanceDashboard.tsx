@@ -51,21 +51,21 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
       :'Calibrated · rolling 10-session question pool'
     :''
 
-  if(compact)return <AlexBox sx={{display:'grid',gap:1.35,minWidth:0}}>
+  if(compact)return <AlexBox sx={{display:'grid',gap:1.05,minWidth:0}}>
     <AlexBox sx={{
       display:'grid',
       gridTemplateColumns:{xs:'repeat(2,minmax(0,1fr))',sm:'repeat(4,minmax(0,1fr))'},
-      gap:1.2,
+      gap:.9,
     }}>
       <MetricCard compact tone="blue" icon={<Target/>} label="Accuracy" value={hasHistory?`${summary.accuracy}%`:'—'}/>
       <MetricCard compact tone="cream" icon={<Clock3/>} label="Avg. time" value={hasHistory?formatMs(summary.averageMs):'—'}/>
       <MetricCard compact tone="green" icon={<BarChart3/>} label="Questions seen" value={`${summary.questionsSeen}/${summary.totalQuestions}`}/>
       <MetricCard compact tone="peach" icon={<TrendingUp/>} label="7-day score trend" value={weeklyScoreValue} valueColor={weeklyScoreColor}/>
     </AlexBox>
-    {hasHistory&&summary.recommendation&&<AlexSurface sx={{p:1.8,border:'1px solid #D8D2FF',borderRadius:3,bgcolor:'#F7F5FF'}}>
+    {hasHistory&&summary.recommendation&&<AlexSurface sx={{p:1.45,border:'1px solid #D8D2FF',borderRadius:3,bgcolor:'#F7F5FF'}}>
       <AlexText sx={{fontSize:10,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:'#6558F5'}}>Recommended focus</AlexText>
-      <AlexText component="h2" sx={{fontSize:19,fontWeight:800,color:'#08275B',mt:.45}}>{summary.recommendation.label}</AlexText>
-      <AlexText sx={{color:'#475467',fontSize:12,lineHeight:1.45,mt:.45}}>{summary.recommendation.reason}</AlexText>
+      <AlexText component="h2" sx={{fontSize:17,fontWeight:800,color:'#08275B',mt:.35}}>{summary.recommendation.label}</AlexText>
+      <AlexText sx={{color:'#475467',fontSize:11.5,lineHeight:1.4,mt:.35}}>{summary.recommendation.reason}</AlexText>
     </AlexSurface>}
   </AlexBox>
 
