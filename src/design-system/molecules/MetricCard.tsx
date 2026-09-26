@@ -1,24 +1,10 @@
 import type {ReactNode} from 'react'
-import AlexSvgIcon from '../atoms/AlexSvgIcon'
 import AlexBox from '../atoms/AlexBox'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
 
 type MetricTone='default'|'blue'|'cream'|'lavender'|'green'|'peach'
-type TrendDirection='up'|'down'|'flat'
-
-function ArrowUpwardRoundedIcon(){
-  return <AlexSvgIcon viewBox="0 0 24 24"><path d="M12 4 5 11l1.4 1.4L11 7.8V20h2V7.8l4.6 4.6L19 11l-7-7Z"/></AlexSvgIcon>
-}
-
-function ArrowDownwardRoundedIcon(){
-  return <AlexSvgIcon viewBox="0 0 24 24"><path d="M11 4v12.2l-4.6-4.6L5 13l7 7 7-7-1.4-1.4-4.6 4.6V4h-2Z"/></AlexSvgIcon>
-}
-
-function RemoveRoundedIcon(){
-  return <AlexSvgIcon viewBox="0 0 24 24"><path d="M5 11h14v2H5z"/></AlexSvgIcon>
-}
-type Props={icon:ReactNode;label:string;value:string;tone?:MetricTone;compact?:boolean;trend?:{direction:TrendDirection;text:string}}
+type Props={icon:ReactNode;label:string;value:string;tone?:MetricTone;compact?:boolean;valueColor?:string}
 
 const TONES:Record<MetricTone,{bg:string;border:string;icon:string}>={
   default:{bg:'#fff',border:'#E6E2DB',icon:'#6558F5'},
@@ -29,7 +15,7 @@ const TONES:Record<MetricTone,{bg:string;border:string;icon:string}>={
   peach:{bg:'#FFF1E8',border:'#F1DDD0',icon:'#A65D32'},
 }
 
-export default function MetricCard({icon,label,value,tone='default',compact=false,trend}:Props){
+export default function MetricCard({icon,label,value,tone='default',compact=false,valueColor}:Props){
   const palette=TONES[tone]
   return <AlexSurface sx={{
     p:compact?2:2.2,
@@ -69,7 +55,7 @@ export default function MetricCard({icon,label,value,tone='default',compact=fals
       lineHeight:1,
       letterSpacing:compact?'-.025em':0,
       fontWeight:compact?700:850,
-      color:'#08275B',
+      color:valueColor??'#08275B',
     }}>{value}</AlexText>
     {trend&&<AlexBox sx={{
       mt:1,
