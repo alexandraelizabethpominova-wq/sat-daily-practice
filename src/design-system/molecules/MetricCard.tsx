@@ -1,10 +1,14 @@
 import type {ReactNode} from 'react'
+import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded'
+import ArrowUpwardRoundedIcon from '@mui/icons-material/ArrowUpwardRounded'
+import RemoveRoundedIcon from '@mui/icons-material/RemoveRounded'
 import AlexBox from '../atoms/AlexBox'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
 
 type MetricTone='default'|'blue'|'cream'|'lavender'|'green'|'peach'
-type Props={icon:ReactNode;label:string;value:string;tone?:MetricTone;compact?:boolean}
+type TrendDirection='up'|'down'|'flat'
+type Props={icon:ReactNode;label:string;value:string;tone?:MetricTone;compact?:boolean;trend?:{direction:TrendDirection;text:string}}
 
 const TONES:Record<MetricTone,{bg:string;border:string;icon:string}>={
   default:{bg:'#fff',border:'#E6E2DB',icon:'#6558F5'},
@@ -15,7 +19,7 @@ const TONES:Record<MetricTone,{bg:string;border:string;icon:string}>={
   peach:{bg:'#FFF1E8',border:'#F1DDD0',icon:'#A65D32'},
 }
 
-export default function MetricCard({icon,label,value,tone='default',compact=false}:Props){
+export default function MetricCard({icon,label,value,tone='default',compact=false,trend}:Props){
   const palette=TONES[tone]
   return <AlexSurface sx={{
     p:compact?2:2.2,
@@ -57,5 +61,16 @@ export default function MetricCard({icon,label,value,tone='default',compact=fals
       fontWeight:compact?700:850,
       color:'#08275B',
     }}>{value}</AlexText>
+    {trend&&<AlexBox sx={{
+      mt:1,
+      display:'flex',
+      alignItems:'center',
+      gap:.45,
+      color:trend.direction==='up'?'#027A48':trend.direction==='down'?'#B42318':'#667085',
+      '& svg':{width:14,height:14},
+    }}>
+      {trend.direction==='up'?<ArrowUpwardRoundedIcon/>:trend.direction==='down'?<ArrowDownwardRoundedIcon/>:<RemoveRoundedIcon/>}
+      <AlexText sx={{fontSize:compact?11:12,fontWeight:800,lineHeight:1.2,color:'inherit'}}>{trend.text}</AlexText>
+    </AlexBox>}
   </AlexSurface>
 }
