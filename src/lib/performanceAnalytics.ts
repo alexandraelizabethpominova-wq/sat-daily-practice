@@ -1,4 +1,4 @@
-import {buildQuestionMastery} from './questionMastery'
+import {buildQuestionMastery,type QuestionMasteryState} from './questionMastery'
 import type {Attempt,ModuleKey,PracticeTestId,SessionSummary,Subject} from '../types'
 
 export type SectionPerformance={
@@ -111,7 +111,7 @@ function buildScoreSections(poolAttempts:Attempt[],masteryAttempts:Attempt[]):Se
   return (['english','math'] as Subject[]).map(subject=>{
     const questions=[...poolIds]
       .map(questionId=>mastery.get(questionId))
-      .filter((state):state is NonNullable<typeof state>=>Boolean(state)&&state.latestAttempt.subject===subject)
+      .filter((state):state is QuestionMasteryState=>Boolean(state)&&state.latestAttempt.subject===subject)
     const correct=questions.filter(state=>state.mastered).length
     const subjectAttempts=poolAttempts.filter(attempt=>attempt.subject===subject)
     return {
