@@ -26,8 +26,8 @@ import {loadSharedQuestionBank,mergeQuestionBanks} from './lib/sharedQuestionBan
 import {importPracticeMaterials} from './lib/pdfStructuredImport'
 import {choosePracticeQuestions,countFailedPracticeQuestions,countMissedPracticeQuestions,formatDuration,summarizePerformance,summarizeSession} from './lib/practiceGamification'
 import {addAttempt,getAttempts,getSessions,getSettings,prepareHistoryForUser,prepareSettingsForUser,replaceHistory,saveSession,saveSettings} from './lib/storage'
-import {getCurrentAuthUser,loadCloudHistory,loadUserSettings,saveUserSettings,subscribeToAuth,syncSession,type AuthUser} from './lib/supabase'
-import type {Attempt,PracticeQuestion,SessionSummary,Settings,SubjectMode} from './types'
+import {abandonActiveSession,createActiveSession,getCurrentAuthUser,loadActiveSession,loadCloudHistory,loadUserSettings,saveActiveSessionProgress,saveUserSettings,subscribeToAuth,syncActiveAttempt,syncSession,type AuthUser} from './lib/supabase'
+import type {ActivePracticeSession,Attempt,PracticeQuestion,SessionSummary,Settings,SubjectMode} from './types'
 
 const uid=()=>crypto.randomUUID()
 
@@ -56,6 +56,7 @@ export default function App(){
   const[authReady,setAuthReady]=useState(false)
   const[settingsCloudReady,setSettingsCloudReady]=useState(false)
   const[questionBank,setQuestionBank]=useState<PracticeQuestion[]>(()=>QUESTION_BANK)
+  const[resumableSession,setResumableSession]=useState<ActivePracticeSession|null>(null)
 
   useEffect(()=>{
     void loadSharedQuestionBank().then(shared=>setQuestionBank(mergeQuestionBanks(QUESTION_BANK,shared))).catch(error=>console.warn('Shared question bank load failed; using bundled metadata.',error))
@@ -79,7 +80,10 @@ export default function App(){
     return()=>{cancelled=true;unsubscribe()}
   },[])
   useEffect(()=>{
-    if(!authUser)return
+    if(!authUser){
+      setResumableSession(null)
+      return
+    }
     let cancelled=false
     void (async()=>{
       try{
@@ -88,8 +92,10 @@ export default function App(){
         const localSessions=getSessions()
         setAttempts(localAttempts)
         setSessions(localSessions)
-        const cloud=await loadCloudHistory()
-        if(!cloud||cancelled)return
+        const [cloud,active]=await Promise.all([loadCloudHistory(),loadActiveSession()])
+        if(cancelled)return
+        setResumableSession(active)
+        if(!cloud)return
         const mergeById=<T extends {id:string},>(local:T[],remote:T[])=>{
           const merged=new Map<string,T>()
           remote.forEach(item=>merged.set(item.id,item))
@@ -105,7 +111,7 @@ export default function App(){
         setSessions(mergedSessions)
         await Promise.allSettled(mergedSessions.map(syncSession))
       }catch(error){
-        console.warn('Supabase history sync failed',error)
+        console.warn('Supabase history or active-session sync failed',error)
       }
     })()
     return()=>{cancelled=true}
@@ -146,6 +152,14 @@ export default function App(){
       void saveUserSettings(settings).catch(error=>console.warn('Supabase settings backup failed',error))
     }
   },[settings,authUser?.id,settingsCloudReady])
+  useEffect(()=>{
+    if(!authUser||view!=='practice'||!sid)return
+    const timeout=window.setTimeout(()=>{
+      void saveActiveSessionProgress(sid,i,selected).catch(error=>console.warn('Active session progress sync failed',error))
+    },400)
+    return()=>window.clearTimeout(timeout)
+  },[authUser?.id,view,sid,i,selected])
+
 
   const current=qs[i]
   const currentRec=current?currentAttempts.find(attempt=>attempt.questionId===current.id):undefined
@@ -174,7 +188,19 @@ export default function App(){
     else setApdf(bytes)
   }
 
-  function beginPractice(nextMode:SubjectMode=settings.mode,nextPracticeTest=settings.practiceTest??'all'){
+  async function beginPractice(nextMode:SubjectMode=settings.mode,nextPracticeTest=settings.practiceTest??'all'){
+    if(resumableSession){
+      const replace=window.confirm('You already have a practice session in progress. Start a new session and mark the unfinished one as ended?')
+      if(!replace)return
+      try{
+        await abandonActiveSession(resumableSession.id)
+        setResumableSession(null)
+      }catch(error){
+        console.warn('Unable to end previous active session',error)
+        window.alert('The previous active session could not be ended. Please try again before starting a new session.')
+        return
+      }
+    }
     const nextSettings={...settings,mode:nextMode,practiceTest:nextPracticeTest}
     const nextQuestions=choosePracticeQuestions(nextSettings,attempts,Math.random,questionBank)
     if(!nextQuestions.length){
@@ -182,10 +208,34 @@ export default function App(){
       setView('settings')
       return
     }
+    const sessionId=uid()
+    const startedAt=new Date().toISOString()
+    const active:ActivePracticeSession={
+      id:sessionId,
+      startedAt,
+      mode:nextMode,
+      questionCount:nextQuestions.length,
+      questionIds:nextQuestions.map(question=>question.id),
+      currentIndex:0,
+      draftAnswer:'',
+      lastActivityAt:startedAt,
+      settings:nextSettings,
+      attempts:[],
+    }
+    if(authUser){
+      try{
+        await createActiveSession(active)
+        setResumableSession(active)
+      }catch(error){
+        console.warn('Unable to create cloud active session',error)
+        window.alert('This session could not be saved to the cloud. Check your connection and try again so it can be resumed on another device.')
+        return
+      }
+    }
     setSettings(nextSettings)
     setQs(nextQuestions)
-    setSid(uid())
-    setStarted(new Date().toISOString())
+    setSid(sessionId)
+    setStarted(startedAt)
     setCurrentAttempts([])
     setI(0)
     setSelected('')
@@ -194,7 +244,43 @@ export default function App(){
     setView('practice')
   }
 
-  function start(){beginPractice(settings.mode)}
+  function resumeActiveSession(){
+    if(!resumableSession)return
+    const resumedQuestions=resumableSession.questionIds
+      .map(questionId=>questionBank.find(question=>question.id===questionId))
+      .filter((question):question is PracticeQuestion=>Boolean(question))
+    if(resumedQuestions.length!==resumableSession.questionIds.length){
+      window.alert('Some questions from this saved session are not available yet. Reload the app and try again.')
+      return
+    }
+    const nextIndex=Math.min(Math.max(resumableSession.currentIndex,0),Math.max(0,resumedQuestions.length-1))
+    const currentQuestion=resumedQuestions[nextIndex]
+    const priorAttempt=currentQuestion?resumableSession.attempts.find(attempt=>attempt.questionId===currentQuestion.id):undefined
+    setSettings({...settings,...resumableSession.settings})
+    setQs(resumedQuestions)
+    setSid(resumableSession.id)
+    setStarted(resumableSession.startedAt)
+    setCurrentAttempts(resumableSession.attempts)
+    setI(nextIndex)
+    setSelected(priorAttempt?.selectedAnswer??resumableSession.draftAnswer??'')
+    setSubmitted(Boolean(priorAttempt))
+    setQStart(Date.now())
+    setView('practice')
+  }
+
+  async function endResumableSession(){
+    if(!resumableSession)return
+    if(!window.confirm('End this unfinished session? Your submitted answers will remain in your history, but the session will no longer be resumable.'))return
+    try{
+      await abandonActiveSession(resumableSession.id)
+      setResumableSession(null)
+    }catch(error){
+      console.warn('Unable to end active session',error)
+      window.alert('The session could not be ended. Please try again.')
+    }
+  }
+
+  function start(){void beginPractice(settings.mode)}
 
   async function record(correct:boolean,selfGraded=false){
     if(!current)return
@@ -206,6 +292,16 @@ export default function App(){
     addAttempt(attempt)
     setAttempts(previous=>[...previous,attempt])
     setCurrentAttempts(previous=>[...previous,attempt])
+    if(authUser){
+      try{
+        await syncActiveAttempt(attempt)
+        setResumableSession(previous=>previous&&previous.id===attempt.sessionId
+          ?{...previous,attempts:[...previous.attempts,attempt],lastActivityAt:attempt.createdAt,draftAnswer:selected}
+          :previous)
+      }catch(error){
+        console.warn('Active attempt sync failed',error)
+      }
+    }
   }
 
   async function submit(){
@@ -228,7 +324,12 @@ export default function App(){
     const session:SessionSummary={id:sid,startedAt:started,endedAt:new Date().toISOString(),mode:settings.mode,questionCount:qs.length,attempts:currentAttempts}
     saveSession(session)
     setSessions(previous=>[...previous,session])
-    void syncSession(session).catch(error=>console.warn('Supabase session backup failed',error))
+    try{
+      await syncSession(session)
+      setResumableSession(previous=>previous?.id===sid?null:previous)
+    }catch(error){
+      console.warn('Supabase session completion sync failed',error)
+    }
     setView('results')
   }
 
@@ -350,7 +451,7 @@ export default function App(){
       missedQuestionCount={missedQuestionCount}
       failedQuestionCount={failedQuestionCount}
       onChange={setSettings}
-      onStart={()=>beginPractice(settings.mode)}
+      onStart={()=>void beginPractice(settings.mode)}
       recommendation={practiceRecommendation}
     />
   </main>)
@@ -378,7 +479,7 @@ export default function App(){
       questionsPerSession={settings.questionsPerSession}
       focusLabel={practiceRecommendation.focusLabel}
       onChoosePracticeTest={()=>setView('home')}
-      onStartPractice={()=>beginPractice(settings.mode)}
+      onStartPractice={()=>void beginPractice(settings.mode)}
     />
 
     <AlexBox
@@ -402,7 +503,14 @@ export default function App(){
   return withSidebar('practice-tests',<PracticeTestsDashboard
     tests={practiceTestSummaries}
     sessionSummary={`${settings.questionsPerSession} questions · ${settings.mode==='both'?'Reading & Writing + Math':settings.mode==='english'?'Reading & Writing':'Math'} · ${practiceSummary}`}
-    onStartTest={value=>beginPractice(settings.mode,value)}
+    activeSession={resumableSession?{
+      questionCount:resumableSession.questionCount,
+      answeredCount:resumableSession.attempts.length,
+      lastActivityAt:resumableSession.lastActivityAt,
+    }:null}
+    onStartTest={value=>void beginPractice(settings.mode,value)}
     onOpenSetup={()=>setView('settings')}
+    onResumeSession={resumeActiveSession}
+    onEndSession={()=>void endResumableSession()}
   />)
 }
