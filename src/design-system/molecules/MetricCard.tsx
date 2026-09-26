@@ -49,7 +49,7 @@ export default function MetricCard({icon,label,value,tone='default',compact=fals
     }}>{label}</AlexText>
     <AlexText component="b" sx={{
       display:'block',
-      mt:compact ? .55 : .5,
+      mt:compact?.55:.5,
       fontFamily:compact?'Georgia, "Times New Roman", serif':'inherit',
       fontSize:compact?36:26,
       lineHeight:1,
@@ -57,16 +57,5 @@ export default function MetricCard({icon,label,value,tone='default',compact=fals
       fontWeight:compact?700:850,
       color:valueColor??'#08275B',
     }}>{value}</AlexText>
-    {trend&&<AlexBox sx={{
-      mt:1,
-      display:'flex',
-      alignItems:'center',
-      gap:.45,
-      color:trend.direction==='up'?'#027A48':trend.direction==='down'?'#B42318':'#667085',
-      '& svg':{width:14,height:14},
-    }}>
-      {trend.direction==='up'?<ArrowUpwardRoundedIcon/>:trend.direction==='down'?<ArrowDownwardRoundedIcon/>:<RemoveRoundedIcon/>}
-      <AlexText sx={{fontSize:compact?11:12,fontWeight:800,lineHeight:1.2,color:'inherit'}}>{trend.text}</AlexText>
-    </AlexBox>}
   </AlexSurface>
 }
