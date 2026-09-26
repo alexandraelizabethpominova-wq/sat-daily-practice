@@ -11,7 +11,7 @@ export type QuestionMasteryState={
 
 export function buildQuestionMastery(attempts:Attempt[]){
   const states=new Map<string,QuestionMasteryState>()
-  const ordered=attempts.map((attempt,index)=>({attempt,index}))
+  const ordered=attempts.filter(attempt=>!attempt.invalidatedAt).map((attempt,index)=>({attempt,index}))
     .sort((a,b)=>a.attempt.createdAt.localeCompare(b.attempt.createdAt)||a.index-b.index)
 
   ordered.forEach(({attempt})=>{
