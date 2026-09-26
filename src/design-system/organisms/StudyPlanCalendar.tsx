@@ -139,7 +139,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
             sx={{
               width:'100%',
               aspectRatio:'1 / 1',
-              maxWidth:33,
+              maxWidth:38,
               justifySelf:'center',
               borderRadius:isExamDate?0:'50%',
               border:isExamDate?'none':'1px solid',
@@ -157,7 +157,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
           >
             {isExamDate&&<Star
               aria-hidden="true"
-              size={30}
+              size={34}
               strokeWidth={1.7}
               fill="#F5C451"
               color={isToday?'#6558F5':'#9B6A00'}
@@ -166,7 +166,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
             <AlexText sx={{
               position:'relative',
               zIndex:1,
-              fontSize:{xs:9.5,sm:10.5},
+              fontSize:{xs:10,sm:11.5},
               fontWeight:isExamDate||isToday?900:700,
               lineHeight:1,
               color:isExamDate?'#08275B':'inherit',
@@ -178,8 +178,8 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
                 zIndex:3,
                 top:-2.5,
                 right:-2.5,
-                width:13,
-                height:13,
+                width:14,
+                height:14,
                 borderRadius:'50%',
                 bgcolor:'#fff',
                 border:'1px solid #A6D8BE',
@@ -188,7 +188,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
                 placeItems:'center',
               }}
             >
-              <AlexCalendarStatusIcon kind="check" sx={{width:9,height:9,color:'#027A48'}}/>
+              <AlexCalendarStatusIcon kind="check" sx={{width:10,height:10,color:'#027A48'}}/>
             </AlexBox>}
             {!day.practiced&&hasTrackedGoal&&day.status==='behind'&&<AlexBox
               aria-hidden="true"
@@ -207,7 +207,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
                 placeItems:'center',
               }}
             >
-              <AlexCalendarStatusIcon kind="close" sx={{width:8.5,height:8.5,color:'#B42318'}}/>
+              <AlexCalendarStatusIcon kind="close" sx={{width:9.5,height:9.5,color:'#B42318'}}/>
             </AlexBox>}
           </AlexBox>
         </AlexTooltip>
