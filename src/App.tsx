@@ -20,6 +20,7 @@ import {answerLabel,matchesAnswer} from './lib/answerCompare'
 import {getPdf} from './lib/pdfStore'
 import {availablePracticeTests,moduleLabel,practiceTestLabel,QUESTION_BANK} from './lib/questionBank'
 import {buildPracticePlanRecommendation} from './lib/practicePlan'
+import {buildNationalMeritOutlook} from './lib/nationalMeritOutlook'
 import {loadSharedQuestionBank,mergeQuestionBanks} from './lib/sharedQuestionBank'
 import {choosePracticeQuestions,countFailedPracticeQuestions,countMissedPracticeQuestions,formatDuration,summarizePerformance,summarizeSession} from './lib/practiceGamification'
 import {pathForView,viewFromPathname,type AppRouteView} from './lib/appRoutes'
@@ -161,6 +162,7 @@ export default function App(){
   const missedQuestionCount=countMissedPracticeQuestions(settings,attempts,questionBank)
   const failedQuestionCount=countFailedPracticeQuestions(settings,attempts,questionBank)
   const practiceRecommendation=buildPracticePlanRecommendation(settings,questionBank,attempts,performance)
+  const nationalMeritOutlook=buildNationalMeritOutlook(performance.scorePredictionBasis)
   const practiceTestOptions=[
     {value:'all' as const,label:'All available tests'},
     ...availablePracticeTests(questionBank).map(value=>({value,label:practiceTestLabel(value)})),
@@ -464,6 +466,8 @@ export default function App(){
     <StudyPlanHero
       accuracy={attempts.length?performance.accuracy:null}
       estimatedScore={performance.latestScoreEstimate}
+      nationalMeritChance={nationalMeritOutlook?.qualifyingChance??null}
+      projectedSelectionIndex={nationalMeritOutlook?.projectedSelectionIndex??null}
       targetScore={practiceRecommendation.targetScore}
       daysRemaining={practiceRecommendation.daysRemaining}
       dailyMinutes={practiceRecommendation.estimatedDailyMinutes}
