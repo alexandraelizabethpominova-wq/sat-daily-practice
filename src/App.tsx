@@ -162,7 +162,7 @@ export default function App(){
   const missedQuestionCount=countMissedPracticeQuestions(settings,attempts,questionBank)
   const failedQuestionCount=countFailedPracticeQuestions(settings,attempts,questionBank)
   const practiceRecommendation=buildPracticePlanRecommendation(settings,questionBank,attempts,performance)
-  const nationalMeritOutlook=buildNationalMeritOutlook(performance.scorePredictionBasis)
+  const nationalMeritOutlook=buildNationalMeritOutlook(performance.scorePredictionBasis,performance.scoreEstimateConfidence)
   const practiceTestOptions=[
     {value:'all' as const,label:'All available tests'},
     ...availablePracticeTests(questionBank).map(value=>({value,label:practiceTestLabel(value)})),
