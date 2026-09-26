@@ -152,6 +152,8 @@ function attemptRow(a:Attempt,userId:string){
     self_graded:a.selfGraded??false,
     elapsed_ms:a.elapsedMs,
     created_at:a.createdAt,
+    invalidated_at:a.invalidatedAt??null,
+    invalid_reason:a.invalidReason??null,
   }
 }
 
@@ -170,6 +172,8 @@ function attemptFromRow(row:any):Attempt{
     selfGraded:row.self_graded,
     elapsedMs:row.elapsed_ms,
     createdAt:row.created_at,
+    invalidatedAt:row.invalidated_at??null,
+    invalidReason:row.invalid_reason??null,
   }
 }
 
@@ -235,7 +239,7 @@ export async function loadActiveSession():Promise<ActivePracticeSession|null>{
   }
   if(!data)return null
   const {data:attemptRows,error:attemptError}=await supabase.from('sat_attempts')
-    .select('id,session_id,question_id,practice_test_id,subject,module,question_number,selected_answer,correct_answer,correct,self_graded,elapsed_ms,created_at')
+    .select('id,session_id,question_id,practice_test_id,subject,module,question_number,selected_answer,correct_answer,correct,self_graded,elapsed_ms,created_at,invalidated_at,invalid_reason')
     .eq('user_id',userId)
     .eq('session_id',data.id)
     .order('created_at',{ascending:true})
@@ -342,7 +346,7 @@ export async function loadCloudHistory():Promise<{attempts:Attempt[];sessions:Se
   }
 
   const attemptResult=await supabase.from('sat_attempts')
-    .select('id,session_id,question_id,practice_test_id,subject,module,question_number,selected_answer,correct_answer,correct,self_graded,elapsed_ms,created_at')
+    .select('id,session_id,question_id,practice_test_id,subject,module,question_number,selected_answer,correct_answer,correct,self_graded,elapsed_ms,created_at,invalidated_at,invalid_reason')
     .eq('user_id',userId)
     .order('created_at',{ascending:true})
 
