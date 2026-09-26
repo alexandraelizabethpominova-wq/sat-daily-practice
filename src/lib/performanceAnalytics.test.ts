@@ -77,25 +77,57 @@ describe('performance analytics',()=>{
     expect(analytics.latestScoreEstimate).toBe(1600)
   })
 
-  it('uses only the latest ten completed sessions for score prediction',()=>{
+  it('uses the latest ten completed sessions as the question pool but full completed history for mastery',()=>{
     expect(SCORE_SESSION_WINDOW).toBe(10)
     const oldFailures:Attempt[]=[
       ...['e-1','e-2','e-3'].map((id,index)=>makeAttempt(`old-e-${index}`,'s1',id,'english','rw1',index+1,false,1000,`2026-08-01T12:00:0${index+1}.000Z`)),
       ...['m-1','m-2','m-3'].map((id,index)=>makeAttempt(`old-m-${index}`,'s1',id,'math','math1',index+1,false,1000,`2026-08-01T12:00:1${index+1}.000Z`)),
     ]
-    const recentCorrect:Attempt[]=[
-      ...['e-1','e-2','e-3'].map((id,index)=>makeAttempt(`new-e-${index}`,'s11',id,'english','rw1',index+1,true,1000,`2026-08-11T12:00:0${index+1}.000Z`)),
-      ...['m-1','m-2','m-3'].map((id,index)=>makeAttempt(`new-m-${index}`,'s11',id,'math','math1',index+1,true,1000,`2026-08-11T12:00:1${index+1}.000Z`)),
+    const firstRecovery:Attempt[]=[
+      ...['e-1','e-2','e-3'].map((id,index)=>makeAttempt(`r1-e-${index}`,'s10',id,'english','rw1',index+1,true,1000,`2026-08-10T12:00:0${index+1}.000Z`)),
+      ...['m-1','m-2','m-3'].map((id,index)=>makeAttempt(`r1-m-${index}`,'s10',id,'math','math1',index+1,true,1000,`2026-08-10T12:00:1${index+1}.000Z`)),
     ]
+    const secondRecovery:Attempt[]=[
+      ...['e-1','e-2','e-3'].map((id,index)=>makeAttempt(`r2-e-${index}`,'s11',id,'english','rw1',index+1,true,1000,`2026-08-11T12:00:0${index+1}.000Z`)),
+      ...['m-1','m-2','m-3'].map((id,index)=>makeAttempt(`r2-m-${index}`,'s11',id,'math','math1',index+1,true,1000,`2026-08-11T12:00:1${index+1}.000Z`)),
+    ]
+    const all=[...oldFailures,...firstRecovery,...secondRecovery]
     const windowSessions:SessionSummary[]=Array.from({length:11},(_,index)=>{
       const number=index+1
       const id=`s${number}`
       const day=String(number).padStart(2,'0')
-      const rows=[...oldFailures,...recentCorrect].filter(attempt=>attempt.sessionId===id)
+      const rows=all.filter(attempt=>attempt.sessionId===id)
       return {id,startedAt:`2026-08-${day}T12:00:00.000Z`,endedAt:`2026-08-${day}T12:05:00.000Z`,mode:'both',questionCount:6,attempts:rows}
     })
-    const analytics=buildPerformanceAnalytics([...oldFailures,...recentCorrect],windowSessions,98)
+    const analytics=buildPerformanceAnalytics(all,windowSessions,98)
     expect(analytics.latestScoreEstimate).toBe(1600)
+    expect(analytics.scorePredictionBasis).toMatchObject({
+      sessionCount:10,
+      questionCount:6,
+      masteredCount:6,
+    })
+  })
+
+  it('does not forget a failure just because it happened before the ten-session score window',()=>{
+    const oldFailures:Attempt[]=[
+      ...['e-1','e-2','e-3'].map((id,index)=>makeAttempt(`old-e-${index}`,'s1',id,'english','rw1',index+1,false,1000,`2026-08-01T12:00:0${index+1}.000Z`)),
+      ...['m-1','m-2','m-3'].map((id,index)=>makeAttempt(`old-m-${index}`,'s1',id,'math','math1',index+1,false,1000,`2026-08-01T12:00:1${index+1}.000Z`)),
+    ]
+    const oneRecovery:Attempt[]=[
+      ...['e-1','e-2','e-3'].map((id,index)=>makeAttempt(`r1-e-${index}`,'s11',id,'english','rw1',index+1,true,1000,`2026-08-11T12:00:0${index+1}.000Z`)),
+      ...['m-1','m-2','m-3'].map((id,index)=>makeAttempt(`r1-m-${index}`,'s11',id,'math','math1',index+1,true,1000,`2026-08-11T12:00:1${index+1}.000Z`)),
+    ]
+    const all=[...oldFailures,...oneRecovery]
+    const windowSessions:SessionSummary[]=Array.from({length:11},(_,index)=>{
+      const number=index+1
+      const id=`s${number}`
+      const day=String(number).padStart(2,'0')
+      const rows=all.filter(attempt=>attempt.sessionId===id)
+      return {id,startedAt:`2026-08-${day}T12:00:00.000Z`,endedAt:`2026-08-${day}T12:05:00.000Z`,mode:'both',questionCount:6,attempts:rows}
+    })
+    const analytics=buildPerformanceAnalytics(all,windowSessions,98)
+    expect(analytics.latestScoreEstimate).toBe(400)
+    expect(analytics.scorePredictionBasis?.masteredCount).toBe(0)
   })
 
   it('does not produce an overall score estimate without enough data in both sections',()=>{
