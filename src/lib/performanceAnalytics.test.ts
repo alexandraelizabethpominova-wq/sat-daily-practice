@@ -46,6 +46,8 @@ describe('performance analytics',()=>{
     const analytics=buildPerformanceAnalytics(attempts,sessions,98)
     expect(analytics.sessionMetrics.map(session=>session.accuracy)).toEqual([50,100])
     expect(analytics.scoreTrend).toHaveLength(2)
+    expect(analytics.scoreTrend.every(point=>point.calibrating)).toBe(true)
+    expect(analytics.scoreTrend.map(point=>point.sessionNumber)).toEqual([1,2])
     expect(analytics.scoreTrend[1].score).toBe(analytics.scoreTrend[0].score)
     expect(analytics.scoreTrend[1].delta).toBe(0)
     expect(analytics.latestScoreEstimate).toBe(analytics.scoreTrend[1].score)
@@ -101,6 +103,9 @@ describe('performance analytics',()=>{
     })
     const analytics=buildPerformanceAnalytics(all,windowSessions,98)
     expect(analytics.latestScoreEstimate).toBe(1600)
+    expect(analytics.scoreTrend.find(point=>point.sessionNumber===9)?.calibrating).toBe(true)
+    expect(analytics.scoreTrend.find(point=>point.sessionNumber===10)?.calibrating).toBe(false)
+    expect(analytics.scoreTrend.find(point=>point.sessionNumber===11)?.calibrating).toBe(false)
     expect(analytics.scorePredictionBasis).toMatchObject({
       sessionCount:10,
       questionCount:6,
