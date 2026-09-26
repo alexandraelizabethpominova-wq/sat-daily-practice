@@ -120,6 +120,15 @@ describe('performance analytics',()=>{
     })
   })
 
+  it('derives an interpretable probability band for score estimate confidence',()=>{
+    const confidence=buildPerformanceAnalytics(attempts,sessions,98).scoreEstimateConfidence
+    expect(confidence).not.toBeNull()
+    expect(confidence!.within40).toBeLessThanOrEqual(confidence!.within50)
+    expect(confidence!.within50).toBeLessThanOrEqual(confidence!.within80)
+    expect(confidence!.within80).toBeLessThanOrEqual(confidence!.within100)
+    expect(confidence!.sigmaPoints).toBeGreaterThanOrEqual(40)
+  })
+
   it('keeps section estimates within the SAT section score range',()=>{
     expect(estimateSectionPracticeScore(0)).toBe(200)
     expect(estimateSectionPracticeScore(100)).toBe(800)
