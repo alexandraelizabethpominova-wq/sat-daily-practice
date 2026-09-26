@@ -225,7 +225,7 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
   </AlexBox>
 }
 
-function PredictionPhaseLines({series}:{series:any[]}){
+function PredictionPhaseLines({series}:{series:readonly any[]}){
   return <g aria-hidden="true">
     {series.map(serie=>{
       const points=serie.data
