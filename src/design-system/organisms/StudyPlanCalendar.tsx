@@ -201,12 +201,20 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
     </AlexBox>
 
     <AlexBox sx={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:.8,flexWrap:'wrap',mt:1.15,pt:1,borderTop:'1px solid #F0EDE7'}}>
-      <AlexBox sx={{display:'flex',gap:.8,flexWrap:'wrap'}}>
+      <AlexBox sx={{display:'flex',gap:.55,flexWrap:'wrap'}}>
         {(['ahead','on-track','behind'] as StudyPlanDayStatus[]).map(status=>{
           const style=STATUS_STYLE[status]
-          return <AlexBox key={status} sx={{display:'flex',alignItems:'center',gap:.45}}>
-            <AlexBox sx={{width:8,height:8,borderRadius:'50%',bgcolor:style.bg,border:`1px solid ${style.border}`}}/>
-            <AlexText sx={{fontSize:9.5,color:'#667085'}}>{style.label}</AlexText>
+          return <AlexBox
+            key={status}
+            sx={{
+              px:.65,
+              py:.22,
+              borderRadius:999,
+              bgcolor:style.bg,
+              border:`1px solid ${style.border}`,
+            }}
+          >
+            <AlexText sx={{fontSize:8.8,fontWeight:750,color:style.color,lineHeight:1.2}}>{style.label}</AlexText>
           </AlexBox>
         })}
       </AlexBox>
