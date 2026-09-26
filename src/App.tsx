@@ -20,6 +20,7 @@ import {answerLabel,matchesAnswer} from './lib/answerCompare'
 import {getPdf} from './lib/pdfStore'
 import {availablePracticeTests,moduleLabel,practiceTestLabel,QUESTION_BANK} from './lib/questionBank'
 import {buildPracticePlanRecommendation} from './lib/practicePlan'
+import {hasOpenParsingIssue} from './lib/parsingIssueReports'
 import {loadSharedQuestionBank,mergeQuestionBanks} from './lib/sharedQuestionBank'
 import {choosePracticeQuestions,countFailedPracticeQuestions,countMissedPracticeQuestions,formatDuration,summarizePerformance,summarizeSession} from './lib/practiceGamification'
 import {pathForView,viewFromPathname,type AppRouteView} from './lib/appRoutes'
@@ -273,10 +274,17 @@ export default function App(){
 
   async function record(correct:boolean,selfGraded=false){
     if(!current)return
+    const hasIssue=await hasOpenParsingIssue(current.id).catch(error=>{
+      console.warn('Unable to verify parsing-issue status before scoring',error)
+      return true
+    })
+    const createdAt=new Date().toISOString()
     const attempt:Attempt={
       id:uid(),sessionId:sid,questionId:current.id,practiceTestId:current.practiceTestId,subject:current.subject,module:current.module,
       questionNumber:current.number,selectedAnswer:selected,correctAnswer:answerLabel(current),correct,selfGraded,
-      elapsedMs:Date.now()-qStart,createdAt:new Date().toISOString(),
+      elapsedMs:Date.now()-qStart,createdAt,
+      invalidatedAt:hasIssue?createdAt:null,
+      invalidReason:hasIssue?'Question has an open parsing/content issue; excluded from performance and mastery until a clean future attempt is made after resolution.':null,
     }
     if(!authUser)throw new Error('Sign in before recording practice progress.')
     try{
