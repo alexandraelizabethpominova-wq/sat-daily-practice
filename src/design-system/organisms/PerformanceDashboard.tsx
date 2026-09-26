@@ -27,6 +27,10 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
   const sessionAccuracy=[{id:'Accuracy',data:summary.sessionMetrics.map((session,index)=>({x:`S${index+1}`,y:session.accuracy}))}]
   const scoreTrend=[{id:'Practice score estimate',data:summary.scoreTrend.map((point,index)=>({x:`S${index+1}`,y:point.score}))}]
   const latestDelta=summary.scoreTrend.length?summary.scoreTrend[summary.scoreTrend.length-1].delta:0
+  const scoreBasis=summary.scorePredictionBasis
+  const scoreBasisText=scoreBasis
+    ?`Based on ${scoreBasis.sessionCount} recent completed session${scoreBasis.sessionCount===1?'':'s'} · ${scoreBasis.questionCount} unique questions · ${scoreBasis.masteredCount} currently mastered. ${scoreBasis.sections.map(section=>`${section.label}: ${section.mastered}/${section.questions}`).join(' · ')}.`
+    :''
 
   if(compact)return <AlexBox sx={{display:'grid',gap:1.35,minWidth:0}}>
     <AlexBox sx={{
@@ -39,6 +43,7 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
       <MetricCard compact tone="green" icon={<BarChart3/>} label="Questions seen" value={`${summary.questionsSeen}/${summary.totalQuestions}`}/>
       <MetricCard compact tone="peach" icon={<TrendingUp/>} label="Score prediction" value={summary.latestScoreEstimate?String(summary.latestScoreEstimate):'—'}/>
     </AlexBox>
+    {scoreBasis&&summary.latestScoreEstimate&&<AlexText sx={{fontSize:11.5,lineHeight:1.45,color:'#667085',px:.35}}>{scoreBasisText}</AlexText>}
     {hasHistory&&summary.recommendation&&<AlexSurface sx={{p:1.8,border:'1px solid #D8D2FF',borderRadius:3,bgcolor:'#F7F5FF'}}>
       <AlexText sx={{fontSize:10,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:'#6558F5'}}>Recommended focus</AlexText>
       <AlexText component="h2" sx={{fontSize:19,fontWeight:800,color:'#08275B',mt:.45}}>{summary.recommendation.label}</AlexText>
@@ -137,7 +142,7 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
             ariaLabel="Accuracy trend by practice session"
           />
         </PerformanceChartCard>
-        <PerformanceChartCard title="Practice score prediction" description={summary.latestScoreEstimate?`Latest prediction ${summary.latestScoreEstimate}${latestDelta===0?'':` · ${latestDelta>0?'+':''}${latestDelta} since the prior scored session`}. It uses unique-question mastery from the latest 10 completed sessions, including recovery after two correct answers following a failure. This is a practice trend, not an official College Board score.`:'Answer at least 3 unique questions in both sections within your recent completed sessions to begin a score prediction.'}>
+        <PerformanceChartCard title="Practice score prediction" description={summary.latestScoreEstimate?`Latest prediction ${summary.latestScoreEstimate}${latestDelta===0?'':` · ${latestDelta>0?'+':''}${latestDelta} since the prior scored session`}. ${scoreBasisText} The latest 10 completed sessions choose the question pool; each question's complete completed-session history determines whether it is currently mastered. This is a practice trend, not an official College Board score.`:'Answer at least 3 unique questions in both sections within your recent completed sessions to begin a score prediction.'}>
           {scoreTrend[0].data.length?<AlexLineChart
             data={scoreTrend}
             margin={{top:20,right:25,bottom:52,left:58}}
