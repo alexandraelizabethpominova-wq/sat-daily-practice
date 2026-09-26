@@ -18,8 +18,8 @@ const TONES:Record<MetricTone,{bg:string;border:string;icon:string}>={
 export default function MetricCard({icon,label,value,tone='default',compact=false,valueColor}:Props){
   const palette=TONES[tone]
   return <AlexSurface sx={{
-    p:compact?1.5:2.2,
-    minHeight:compact?132:undefined,
+    p:compact?1.75:2.2,
+    minHeight:compact?154:undefined,
     border:`1px solid ${palette.border}`,
     borderRadius:3,
     boxShadow:'0 8px 24px rgba(9,35,79,.035)',
@@ -31,17 +31,17 @@ export default function MetricCard({icon,label,value,tone='default',compact=fals
     <AlexBox sx={{
       display:'grid',
       placeItems:'center',
-      width:compact?24:32,
-      height:compact?24:32,
+      width:compact?26:32,
+      height:compact?26:32,
       borderRadius:'50%',
       bgcolor:'rgba(255,255,255,.76)',
       color:palette.icon,
-      '& svg':{width:compact?14:20,height:compact?14:20},
+      '& svg':{width:compact?15:20,height:compact?15:20},
     }}>{icon}</AlexBox>
     <AlexText sx={{
-      mt:compact?1.15:1,
+      mt:compact?1.35:1,
       color:compact?'#5B6575':'#667085',
-      fontSize:compact?10:14,
+      fontSize:compact?10.2:14,
       lineHeight:1.2,
       fontWeight:compact?800:400,
       textTransform:compact?'uppercase':'none',
@@ -49,9 +49,9 @@ export default function MetricCard({icon,label,value,tone='default',compact=fals
     }}>{label}</AlexText>
     <AlexText component="b" sx={{
       display:'block',
-      mt:compact?.4:.5,
+      mt:compact?.5:.5,
       fontFamily:compact?'Georgia, "Times New Roman", serif':'inherit',
-      fontSize:compact?32:26,
+      fontSize:compact?34:26,
       lineHeight:1,
       letterSpacing:compact?'-.025em':0,
       fontWeight:compact?700:850,
