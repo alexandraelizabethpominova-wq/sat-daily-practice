@@ -11,10 +11,8 @@ export function formatDuration(ms:number){
   return seconds<60?`${seconds}s`:`${Math.floor(seconds/60)}m ${seconds%60}s`
 }
 
-function validAttempts(attempts:Attempt[]){return attempts.filter(attempt=>!attempt.invalidatedAt)}
-
 function attemptedQuestionIds(attempts:Attempt[]){
-  return new Set(validAttempts(attempts).map(attempt=>attempt.questionId))
+  return new Set(attempts.map(attempt=>attempt.questionId))
 }
 
 function eligibleQuestions(settings:Settings,questions:PracticeQuestion[]){
@@ -54,7 +52,7 @@ export function choosePracticeQuestions(settings:Settings,attempts:Attempt[],ran
     return pool.map(question=>({question,score:random()})).sort((a,b)=>a.score-b.score).slice(0,limit).map(item=>item.question)
   }
   const stats=new Map<string,{attempts:number;correct:number;lastIndex:number}>()
-  validAttempts(attempts).forEach((attempt,index)=>{
+  attempts.forEach((attempt,index)=>{
     const current=stats.get(attempt.questionId)??{attempts:0,correct:0,lastIndex:-1}
     current.attempts++;if(attempt.correct)current.correct++;current.lastIndex=index;stats.set(attempt.questionId,current)
   })
