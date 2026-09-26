@@ -1,4 +1,6 @@
-import {getDocument,type PDFDocumentProxy} from './pdfJs'
+import {GlobalWorkerOptions,getDocument,type PDFDocumentProxy} from 'pdfjs-dist'
+
+GlobalWorkerOptions.workerSrc=new URL('pdfjs-dist/build/pdf.worker.min.mjs',import.meta.url).toString()
 import {QUESTION_BANK} from './questionBank'
 import {questionCropForParts} from './questionCrops'
 import {getQuestionContent,isCurrentQuestionContent,QUESTION_CONTENT_VERSION,saveQuestionContent,type StoredQuestionContent} from './questionContentStore'
