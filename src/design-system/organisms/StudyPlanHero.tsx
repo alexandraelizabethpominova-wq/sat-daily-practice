@@ -1,6 +1,7 @@
 import {BookOpenCheck,CalendarDays,Sparkles,Target} from 'lucide-react'
 import AlexBox from '../atoms/AlexBox'
 import AlexButton from '../atoms/AlexButton'
+import AlexInfoTooltipButton from '../atoms/AlexInfoTooltipButton'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
 
@@ -58,7 +59,16 @@ export default function StudyPlanHero({
 
     <AlexBox sx={{display:'grid',gap:1.4,position:'relative',zIndex:1}}>
       <AlexSurface sx={{position:'relative',minHeight:{xs:132,sm:150},border:0,borderRadius:3,bgcolor:'#FFF9DD',overflow:'hidden',p:{xs:1.75,sm:2.25}}}>
-        <AlexText sx={{fontSize:11,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:'#6B5A12'}}>Current estimate</AlexText>
+        <AlexBox sx={{display:'flex',alignItems:'center',gap:.25,color:'#6B5A12'}}>
+          <AlexText sx={{fontSize:11,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:'inherit'}}>Current estimate</AlexText>
+          <AlexInfoTooltipButton
+            label="PSAT scholarship score information"
+            title={<>
+              <b>PSAT/NMSQT scholarship context</b><br/>
+              This card is an SAT practice estimate, not a PSAT Selection Index. National Merit uses Selection Index = (2 × Reading & Writing + Math) ÷ 10, on a 48–228 scale. Semifinalist cutoffs vary by state and year. For the 2026 National Merit program, the national Commended cutoff was 210 and state Semifinalist cutoffs ranged from 210 to 225. Your 2026 PSAT/NMSQT enters the 2028 competition, so its final cutoffs are not known yet.
+            </>}
+          />
+        </AlexBox>
         <AlexText sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:30,sm:34},fontWeight:700,color:'#08275B',mt:.45}}>
           {estimatedScore??'—'}
         </AlexText>
