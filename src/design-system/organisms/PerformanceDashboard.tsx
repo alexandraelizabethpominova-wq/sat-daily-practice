@@ -36,6 +36,11 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
     {id:'10-session prediction',data:calibratedScoreTrend},
   ].filter(series=>series.data.length)
   const latestDelta=summary.scoreTrend.length?summary.scoreTrend[summary.scoreTrend.length-1].delta:0
+  const weeklyScoreTrend=summary.weeklyScoreChange===null?undefined:{
+    direction:summary.weeklyScoreChange>0?'up' as const:summary.weeklyScoreChange<0?'down' as const:'flat' as const,
+    text:summary.weeklyScoreChange===0?'No change since 7 days ago':`${Math.abs(summary.weeklyScoreChange)} points since 7 days ago`,
+  }
+  const weeklyScoreValue=summary.weeklyScoreChange===null?'—':summary.weeklyScoreChange===0?'0':`${summary.weeklyScoreChange>0?'+':''}${summary.weeklyScoreChange}`
   const scoreBasis=summary.scorePredictionBasis
   const scoreBasisText=scoreBasis
     ?`Based on ${scoreBasis.sessionCount} recent completed session${scoreBasis.sessionCount===1?'':'s'} · ${scoreBasis.questionCount} unique questions · ${scoreBasis.averageQuestionSuccessRate}% average question success. ${scoreBasis.sections.map(section=>`${section.label}: ${section.successRate}% across ${section.questions} question${section.questions===1?'':'s'}`).join(' · ')}.`
@@ -56,7 +61,7 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
       <MetricCard compact tone="blue" icon={<Target/>} label="Accuracy" value={hasHistory?`${summary.accuracy}%`:'—'}/>
       <MetricCard compact tone="cream" icon={<Clock3/>} label="Avg. time" value={hasHistory?formatMs(summary.averageMs):'—'}/>
       <MetricCard compact tone="green" icon={<BarChart3/>} label="Questions seen" value={`${summary.questionsSeen}/${summary.totalQuestions}`}/>
-      <MetricCard compact tone="peach" icon={<TrendingUp/>} label="Score prediction" value={summary.latestScoreEstimate?String(summary.latestScoreEstimate):'—'}/>
+      <MetricCard compact tone="peach" icon={<TrendingUp/>} label="7-day score trend" value={weeklyScoreValue} trend={weeklyScoreTrend}/>
     </AlexBox>
     {scoreBasis&&summary.latestScoreEstimate&&<AlexText sx={{fontSize:11.5,lineHeight:1.45,color:'#667085',px:.35}}><b>{scoreCalibrationText}.</b> {scoreBasisText}</AlexText>}
     {hasHistory&&summary.recommendation&&<AlexSurface sx={{p:1.8,border:'1px solid #D8D2FF',borderRadius:3,bgcolor:'#F7F5FF'}}>
