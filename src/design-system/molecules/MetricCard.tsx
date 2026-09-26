@@ -1,5 +1,7 @@
 import type {ReactNode} from 'react'
-import {ArrowDown,ArrowUp,Minus} from 'lucide-react'
+import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded'
+import ArrowUpwardRoundedIcon from '@mui/icons-material/ArrowUpwardRounded'
+import RemoveRoundedIcon from '@mui/icons-material/RemoveRounded'
 import AlexBox from '../atoms/AlexBox'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
@@ -65,9 +67,9 @@ export default function MetricCard({icon,label,value,tone='default',compact=fals
       alignItems:'center',
       gap:.45,
       color:trend.direction==='up'?'#027A48':trend.direction==='down'?'#B42318':'#667085',
-      '& svg':{width:14,height:14,strokeWidth:2.4},
+      '& svg':{width:14,height:14},
     }}>
-      {trend.direction==='up'?<ArrowUp/>:trend.direction==='down'?<ArrowDown/>:<Minus/>}
+      {trend.direction==='up'?<ArrowUpwardRoundedIcon/>:trend.direction==='down'?<ArrowDownwardRoundedIcon/>:<RemoveRoundedIcon/>}
       <AlexText sx={{fontSize:compact?11:12,fontWeight:800,lineHeight:1.2,color:'inherit'}}>{trend.text}</AlexText>
     </AlexBox>}
   </AlexSurface>
