@@ -61,6 +61,9 @@ export type ScoreEstimateConfidence={
   within80:number
   within100:number
   sigmaPoints:number
+  readingWritingQuestionSigmaPoints:number
+  mathQuestionSigmaPoints:number
+  trendSigmaPoints:number
   label:'Low'|'Developing'|'Moderate'|'High'
 }
 
@@ -283,9 +286,11 @@ function buildScoreEstimateConfidence(
     const sePercent=100*Math.sqrt(p*(1-p)/Math.max(1,questions))
     return sePercent*6
   }
+  const readingWritingQuestionSigmaPoints=sectionSigma(english.successRate,english.questions)
+  const mathQuestionSigmaPoints=sectionSigma(math.successRate,math.questions)
   const questionPoolSigma=Math.sqrt(
-    sectionSigma(english.successRate,english.questions)**2+
-    sectionSigma(math.successRate,math.questions)**2
+    readingWritingQuestionSigmaPoints**2+
+    mathQuestionSigmaPoints**2
   )
 
   // Recent score movement captures instability not represented by question
@@ -307,7 +312,17 @@ function buildScoreEstimateConfidence(
   const within100=probabilityWithin(100,sigmaPoints)
   const label=within80>=85?'High':within80>=75?'Moderate':within80>=60?'Developing':'Low'
 
-  return {within40,within50,within80,within100,sigmaPoints,label}
+  return {
+    within40,
+    within50,
+    within80,
+    within100,
+    sigmaPoints,
+    readingWritingQuestionSigmaPoints:Math.round(readingWritingQuestionSigmaPoints),
+    mathQuestionSigmaPoints:Math.round(mathQuestionSigmaPoints),
+    trendSigmaPoints:Math.round(trendSigma),
+    label,
+  }
 }
 
 function buildRecommendation(sections:SectionPerformance[]):PracticeRecommendation|null{
