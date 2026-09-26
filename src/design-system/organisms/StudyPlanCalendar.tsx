@@ -46,11 +46,6 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
 
   const firstWeekday=new Date(view.year,view.month,1).getDay()
   const targetSessions=Math.max(0,recommendation.recommendedSessionsPerDay)
-  const tracked=days.filter(day=>day.status==='ahead'||day.status==='on-track'||day.status==='behind')
-  const ahead=tracked.filter(day=>day.status==='ahead').length
-  const onTrack=tracked.filter(day=>day.status==='on-track').length
-  const behind=tracked.filter(day=>day.status==='behind').length
-
   function moveMonth(delta:number){
     const next=new Date(view.year,view.month+delta,1)
     setView({year:next.getFullYear(),month:next.getMonth()})
@@ -153,74 +148,49 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
               fontWeight:isExamDate||isToday?900:700,
               lineHeight:1,
               color:isExamDate?'#08275B':'inherit',
-              transform:day.practiced&&targetSessions>1?'translateY(-2px)':'none',
             }}>{day.day}</AlexText>
-            {day.practiced&&<AlexCalendarStatusIcon
-              kind="check"
+            {day.practiced&&<AlexBox
               aria-hidden="true"
               sx={{
                 position:'absolute',
-                zIndex:2,
-                top:1.5,
-                right:1.5,
-                width:9,
-                height:9,
-                color:'#027A48',
+                zIndex:3,
+                top:-2.5,
+                right:-2.5,
+                width:13,
+                height:13,
+                borderRadius:'50%',
+                bgcolor:'#fff',
+                border:'1px solid #A6D8BE',
+                boxShadow:'0 1px 3px rgba(16,24,40,.14)',
+                display:'grid',
+                placeItems:'center',
               }}
-            />}
-            {!day.practiced&&hasTrackedGoal&&day.status==='behind'&&<AlexCalendarStatusIcon
-              kind="close"
+            >
+              <AlexCalendarStatusIcon kind="check" sx={{width:9,height:9,color:'#027A48'}}/>
+            </AlexBox>}
+            {!day.practiced&&hasTrackedGoal&&day.status==='behind'&&<AlexBox
               aria-hidden="true"
               sx={{
                 position:'absolute',
-                zIndex:2,
-                top:1.5,
-                right:1.5,
-                width:8.5,
-                height:8.5,
-                color:'#B42318',
+                zIndex:3,
+                top:-2.5,
+                right:-2.5,
+                width:13,
+                height:13,
+                borderRadius:'50%',
+                bgcolor:'#fff',
+                border:'1px solid #F1B5B0',
+                boxShadow:'0 1px 3px rgba(16,24,40,.14)',
+                display:'grid',
+                placeItems:'center',
               }}
-            />}
-            {day.practiced&&targetSessions>1&&<AlexText
-              aria-hidden="true"
-              sx={{
-                position:'absolute',
-                zIndex:1,
-                bottom:1.8,
-                left:'50%',
-                transform:'translateX(-50%)',
-                fontSize:6.5,
-                fontWeight:900,
-                lineHeight:1,
-                color:style.color,
-              }}
-            >{day.sessionCount}/{targetSessions}</AlexText>}
+            >
+              <AlexCalendarStatusIcon kind="close" sx={{width:8.5,height:8.5,color:'#B42318'}}/>
+            </AlexBox>}
           </AlexBox>
         </AlexTooltip>
       })}
     </AlexBox>
 
-    <AlexBox sx={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:.8,flexWrap:'wrap',mt:1.15,pt:1,borderTop:'1px solid #F0EDE7'}}>
-      <AlexBox sx={{display:'flex',gap:.55,flexWrap:'wrap'}}>
-        {(['ahead','on-track','behind'] as StudyPlanDayStatus[]).map(status=>{
-          const style=STATUS_STYLE[status]
-          return <AlexBox
-            key={status}
-            sx={{
-              px:.65,
-              py:.22,
-              borderRadius:999,
-              bgcolor:style.bg,
-              border:`1px solid ${style.border}`,
-            }}
-          >
-            <AlexText sx={{fontSize:8.8,fontWeight:750,color:style.color,lineHeight:1.2}}>{style.label}</AlexText>
-          </AlexBox>
-        })}
-      </AlexBox>
-      <AlexText sx={{fontSize:9.5,color:'#98A2B3'}}>
-        {ahead} ahead · {onTrack} on plan · {behind} behind
-      </AlexText>
-    </AlexBox>
   </AlexSurface>
 }
