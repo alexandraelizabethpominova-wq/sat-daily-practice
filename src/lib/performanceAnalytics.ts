@@ -1,4 +1,3 @@
-import {buildQuestionMastery,type QuestionMasteryState} from './questionMastery'
 import type {Attempt,ModuleKey,PracticeTestId,SessionSummary,Subject} from '../types'
 
 export type SectionPerformance={
@@ -52,8 +51,8 @@ export type PracticeRecommendation={
 export type ScorePredictionBasis={
   sessionCount:number
   questionCount:number
-  masteredCount:number
-  sections:Array<{subject:Subject;label:string;questions:number;mastered:number;successRate:number}>
+  averageQuestionSuccessRate:number
+  sections:Array<{subject:Subject;label:string;questions:number;successRate:number}>
 }
 
 export type PerformanceAnalytics={
@@ -107,21 +106,21 @@ function estimateOverallScore(sections:SectionPerformance[]){
   return estimateSectionPracticeScore(english.successRate)+estimateSectionPracticeScore(math.successRate)
 }
 
-function buildScoreSections(poolAttempts:Attempt[],masteryAttempts:Attempt[]):SectionPerformance[]{
-  const mastery=buildQuestionMastery(masteryAttempts)
-  const poolIds=new Set(poolAttempts.map(attempt=>attempt.questionId))
+function buildScoreSections(poolAttempts:Attempt[]):SectionPerformance[]{
+  const grouped=new Map<string,Attempt[]>()
+  poolAttempts.forEach(attempt=>grouped.set(attempt.questionId,[...(grouped.get(attempt.questionId)??[]),attempt]))
+
   return (['english','math'] as Subject[]).map(subject=>{
-    const questions=[...poolIds]
-      .map(questionId=>mastery.get(questionId))
-      .filter((state):state is QuestionMasteryState=>Boolean(state)&&state.latestAttempt.subject===subject)
-    const correct=questions.filter(state=>state.mastered).length
+    const questionGroups=[...grouped.values()].filter(rows=>rows[rows.length-1]?.subject===subject)
+    const questionRates=questionGroups.map(rows=>100*rows.filter(attempt=>attempt.correct).length/rows.length)
+    const equivalentCorrect=questionRates.reduce((sum,rate)=>sum+rate/100,0)
     const subjectAttempts=poolAttempts.filter(attempt=>attempt.subject===subject)
     return {
       subject,
       label:SECTION_LABELS[subject],
-      attempts:questions.length,
-      correct,
-      successRate:percent(correct,questions.length),
+      attempts:questionGroups.length,
+      correct:equivalentCorrect,
+      successRate:questionRates.length?Math.round(average(questionRates)):0,
       averageMs:average(subjectAttempts.map(attempt=>attempt.elapsedMs)),
     }
   })
@@ -138,15 +137,18 @@ function attemptsForSessionWindow(attempts:Attempt[],sessions:SessionSummary[],e
 }
 
 function predictionBasis(sections:SectionPerformance[],sessionCount:number):ScorePredictionBasis{
+  const questionCount=sections.reduce((sum,section)=>sum+section.attempts,0)
+  const weightedRate=questionCount
+    ?sections.reduce((sum,section)=>sum+section.successRate*section.attempts,0)/questionCount
+    :0
   return {
     sessionCount,
-    questionCount:sections.reduce((sum,section)=>sum+section.attempts,0),
-    masteredCount:sections.reduce((sum,section)=>sum+section.correct,0),
+    questionCount,
+    averageQuestionSuccessRate:Math.round(weightedRate),
     sections:sections.map(section=>({
       subject:section.subject,
       label:section.label,
       questions:section.attempts,
-      mastered:section.correct,
       successRate:section.successRate,
     })),
   }
@@ -199,8 +201,7 @@ function buildSessions(attempts:Attempt[],sessions:SessionSummary[]){
   let latestScorePredictionBasis:ScorePredictionBasis|null=null
   ordered.forEach((session,index)=>{
     const recentAttempts=attemptsForSessionWindow(attempts,ordered,index)
-    const completedHistoryAttempts=attemptsForSessions(attempts,ordered.slice(0,index+1))
-    const scoreSections=buildScoreSections(recentAttempts,completedHistoryAttempts)
+    const scoreSections=buildScoreSections(recentAttempts)
     const score=estimateOverallScore(scoreSections)
     latestScoreEstimate=score
     latestScorePredictionBasis=predictionBasis(scoreSections,Math.min(SCORE_SESSION_WINDOW,index+1))
@@ -246,18 +247,17 @@ function buildRecommendation(sections:SectionPerformance[]):PracticeRecommendati
 }
 
 export function buildPerformanceAnalytics(attempts:Attempt[],sessions:SessionSummary[],totalQuestions:number):PerformanceAnalytics{
-  const validAttempts=attempts.filter(attempt=>!attempt.invalidatedAt)
-  const correct=validAttempts.filter(attempt=>attempt.correct).length
-  const sections=buildSections(validAttempts)
-  const {sessionMetrics,scoreTrend,latestScoreEstimate,latestScorePredictionBasis}=buildSessions(validAttempts,sessions)
+  const correct=attempts.filter(attempt=>attempt.correct).length
+  const sections=buildSections(attempts)
+  const {sessionMetrics,scoreTrend,latestScoreEstimate,latestScorePredictionBasis}=buildSessions(attempts,sessions)
   return {
-    accuracy:percent(correct,validAttempts.length),
-    averageMs:average(validAttempts.map(attempt=>attempt.elapsedMs)),
+    accuracy:percent(correct,attempts.length),
+    averageMs:average(attempts.map(attempt=>attempt.elapsedMs)),
     sessions:sessions.length,
-    questionsSeen:new Set(validAttempts.map(attempt=>attempt.questionId)).size,
+    questionsSeen:new Set(attempts.map(attempt=>attempt.questionId)).size,
     totalQuestions,
     sections,
-    questions:buildQuestions(validAttempts),
+    questions:buildQuestions(attempts),
     sessionMetrics,
     scoreTrend,
     latestScoreEstimate,
