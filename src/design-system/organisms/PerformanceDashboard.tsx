@@ -37,7 +37,7 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
       <MetricCard compact tone="blue" icon={<Target/>} label="Accuracy" value={hasHistory?`${summary.accuracy}%`:'—'}/>
       <MetricCard compact tone="cream" icon={<Clock3/>} label="Avg. time" value={hasHistory?formatMs(summary.averageMs):'—'}/>
       <MetricCard compact tone="green" icon={<BarChart3/>} label="Questions seen" value={`${summary.questionsSeen}/${summary.totalQuestions}`}/>
-      <MetricCard compact tone="peach" icon={<TrendingUp/>} label="Score estimate" value={summary.latestScoreEstimate?String(summary.latestScoreEstimate):'—'}/>
+      <MetricCard compact tone="peach" icon={<TrendingUp/>} label="Score prediction" value={summary.latestScoreEstimate?String(summary.latestScoreEstimate):'—'}/>
     </AlexBox>
     {hasHistory&&summary.recommendation&&<AlexSurface sx={{p:1.8,border:'1px solid #D8D2FF',borderRadius:3,bgcolor:'#F7F5FF'}}>
       <AlexText sx={{fontSize:10,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:'#6558F5'}}>Recommended focus</AlexText>
@@ -51,7 +51,7 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
       <AlexBox>
         <AlexText sx={{fontSize:12,textTransform:'uppercase',letterSpacing:'.12em',fontWeight:800,color:'#6558F5'}}>Performance</AlexText>
         <AlexText component="h1" sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:32,md:46},lineHeight:1.08,my:1,color:'#08275B'}}>Your practice trends</AlexText>
-        <AlexText sx={{color:'#667085',maxWidth:720}}>Track success rate, response time, repeat attempts, session progress, and a practice-only score estimate from your own history.</AlexText>
+        <AlexText sx={{color:'#667085',maxWidth:720}}>Track success rate, response time, repeat attempts, session progress, and a practice-only score prediction based on recent question mastery.</AlexText>
       </AlexBox>
     </AlexBox>}
 
@@ -137,7 +137,7 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
             ariaLabel="Accuracy trend by practice session"
           />
         </PerformanceChartCard>
-        <PerformanceChartCard title="Practice score estimate" description={summary.latestScoreEstimate?`Latest estimate ${summary.latestScoreEstimate}${latestDelta===0?'':` · ${latestDelta>0?'+':''}${latestDelta} since the prior scored session`}. This is a practice trend, not an official College Board score.`:'Complete at least 3 attempts in both sections to begin a practice score trend.'}>
+        <PerformanceChartCard title="Practice score prediction" description={summary.latestScoreEstimate?`Latest prediction ${summary.latestScoreEstimate}${latestDelta===0?'':` · ${latestDelta>0?'+':''}${latestDelta} since the prior scored session`}. It uses unique-question mastery from the latest 10 completed sessions, including recovery after two correct answers following a failure. This is a practice trend, not an official College Board score.`:'Answer at least 3 unique questions in both sections within your recent completed sessions to begin a score prediction.'}>
           {scoreTrend[0].data.length?<AlexLineChart
             data={scoreTrend}
             margin={{top:20,right:25,bottom:52,left:58}}
@@ -150,9 +150,9 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
             pointBorderWidth={2}
             useMesh
             axisBottom={{legend:'Session',legendPosition:'middle',legendOffset:40}}
-            axisLeft={{legend:'Estimated score',legendPosition:'middle',legendOffset:-48}}
+            axisLeft={{legend:'Predicted score',legendPosition:'middle',legendOffset:-48}}
             theme={chartTheme}
-            ariaLabel="Practice SAT score estimate trend"
+            ariaLabel="Practice SAT score prediction trend"
           />:<EmptyChart message="Not enough cross-section history yet."/>}
         </PerformanceChartCard>
       </AlexBox>
