@@ -10,6 +10,7 @@ type Props={
   estimatedScore:number|null
   nationalMeritChance:number|null
   projectedSelectionIndex:number|null
+  estimateConfidence:{label:string;within80:number;sigmaPoints:number}|null
   targetScore:number|null
   daysRemaining:number
   dailyMinutes:number
@@ -20,7 +21,7 @@ type Props={
 }
 
 export default function StudyPlanHero({
-  accuracy,estimatedScore,nationalMeritChance,projectedSelectionIndex,targetScore,daysRemaining,dailyMinutes,questionsPerSession,focusLabel,
+  accuracy,estimatedScore,nationalMeritChance,projectedSelectionIndex,estimateConfidence,targetScore,daysRemaining,dailyMinutes,questionsPerSession,focusLabel,
   onChoosePracticeTest,onStartPractice,
 }:Props){
   const todayLabel=dailyMinutes>0?`${dailyMinutes} min today`:`${questionsPerSession} questions`
@@ -79,6 +80,18 @@ export default function StudyPlanHero({
             ?`${nationalMeritChance}% National Merit qualifying outlook${projectedSelectionIndex!==null?` · SI ~${projectedSelectionIndex}`:''}`
             :accuracy!==null?'Calibrating National Merit outlook':'Complete a few questions to calibrate'}
         </AlexText>
+        {estimateConfidence&&<AlexBox sx={{display:'flex',alignItems:'center',gap:.25,mt:.25,color:'#667085'}}>
+          <AlexText sx={{fontSize:11.5,fontWeight:750,color:'inherit'}}>
+            {estimateConfidence.label} estimate confidence · {estimateConfidence.within80}% within ±80
+          </AlexText>
+          <AlexInfoTooltipButton
+            label="Score estimate confidence information"
+            title={<>
+              <b>Estimate confidence</b><br/>
+              This estimates how likely an actual SAT score is to fall within ±80 points of the practice estimate. It combines recent question-pool uncertainty, recent score stability, and the SAT's published ±40-point total-score measurement error. It is a model estimate, not a guarantee.
+            </>}
+          />
+        </AlexBox>}
         <AlexBox sx={{position:'absolute',right:{xs:12,sm:18},bottom:10,width:{xs:76,sm:96},height:{xs:76,sm:96},borderRadius:'50%',bgcolor:'#D9ECFF',display:'grid',placeItems:'center',transform:'rotate(-6deg)'}}>
           <BookOpenCheck size={40} strokeWidth={1.6}/>
         </AlexBox>
