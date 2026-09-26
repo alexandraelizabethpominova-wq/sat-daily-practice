@@ -66,6 +66,7 @@ export type PerformanceAnalytics={
   sessionMetrics:SessionPerformance[]
   scoreTrend:ScoreTrendPoint[]
   latestScoreEstimate:number|null
+  weeklyScoreChange:number|null
   scorePredictionBasis:ScorePredictionBasis|null
   recommendation:PracticeRecommendation|null
 }
@@ -220,6 +221,21 @@ function buildSessions(attempts:Attempt[],sessions:SessionSummary[]){
   return {sessionMetrics,scoreTrend,latestScoreEstimate,latestScorePredictionBasis}
 }
 
+function weeklyScoreChange(scoreTrend:ScoreTrendPoint[]){
+  const latest=scoreTrend[scoreTrend.length-1]
+  if(!latest)return null
+  const latestTime=new Date(latest.startedAt).getTime()
+  if(!Number.isFinite(latestTime))return null
+  const cutoff=latestTime-7*24*60*60*1000
+  let comparison:ScoreTrendPoint|undefined
+  for(const point of scoreTrend){
+    const time=new Date(point.startedAt).getTime()
+    if(Number.isFinite(time)&&time<=cutoff)comparison=point
+    else if(Number.isFinite(time)&&time>cutoff)break
+  }
+  return comparison?latest.score-comparison.score:null
+}
+
 function buildRecommendation(sections:SectionPerformance[]):PracticeRecommendation|null{
   const english=sections.find(section=>section.subject==='english')!
   const math=sections.find(section=>section.subject==='math')!
@@ -261,6 +277,7 @@ export function buildPerformanceAnalytics(attempts:Attempt[],sessions:SessionSum
     sessionMetrics,
     scoreTrend,
     latestScoreEstimate,
+    weeklyScoreChange:weeklyScoreChange(scoreTrend),
     scorePredictionBasis:latestScorePredictionBasis,
     recommendation:buildRecommendation(sections),
   }
