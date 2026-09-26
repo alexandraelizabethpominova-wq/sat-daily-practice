@@ -39,6 +39,8 @@ export type ScoreTrendPoint={
   startedAt:string
   score:number
   delta:number
+  sessionNumber:number
+  calibrating:boolean
 }
 
 export type PracticeRecommendation={
@@ -208,6 +210,8 @@ function buildSessions(attempts:Attempt[],sessions:SessionSummary[]){
       startedAt:session.startedAt,
       score,
       delta:previousScore===null?0:score-previousScore,
+      sessionNumber:index+1,
+      calibrating:index+1<SCORE_SESSION_WINDOW,
     })
     previousScore=score
   })
