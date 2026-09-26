@@ -1,5 +1,6 @@
 import {QUESTION_BANK} from './questionBank'
 import {buildPerformanceAnalytics,type PerformanceAnalytics} from './performanceAnalytics'
+import {failedQuestionIds} from './questionMastery'
 import type {Attempt,PracticeQuestion,SessionSummary,Settings} from '../types'
 
 export type PerformanceSummary=PerformanceAnalytics
@@ -12,24 +13,6 @@ export function formatDuration(ms:number){
 
 function attemptedQuestionIds(attempts:Attempt[]){
   return new Set(attempts.map(attempt=>attempt.questionId))
-}
-
-function failedQuestionIds(attempts:Attempt[]){
-  const state=new Map<string,{failed:boolean;correctAfterFailure:number}>()
-  const ordered=attempts.map((attempt,index)=>({attempt,index}))
-    .sort((a,b)=>a.attempt.createdAt.localeCompare(b.attempt.createdAt)||a.index-b.index)
-  ordered.forEach(({attempt})=>{
-    const current=state.get(attempt.questionId)??{failed:false,correctAfterFailure:0}
-    if(!attempt.correct){
-      current.failed=true
-      current.correctAfterFailure=0
-    }else if(current.failed){
-      current.correctAfterFailure++
-      if(current.correctAfterFailure>=2)current.failed=false
-    }
-    state.set(attempt.questionId,current)
-  })
-  return new Set([...state.entries()].filter(([,value])=>value.failed).map(([questionId])=>questionId))
 }
 
 function eligibleQuestions(settings:Settings,questions:PracticeQuestion[]){
