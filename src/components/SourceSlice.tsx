@@ -1,5 +1,7 @@
 import {useEffect,useRef,useState} from 'react'
-import {getDocument,type PDFDocumentProxy,type PDFPageProxy} from '../lib/pdfJs'
+
+GlobalWorkerOptions.workerSrc=new URL('pdfjs-dist/build/pdf.worker.min.mjs',import.meta.url).toString()
+import {GlobalWorkerOptions,getDocument,type PDFDocumentProxy,type PDFPageProxy} from 'pdfjs-dist'
 import {getQuestionImage,saveQuestionImage} from '../lib/questionImageStore'
 import {questionCropForParts} from '../lib/questionCrops'
 import type {ModuleKey,PracticeTestId,SourceCrop} from '../types'
