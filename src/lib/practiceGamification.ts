@@ -14,8 +14,22 @@ function attemptedQuestionIds(attempts:Attempt[]){
   return new Set(attempts.map(attempt=>attempt.questionId))
 }
 
-function incorrectlyAnsweredQuestionIds(attempts:Attempt[]){
-  return new Set(attempts.filter(attempt=>!attempt.correct).map(attempt=>attempt.questionId))
+function failedQuestionIds(attempts:Attempt[]){
+  const state=new Map<string,{failed:boolean;correctAfterFailure:number}>()
+  const ordered=attempts.map((attempt,index)=>({attempt,index}))
+    .sort((a,b)=>a.attempt.createdAt.localeCompare(b.attempt.createdAt)||a.index-b.index)
+  ordered.forEach(({attempt})=>{
+    const current=state.get(attempt.questionId)??{failed:false,correctAfterFailure:0}
+    if(!attempt.correct){
+      current.failed=true
+      current.correctAfterFailure=0
+    }else if(current.failed){
+      current.correctAfterFailure++
+      if(current.correctAfterFailure>=2)current.failed=false
+    }
+    state.set(attempt.questionId,current)
+  })
+  return new Set([...state.entries()].filter(([,value])=>value.failed).map(([questionId])=>questionId))
 }
 
 function eligibleQuestions(settings:Settings,questions:PracticeQuestion[]){
@@ -28,7 +42,7 @@ function eligibleQuestions(settings:Settings,questions:PracticeQuestion[]){
 export function practiceQuestionPool(settings:Settings,attempts:Attempt[],questions:PracticeQuestion[]=QUESTION_BANK):PracticeQuestion[]{
   const pool=eligibleQuestions(settings,questions)
   if(settings.failedEverOnly){
-    const failedIds=incorrectlyAnsweredQuestionIds(attempts)
+    const failedIds=failedQuestionIds(attempts)
     return pool.filter(question=>failedIds.has(question.id))
   }
   if(settings.failedOnly){
@@ -44,7 +58,7 @@ export function countMissedPracticeQuestions(settings:Settings,attempts:Attempt[
 }
 
 export function countFailedPracticeQuestions(settings:Settings,attempts:Attempt[],questions:PracticeQuestion[]=QUESTION_BANK){
-  const failedIds=incorrectlyAnsweredQuestionIds(attempts)
+  const failedIds=failedQuestionIds(attempts)
   return eligibleQuestions(settings,questions).filter(question=>failedIds.has(question.id)).length
 }
 
