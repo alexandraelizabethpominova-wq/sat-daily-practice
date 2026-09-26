@@ -55,6 +55,15 @@ export type ScorePredictionBasis={
   sections:Array<{subject:Subject;label:string;questions:number;successRate:number}>
 }
 
+export type ScoreEstimateConfidence={
+  within40:number
+  within50:number
+  within80:number
+  within100:number
+  sigmaPoints:number
+  label:'Low'|'Developing'|'Moderate'|'High'
+}
+
 export type PerformanceAnalytics={
   accuracy:number
   averageMs:number
@@ -68,6 +77,7 @@ export type PerformanceAnalytics={
   latestScoreEstimate:number|null
   weeklyScoreChange:number|null
   scorePredictionBasis:ScorePredictionBasis|null
+  scoreEstimateConfidence:ScoreEstimateConfidence|null
   recommendation:PracticeRecommendation|null
 }
 
@@ -236,6 +246,70 @@ function weeklyScoreChange(scoreTrend:ScoreTrendPoint[]){
   return comparison?latest.score-comparison.score:null
 }
 
+function erf(value:number){
+  // Abramowitz-Stegun approximation; sufficient for UI confidence estimates.
+  const sign=value<0?-1:1
+  const x=Math.abs(value)
+  const t=1/(1+.3275911*x)
+  const y=1-(((((1.061405429*t-1.453152027)*t+1.421413741)*t-.284496736)*t+.254829592)*t)*Math.exp(-x*x)
+  return sign*y
+}
+
+function probabilityWithin(points:number,sigma:number){
+  if(sigma<=0)return 100
+  return Math.round(100*erf(points/(sigma*Math.sqrt(2))))
+}
+
+function sampleStandardDeviation(values:number[]){
+  if(values.length<2)return 0
+  const mean=average(values)
+  return Math.sqrt(values.reduce((sum,value)=>sum+(value-mean)**2,0)/(values.length-1))
+}
+
+function buildScoreEstimateConfidence(
+  basis:ScorePredictionBasis|null,
+  scoreTrend:ScoreTrendPoint[],
+):ScoreEstimateConfidence|null{
+  if(!basis)return null
+  const english=basis.sections.find(section=>section.subject==='english')
+  const math=basis.sections.find(section=>section.subject==='math')
+  if(!english||!math||english.questions<3||math.questions<3)return null
+
+  // Approximate question-pool sampling uncertainty for each section using
+  // Bernoulli variance at the observed success rate, then convert the
+  // percentage-point uncertainty through the app's 600-point section scale.
+  const sectionSigma=(successRate:number,questions:number)=>{
+    const p=Math.max(.01,Math.min(.99,successRate/100))
+    const sePercent=100*Math.sqrt(p*(1-p)/Math.max(1,questions))
+    return sePercent*6
+  }
+  const questionPoolSigma=Math.sqrt(
+    sectionSigma(english.successRate,english.questions)**2+
+    sectionSigma(math.successRate,math.questions)**2
+  )
+
+  // Recent score movement captures instability not represented by question
+  // sampling alone. Use up to the latest seven predictions.
+  const recentScores=scoreTrend.slice(-7).map(point=>point.score)
+  const trendSigma=sampleStandardDeviation(recentScores)
+
+  // College Board reports about ±40 points standard error for an SAT total.
+  const officialMeasurementSigma=40
+  const sigmaPoints=Math.round(Math.sqrt(
+    officialMeasurementSigma**2+
+    questionPoolSigma**2+
+    trendSigma**2
+  ))
+
+  const within40=probabilityWithin(40,sigmaPoints)
+  const within50=probabilityWithin(50,sigmaPoints)
+  const within80=probabilityWithin(80,sigmaPoints)
+  const within100=probabilityWithin(100,sigmaPoints)
+  const label=within80>=85?'High':within80>=75?'Moderate':within80>=60?'Developing':'Low'
+
+  return {within40,within50,within80,within100,sigmaPoints,label}
+}
+
 function buildRecommendation(sections:SectionPerformance[]):PracticeRecommendation|null{
   const english=sections.find(section=>section.subject==='english')!
   const math=sections.find(section=>section.subject==='math')!
@@ -279,6 +353,7 @@ export function buildPerformanceAnalytics(attempts:Attempt[],sessions:SessionSum
     latestScoreEstimate,
     weeklyScoreChange:weeklyScoreChange(scoreTrend),
     scorePredictionBasis:latestScorePredictionBasis,
+    scoreEstimateConfidence:buildScoreEstimateConfidence(latestScorePredictionBasis,scoreTrend),
     recommendation:buildRecommendation(sections),
   }
 }
