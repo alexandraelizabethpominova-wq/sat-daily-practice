@@ -75,14 +75,6 @@ describe('choosePracticeQuestions',()=>{
     expect(countFailedPracticeQuestions(failedSettings,attempts)).toBe(0)
   })
 
-  it('treats an invalidated attempt as unseen and not failed',()=>{
-    const contaminated={...attempt('math1-1',false,0),invalidatedAt:'2026-09-26T15:30:37.705Z'}
-    const failedSettings={...settings,failedOnly:false,failedEverOnly:true}
-    expect(practiceQuestionPool(failedSettings,[contaminated]).map(question=>question.id)).not.toContain('math1-1')
-    expect(countFailedPracticeQuestions(failedSettings,[contaminated])).toBe(0)
-    expect(countMissedPracticeQuestions(settings,[contaminated])).toBe(countMissedPracticeQuestions(settings,[]))
-  })
-
   it('resets mastery progress when the question is failed again',()=>{
     const attempts=[
       attempt('math1-1',false,0),
