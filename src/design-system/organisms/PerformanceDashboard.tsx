@@ -62,7 +62,6 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
       <MetricCard compact tone="green" icon={<BarChart3/>} label="Questions seen" value={`${summary.questionsSeen}/${summary.totalQuestions}`}/>
       <MetricCard compact tone="peach" icon={<TrendingUp/>} label="7-day score trend" value={weeklyScoreValue} valueColor={weeklyScoreColor}/>
     </AlexBox>
-    {scoreBasis&&summary.latestScoreEstimate&&<AlexText sx={{fontSize:11.5,lineHeight:1.45,color:'#667085',px:.35}}><b>{scoreCalibrationText}.</b> {scoreBasisText}</AlexText>}
     {hasHistory&&summary.recommendation&&<AlexSurface sx={{p:1.8,border:'1px solid #D8D2FF',borderRadius:3,bgcolor:'#F7F5FF'}}>
       <AlexText sx={{fontSize:10,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:'#6558F5'}}>Recommended focus</AlexText>
       <AlexText component="h2" sx={{fontSize:19,fontWeight:800,color:'#08275B',mt:.45}}>{summary.recommendation.label}</AlexText>
