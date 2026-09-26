@@ -1,12 +1,16 @@
 import {BookOpenCheck,CalendarDays,Sparkles,Target} from 'lucide-react'
 import AlexBox from '../atoms/AlexBox'
 import AlexButton from '../atoms/AlexButton'
+import AlexInfoTooltipButton from '../atoms/AlexInfoTooltipButton'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
 
 type Props={
   accuracy:number|null
   estimatedScore:number|null
+  nationalMeritChance:number|null
+  projectedSelectionIndex:number|null
+  estimateConfidence:{label:string;within80:number;sigmaPoints:number}|null
   targetScore:number|null
   daysRemaining:number
   dailyMinutes:number
@@ -17,7 +21,7 @@ type Props={
 }
 
 export default function StudyPlanHero({
-  accuracy,estimatedScore,targetScore,daysRemaining,dailyMinutes,questionsPerSession,focusLabel,
+  accuracy,estimatedScore,nationalMeritChance,projectedSelectionIndex,estimateConfidence,targetScore,daysRemaining,dailyMinutes,questionsPerSession,focusLabel,
   onChoosePracticeTest,onStartPractice,
 }:Props){
   const todayLabel=dailyMinutes>0?`${dailyMinutes} min today`:`${questionsPerSession} questions`
@@ -58,13 +62,36 @@ export default function StudyPlanHero({
 
     <AlexBox sx={{display:'grid',gap:1.4,position:'relative',zIndex:1}}>
       <AlexSurface sx={{position:'relative',minHeight:{xs:132,sm:150},border:0,borderRadius:3,bgcolor:'#FFF9DD',overflow:'hidden',p:{xs:1.75,sm:2.25}}}>
-        <AlexText sx={{fontSize:11,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:'#6B5A12'}}>Current estimate</AlexText>
+        <AlexBox sx={{display:'flex',alignItems:'center',gap:.25,color:'#6B5A12'}}>
+          <AlexText sx={{fontSize:11,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:'inherit'}}>Current estimate</AlexText>
+          <AlexInfoTooltipButton
+            label="PSAT scholarship score information"
+            title={<>
+              <b>PSAT/NMSQT scholarship context</b><br/>
+              This is a rough Massachusetts National Merit qualifying outlook, not a scholarship guarantee. National Merit uses Selection Index = (2 × Reading & Writing + Math) ÷ 10, on a 48–228 scale. The current Class of 2028 Massachusetts estimated Semifinalist range is about 220–225, while the actual cutoff can change. A Merit Scholarship still requires advancing beyond Semifinalist status and is not determined by score alone.
+            </>}
+          />
+        </AlexBox>
         <AlexText sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:30,sm:34},fontWeight:700,color:'#08275B',mt:.45}}>
           {estimatedScore??'—'}
         </AlexText>
         <AlexText sx={{fontSize:12.5,color:'#667085',mt:.3}}>
-          {accuracy!==null?`${accuracy}% overall accuracy`:'Complete a few questions to calibrate'}
+          {nationalMeritChance!==null
+            ?`${nationalMeritChance}% National Merit qualifying outlook${projectedSelectionIndex!==null?` · SI ~${projectedSelectionIndex}`:''}`
+            :accuracy!==null?'Calibrating National Merit outlook':'Complete a few questions to calibrate'}
         </AlexText>
+        {estimateConfidence&&<AlexBox sx={{display:'flex',alignItems:'center',gap:.25,mt:.25,color:'#667085'}}>
+          <AlexText sx={{fontSize:11.5,fontWeight:750,color:'inherit'}}>
+            {estimateConfidence.label} estimate confidence · {estimateConfidence.within80}% within ±80
+          </AlexText>
+          <AlexInfoTooltipButton
+            label="Score estimate confidence information"
+            title={<>
+              <b>Estimate confidence</b><br/>
+              This estimates how likely an actual SAT score is to fall within ±80 points of the practice estimate. It combines recent question-pool uncertainty, recent score stability, and the SAT's published ±40-point total-score measurement error. It is a model estimate, not a guarantee.
+            </>}
+          />
+        </AlexBox>}
         <AlexBox sx={{position:'absolute',right:{xs:12,sm:18},bottom:10,width:{xs:76,sm:96},height:{xs:76,sm:96},borderRadius:'50%',bgcolor:'#D9ECFF',display:'grid',placeItems:'center',transform:'rotate(-6deg)'}}>
           <BookOpenCheck size={40} strokeWidth={1.6}/>
         </AlexBox>

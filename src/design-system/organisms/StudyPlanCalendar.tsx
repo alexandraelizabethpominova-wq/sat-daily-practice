@@ -155,21 +155,31 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
               '&:focus-visible':{boxShadow:'0 0 0 2px #6558F5'},
             }}
           >
-            {isExamDate&&<Star
+            {isExamDate&&<AlexBox
               aria-hidden="true"
-              size={34}
-              strokeWidth={1.7}
-              fill="#F5C451"
-              color={isToday?'#6558F5':'#9B6A00'}
-              style={{position:'absolute',inset:0}}
-            />}
+              sx={{
+                position:'absolute',
+                inset:-4,
+                display:'grid',
+                placeItems:'center',
+                zIndex:0,
+              }}
+            >
+              <Star
+                size={44}
+                strokeWidth={1.7}
+                fill="#F5C451"
+                color={isToday?'#6558F5':'#9B6A00'}
+              />
+            </AlexBox>}
             <AlexText sx={{
               position:'relative',
-              zIndex:1,
+              zIndex:2,
               fontSize:{xs:10,sm:11.5},
               fontWeight:isExamDate||isToday?900:700,
               lineHeight:1,
               color:isExamDate?'#08275B':'inherit',
+              transform:isExamDate?'translateY(-.5px)':'none',
             }}>{day.day}</AlexText>
             {day.practiced&&<AlexBox
               aria-hidden="true"
