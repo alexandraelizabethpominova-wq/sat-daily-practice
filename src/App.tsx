@@ -25,14 +25,15 @@ import {buildPracticePlanRecommendation} from './lib/practicePlan'
 import {loadSharedQuestionBank,mergeQuestionBanks} from './lib/sharedQuestionBank'
 import {importPracticeMaterials} from './lib/pdfStructuredImport'
 import {choosePracticeQuestions,countFailedPracticeQuestions,countMissedPracticeQuestions,formatDuration,summarizePerformance,summarizeSession} from './lib/practiceGamification'
+import {pathForView,viewFromPathname,type AppRouteView} from './lib/appRoutes'
 import {addAttempt,getAttempts,getSessions,getSettings,prepareHistoryForUser,prepareSettingsForUser,replaceHistory,saveSession,saveSettings} from './lib/storage'
 import {abandonActiveSession,createActiveSession,getCurrentAuthUser,loadActiveSession,loadCloudHistory,loadUserSettings,saveActiveSessionProgress,saveUserSettings,subscribeToAuth,syncActiveAttempt,syncSession,type AuthUser} from './lib/supabase'
 import type {ActivePracticeSession,Attempt,PracticeQuestion,SessionSummary,Settings,SubjectMode} from './types'
 
 const uid=()=>crypto.randomUUID()
 
-type View='study'|'home'|'practice'|'results'|'stats'|'settings'|'sources'|'question-bank'|'parsing-issues'|'account'
-type SidebarKey='study'|'practice-tests'|'practice-setup'|'question-bank'|'parsing-issues'|'performance'|'resources'
+type View=AppRouteView
+type SidebarKey='dashboard'|'practice-tests'|'practice-setup'|'question-bank'|'parsing-issues'|'performance'|'resources'
 
 export default function App(){
   const[settings,setSettings]=useState<Settings>(()=>getSettings())
@@ -48,7 +49,7 @@ export default function App(){
   const[selected,setSelected]=useState('')
   const[submitted,setSubmitted]=useState(false)
   const[currentAttempts,setCurrentAttempts]=useState<Attempt[]>([])
-  const[view,setView]=useState<View>('home')
+  const[view,setView]=useState<View>(()=>viewFromPathname(window.location.pathname))
   const[sidebarCollapsed,setSidebarCollapsed]=useState(false)
   const[contentCount,setContentCount]=useState(0)
   const[importProgress,setImportProgress]=useState('')
@@ -57,6 +58,23 @@ export default function App(){
   const[settingsCloudReady,setSettingsCloudReady]=useState(false)
   const[questionBank,setQuestionBank]=useState<PracticeQuestion[]>(()=>QUESTION_BANK)
   const[resumableSession,setResumableSession]=useState<ActivePracticeSession|null>(null)
+
+  function navigateTo(next:View,{replace=false}:{replace?:boolean}={}){
+    setView(next)
+    const path=pathForView(next)
+    if(window.location.pathname===path)return
+    if(replace)window.history.replaceState({},'',path)
+    else window.history.pushState({},'',path)
+  }
+
+  useEffect(()=>{
+    const handlePopState=()=>setView(viewFromPathname(window.location.pathname))
+    window.addEventListener('popstate',handlePopState)
+    const initial=viewFromPathname(window.location.pathname)
+    const canonical=pathForView(initial)
+    if(window.location.pathname!==canonical)window.history.replaceState({},'',canonical)
+    return()=>window.removeEventListener('popstate',handlePopState)
+  },[])
 
   useEffect(()=>{
     void loadSharedQuestionBank().then(shared=>setQuestionBank(mergeQuestionBanks(QUESTION_BANK,shared))).catch(error=>console.warn('Shared question bank load failed; using bundled metadata.',error))
@@ -209,7 +227,7 @@ export default function App(){
     const nextQuestions=choosePracticeQuestions(nextSettings,attempts,Math.random,questionBank)
     if(!nextQuestions.length){
       window.alert('No questions match these practice settings yet. Adjust the practice test, subject, or question-history filter.')
-      setView('settings')
+      navigateTo('settings')
       return
     }
     const sessionId=uid()
@@ -245,7 +263,7 @@ export default function App(){
     setSelected('')
     setSubmitted(false)
     setQStart(Date.now())
-    setView('practice')
+    navigateTo('practice')
   }
 
   function resumeActiveSession(){
@@ -269,7 +287,7 @@ export default function App(){
     setSelected(priorAttempt?.selectedAnswer??resumableSession.draftAnswer??'')
     setSubmitted(Boolean(priorAttempt))
     setQStart(Date.now())
-    setView('practice')
+    navigateTo('practice')
   }
 
   async function endResumableSession(){
@@ -334,7 +352,7 @@ export default function App(){
     }catch(error){
       console.warn('Supabase session completion sync failed',error)
     }
-    setView('results')
+    navigateTo('results')
   }
 
   async function next(){
@@ -359,16 +377,33 @@ export default function App(){
       active={active}
       collapsed={sidebarCollapsed}
       onToggleCollapsed={()=>setSidebarCollapsed(value=>!value)}
-      onStudyPlan={()=>setView('study')}
-      onPracticeTests={()=>setView('home')}
-      onPracticeSetup={()=>setView('settings')}
-      onQuestionBank={()=>setView('question-bank')}
-      onParsingIssues={()=>setView('parsing-issues')}
-      onPerformance={()=>setView('stats')}
-      onResources={()=>setView('sources')}
-      onSettings={()=>setView('account')}
+      onDashboard={()=>navigateTo('study')}
+      onPracticeTests={()=>navigateTo('home')}
+      onPracticeSetup={()=>navigateTo('settings')}
+      onQuestionBank={()=>navigateTo('question-bank')}
+      onParsingIssues={()=>navigateTo('parsing-issues')}
+      onPerformance={()=>navigateTo('stats')}
+      onResources={()=>navigateTo('sources')}
+      onSettings={()=>navigateTo('account')}
       contentBackground={background}
     >{content}</AppSidebarLayout>
+  }
+
+  if(view==='practice'&&!current){
+    return withSidebar('practice-tests',<main className="shell">
+      <section className="card results">
+        <p className="eyebrow">Practice session</p>
+        <h1>{resumableSession?'Session ready to resume':'No active session found'}</h1>
+        <p>{resumableSession
+          ?`${resumableSession.attempts.length} of ${resumableSession.questionCount} questions answered. Continue the same session from this device.`
+          :'This link points to a practice session, but there is no resumable cloud session for this account.'}</p>
+        <div className="hero-actions">
+          {resumableSession&&<AlexButton onClick={resumeActiveSession}>Resume session</AlexButton>}
+          <AlexButton tone="secondary" onClick={()=>navigateTo('home')}>Practice tests</AlexButton>
+          <AlexButton tone="quiet" onClick={()=>navigateTo('study')}>Dashboard</AlexButton>
+        </div>
+      </section>
+    </main>)
   }
 
   if(view==='practice'&&current){
@@ -431,7 +466,7 @@ export default function App(){
             </article>
           })}
         </div>
-        <div className="hero-actions"><AlexButton onClick={start}>Start another session</AlexButton><AlexButton tone="secondary" onClick={()=>setView('home')}>Back to practice tests</AlexButton></div>
+        <div className="hero-actions"><AlexButton onClick={start}>Start another session</AlexButton><AlexButton tone="secondary" onClick={()=>navigateTo('home')}>Back to practice tests</AlexButton></div>
       </section>
     </main>)
   }
@@ -473,7 +508,7 @@ export default function App(){
     </section>
   </main>)
 
-  if(view==='study')return withSidebar('study',<main className="shell">
+  if(view==='study')return withSidebar('dashboard',<main className="shell">
     <StudyPlanHero
       accuracy={attempts.length?performance.accuracy:null}
       estimatedScore={performance.latestScoreEstimate}
@@ -482,7 +517,7 @@ export default function App(){
       dailyMinutes={practiceRecommendation.estimatedDailyMinutes}
       questionsPerSession={settings.questionsPerSession}
       focusLabel={practiceRecommendation.focusLabel}
-      onChoosePracticeTest={()=>setView('home')}
+      onChoosePracticeTest={()=>navigateTo('home')}
       onStartPractice={()=>void beginPractice(settings.mode)}
     />
 
@@ -500,7 +535,7 @@ export default function App(){
     </AlexBox>
 
     <AlexBox sx={{display:'flex',justifyContent:'flex-end',mt:1.25,pb:{xs:1,md:2}}}>
-      <AlexButton tone="quiet" onClick={()=>setView('settings')}>Edit plan settings</AlexButton>
+      <AlexButton tone="quiet" onClick={()=>navigateTo('settings')}>Edit plan settings</AlexButton>
     </AlexBox>
   </main>,'#F7F6F2')
 
@@ -513,7 +548,7 @@ export default function App(){
       lastActivityAt:resumableSession.lastActivityAt,
     }:null}
     onStartTest={value=>void beginPractice(settings.mode,value)}
-    onOpenSetup={()=>setView('settings')}
+    onOpenSetup={()=>navigateTo('settings')}
     onResumeSession={resumeActiveSession}
     onEndSession={()=>void endResumableSession()}
   />)
