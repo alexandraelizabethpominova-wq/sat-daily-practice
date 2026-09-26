@@ -8,6 +8,8 @@ import AlexText from '../atoms/AlexText'
 type Props={
   accuracy:number|null
   estimatedScore:number|null
+  nationalMeritChance:number|null
+  projectedSelectionIndex:number|null
   targetScore:number|null
   daysRemaining:number
   dailyMinutes:number
@@ -18,7 +20,7 @@ type Props={
 }
 
 export default function StudyPlanHero({
-  accuracy,estimatedScore,targetScore,daysRemaining,dailyMinutes,questionsPerSession,focusLabel,
+  accuracy,estimatedScore,nationalMeritChance,projectedSelectionIndex,targetScore,daysRemaining,dailyMinutes,questionsPerSession,focusLabel,
   onChoosePracticeTest,onStartPractice,
 }:Props){
   const todayLabel=dailyMinutes>0?`${dailyMinutes} min today`:`${questionsPerSession} questions`
@@ -65,7 +67,7 @@ export default function StudyPlanHero({
             label="PSAT scholarship score information"
             title={<>
               <b>PSAT/NMSQT scholarship context</b><br/>
-              This card is an SAT practice estimate, not a PSAT Selection Index. National Merit uses Selection Index = (2 × Reading & Writing + Math) ÷ 10, on a 48–228 scale. Semifinalist cutoffs vary by state and year. For the 2026 National Merit program, the national Commended cutoff was 210 and state Semifinalist cutoffs ranged from 210 to 225. Your 2026 PSAT/NMSQT enters the 2028 competition, so its final cutoffs are not known yet.
+              This is a rough Massachusetts National Merit qualifying outlook, not a scholarship guarantee. National Merit uses Selection Index = (2 × Reading & Writing + Math) ÷ 10, on a 48–228 scale. The current Class of 2028 Massachusetts estimated Semifinalist range is about 220–225, while the actual cutoff can change. A Merit Scholarship still requires advancing beyond Semifinalist status and is not determined by score alone.
             </>}
           />
         </AlexBox>
@@ -73,7 +75,9 @@ export default function StudyPlanHero({
           {estimatedScore??'—'}
         </AlexText>
         <AlexText sx={{fontSize:12.5,color:'#667085',mt:.3}}>
-          {accuracy!==null?`${accuracy}% overall accuracy`:'Complete a few questions to calibrate'}
+          {nationalMeritChance!==null
+            ?`${nationalMeritChance}% National Merit qualifying outlook${projectedSelectionIndex!==null?` · SI ~${projectedSelectionIndex}`:''}`
+            :accuracy!==null?'Calibrating National Merit outlook':'Complete a few questions to calibrate'}
         </AlexText>
         <AlexBox sx={{position:'absolute',right:{xs:12,sm:18},bottom:10,width:{xs:76,sm:96},height:{xs:76,sm:96},borderRadius:'50%',bgcolor:'#D9ECFF',display:'grid',placeItems:'center',transform:'rotate(-6deg)'}}>
           <BookOpenCheck size={40} strokeWidth={1.6}/>
