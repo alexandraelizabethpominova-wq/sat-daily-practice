@@ -95,7 +95,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
           style.label,
           isExamDate?'Exam date':'',
           day.practiced
-            ?`${day.sessionCount}${targetSessions>0?`/${targetSessions}`:''} session${day.sessionCount===1?'':'s'} · ${day.questionCount} questions`
+            ?`${targetSessions>0?`${day.sessionCount} of ${targetSessions}`:day.sessionCount} session${targetSessions===1&&day.sessionCount===1?'':'s'} · ${day.questionCount} questions`
             :hasTrackedGoal?'No practice recorded':'',
         ].filter(Boolean).join(' · ')
         return <AlexTooltip
