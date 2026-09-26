@@ -1,13 +1,23 @@
 import type {ReactNode} from 'react'
-import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded'
-import ArrowUpwardRoundedIcon from '@mui/icons-material/ArrowUpwardRounded'
-import RemoveRoundedIcon from '@mui/icons-material/RemoveRounded'
+import SvgIcon from '@mui/material/SvgIcon'
 import AlexBox from '../atoms/AlexBox'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
 
 type MetricTone='default'|'blue'|'cream'|'lavender'|'green'|'peach'
 type TrendDirection='up'|'down'|'flat'
+
+function ArrowUpwardRoundedIcon(){
+  return <SvgIcon viewBox="0 0 24 24"><path d="M12 4 5 11l1.4 1.4L11 7.8V20h2V7.8l4.6 4.6L19 11l-7-7Z"/></SvgIcon>
+}
+
+function ArrowDownwardRoundedIcon(){
+  return <SvgIcon viewBox="0 0 24 24"><path d="M11 4v12.2l-4.6-4.6L5 13l7 7 7-7-1.4-1.4-4.6 4.6V4h-2Z"/></SvgIcon>
+}
+
+function RemoveRoundedIcon(){
+  return <SvgIcon viewBox="0 0 24 24"><path d="M5 11h14v2H5z"/></SvgIcon>
+}
 type Props={icon:ReactNode;label:string;value:string;tone?:MetricTone;compact?:boolean;trend?:{direction:TrendDirection;text:string}}
 
 const TONES:Record<MetricTone,{bg:string;border:string;icon:string}>={
