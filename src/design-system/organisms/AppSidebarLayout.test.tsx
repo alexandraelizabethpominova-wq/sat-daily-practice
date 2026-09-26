@@ -6,7 +6,7 @@ const baseProps={
   active:'practice-setup' as const,
   collapsed:false,
   onToggleCollapsed:()=>undefined,
-  onStudyPlan:()=>undefined,
+  onDashboard:()=>undefined,
   onPracticeTests:()=>undefined,
   onPracticeSetup:()=>undefined,
   onQuestionBank:()=>undefined,
@@ -50,7 +50,7 @@ describe('AppSidebarLayout',()=>{
 
     expect(screen.getByTestId('mobile-header')).toBeInTheDocument()
     expect(screen.getByTestId('mobile-bottom-nav')).toBeInTheDocument()
-    expect(screen.getByRole('button',{name:'Plan'})).toBeInTheDocument()
+    expect(screen.getByRole('button',{name:'Dashboard'})).toBeInTheDocument()
     expect(screen.getByRole('button',{name:'Tests'})).toBeInTheDocument()
     expect(screen.getByRole('button',{name:'Stats'})).toBeInTheDocument()
     expect(screen.getByRole('button',{name:'Menu'})).toBeInTheDocument()
