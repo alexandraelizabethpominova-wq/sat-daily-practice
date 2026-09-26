@@ -60,6 +60,9 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
       bgcolor:'#fff',
       minWidth:0,
       height:'100%',
+      minHeight:{xs:360,md:420,lg:430},
+      display:'flex',
+      flexDirection:'column',
     }}
   >
     <AlexBox sx={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:1.25,mb:1.15}}>
@@ -80,11 +83,30 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
       <AlexIconButton label="Next month" onClick={()=>moveMonth(1)}><ChevronRight size={16}/></AlexIconButton>
     </AlexBox>
 
-    <AlexBox sx={{display:'grid',gridTemplateColumns:'repeat(7,minmax(0,1fr))',gap:.35,mb:.45}}>
+    <AlexBox sx={{
+      display:'grid',
+      gridTemplateColumns:'repeat(7,minmax(0,1fr))',
+      columnGap:.2,
+      width:'92%',
+      mx:'auto',
+      mb:.7,
+    }}>
       {WEEKDAYS.map((day,index)=><AlexText key={`${day}-${index}`} sx={{textAlign:'center',fontSize:9,fontWeight:850,color:'#667085'}}>{day}</AlexText>)}
     </AlexBox>
 
-    <AlexBox sx={{display:'grid',gridTemplateColumns:'repeat(7,minmax(0,1fr))',gap:.35}}>
+    <AlexBox sx={{
+      display:'grid',
+      gridTemplateColumns:'repeat(7,minmax(0,1fr))',
+      gridAutoRows:'minmax(42px,1fr)',
+      columnGap:.2,
+      rowGap:.65,
+      width:'92%',
+      mx:'auto',
+      flex:'1 1 auto',
+      minHeight:0,
+      alignItems:'center',
+      alignContent:'stretch',
+    }}>
       {Array.from({length:firstWeekday},(_,index)=><AlexBox key={`empty-${index}`} aria-hidden="true"/>)}
       {days.map(day=>{
         const style=STATUS_STYLE[day.status]
@@ -117,7 +139,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
             sx={{
               width:'100%',
               aspectRatio:'1 / 1',
-              maxWidth:34,
+              maxWidth:33,
               justifySelf:'center',
               borderRadius:isExamDate?0:'50%',
               border:isExamDate?'none':'1px solid',
