@@ -52,7 +52,7 @@ describe('choosePracticeQuestions',()=>{
     expect(countMissedPracticeQuestions(missedSettings,attempts,questions)).toBe(0)
   })
 
-  it('can practice failed questions that were answered incorrectly at least once',()=>{
+  it('keeps failed questions until they are answered correctly twice after the failure',()=>{
     const attempts=[
       attempt('math1-1',false,0),
       attempt('math1-2',false,1),
@@ -64,11 +64,23 @@ describe('choosePracticeQuestions',()=>{
     expect(countFailedPracticeQuestions(failedSettings,attempts)).toBe(2)
   })
 
-  it('keeps a failed question eligible even after it is later answered correctly',()=>{
+  it('removes a failed question after two correct answers following the most recent failure',()=>{
     const attempts=[
       attempt('math1-1',false,0),
       attempt('math1-1',true,1),
       attempt('math1-1',true,2),
+    ]
+    const failedSettings={...settings,failedOnly:false,failedEverOnly:true}
+    expect(practiceQuestionPool(failedSettings,attempts).map(question=>question.id)).not.toContain('math1-1')
+    expect(countFailedPracticeQuestions(failedSettings,attempts)).toBe(0)
+  })
+
+  it('resets mastery progress when the question is failed again',()=>{
+    const attempts=[
+      attempt('math1-1',false,0),
+      attempt('math1-1',true,1),
+      attempt('math1-1',false,2),
+      attempt('math1-1',true,3),
     ]
     const failedSettings={...settings,failedOnly:false,failedEverOnly:true}
     expect(practiceQuestionPool(failedSettings,attempts).map(question=>question.id)).toContain('math1-1')

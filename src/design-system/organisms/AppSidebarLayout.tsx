@@ -7,13 +7,13 @@ import AlexText from '../atoms/AlexText'
 import SideNavigation from '../molecules/SideNavigation'
 import {getCurrentAuthUser,loadUserProfile,subscribeToAuth,type AuthUser,type UserProfile} from '../../lib/supabase'
 
-type NavKey='study'|'practice-tests'|'practice-setup'|'question-bank'|'parsing-issues'|'performance'|'resources'
+type NavKey='dashboard'|'practice-tests'|'practice-setup'|'question-bank'|'parsing-issues'|'performance'|'resources'
 
 type Props={
   active:NavKey
   collapsed:boolean
   onToggleCollapsed:()=>void
-  onStudyPlan:()=>void
+  onDashboard:()=>void
   onPracticeTests:()=>void
   onPracticeSetup:()=>void
   onQuestionBank:()=>void
@@ -25,7 +25,7 @@ type Props={
   contentBackground?:string
 }
 
-export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onStudyPlan,onPracticeTests,onPracticeSetup,onQuestionBank,onParsingIssues,onPerformance,onResources,onSettings,children,contentBackground='#FFFFFF'}:Props){
+export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onDashboard,onPracticeTests,onPracticeSetup,onQuestionBank,onParsingIssues,onPerformance,onResources,onSettings,children,contentBackground='#FFFFFF'}:Props){
   const[user,setUser]=useState<AuthUser|null>(null)
   const[profile,setProfile]=useState<UserProfile|null>(null)
   const[mobileMenuOpen,setMobileMenuOpen]=useState(false)
@@ -58,7 +58,7 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onS
 
   const closeAnd=(action:()=>void)=>()=>{setMobileMenuOpen(false);action()}
   const primaryDesktop=[
-    {key:'study',label:'Study Plan',active:active==='study',onClick:onStudyPlan},
+    {key:'dashboard',label:'Dashboard',active:active==='dashboard',onClick:onDashboard},
     {key:'practice-tests',label:'Practice Tests',active:active==='practice-tests',onClick:onPracticeTests},
     {key:'practice-setup',label:'Practice Setup',active:active==='practice-setup',onClick:onPracticeSetup},
     {key:'question-bank',label:'Question Bank',active:active==='question-bank',onClick:onQuestionBank},
@@ -69,7 +69,7 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onS
   const primaryMobile=primaryDesktop.map(item=>({...item,onClick:closeAnd(item.onClick)}))
   const secondaryMobile=secondaryDesktop.map(item=>({...item,onClick:closeAnd(item.onClick)}))
 
-  const menuIsActive=!['study','practice-tests','performance'].includes(active)
+  const menuIsActive=!['dashboard','practice-tests','performance'].includes(active)
 
   return <AlexBox
     data-testid="app-layout"
@@ -135,8 +135,8 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onS
         <Menu size={22}/>
       </AlexButtonBase>
       <AlexButtonBase
-        onClick={onPracticeTests}
-        aria-label="SAT home"
+        onClick={onDashboard}
+        aria-label="SAT dashboard"
         sx={{display:'grid',placeItems:'center',minWidth:0,px:1.2,py:.7,borderRadius:2}}
       >
         <AlexText component="span" sx={{fontWeight:900,fontSize:16,color:'#08275B',lineHeight:1}}>SAT</AlexText>
@@ -219,7 +219,7 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onS
         boxShadow:'0 -8px 24px rgba(8,39,91,.08)',
       }}
     >
-      <MobileNavButton label="Plan" active={active==='study'} icon={<Compass size={20}/>} onClick={onStudyPlan}/>
+      <MobileNavButton label="Dashboard" active={active==='dashboard'} icon={<Compass size={20}/>} onClick={onDashboard}/>
       <MobileNavButton label="Tests" active={active==='practice-tests'} icon={<ClipboardList size={20}/>} onClick={onPracticeTests}/>
       <MobileNavButton label="Stats" active={active==='performance'} icon={<BarChart3 size={20}/>} onClick={onPerformance}/>
       <MobileNavButton label="Menu" active={menuIsActive} icon={<Menu size={20}/>} onClick={()=>setMobileMenuOpen(true)}/>

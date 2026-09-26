@@ -1,10 +1,11 @@
 import {useEffect,useRef,useState} from 'react'
+
+GlobalWorkerOptions.workerSrc=new URL('pdfjs-dist/build/pdf.worker.min.mjs',import.meta.url).toString()
 import {GlobalWorkerOptions,getDocument,type PDFDocumentProxy,type PDFPageProxy} from 'pdfjs-dist'
 import {getQuestionImage,saveQuestionImage} from '../lib/questionImageStore'
 import {questionCropForParts} from '../lib/questionCrops'
 import type {ModuleKey,PracticeTestId,SourceCrop} from '../types'
 
-GlobalWorkerOptions.workerSrc=new URL('pdfjs-dist/build/pdf.worker.min.mjs',import.meta.url).toString()
 
 const cache=new Map<string,PDFDocumentProxy>()
 async function loadPdf(key:string,bytes:ArrayBuffer){

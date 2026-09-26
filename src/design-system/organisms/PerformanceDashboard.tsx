@@ -25,8 +25,27 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
   const questionAccuracy=questionStats.map(question=>({question:`${question.subject==='math'?'Math':'R&W'} Q${question.questionNumber}`,success:question.successRate}))
   const questionTime=questionStats.map(question=>({question:`${question.subject==='math'?'Math':'R&W'} Q${question.questionNumber}`,seconds:Math.round(question.averageMs/1000)}))
   const sessionAccuracy=[{id:'Accuracy',data:summary.sessionMetrics.map((session,index)=>({x:`S${index+1}`,y:session.accuracy}))}]
-  const scoreTrend=[{id:'Practice score estimate',data:summary.scoreTrend.map((point,index)=>({x:`S${index+1}`,y:point.score}))}]
+  const calibratingScoreTrend=summary.scoreTrend
+    .filter(point=>point.sessionNumber<=10)
+    .map(point=>({x:`S${point.sessionNumber}`,y:point.score}))
+  const calibratedScoreTrend=summary.scoreTrend
+    .filter(point=>point.sessionNumber>=10)
+    .map(point=>({x:`S${point.sessionNumber}`,y:point.score}))
+  const scoreTrend=[
+    {id:'Calibrating',data:calibratingScoreTrend},
+    {id:'10-session prediction',data:calibratedScoreTrend},
+  ].filter(series=>series.data.length)
   const latestDelta=summary.scoreTrend.length?summary.scoreTrend[summary.scoreTrend.length-1].delta:0
+  const scoreBasis=summary.scorePredictionBasis
+  const scoreBasisText=scoreBasis
+    ?`Based on ${scoreBasis.sessionCount} recent completed session${scoreBasis.sessionCount===1?'':'s'} · ${scoreBasis.questionCount} unique questions · ${scoreBasis.averageQuestionSuccessRate}% average question success. ${scoreBasis.sections.map(section=>`${section.label}: ${section.successRate}% across ${section.questions} question${section.questions===1?'':'s'}`).join(' · ')}.`
+    :''
+  const isScoreCalibrating=Boolean(scoreBasis&&scoreBasis.sessionCount<10)
+  const scoreCalibrationText=scoreBasis
+    ?isScoreCalibrating
+      ?`Calibrating · ${scoreBasis.sessionCount}/10 completed sessions`
+      :'Calibrated · rolling 10-session question pool'
+    :''
 
   if(compact)return <AlexBox sx={{display:'grid',gap:1.35,minWidth:0}}>
     <AlexBox sx={{
@@ -37,8 +56,9 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
       <MetricCard compact tone="blue" icon={<Target/>} label="Accuracy" value={hasHistory?`${summary.accuracy}%`:'—'}/>
       <MetricCard compact tone="cream" icon={<Clock3/>} label="Avg. time" value={hasHistory?formatMs(summary.averageMs):'—'}/>
       <MetricCard compact tone="green" icon={<BarChart3/>} label="Questions seen" value={`${summary.questionsSeen}/${summary.totalQuestions}`}/>
-      <MetricCard compact tone="peach" icon={<TrendingUp/>} label="Score estimate" value={summary.latestScoreEstimate?String(summary.latestScoreEstimate):'—'}/>
+      <MetricCard compact tone="peach" icon={<TrendingUp/>} label="Score prediction" value={summary.latestScoreEstimate?String(summary.latestScoreEstimate):'—'}/>
     </AlexBox>
+    {scoreBasis&&summary.latestScoreEstimate&&<AlexText sx={{fontSize:11.5,lineHeight:1.45,color:'#667085',px:.35}}><b>{scoreCalibrationText}.</b> {scoreBasisText}</AlexText>}
     {hasHistory&&summary.recommendation&&<AlexSurface sx={{p:1.8,border:'1px solid #D8D2FF',borderRadius:3,bgcolor:'#F7F5FF'}}>
       <AlexText sx={{fontSize:10,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:'#6558F5'}}>Recommended focus</AlexText>
       <AlexText component="h2" sx={{fontSize:19,fontWeight:800,color:'#08275B',mt:.45}}>{summary.recommendation.label}</AlexText>
@@ -51,7 +71,7 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
       <AlexBox>
         <AlexText sx={{fontSize:12,textTransform:'uppercase',letterSpacing:'.12em',fontWeight:800,color:'#6558F5'}}>Performance</AlexText>
         <AlexText component="h1" sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:32,md:46},lineHeight:1.08,my:1,color:'#08275B'}}>Your practice trends</AlexText>
-        <AlexText sx={{color:'#667085',maxWidth:720}}>Track success rate, response time, repeat attempts, session progress, and a practice-only score estimate from your own history.</AlexText>
+        <AlexText sx={{color:'#667085',maxWidth:720}}>Track success rate, response time, repeat attempts, session progress, and a practice-only score prediction based on recent per-question success rates.</AlexText>
       </AlexBox>
     </AlexBox>}
 
@@ -137,22 +157,23 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
             ariaLabel="Accuracy trend by practice session"
           />
         </PerformanceChartCard>
-        <PerformanceChartCard title="Practice score estimate" description={summary.latestScoreEstimate?`Latest estimate ${summary.latestScoreEstimate}${latestDelta===0?'':` · ${latestDelta>0?'+':''}${latestDelta} since the prior scored session`}. This is a practice trend, not an official College Board score.`:'Complete at least 3 attempts in both sections to begin a practice score trend.'}>
-          {scoreTrend[0].data.length?<AlexLineChart
+        <PerformanceChartCard title="Practice score prediction" description={summary.latestScoreEstimate?`${scoreCalibrationText}. Latest prediction ${summary.latestScoreEstimate}${latestDelta===0?'':` · ${latestDelta>0?'+':''}${latestDelta} since the prior scored session`}. ${scoreBasisText} Sessions 1–9 are provisional; session 10 starts the full rolling 10-session question-pool prediction. Each unique question is weighted equally by its success rate within that window. This is a practice trend, not an official College Board score.`:'Answer at least 3 unique questions in both sections within your recent completed sessions to begin a score prediction.'}>
+          {scoreTrend.length&&scoreTrend.some(series=>series.data.length)?<AlexLineChart
             data={scoreTrend}
             margin={{top:20,right:25,bottom:52,left:58}}
             xScale={{type:'point'}}
             yScale={{type:'linear',min:400,max:1600,stacked:false,reverse:false}}
-            curve="monotoneX"
-            colors={['#F79009']}
+            curve="linear"
+            colors={['#F79009','#F79009']}
             lineWidth={3}
             pointSize={8}
             pointBorderWidth={2}
             useMesh
+            layers={['grid','markers','axes','areas',PredictionPhaseLines,'points','slices','mesh','legends']}
             axisBottom={{legend:'Session',legendPosition:'middle',legendOffset:40}}
-            axisLeft={{legend:'Estimated score',legendPosition:'middle',legendOffset:-48}}
+            axisLeft={{legend:'Predicted score',legendPosition:'middle',legendOffset:-48}}
             theme={chartTheme}
-            ariaLabel="Practice SAT score estimate trend"
+            ariaLabel="Practice SAT score prediction trend"
           />:<EmptyChart message="Not enough cross-section history yet."/>}
         </PerformanceChartCard>
       </AlexBox>
@@ -202,6 +223,28 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
       <AlexBox sx={{mt:2}}><QuestionStatsTable questions={summary.questions} questionsPdf={questionsPdf} answersPdf={answersPdf}/></AlexBox>
     </>}
   </AlexBox>
+}
+
+function PredictionPhaseLines({series}:{series:readonly any[]}){
+  return <g aria-hidden="true">
+    {series.map(serie=>{
+      const points=serie.data
+        .map((point:any)=>point.position)
+        .filter((point:any)=>Number.isFinite(point?.x)&&Number.isFinite(point?.y))
+      if(points.length<2)return null
+      const d=points.map((point:any,index:number)=>`${index===0?'M':'L'}${point.x},${point.y}`).join(' ')
+      return <path
+        key={String(serie.id)}
+        d={d}
+        fill="none"
+        stroke={serie.color}
+        strokeWidth={3}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeDasharray={String(serie.id)==='Calibrating'?'3 7':undefined}
+      />
+    })}
+  </g>
 }
 
 function EmptyChart({message}:{message:string}){

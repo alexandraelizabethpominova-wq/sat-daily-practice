@@ -1,4 +1,6 @@
 import {GlobalWorkerOptions,getDocument,type PDFDocumentProxy} from 'pdfjs-dist'
+
+GlobalWorkerOptions.workerSrc=new URL('pdfjs-dist/build/pdf.worker.min.mjs',import.meta.url).toString()
 import {QUESTION_BANK} from './questionBank'
 import {questionCropForParts} from './questionCrops'
 import {getQuestionContent,isCurrentQuestionContent,QUESTION_CONTENT_VERSION,saveQuestionContent,type StoredQuestionContent} from './questionContentStore'
@@ -9,7 +11,6 @@ import {isPracticeTest5Math1Verified,normalizePracticeTest5Math1Lines,PRACTICE_T
 import {verifiedPracticeTest5Math1Content} from './verifiedPracticeTest5Math1'
 import type {PracticeQuestion} from '../types'
 
-GlobalWorkerOptions.workerSrc=new URL('pdfjs-dist/build/pdf.worker.min.mjs',import.meta.url).toString()
 
 const pdfCache=new Map<string,PDFDocumentProxy>()
 
@@ -137,7 +138,7 @@ export function questionExtractionCrop(question:PracticeQuestion){
 }
 
 export async function extractQuestionLines(question:PracticeQuestion,questionPdf:ArrayBuffer){
-  const doc=await loadPdf('questions',questionPdf)
+  const doc=await loadPdf(`${question.practiceTestId}:questions`,questionPdf)
   const {items}=await pageItems(doc,question.sourcePage)
   const crop=questionExtractionCrop(question)
   if(!crop)return[]
@@ -152,7 +153,7 @@ export async function extractQuestionLines(question:PracticeQuestion,questionPdf
 }
 
 export async function extractExplanationLines(question:PracticeQuestion,answerPdf:ArrayBuffer){
-  const doc=await loadPdf('answers',answerPdf)
+  const doc=await loadPdf(`${question.practiceTestId}:answers`,answerPdf)
   const {items,viewport}=await pageItems(doc,question.answerPage)
   const markers=items
     .filter(item=>/^QUESTION\s+\d+$/i.test(item.text))
