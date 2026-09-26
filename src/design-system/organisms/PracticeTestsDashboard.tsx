@@ -12,20 +12,41 @@ type TestSummary={
   practicedCount:number
 }
 
+type ActiveSessionSummary={
+  questionCount:number
+  answeredCount:number
+  lastActivityAt:string
+}
+
 type Props={
   tests:TestSummary[]
   sessionSummary:string
+  activeSession?:ActiveSessionSummary|null
   onStartTest:(value:PracticeTestFilter)=>void
   onOpenSetup:()=>void
+  onResumeSession?:()=>void
+  onEndSession?:()=>void
 }
 
-export default function PracticeTestsDashboard({tests,sessionSummary,onStartTest,onOpenSetup}:Props){
+export default function PracticeTestsDashboard({tests,sessionSummary,activeSession,onStartTest,onOpenSetup,onResumeSession,onEndSession}:Props){
   return <AlexBox component="section" sx={{width:'100%',px:{xs:.5,sm:1.5,md:2.5,lg:4},py:{xs:2,sm:2.75,lg:4}}}>
     <AlexBox sx={{maxWidth:960,mx:'auto'}}>
       <AlexText component="h1" sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:28,sm:32,lg:36},fontWeight:500,lineHeight:1.12,m:0,color:'#08275B'}}>Practice tests</AlexText>
       <AlexText sx={{fontSize:15,color:'#667085',mt:1}}>Pick a question source and start with your current session setup.</AlexText>
 
-      <AlexSurface sx={{mt:3,p:2,border:'1px solid #E4E7EC',borderRadius:2.5,bgcolor:'#F8FAFC',display:'flex',alignItems:{xs:'flex-start',sm:'center'},justifyContent:'space-between',gap:2,flexDirection:{xs:'column',sm:'row'}}}>
+      {activeSession&&<AlexSurface sx={{mt:3,p:2,border:'1px solid #C7D7FE',borderRadius:2.5,bgcolor:'#F5F8FF',display:'flex',alignItems:{xs:'flex-start',sm:'center'},justifyContent:'space-between',gap:2,flexDirection:{xs:'column',sm:'row'}}}>
+        <AlexBox>
+          <AlexText sx={{fontSize:12,fontWeight:850,textTransform:'uppercase',letterSpacing:'.06em',color:'#3448A3'}}>Session in progress</AlexText>
+          <AlexText sx={{mt:.35,fontSize:15,fontWeight:800,color:'#08275B'}}>{activeSession.answeredCount} of {activeSession.questionCount} answered</AlexText>
+          <AlexText sx={{mt:.25,fontSize:12.5,color:'#667085'}}>Last activity {new Date(activeSession.lastActivityAt).toLocaleString()} · Resume on this device without losing your place.</AlexText>
+        </AlexBox>
+        <AlexBox sx={{display:'flex',gap:1,width:{xs:'100%',sm:'auto'},flexDirection:{xs:'column',sm:'row'}}}>
+          <AlexButton fullWidth onClick={onResumeSession} sx={{width:{xs:'100%',sm:'auto'}}}>Resume session</AlexButton>
+          <AlexButton fullWidth tone="secondary" onClick={onEndSession} sx={{width:{xs:'100%',sm:'auto'}}}>End session</AlexButton>
+        </AlexBox>
+      </AlexSurface>}
+
+      <AlexSurface sx={{mt:activeSession?2:3,p:2,border:'1px solid #E4E7EC',borderRadius:2.5,bgcolor:'#F8FAFC',display:'flex',alignItems:{xs:'flex-start',sm:'center'},justifyContent:'space-between',gap:2,flexDirection:{xs:'column',sm:'row'}}}>
         <AlexBox>
           <AlexText sx={{fontSize:12,fontWeight:800,textTransform:'uppercase',letterSpacing:'.06em',color:'#667085'}}>Current setup</AlexText>
           <AlexText sx={{mt:.35,fontSize:14.5,fontWeight:700,color:'#08275B'}}>{sessionSummary}</AlexText>
