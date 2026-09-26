@@ -79,7 +79,7 @@ export default function PracticeSetupPanel({settings,practiceTests,missedQuestio
     <PracticeSettingField
       label="Failed questions"
       helperText={failedQuestionCount
-        ?`${failedQuestionCount} failed question${failedQuestionCount===1?'':'s'} match the current filters. A failed question is one you answered incorrectly at least once, even if you later answered it correctly.`
+        ?`${failedQuestionCount} failed question${failedQuestionCount===1?'':'s'} match the current filters. A failed question stays here until you answer it correctly twice after the most recent incorrect answer.`
         :'No failed questions match the current filters.'}
       control={<AlexSwitch
         label="Failed questions only"
