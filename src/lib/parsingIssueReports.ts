@@ -51,15 +51,6 @@ export async function loadParsingIssueReports():Promise<ParsingIssueReport[]>{
   return (data??[]).map(row=>rowToReport(row,user.id))
 }
 
-export async function hasOpenParsingIssue(questionId:string){
-  const {count,error}=await supabase.from('sat_parsing_issue_reports')
-    .select('id',{count:'exact',head:true})
-    .eq('question_id',questionId)
-    .eq('status','open')
-  if(error)throw error
-  return (count??0)>0
-}
-
 export async function createParsingIssueReport(question:PracticeQuestion,context:ParsingIssueContext,message=''){
   const user=await currentOwner()
   if(!user)throw new Error('Sign in before reporting a parsing issue so the shared queue stays consistent across devices.')
