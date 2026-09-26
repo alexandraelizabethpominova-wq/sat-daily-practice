@@ -246,17 +246,18 @@ function buildRecommendation(sections:SectionPerformance[]):PracticeRecommendati
 }
 
 export function buildPerformanceAnalytics(attempts:Attempt[],sessions:SessionSummary[],totalQuestions:number):PerformanceAnalytics{
-  const correct=attempts.filter(attempt=>attempt.correct).length
-  const sections=buildSections(attempts)
-  const {sessionMetrics,scoreTrend,latestScoreEstimate,latestScorePredictionBasis}=buildSessions(attempts,sessions)
+  const validAttempts=attempts.filter(attempt=>!attempt.invalidatedAt)
+  const correct=validAttempts.filter(attempt=>attempt.correct).length
+  const sections=buildSections(validAttempts)
+  const {sessionMetrics,scoreTrend,latestScoreEstimate,latestScorePredictionBasis}=buildSessions(validAttempts,sessions)
   return {
-    accuracy:percent(correct,attempts.length),
-    averageMs:average(attempts.map(attempt=>attempt.elapsedMs)),
+    accuracy:percent(correct,validAttempts.length),
+    averageMs:average(validAttempts.map(attempt=>attempt.elapsedMs)),
     sessions:sessions.length,
-    questionsSeen:new Set(attempts.map(attempt=>attempt.questionId)).size,
+    questionsSeen:new Set(validAttempts.map(attempt=>attempt.questionId)).size,
     totalQuestions,
     sections,
-    questions:buildQuestions(attempts),
+    questions:buildQuestions(validAttempts),
     sessionMetrics,
     scoreTrend,
     latestScoreEstimate,
