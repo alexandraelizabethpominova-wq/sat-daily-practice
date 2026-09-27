@@ -474,9 +474,7 @@ export default function App(){
         estimateConfidence={performance.scoreEstimateConfidence}
         targetScore={practiceRecommendation.targetScore}
         daysRemaining={practiceRecommendation.daysRemaining}
-        dailyMinutes={practiceRecommendation.estimatedDailyMinutes}
         questionsPerSession={settings.questionsPerSession}
-        focusLabel={practiceRecommendation.focusLabel}
         onChoosePracticeTest={()=>navigateTo('home')}
         onStartPractice={()=>void beginPractice(settings.mode)}
       />
