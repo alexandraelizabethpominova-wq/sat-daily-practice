@@ -59,7 +59,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
       bgcolor:'#fff',
       minWidth:0,
       height:'100%',
-      minHeight:{xs:340,md:360,lg:370},
+      minHeight:{xs:340,md:0},
       display:'flex',
       flexDirection:'column',
     }}
