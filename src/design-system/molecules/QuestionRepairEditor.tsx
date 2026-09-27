@@ -27,6 +27,9 @@ type Props={
 }
 
 const toLines=(value:string)=>value.split(/\r?\n/).map(line=>line.trim()).filter(Boolean)
+const normalizeMathEditorLine=(line:string)=>line
+  .replace(/\$\$([^$]+)\$\$/g,'$$1$')
+  .replace(/\$([A-Za-z])\$/g,'$1')
 type TextOrigin='shared'|'verified'|'browser'|'source'|'empty'
 
 export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Props){
@@ -124,7 +127,7 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
   }
 
   async function save(){
-    const questionLines=stripEmbeddedReadingTableLines(question.id,toLines(questionText))
+    const questionLines=stripEmbeddedReadingTableLines(question.id,toLines(questionText).map(normalizeMathEditorLine))
     if(!questionLines.length){setError('Question text cannot be empty.');return}
     setSaving(true);setError('');setMessage('')
     try{
@@ -153,7 +156,7 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
             <AlexText sx={{fontSize:12.5,fontWeight:800,color:'#1849A9'}}>{textOrigin==='shared'?'Shared parsed text':'Not stored as shared parsed text yet'}</AlexText>
             <AlexText sx={{fontSize:12,color:'#475467',mt:.2}}>{textOrigin==='shared'?'This question has a saved shared repair. You can still re-extract from the original source while the parsing issue is open.':textOrigin==='source'?'Freshly extracted from the source PDF.':textOrigin==='verified'?'Loaded from bundled verified text.':textOrigin==='browser'?'Loaded from this browser’s extracted cache.':'No parsed text is available yet.'} {textOrigin!=='shared'&&'Saving a repair will persist the edited text to the shared Question Bank.'}</AlexText>
           </AlexBox>
-          {resolvedQuestionsPdf&&<AlexButton size="small" tone="secondary" disabled={extracting} onClick={reloadFromSource}>{extracting?'Extracting…':'Re-extract from source'}</AlexButton>}
+          <AlexButton size="small" tone="secondary" disabled={extracting||!resolvedQuestionsPdf} onClick={reloadFromSource}>{extracting?'Extracting…':'Re-extract from source'}</AlexButton>
         </AlexBox>
       </AlexSurface>
       <AlexBox sx={{display:'flex',alignItems:{xs:'flex-start',sm:'center'},justifyContent:'space-between',gap:1,flexWrap:'wrap'}}>
