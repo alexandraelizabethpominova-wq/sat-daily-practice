@@ -1,5 +1,5 @@
 import {useEffect,useState,type ReactNode} from 'react'
-import {CalendarDays,Clock3,ListChecks,Target} from 'lucide-react'
+import {CalendarDays,Clock3,ListChecks,PenLine,Target} from 'lucide-react'
 import AlexBox from './design-system/atoms/AlexBox'
 import AlexButton from './design-system/atoms/AlexButton'
 import AlexStatusChip from './design-system/atoms/AlexStatusChip'
@@ -552,14 +552,21 @@ export default function App(){
         }}>
           <AlexBox sx={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:1.5}}>
             <AlexBox sx={{fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>Your practice plan</AlexBox>
-            <AlexButton tone="quiet" onClick={()=>navigateTo('settings')} sx={{fontSize:12,fontWeight:800,py:.25}}>Edit plan</AlexButton>
+            <AlexButton
+              tone="quiet"
+              aria-label="Edit practice plan"
+              onClick={()=>navigateTo('settings')}
+              sx={{minWidth:32,width:32,height:32,p:0,display:'grid',placeItems:'center'}}
+            >
+              <PenLine size={17}/>
+            </AlexButton>
           </AlexBox>
           <AlexBox sx={{
             display:'grid',
             gridTemplateColumns:{xs:'1fr',sm:'repeat(2,minmax(0,1fr))'},
-            columnGap:1.25,
+            columnGap:0,
             rowGap:0,
-            mt:-.35,
+            mt:-.5,
           }}>
             {[
               {label:'Daily time',value:`${practiceRecommendation.estimatedDailyMinutes} min`,icon:<Clock3 size={15}/>},
@@ -574,6 +581,9 @@ export default function App(){
                 alignItems:'center',
                 columnGap:1,
                 py:.58,
+                pl:index%2===1?1.5:0,
+                pr:index%2===0?1.5:0,
+                borderLeft:index%2===1?'1px solid #EEF1F4':'none',
                 borderTop:index<2?'none':'1px solid #EEF1F4',
                 minWidth:0,
               }}
