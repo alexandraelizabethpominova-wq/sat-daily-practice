@@ -63,7 +63,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
   const weeklyMinutes=Math.round(attempts.filter(attempt=>new Date(attempt.createdAt)>=weekStart).reduce((total,attempt)=>total+attempt.elapsedMs,0)/60000)
   const daysToWeeklyStreak=Math.max(0,2-practicedDays)
 
-  return <AlexBox sx={{display:'grid',gridTemplateColumns:{xs:'1fr',sm:'1fr 1fr'},gap:1.5,height:'100%',minHeight:0}}>
+  return <AlexBox sx={{display:'grid',gridTemplateColumns:{xs:'1fr',sm:'1fr 1fr'},gap:1.5,minHeight:0,alignItems:'start'}}>
     <AlexSurface component="section" sx={{
       px:2.25,py:1.7,border:'none',borderRadius:'18px',bgcolor:'#fff',
       boxShadow:'none',minWidth:0,overflow:'hidden',
