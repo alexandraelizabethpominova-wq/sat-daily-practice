@@ -533,7 +533,7 @@ export default function App(){
           boxSizing:'border-box',
         }}
       >
-        <AlexBox sx={{flex:'1 1 auto',minHeight:0}}>
+        <AlexBox sx={{flex:{xs:'1 1 auto',md:'0 0 clamp(285px,32dvh,330px)'},height:{md:'clamp(285px,32dvh,330px)'},minHeight:0}}>
           <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
         </AlexBox>
         <AlexBox sx={{
@@ -545,7 +545,8 @@ export default function App(){
           alignItems:'flex-start',
           justifyContent:'space-between',
           gap:1.5,
-          flex:'0 0 auto',
+          flex:{xs:'0 0 auto',md:'1 1 0'},
+          minHeight:0,
         }}>
           <AlexBox>
             <AlexBox sx={{fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>Your practice plan</AlexBox>
