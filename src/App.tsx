@@ -524,7 +524,7 @@ export default function App(){
           border:'1px solid #E4E7EC',
           bgcolor:'#fff',
           display:'flex',
-          alignItems:'center',
+          alignItems:'flex-start',
           justifyContent:'space-between',
           gap:1.5,
           flex:'0 0 auto',
