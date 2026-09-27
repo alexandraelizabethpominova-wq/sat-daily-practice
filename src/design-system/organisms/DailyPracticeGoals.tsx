@@ -1,4 +1,4 @@
-import {Check,Flame,Star} from 'lucide-react'
+import {Check,Flame,Info,PenLine,Star} from 'lucide-react'
 import AlexBox from '../atoms/AlexBox'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
@@ -18,7 +18,6 @@ function localDayKey(value:string|Date){
   const date=value instanceof Date?value:new Date(value)
   return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`
 }
-
 function startOfWeek(today:Date){
   const date=new Date(today.getFullYear(),today.getMonth(),today.getDate())
   const day=date.getDay()
@@ -56,43 +55,65 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
     cursor.setDate(cursor.getDate()-1)
   }
   const goals=[
-    {label:'Practice questions',value:`${Math.min(questionsDone,questionTarget)}/${questionTarget}`,done:questionsDone>=questionTarget},
-    {label:'Practice time',value:`${Math.min(minutesDone,minuteTarget)}/${minuteTarget} min`,done:minutesDone>=minuteTarget},
-    {label:'Review failed questions',value:failedQuestionCount?String(failedQuestionCount):'Clear',done:failedQuestionCount===0},
+    {label:'Practice questions',value:`${Math.min(questionsDone,questionTarget)}/${questionTarget}`},
+    {label:'Practice time',value:`${Math.min(minutesDone,minuteTarget)}/${minuteTarget} min`},
+    {label:'Review failed questions',value:failedQuestionCount?String(failedQuestionCount):'Clear'},
   ]
+  const weeklyQuestions=attempts.filter(attempt=>new Date(attempt.createdAt)>=weekStart).length
+  const weeklyMinutes=Math.round(attempts.filter(attempt=>new Date(attempt.createdAt)>=weekStart).reduce((total,attempt)=>total+attempt.elapsedMs,0)/60000)
+  const daysToWeeklyStreak=Math.max(0,2-practicedDays)
 
-  return <AlexBox sx={{display:'grid',gap:.7,height:'100%',minHeight:0,gridTemplateRows:'1fr 1fr'}}>
-    <AlexSurface component="section" sx={{py:{xs:1,sm:1.1},px:{xs:1.35,sm:1.55},border:'1px solid #E4E7EC',borderRadius:2,bgcolor:'#fff',minWidth:0}}>
-      <AlexText component="h2" sx={{fontSize:13,fontWeight:850,color:'#08275B',mb:.5}}>Today’s goals</AlexText>
-      <AlexBox sx={{display:'grid',gap:.3}}>
-        {goals.map(goal=><AlexBox key={goal.label} sx={{display:'grid',gridTemplateColumns:'24px minmax(0,1fr) auto',alignItems:'center',gap:.65}}>
-          <AlexBox aria-hidden="true" sx={{width:19,height:19,borderRadius:'50%',display:'grid',placeItems:'center',bgcolor:goal.done?'#EAF7EF':'#EEF1F5',color:goal.done?'#027A48':'#B8C0CC'}}>
-            <Star size={11} fill="currentColor" strokeWidth={1.6}/>
+  return <AlexBox sx={{display:'grid',gap:1.5,height:'100%',minHeight:0,gridTemplateRows:'1fr 1fr'}}>
+    <AlexSurface component="section" sx={{
+      px:2.25,py:1.7,border:'none',borderRadius:'18px',bgcolor:'#fff',
+      boxShadow:'none',minWidth:0,overflow:'hidden',
+      fontFamily:'Arial, Helvetica, sans-serif',
+    }}>
+      <AlexText component="h2" sx={{fontFamily:'inherit',fontSize:16,fontWeight:700,lineHeight:1.25,color:'#111',mb:1.45}}>Today&apos;s goals</AlexText>
+      <AlexBox sx={{display:'grid',gap:1.05}}>
+        {goals.map(goal=><AlexBox key={goal.label} sx={{display:'grid',gridTemplateColumns:'30px minmax(0,1fr)',alignItems:'center',columnGap:1.15}}>
+          <AlexBox aria-hidden="true" sx={{width:30,height:30,borderRadius:'50%',display:'grid',placeItems:'center',bgcolor:'#EEF2F7',color:'#C7D1DF'}}>
+            <Star size={17} fill="currentColor" strokeWidth={1.4}/>
           </AlexBox>
-          <AlexText sx={{fontSize:10.5,fontWeight:650,color:'#344054',textDecoration:'underline',textUnderlineOffset:'2px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{goal.label}</AlexText>
-          <AlexText sx={{fontSize:10,fontWeight:800,color:goal.done?'#027A48':'#475467',whiteSpace:'nowrap'}}>{goal.value}</AlexText>
+          <AlexText sx={{fontFamily:'inherit',fontSize:15.5,fontWeight:400,lineHeight:1.3,color:'#111',whiteSpace:'nowrap'}}>
+            <AlexBox component="span" sx={{textDecoration:'underline',textUnderlineOffset:'2px'}}>{goal.label}</AlexBox>
+            <AlexBox component="span" sx={{textDecoration:'none'}}> · {goal.value}</AlexBox>
+          </AlexText>
         </AlexBox>)}
       </AlexBox>
     </AlexSurface>
 
-    <AlexSurface component="section" sx={{py:{xs:1,sm:1.1},px:{xs:1.35,sm:1.55},border:'1px solid #E4E7EC',borderRadius:2,bgcolor:'#fff',minWidth:0}}>
-      <AlexBox sx={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:.7,mb:.35}}>
-        <AlexBox sx={{display:'flex',alignItems:'center',gap:.5,minWidth:0}}>
-          <Flame size={14} color="#6558F5"/>
-          <AlexText component="h2" sx={{fontSize:12.5,fontWeight:850,color:'#08275B',whiteSpace:'nowrap'}}>{streak} day streak</AlexText>
-        </AlexBox>
-        <AlexText sx={{fontSize:9.5,fontWeight:700,color:'#667085',whiteSpace:'nowrap'}}>{practicedDays} days this week</AlexText>
+    <AlexSurface component="section" sx={{
+      px:2.25,py:1.65,border:'none',borderRadius:'18px',bgcolor:'#fff',
+      boxShadow:'none',minWidth:0,overflow:'hidden',
+      fontFamily:'Arial, Helvetica, sans-serif',
+    }}>
+      <AlexBox sx={{display:'flex',alignItems:'center',gap:.75,mb:1.05}}>
+        <Flame size={17} color="#475467"/>
+        <AlexText component="h2" sx={{fontFamily:'inherit',fontSize:15.5,fontWeight:700,lineHeight:1.2,color:'#475467'}}>{streak} week streak</AlexText>
+        <Info size={15} fill="#475467" color="#fff"/>
       </AlexBox>
-      <AlexBox sx={{display:'grid',gridTemplateColumns:'repeat(7,30px)',gap:.7,justifyContent:'start'}}>
-        {weekDays.map(day=><AlexBox key={day.key} sx={{minWidth:0}}>
-          <AlexBox sx={{
-            width:30,height:30,borderRadius:1,
-            border:'1px solid',borderColor:day.practiced?'#BBA8FF':day.isToday?'#6558F5':'#CBD3DF',
-            bgcolor:day.practiced?'#F3EFFF':'#fff',color:day.practiced?'#6558F5':'#667085',
-            display:'grid',placeItems:'center',
-          }}>{day.practiced?<Check size={14} strokeWidth={2.3}/>:<AlexText sx={{fontSize:10,fontWeight:day.isToday?850:700,color:day.isToday?'#08275B':'inherit'}}>{day.label}</AlexText>}</AlexBox>
+      <AlexBox sx={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:1,mb:1.45}}>
+        <AlexText sx={{fontFamily:'inherit',fontSize:15,lineHeight:1.25,fontWeight:400,color:'#111'}}>
+          {daysToWeeklyStreak>0?`${daysToWeeklyStreak} days left to start your weekly streak!`:'Your weekly streak is underway!'}
+        </AlexText>
+        <PenLine size={19} color="#111"/>
+      </AlexBox>
+      <AlexBox sx={{display:'flex',gap:1,alignItems:'center',mb:1.05}}>
+        {weekDays.map(day=><AlexBox key={day.key} sx={{
+          width:40,height:40,flex:'0 0 40px',borderRadius:'5px',
+          border:'1.5px solid',borderColor:day.practiced?'#B38CFF':day.isToday?'#111':'#C8D1DE',
+          bgcolor:day.practiced?'#F7F2FF':'#fff',
+          color:day.practiced?'#6F35E8':day.isToday?'#111':'#475467',
+          display:'grid',placeItems:'center',
+          fontFamily:'Arial, Helvetica, sans-serif',
+        }}>
+          {day.practiced?<Check size={20} strokeWidth={2.2}/>:<AlexText sx={{fontFamily:'inherit',fontSize:14.5,fontWeight:day.isToday?700:400,color:'inherit'}}>{day.label}</AlexText>}
         </AlexBox>)}
       </AlexBox>
+      <AlexText sx={{fontFamily:'inherit',fontSize:14.5,fontWeight:400,lineHeight:1.25,color:'#667085'}}>
+        {weeklyQuestions} items completed · {weeklyMinutes} minutes learned
+      </AlexText>
     </AlexSurface>
   </AlexBox>
 }
