@@ -36,10 +36,11 @@ export const PRACTICE_TEST_5_MATH1_VISUALS:Record<number,QuestionVisualSpec>={
   3:{afterLine:-1,crop:{x:.01,y:.01,width:.90,height:.50},exact:true},
   6:{afterLine:-1,crop:{x:.06,y:.01,width:.90,height:.76},exact:true},
   8:{afterLine:-1,crop:{x:.05,y:.01,width:.88,height:.56},exact:true},
+  16:{afterLine:0,crop:{x:.02,y:.01,width:.96,height:.98},exact:true,kind:'choice-grid'},
   20:{afterLine:-1,crop:{x:.10,y:.02,width:.84,height:.69},exact:true},
 }
 
-export const PRACTICE_TEST_5_MATH1_IMAGE_FALLBACK=new Set([16])
+export const PRACTICE_TEST_5_MATH1_IMAGE_FALLBACK=new Set<number>()
 
 function stripHeaderArtifacts(lines:string[],questionNumber:number){
   const header=new RegExp(`^(?:[-–—~]+\\s*)?${questionNumber}(?:\\s*[-–—~]+)?$`)
