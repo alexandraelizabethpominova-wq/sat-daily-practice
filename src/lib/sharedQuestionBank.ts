@@ -141,7 +141,7 @@ export async function saveSharedQuestionRepair(input:{
   if(data.id!==input.questionId||data.question_mode!=='text'||!questionLinesEqual(data.question_lines,input.questionLines)){
     throw new Error('Supabase did not persist the exact edited question text in text mode. Reload the question before trying again.')
   }
-  const savedVisuals=parseVisualSpecs(data.visual_specs,null)
+  const savedVisuals=parseVisualSpecs(data.visual_specs,-1)
   const visualsMatch=savedVisuals.length===visuals.length&&savedVisuals.every((saved,index)=>{
     const expected=visuals[index]
     return saved.afterLine===expected.afterLine&&saved.kind===expected.kind
