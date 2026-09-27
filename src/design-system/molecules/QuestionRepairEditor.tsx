@@ -246,23 +246,6 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
     </AlexBox>}
   </AlexSurface>
 }
-    requestAnimationFrame(()=>{input.focus();input.setSelectionRange(start,start+replacement.length)})
-  }
-
-  async function save(){
-    const questionLines=stripEmbeddedReadingTableLines(question.id,toLines(questionText).map(normalizeMathEditorLine))
-    if(!questionLines.length){setError('Question text cannot be empty.');return}
-    setSaving(true);setError('');setMessage('')
-    try{
-      await saveSharedQuestionRepair({questionId:question.id,questionLines,visualSpecs})
-      setTextOrigin('shared')
-      setMessage('Fix saved to the shared Question Bank.')
-      onSaved?.()
-    }catch(reason){
-      setError(reason instanceof Error?reason.message:'Unable to save the shared question repair.')
-    }finally{setSaving(false)}
-  }
-
   return <AlexSurface sx={{p:{xs:2,md:2.5},border:'1px solid #D8D2FF',borderRadius:3,bgcolor:'#FCFBFF'}}>
     <AlexText component="h2" sx={{fontSize:19,fontWeight:850,color:'#08275B'}}>Fix parsed question</AlexText>
     <AlexText sx={{fontSize:13,color:'#667085',mt:.4,mb:1.75}}>Edit only the reconstructed question text and source visual. The explanation always stays in its original PDF format.</AlexText>
