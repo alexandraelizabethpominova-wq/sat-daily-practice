@@ -463,30 +463,34 @@ export default function App(){
     </section>
   </main>)
 
-  if(view==='study')return withSidebar('dashboard',<main className="shell">
-    <StudyPlanHero
-      accuracy={attempts.length?performance.accuracy:null}
-      estimatedScore={performance.latestScoreEstimate}
-      nationalMeritChance={nationalMeritOutlook?.qualifyingChance??null}
-      projectedSelectionIndex={nationalMeritOutlook?.projectedSelectionIndex??null}
-      estimateConfidence={performance.scoreEstimateConfidence}
-      targetScore={practiceRecommendation.targetScore}
-      daysRemaining={practiceRecommendation.daysRemaining}
-      dailyMinutes={practiceRecommendation.estimatedDailyMinutes}
-      questionsPerSession={settings.questionsPerSession}
-      focusLabel={practiceRecommendation.focusLabel}
-      onChoosePracticeTest={()=>navigateTo('home')}
-      onStartPractice={()=>void beginPractice(settings.mode)}
-    />
+  if(view==='study')return withSidebar('dashboard',<main className="shell dashboard-shell">
+    <AlexBox className="dashboard-top" sx={{flex:'0 0 auto',minHeight:0}}>
+      <StudyPlanHero
+        accuracy={attempts.length?performance.accuracy:null}
+        estimatedScore={performance.latestScoreEstimate}
+        nationalMeritChance={nationalMeritOutlook?.qualifyingChance??null}
+        projectedSelectionIndex={nationalMeritOutlook?.projectedSelectionIndex??null}
+        estimateConfidence={performance.scoreEstimateConfidence}
+        targetScore={practiceRecommendation.targetScore}
+        daysRemaining={practiceRecommendation.daysRemaining}
+        dailyMinutes={practiceRecommendation.estimatedDailyMinutes}
+        questionsPerSession={settings.questionsPerSession}
+        focusLabel={practiceRecommendation.focusLabel}
+        onChoosePracticeTest={()=>navigateTo('home')}
+        onStartPractice={()=>void beginPractice(settings.mode)}
+      />
+    </AlexBox>
 
     <AlexBox
+      className="dashboard-bottom"
       sx={{
         display:'flex',
         flexDirection:{xs:'column',md:'row'},
         gap:{xs:2,sm:3,lg:4},
-        mt:{xs:2.25,md:2.75},
         alignItems:'stretch',
         width:'100%',
+        flex:{md:'1 1 0'},
+        minHeight:{md:0},
       }}
     >
       <AlexBox sx={{display:'flex',flexDirection:'column',flex:'1.37 1 0',minWidth:0}}>
