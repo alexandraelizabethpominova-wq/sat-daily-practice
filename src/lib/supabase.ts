@@ -181,6 +181,7 @@ function sessionRow(s:SessionSummary,userId:string){
     ended_at:s.endedAt,
     mode:s.mode,
     question_count:s.questionCount,
+    session_settings:s.dailyQuestionGoal?{dailyQuestionGoal:s.dailyQuestionGoal}:null,
     status:'completed',
     last_activity_at:s.endedAt,
     updated_at:new Date().toISOString(),
@@ -327,7 +328,7 @@ export async function loadCloudHistory():Promise<{attempts:Attempt[];sessions:Se
   if(!userId)return null
 
   let sessionResult=await supabase.from('sat_sessions')
-    .select('id,started_at,ended_at,mode,question_count,status')
+    .select('id,started_at,ended_at,mode,question_count,status,session_settings')
     .eq('user_id',userId)
     .eq('status','completed')
     .not('ended_at','is',null)
@@ -335,7 +336,7 @@ export async function loadCloudHistory():Promise<{attempts:Attempt[];sessions:Se
 
   if(sessionResult.error&&isMissingResumableSessionSchema(sessionResult.error)){
     sessionResult=await supabase.from('sat_sessions')
-      .select('id,started_at,ended_at,mode,question_count')
+      .select('id,started_at,ended_at,mode,question_count,session_settings')
       .eq('user_id',userId)
       .not('ended_at','is',null)
       .order('started_at',{ascending:true}) as typeof sessionResult
@@ -358,6 +359,7 @@ export async function loadCloudHistory():Promise<{attempts:Attempt[];sessions:Se
     mode:row.mode as SessionSummary['mode'],
     questionCount:row.question_count,
     attempts:bySession.get(row.id)??[],
+    dailyQuestionGoal:typeof row.session_settings?.dailyQuestionGoal==='number'?row.session_settings.dailyQuestionGoal:undefined,
   }))
   return {attempts,sessions}
 }
