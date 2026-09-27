@@ -36,7 +36,7 @@ const editorMathPreview=(value:string)=>value
   .replace(/\/sqrt\s+([^\s]+)/g,'\\\\sqrt{$1}')
 
 const normalizeMathEditorLine=(line:string)=>line
-  .replace(/\$\$([^$]+)\$\$/g,'\$1\
+  .replace(/\$\$([^$]+)\$\$/g,(_match,math:string)=>`$${math}$`)
   .replace(/\$([A-Za-z])\$/g,'$1')
 type TextOrigin='shared'|'verified'|'browser'|'source'|'empty'
 
