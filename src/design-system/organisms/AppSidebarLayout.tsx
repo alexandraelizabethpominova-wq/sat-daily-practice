@@ -75,9 +75,12 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onD
     data-testid="app-layout"
     sx={{
       minHeight:'100dvh',
+      height:{md:active==='dashboard'?'100dvh':'auto'},
+      maxHeight:{md:active==='dashboard'?'100dvh':'none'},
       width:'100%',
       maxWidth:'100vw',
       overflowX:'clip',
+      overflowY:{md:active==='dashboard'?'hidden':'visible'},
       bgcolor:contentBackground,
       color:'#08275B',
     }}
@@ -183,6 +186,8 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onD
         width:{xs:'100%',sm:'calc(100% - 72px)',lg:`calc(100% - ${desktopSidebarWidth}px)`},
         ml:{xs:0,sm:'72px',lg:`${desktopSidebarWidth}px`},
         minHeight:'100dvh',
+        height:{md:active==='dashboard'?'100dvh':'auto'},
+        overflowY:{md:active==='dashboard'?'hidden':'visible'},
         px:{xs:1.25,sm:2.25,md:3,lg:3.5},
         pb:{xs:'calc(76px + env(safe-area-inset-bottom))',sm:0},
         boxSizing:'border-box',
@@ -194,6 +199,7 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onD
         width:'100%',
         maxWidth:'100%',
         minWidth:0,
+        height:{md:active==='dashboard'?'100%':'auto'},
         mx:'auto',
         overflowX:'clip',
         '& > *':{width:'100%',maxWidth:'100%',minWidth:0},
