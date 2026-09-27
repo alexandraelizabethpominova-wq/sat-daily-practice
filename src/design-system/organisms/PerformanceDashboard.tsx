@@ -10,7 +10,7 @@ import PerformanceChartCard from '../molecules/PerformanceChartCard'
 import QuestionStatsTable from '../molecules/QuestionStatsTable'
 import type {PerformanceAnalytics} from '../../lib/performanceAnalytics'
 
-type Props={summary:PerformanceAnalytics;hasHistory:boolean;compact?:boolean;questionsPdf?:ArrayBuffer|null;answersPdf?:ArrayBuffer|null}
+type Props={summary:PerformanceAnalytics;hasHistory:boolean;compact?:boolean;compactMetricsOnly?:boolean;questionsPdf?:ArrayBuffer|null;answersPdf?:ArrayBuffer|null}
 
 const chartTheme={
   text:{fontSize:12,fill:'#475467'},
@@ -19,7 +19,7 @@ const chartTheme={
   tooltip:{container:{fontSize:12,borderRadius:8,boxShadow:'0 8px 30px rgba(16,24,40,.14)'}},
 }
 
-export default function PerformanceDashboard({summary,hasHistory,compact=false,questionsPdf=null,answersPdf=null}:Props){
+export default function PerformanceDashboard({summary,hasHistory,compact=false,compactMetricsOnly=false,questionsPdf=null,answersPdf=null}:Props){
   const sectionAccuracy=summary.sections.filter(section=>section.attempts>0).map(section=>({section:section.label,success:section.successRate}))
   const sectionTime=summary.sections.filter(section=>section.attempts>0).map(section=>({section:section.label,seconds:Math.round(section.averageMs/1000)}))
   const questionStats=summary.questions.slice(0,18)
@@ -85,7 +85,7 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
       />
     </AlexBox>
 
-    <AlexSurface sx={{
+    {!compactMetricsOnly&&<AlexSurface sx={{
       p:{xs:1.5,sm:1.7},
       border:'1px solid #D8D2FF',
       borderRadius:3,
@@ -101,7 +101,7 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
       <AlexText sx={{color:'#475467',fontSize:11.5,lineHeight:1.4,mt:.35}}>
         {summary.recommendation?.reason??'Complete a few sessions to identify the best area to focus on next.'}
       </AlexText>
-    </AlexSurface>
+    </AlexSurface>}
   </AlexBox>
 
   return <AlexBox>
