@@ -1,4 +1,5 @@
 import {useEffect,useState,type ReactNode} from 'react'
+import {CalendarDays,Clock3,ListChecks,Target} from 'lucide-react'
 import AlexBox from './design-system/atoms/AlexBox'
 import AlexButton from './design-system/atoms/AlexButton'
 import AlexStatusChip from './design-system/atoms/AlexStatusChip'
@@ -553,19 +554,53 @@ export default function App(){
             <AlexBox sx={{fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>Your practice plan</AlexBox>
             <AlexButton tone="quiet" onClick={()=>navigateTo('settings')} sx={{fontSize:12,fontWeight:800,py:.25}}>Edit plan</AlexButton>
           </AlexBox>
-          <AlexBox sx={{
-            display:'grid',
-            gridTemplateColumns:{xs:'repeat(2,minmax(0,1fr))',sm:'repeat(4,minmax(0,1fr))',xl:'repeat(2,minmax(0,1fr))'},
-            gap:.75,
-          }}>
+          <AlexBox sx={{display:'flex',flexDirection:'column',gap:.15}}>
             {[
-              ['Daily time',`${practiceRecommendation.estimatedDailyMinutes} min`],
-              ['Focus',practiceRecommendation.focusLabel??'Balanced'],
-              ['Session',`${settings.questionsPerSession} questions`],
-              ['Pace',`${practiceRecommendation.recommendedSessionsPerDay}/day`],
-            ].map(([label,value])=><AlexBox key={label} sx={{p:.9,border:'1px solid #E9E7E1',borderRadius:'6px',bgcolor:'#FAFAF8',minWidth:0}}>
-              <AlexBox sx={{fontSize:9,fontWeight:800,textTransform:'uppercase',letterSpacing:'.06em',color:'#7A8495'}}>{label}</AlexBox>
-              <AlexBox sx={{fontSize:12.5,fontWeight:800,color:'#08275B',mt:.2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{value}</AlexBox>
+              {label:'Daily time',value:`${practiceRecommendation.estimatedDailyMinutes} min`,icon:<Clock3 size={15}/>},
+              {label:'Focus',value:practiceRecommendation.focusLabel??'Balanced',icon:<Target size={15}/>},
+              {label:'Session size',value:`${settings.questionsPerSession} questions`,icon:<ListChecks size={15}/>},
+              {label:'Pace',value:`${practiceRecommendation.recommendedSessionsPerDay}/day`,icon:<CalendarDays size={15}/>},
+            ].map((item,index)=><AlexBox
+              key={item.label}
+              sx={{
+                display:'grid',
+                gridTemplateColumns:'28px minmax(0,1fr) auto',
+                alignItems:'center',
+                columnGap:1,
+                py:.72,
+                borderTop:index===0?'none':'1px solid #EEF1F4',
+                minWidth:0,
+              }}
+            >
+              <AlexBox sx={{
+                width:28,
+                height:28,
+                borderRadius:'50%',
+                display:'grid',
+                placeItems:'center',
+                bgcolor:'#E8F7EE',
+                color:'#20935A',
+              }}>
+                {item.icon}
+              </AlexBox>
+              <AlexBox sx={{
+                fontSize:12.5,
+                lineHeight:1.25,
+                color:'#344054',
+                minWidth:0,
+              }}>
+                {item.label}
+              </AlexBox>
+              <AlexBox sx={{
+                fontSize:13,
+                lineHeight:1.2,
+                fontWeight:800,
+                color:'#08275B',
+                whiteSpace:'nowrap',
+                pl:1,
+              }}>
+                {item.value}
+              </AlexBox>
             </AlexBox>)}
           </AlexBox>
         </AlexBox>
