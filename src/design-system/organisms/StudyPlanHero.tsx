@@ -13,19 +13,15 @@ type Props={
   estimateConfidence:{label:string;within80:number;sigmaPoints:number}|null
   targetScore:number|null
   daysRemaining:number
-  dailyMinutes:number
   questionsPerSession:number
-  focusLabel:string|null
   onChoosePracticeTest:()=>void
   onStartPractice:()=>void
 }
 
 export default function StudyPlanHero({
-  accuracy,estimatedScore,nationalMeritChance,projectedSelectionIndex,estimateConfidence,targetScore,daysRemaining,dailyMinutes,questionsPerSession,focusLabel,
+  accuracy,estimatedScore,nationalMeritChance,projectedSelectionIndex,estimateConfidence,targetScore,daysRemaining,questionsPerSession,
   onChoosePracticeTest,onStartPractice,
 }:Props){
-  const todayLabel=dailyMinutes>0?`${dailyMinutes} min today`:`${questionsPerSession} questions`
-
   return <AlexSurface
     sx={{
       position:'relative',overflow:'hidden',border:'1px solid #D9E7F8',
@@ -48,16 +44,6 @@ export default function StudyPlanHero({
         <AlexButton fullWidth tone="secondary" onClick={onStartPractice} sx={{width:{xs:'100%',sm:'auto'}}}>Start {questionsPerSession} questions</AlexButton>
       </AlexBox>
 
-      <AlexBox sx={{display:'flex',gap:.8,flexWrap:'wrap',mt:2}}>
-        <AlexBox sx={{display:'flex',alignItems:'center',gap:.75,bgcolor:'rgba(255,255,255,.68)',border:'1px solid rgba(36,95,158,.16)',borderRadius:999,px:1.4,py:.75}}>
-          <Sparkles size={16}/>
-          <AlexText sx={{fontSize:13,fontWeight:800,color:'#214E80'}}>{todayLabel}</AlexText>
-        </AlexBox>
-        {focusLabel&&<AlexBox sx={{display:'flex',alignItems:'center',gap:.75,bgcolor:'rgba(255,255,255,.68)',border:'1px solid rgba(36,95,158,.16)',borderRadius:999,px:1.4,py:.75}}>
-          <Target size={16}/>
-          <AlexText sx={{fontSize:13,fontWeight:800,color:'#214E80'}}>Focus: {focusLabel}</AlexText>
-        </AlexBox>}
-      </AlexBox>
     </AlexBox>
 
     <AlexBox sx={{display:'grid',gap:1.4,position:'relative',zIndex:1}}>
