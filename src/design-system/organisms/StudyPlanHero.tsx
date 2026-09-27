@@ -26,7 +26,7 @@ export default function StudyPlanHero({
     sx={{
       position:'relative',overflow:'hidden',border:'1px solid #D9E7F8',
       bgcolor:'#EAF3FF',boxShadow:'0 10px 30px rgba(9,35,79,.055)',
-      p:{xs:2,sm:2.75,md:3.5,lg:4},display:'grid',gridTemplateColumns:{xs:'1fr',lg:'minmax(0,1.37fr) minmax(320px,.63fr)'},
+      p:{xs:2,sm:2.75,md:3.5,lg:4},display:'grid',gridTemplateColumns:{xs:'1fr',xl:'minmax(0,1.37fr) minmax(320px,.63fr)'},
       gap:{xs:2.25,sm:3,lg:4},alignItems:'center',
     }}
   >
