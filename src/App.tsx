@@ -9,6 +9,7 @@ import AccountAuthPanel from './design-system/organisms/AccountAuthPanel'
 import AppSidebarLayout from './design-system/organisms/AppSidebarLayout'
 import ParsingIssuesDashboard from './design-system/organisms/ParsingIssuesDashboard'
 import PerformanceDashboard from './design-system/organisms/PerformanceDashboard'
+import DailyPracticeGoals from './design-system/organisms/DailyPracticeGoals'
 import PracticeAnswerPanel from './design-system/organisms/PracticeAnswerPanel'
 import PracticeSessionHeader from './design-system/organisms/PracticeSessionHeader'
 import PracticeSetupPanel from './design-system/organisms/PracticeSetupPanel'
@@ -475,6 +476,15 @@ export default function App(){
       questionsPerSession={settings.questionsPerSession}
       focusLabel={practiceRecommendation.focusLabel}
       onChoosePracticeTest={()=>navigateTo('home')}
+      onStartPractice={()=>void beginPractice(settings.mode)}
+    />
+
+    <DailyPracticeGoals
+      attempts={attempts}
+      sessions={sessions}
+      dailyQuestions={practiceRecommendation.questionsPerSession*practiceRecommendation.recommendedSessionsPerDay}
+      dailyMinutes={practiceRecommendation.estimatedDailyMinutes}
+      failedQuestionCount={failedQuestionCount}
       onStartPractice={()=>void beginPractice(settings.mode)}
     />
 
