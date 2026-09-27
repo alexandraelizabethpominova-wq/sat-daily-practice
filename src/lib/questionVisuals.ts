@@ -41,7 +41,13 @@ export const QUESTION_VISUALS:Record<string,QuestionVisualSpec>={
   'math2-24':{afterLine:0,crop:{x:.07,y:.11,width:.86,height:.35}},
 }
 
+// Multi-visual questions keep semantic text as text while preserving non-text artwork.
+// `choice-grid` is the reusable case for answer choices whose meaning is graphical and cannot be reconstructed safely as prose.
 const QUESTION_VISUAL_GROUPS:Record<string,QuestionVisualSpec[]>={
+  'practice-test-5:math1-16':[
+    {afterLine:-1,crop:{x:.08,y:.02,width:.42,height:.34},exact:true,kind:'figure'},
+    {afterLine:0,crop:{x:.03,y:.49,width:.94,height:.50},exact:true,kind:'choice-grid'},
+  ],
   'practice-test-6:math1-2':[
     {afterLine:0,crop:{x:.17,y:.09,width:.34,height:.27},exact:true,kind:'figure'},
     {afterLine:1,crop:{x:.02,y:.40,width:.96,height:.60},exact:true,kind:'choice-grid'},

@@ -102,7 +102,8 @@ export default function QuestionContent({question,bytes,alt,showOriginalLayout=t
         const sharedHasText=Boolean(shared?.questionLines.length)
         const sharedControlsVisual=Boolean(shared&&shared.contentStatus!=='metadata'&&!(verifiedBundled&&!sharedHasText))
         const sharedVisuals=shared?.visualSpecs??[]
-        const resolvedVisuals=sharedVisuals.length?sharedVisuals:(sharedControlsVisual&&!shared?.needsVisual?[]:bundledVisuals)
+        const hasRequiredBundledVisuals=question.id==='practice-test-5:math1-16'
+        const resolvedVisuals=sharedVisuals.length?sharedVisuals:(hasRequiredBundledVisuals?bundledVisuals:(sharedControlsVisual&&!shared?.needsVisual?[]:bundledVisuals))
         setVisuals(resolvedVisuals)
 
         if(sharedHasText&&shared){

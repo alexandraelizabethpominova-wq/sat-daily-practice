@@ -1,8 +1,12 @@
 import {useEffect,useRef,useState} from 'react'
 import AlexBox from '../atoms/AlexBox'
 import AlexButton from '../atoms/AlexButton'
+import AlexInfoTooltipButton from '../atoms/AlexInfoTooltipButton'
+import AlexIconButton from '../atoms/AlexIconButton'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
+import StructuredQuestionLines from './StructuredQuestionLines'
+import ReadingQuestionLines from './ReadingQuestionLines'
 import AlexTextField from '../atoms/AlexTextField'
 import VisualCropEditor from './VisualCropEditor'
 import {ensureQuestionText,extractQuestionLines} from '../../lib/pdfStructuredImport'
@@ -16,6 +20,8 @@ import {verifiedPracticeTest6Reading1Content} from '../../lib/verifiedPracticeTe
 import {verifiedPracticeTest6Reading2Content} from '../../lib/verifiedPracticeTest6Reading2'
 import {verifiedPracticeTest6Math1Content} from '../../lib/verifiedPracticeTest6Math1'
 import {verifiedPracticeTest6Math2Content} from '../../lib/verifiedPracticeTest6Math2'
+import {verifiedPracticeTest7Math1Content} from '../../lib/verifiedPracticeTest7Math1'
+import {verifiedPracticeTest7Math2Content} from '../../lib/verifiedPracticeTest7Math2'
 import {questionVisualSpecs,type QuestionVisualSpec} from '../../lib/questionVisuals'
 import usePracticeTestPdf from '../../hooks/usePracticeTestPdf'
 import type {PracticeQuestion} from '../../types'
@@ -27,9 +33,9 @@ type Props={
 }
 
 const toLines=(value:string)=>value.split(/\r?\n/).map(line=>line.trim()).filter(Boolean)
+
 const normalizeMathEditorLine=(line:string)=>line
-  .replace(/\$\$([^$]+)\$\$/g,'$$1$')
-  .replace(/\$([A-Za-z])\$/g,'$1')
+  .replace(/\$\$([^$]+)\$\$/g,(_match,math:string)=>'$'+math+'$')
 type TextOrigin='shared'|'verified'|'browser'|'source'|'empty'
 
 export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Props){
@@ -37,7 +43,6 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
   const[questionText,setQuestionText]=useState('')
   const[textOrigin,setTextOrigin]=useState<TextOrigin>('empty')
   const questionTextRef=useRef<HTMLInputElement|HTMLTextAreaElement|null>(null)
-  const[visualSpec,setVisualSpec]=useState<QuestionVisualSpec|null>(null)
   const[visualSpecs,setVisualSpecs]=useState<QuestionVisualSpec[]>([])
   const[loading,setLoading]=useState(true)
   const[saving,setSaving]=useState(false)
@@ -60,6 +65,8 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
               :question.module==='math1'
                 ?verifiedPracticeTest6Math1Content(question.number)
                 :verifiedPracticeTest6Math2Content(question.number)
+          :question.practiceTestId==='practice-test-7'&&(question.module==='math1'||question.module==='math2')
+            ?question.module==='math1'?verifiedPracticeTest7Math1Content(question.number):verifiedPracticeTest7Math2Content(question.number)
           :question.practiceTestId==='practice-test-5'&&question.module==='math1'
             ?verifiedPracticeTest5Math1Content(question.number)
             :question.practiceTestId==='practice-test-4'&&question.subject==='math'?verifiedMathContent(question.id):undefined
@@ -83,7 +90,6 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
         setQuestionText(stripEmbeddedReadingTableLines(question.id,questionLines).join('\n'))
         setTextOrigin(origin)
         setVisualSpecs(resolvedVisuals)
-        setVisualSpec(resolvedVisuals[0]?{...resolvedVisuals[0],exact:true}:null)
       }catch(reason){
         if(!cancelled)setError(reason instanceof Error?reason.message:'Unable to prepare this question for editing.')
       }finally{if(!cancelled)setLoading(false)}
@@ -98,8 +104,10 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
     }
     setExtracting(true);setError('');setMessage('')
     try{
-      const lines=await extractQuestionLines(question,resolvedQuestionsPdf)
-      if(!lines.length)throw new Error('No text could be extracted from this question’s verified source crop.')
+      const rawLines=await extractQuestionLines(question,resolvedQuestionsPdf)
+      const verifiedSource=question.practiceTestId==='practice-test-5'&&question.module==='math1'?verifiedPracticeTest5Math1Content(question.number):undefined
+      const lines=verifiedSource?.lines?.length?verifiedSource.lines:rawLines
+      if(!lines.length)throw new Error('No quality-reviewed text could be reconstructed from this question’s source.')
       setQuestionText(stripEmbeddedReadingTableLines(question.id,lines).join('\n'))
       setTextOrigin('source')
       setMessage('Loaded fresh text from the source PDF. Review formatting, then save it to the shared Question Bank.')
@@ -126,14 +134,23 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
     })
   }
 
+  function applyMathSelection(kind:'power'|'sqrt'|'fraction'|'variable'){
+    const input=questionTextRef.current
+    if(!input)return
+    const start=input.selectionStart??0,end=input.selectionEnd??0
+    const selected=questionText.slice(start,end).trim()
+    if(!selected){setError('Select the exponent or radicand in the question text first.');input.focus();return}
+    const replacement=kind==='power'?'^{'+selected+'}':kind==='sqrt'?'\\sqrt{'+selected+'}':kind==='fraction'?'\\frac{'+selected+'}{}':'$'+selected+'$'
+    setError('');setMessage('');setQuestionText(questionText.slice(0,start)+replacement+questionText.slice(end))
+    requestAnimationFrame(()=>{input.focus();input.setSelectionRange(start,start+replacement.length)})
+  }
+
   async function save(){
     const questionLines=stripEmbeddedReadingTableLines(question.id,toLines(questionText).map(normalizeMathEditorLine))
     if(!questionLines.length){setError('Question text cannot be empty.');return}
     setSaving(true);setError('');setMessage('')
     try{
-      const nextVisuals=visualSpec?[visualSpec,...visualSpecs.slice(1)]:visualSpecs.slice(1)
-      await saveSharedQuestionRepair({questionId:question.id,questionLines,visualSpecs:nextVisuals})
-      setVisualSpecs(nextVisuals)
+      await saveSharedQuestionRepair({questionId:question.id,questionLines,visualSpecs})
       setTextOrigin('shared')
       setMessage('Fix saved to the shared Question Bank.')
       onSaved?.()
@@ -162,13 +179,29 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
       <AlexBox sx={{display:'flex',alignItems:{xs:'flex-start',sm:'center'},justifyContent:'space-between',gap:1,flexWrap:'wrap'}}>
         <AlexBox>
           <AlexText sx={{fontSize:13,fontWeight:800,color:'#344054'}}>Text formatting</AlexText>
-          <AlexText sx={{fontSize:12,color:'#667085',mt:.2}}>Select the exact words in the question text, then apply underline. The formatting is saved with the shared repair.</AlexText>
+          
         </AlexBox>
-        <AlexButton size="small" tone="secondary" onClick={underlineSelectedText}>Underline selected text</AlexButton>
+        <AlexBox sx={{display:'flex',gap:.5,alignItems:'center',flexWrap:'wrap'}}>
+          <AlexIconButton label="Power" onClick={()=>applyMathSelection('power')} sx={{border:'1px solid #B2CCFF',borderRadius:1,width:40,height:40}}><span style={{fontFamily:'Georgia, serif',fontSize:17,fontWeight:700}}>x<sup>y</sup></span></AlexIconButton>
+          <AlexIconButton label="Square root" onClick={()=>applyMathSelection('sqrt')} sx={{border:'1px solid #B2CCFF',borderRadius:1,width:40,height:40}}><span style={{fontFamily:'Georgia, serif',fontSize:20}}>√x</span></AlexIconButton>
+          <AlexIconButton label="Fraction" onClick={()=>applyMathSelection('fraction')} sx={{border:'1px solid #B2CCFF',borderRadius:1,width:40,height:40}}><span style={{fontFamily:'Georgia, serif',fontSize:15,lineHeight:1}}>x⁄y</span></AlexIconButton>
+          <AlexIconButton label="Variable" onClick={()=>applyMathSelection('variable')} sx={{border:'1px solid #B2CCFF',borderRadius:1,width:40,height:40}}><span style={{fontFamily:'Georgia, serif',fontSize:18,fontStyle:'italic'}}>x</span></AlexIconButton>
+          <AlexIconButton label="Underline" onClick={underlineSelectedText} sx={{border:'1px solid #B2CCFF',borderRadius:1,width:40,height:40}}><span style={{fontFamily:'Georgia, serif',fontSize:18,textDecoration:'underline'}}>U</span></AlexIconButton>
+          <AlexIconButton label="Table" onClick={()=>{const input=questionTextRef.current;if(!input)return;const start=input.selectionStart??0,end=input.selectionEnd??0;const selected=questionText.slice(start,end);const replacement='[TABLE]\\n'+(selected||'x | y\\n')+'\\n[/TABLE]';setQuestionText(questionText.slice(0,start)+replacement+questionText.slice(end));requestAnimationFrame(()=>input.focus())}} sx={{border:'1px solid #B2CCFF',borderRadius:1,width:40,height:40}}><span style={{fontSize:17}}>▦</span></AlexIconButton>
+        </AlexBox>
       </AlexBox>
       {refersToUnderlinedText(questionText)&&!hasUnderlineMarkup(questionText)&&<AlexSurface sx={{p:1.25,border:'1px solid #FEC84B',borderRadius:2,bgcolor:'#FFFAEB'}}>
         <AlexText sx={{fontSize:12.5,color:'#93370D'}}>This question refers to underlined text, but no underlined span is currently defined. Select the matching source text and apply underline before saving.</AlexText>
       </AlexSurface>}
+      <AlexSurface sx={{p:1.25,border:'1px solid #D0D5DD',borderRadius:2,bgcolor:'#FFFFFF'}}>
+        <AlexText sx={{fontSize:12,fontWeight:800,color:'#475467',mb:.75}}>Live math preview</AlexText>
+        <AlexText sx={{fontSize:11.5,color:'#667085',mb:1}}>Edit the plain text below; this preview shows how powers, square roots, fractions, and math delimiters will appear to students.</AlexText>
+        <AlexBox sx={{fontFamily:'Georgia, serif',fontSize:18,lineHeight:1.55,whiteSpace:'pre-wrap'}}>
+          {question.subject==='english'
+            ?<ReadingQuestionLines lines={toLines(questionText)} questionId={question.id}/>
+            :<StructuredQuestionLines lines={toLines(questionText)}/>}
+        </AlexBox>
+      </AlexSurface>
       <AlexTextField
         label="Question text"
         multiline
@@ -176,10 +209,37 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
         value={questionText}
         inputRef={questionTextRef}
         onChange={event=>setQuestionText(event.target.value)}
-        helperText="Underline formatting is stored as <u>…</u> in the editable text and renders as an underline in the question."
       />
-      {visualSpecs.length>1&&<AlexText sx={{fontSize:12,color:'#667085'}}>This question has {visualSpecs.length} source visual regions. The editor below adjusts the first region; the remaining regions are preserved when saving.</AlexText>}
-      <VisualCropEditor question={question} bytes={resolvedQuestionsPdf} value={visualSpec} onChange={setVisualSpec} lineCount={toLines(questionText).length}/>
+      <AlexBox sx={{display:'flex',justifyContent:'flex-end',alignItems:'center',mt:-1,color:'#667085'}}>
+        <AlexText sx={{fontSize:12}}>LaTeX help</AlexText>
+        <AlexInfoTooltipButton
+          label="LaTeX formatting help"
+          title={<AlexBox sx={{lineHeight:1.6}}>
+            <div><b>LaTeX formatting</b></div>
+            <div>Variable: $x$</div><div>Power: $x^2$ or $x^&#123;2&#125;$</div>
+            <div>Square root: $\\sqrt&#123;37&#125;$</div><div>Fraction: $\\frac&#123;12&#125;&#123;35&#125;$</div>
+            <div>Table: wrap rows in [TABLE] and [/TABLE], with columns separated by |.</div>
+            <div>[TABLE]<br/>x | y<br/>2 | 5<br/>[/TABLE]</div>
+          </AlexBox>}
+        />
+      </AlexBox>
+      <AlexBox sx={{display:'grid',gap:1.25}}>
+        <AlexBox>
+          <AlexText sx={{fontSize:13,fontWeight:800,color:'#344054'}}>Source visuals</AlexText>
+          <AlexText sx={{fontSize:12,color:'#667085',mt:.2}}>Each visual has its own crop and placement. Adjust every figure or graphical answer group independently; placement is relative to the parsed text lines above.</AlexText>
+        </AlexBox>
+        {visualSpecs.map((visual,index)=><AlexSurface key={index} sx={{p:1.25,border:'1px solid #D8D2FF',borderRadius:2.5,bgcolor:'#fff'}}>
+          <AlexText sx={{fontSize:12.5,fontWeight:800,color:'#344054',mb:.75}}>{`Visual ${index+1} · ${visual.kind==='choice-grid'?'Graphical answer choices':'Figure'}`}</AlexText>
+          <VisualCropEditor
+            question={question}
+            bytes={resolvedQuestionsPdf}
+            value={visual}
+            onChange={next=>setVisualSpecs(current=>next?current.map((item,itemIndex)=>itemIndex===index?{...next,kind:item.kind}:item):current.filter((_,itemIndex)=>itemIndex!==index))}
+            lineCount={toLines(questionText).length}
+          />
+        </AlexSurface>)}
+        <AlexButton size="small" tone="secondary" onClick={()=>setVisualSpecs(current=>[...current,{afterLine:-1,crop:{x:.05,y:.05,width:.9,height:.4},exact:true,kind:'figure'}])} sx={{justifySelf:'start'}}>Add source visual</AlexButton>
+      </AlexBox>
       {error&&<AlexText role="alert" sx={{fontSize:13,color:'#B42318'}}>{error}</AlexText>}
       {message&&<AlexText role="status" sx={{fontSize:13,color:'#067647'}}>{message}</AlexText>}
       <AlexButton disabled={saving} onClick={save} sx={{justifySelf:'start'}}>{saving?'Saving fix…':'Save shared fix'}</AlexButton>

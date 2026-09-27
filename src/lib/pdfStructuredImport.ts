@@ -5,7 +5,7 @@ import {QUESTION_BANK} from './questionBank'
 import {questionCropForParts} from './questionCrops'
 import {getQuestionContent,isCurrentQuestionContent,QUESTION_CONTENT_VERSION,saveQuestionContent,type StoredQuestionContent} from './questionContentStore'
 import {READING_PARAGRAPH_BREAK} from './readingQuestionFormat'
-import {expandNormalizedCrop,questionVisualSpec,type NormalizedCrop} from './questionVisuals'
+import {expandNormalizedCrop,questionVisualSpecs,type NormalizedCrop} from './questionVisuals'
 import {readingTableSpec} from './readingTables'
 import {isPracticeTest5Math1Verified,normalizePracticeTest5Math1Lines,PRACTICE_TEST_5_MATH1_IMAGE_FALLBACK} from './practiceTest5Math1Layout'
 import {verifiedPracticeTest5Math1Content} from './verifiedPracticeTest5Math1'
@@ -109,8 +109,9 @@ function withoutNormalizedRegion(crop:{x:number;y:number;width:number;height:num
 
 function withoutKnownVisualText(question:PracticeQuestion,crop:{x:number;y:number;width:number;height:number},items:TextItem[]){
   let result=items
-  const visual=questionVisualSpec(question.id)
-  if(visual)result=withoutNormalizedRegion(crop,expandNormalizedCrop(visual.crop,.012,.008),result)
+  for(const visual of questionVisualSpecs(question.id)){
+    result=withoutNormalizedRegion(crop,expandNormalizedCrop(visual.crop,.012,.008),result)
+  }
   const table=readingTableSpec(question.id)
   if(table)result=withoutNormalizedRegion(crop,table.sourceCrop,result)
   return result
@@ -207,7 +208,7 @@ export async function ensureQuestionText(question:PracticeQuestion,questionPdf:A
     explanationLines:existing?.explanationLines??[],
     questionMode:questionLines.length?'text':'image-fallback',
     explanationMode:existing?.explanationMode??'text',
-    needsVisual:Boolean(questionVisualSpec(question.id))||hasVisualReference(questionLines),
+    needsVisual:questionVisualSpecs(question.id).length>0||hasVisualReference(questionLines),
     importedAt:new Date().toISOString(),
     contentVersion:QUESTION_CONTENT_VERSION,
   }
@@ -254,7 +255,7 @@ export async function importPracticeMaterials(questionPdf:ArrayBuffer,answerPdf:
         explanationLines,
         questionMode:questionLines.length?'text':'image-fallback',
         explanationMode:explanationLines.length?'text':'image-fallback',
-        needsVisual:Boolean(questionVisualSpec(question.id))||hasVisualReference(questionLines),
+        needsVisual:questionVisualSpecs(question.id).length>0||hasVisualReference(questionLines),
         importedAt:new Date().toISOString(),
         contentVersion:QUESTION_CONTENT_VERSION,
       }

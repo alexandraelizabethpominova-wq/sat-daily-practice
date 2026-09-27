@@ -77,14 +77,14 @@ export async function loadSharedQuestionContent(questionId:string,expectedPracti
   if(!supabase)return null
   const {data,error}=await supabase
     .from('sat_question_bank')
-    .select('id,practice_test_id,question_lines,explanation_lines,needs_visual,content_status,visual_crop,visual_after_line,source_crop,question_mode')
+    .select('id,practice_test_id,question_lines,explanation_lines,needs_visual,content_status,visual_specs,visual_crop,visual_after_line,source_crop,question_mode')
     .eq('id',questionId)
     .maybeSingle()
   if(error)throw error
   if(!data)return null
   if(expectedPracticeTestId&&data.practice_test_id!==expectedPracticeTestId)return null
   if(!idMatchesPracticeTest(data.id,data.practice_test_id))return null
-  const visualSpecs=parseVisualSpecs(data.visual_crop,data.visual_after_line)
+  const visualSpecs=parseVisualSpecs(Array.isArray(data.visual_specs)&&data.visual_specs.length?data.visual_specs:data.visual_crop,data.visual_after_line)
   return {
     questionId:data.id,
     practiceTestId:data.practice_test_id,
@@ -120,25 +120,35 @@ export async function saveSharedQuestionRepair(input:{
     ...(includeLine?{afterLine:visual.afterLine}:{}),
     ...(visual.kind?{kind:visual.kind}:{}),
   })
-  const visualCrop=visuals.length>1
-    ?visuals.map(visual=>encodeVisual(visual,true))
-    :visuals[0]?encodeVisual(visuals[0],false):null
+  const encodedVisuals=visuals.map(visual=>encodeVisual(visual,true))
+  const legacyVisualCrop=visuals[0]?encodeVisual(visuals[0],false):null
   const {data,error}=await supabase.from('sat_question_bank').update({
     question_lines:input.questionLines,
     question_mode:'text',
     needs_visual:visuals.length>0,
-    visual_crop:visualCrop,
-    visual_after_line:visuals.length===1?visuals[0].afterLine:null,
+    visual_specs:encodedVisuals,
+    // Keep the legacy single-visual columns valid for older readers. Multi-visual
+    // questions are canonical in visual_specs; never write an array into visual_crop.
+    visual_crop:legacyVisualCrop,
+    visual_after_line:visuals[0]?.afterLine??null,
     content_status:'verified',
     updated_at:new Date().toISOString(),
   }).eq('id',input.questionId)
-    .select('id,question_lines,question_mode,updated_at')
+    .select('id,question_lines,question_mode,visual_specs,updated_at')
     .maybeSingle()
-  if(error)throw error
-  if(!data)throw new Error('Supabase did not update this question. Reload, sign in again, and make sure shared Question Bank editing is enabled.')
+  if(error)throw new Error(`Supabase save failed: ${error.message}${error.code?` (code ${error.code})`:''}`)
+  if(!data)throw new Error('Supabase returned no updated row. Reload, sign in again, and make sure shared Question Bank editing is enabled.')
   if(data.id!==input.questionId||data.question_mode!=='text'||!questionLinesEqual(data.question_lines,input.questionLines)){
     throw new Error('Supabase did not persist the exact edited question text in text mode. Reload the question before trying again.')
   }
+  const savedVisuals=parseVisualSpecs(data.visual_specs,-1)
+  const visualsMatch=savedVisuals.length===visuals.length&&savedVisuals.every((saved,index)=>{
+    const expected=visuals[index]
+    return saved.afterLine===expected.afterLine&&saved.kind===expected.kind
+      &&Math.abs(saved.crop.x-expected.crop.x)<.000001&&Math.abs(saved.crop.y-expected.crop.y)<.000001
+      &&Math.abs(saved.crop.width-expected.crop.width)<.000001&&Math.abs(saved.crop.height-expected.crop.height)<.000001
+  })
+  if(!visualsMatch)throw new Error('Supabase did not persist all visual crops and placements. Reload the question before trying again.')
   const savedLines=data.question_lines as string[]
   window.dispatchEvent(new CustomEvent('sat-question-content-updated',{detail:{questionId:input.questionId}}))
   return {questionId:data.id,questionLines:savedLines,updatedAt:data.updated_at as string}
