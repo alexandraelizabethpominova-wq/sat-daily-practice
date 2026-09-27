@@ -63,8 +63,7 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,c
     gap:{xs:1.5,sm:2.5},
     minWidth:0,
     height:'100%',
-    minHeight:{sm:490},
-    maxHeight:{sm:515},
+
   }}>
     <AlexBox sx={{
       display:'grid',
