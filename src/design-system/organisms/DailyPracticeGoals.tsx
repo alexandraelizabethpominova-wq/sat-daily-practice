@@ -1,4 +1,4 @@
-import {Check,Flame,Info,PenLine,Star} from 'lucide-react'
+import {Check,Flame,Star} from 'lucide-react'
 import AlexBox from '../atoms/AlexBox'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
@@ -73,15 +73,15 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
     }}>
       <AlexText component="h2" sx={{fontFamily:'inherit',fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575',mb:1.45}}>Today&apos;s goals</AlexText>
       <AlexBox sx={{display:'grid',gap:1.05}}>
-        {goals.map(goal=><AlexBox key={goal.label} sx={{display:'grid',gridTemplateColumns:'30px minmax(0,1fr)',alignItems:'center',columnGap:1.15}}>
-          <AlexBox aria-hidden="true" sx={{width:30,height:30,borderRadius:'50%',display:'grid',placeItems:'center',bgcolor:'#EEF2F7',color:'#C7D1DF'}}>
+        {goals.map((goal,index)=>{const complete=index===0?questionsDone>=questionTarget:index===1?minutesDone>=minuteTarget:failedQuestionCount===0;return <AlexBox key={goal.label} sx={{display:'grid',gridTemplateColumns:'30px minmax(0,1fr)',alignItems:'center',columnGap:1.15}}>
+          <AlexBox aria-hidden="true" sx={{width:30,height:30,borderRadius:'50%',display:'grid',placeItems:'center',bgcolor:complete?'#E8F7EE':'#EEF2F7',color:complete?'#20935A':'#C7D1DF'}}>
             <Star size={17} fill="currentColor" strokeWidth={1.4}/>
           </AlexBox>
           <AlexText sx={{fontFamily:'inherit',fontSize:15.5,fontWeight:400,lineHeight:1.3,color:'#111',whiteSpace:'nowrap'}}>
             <AlexBox component="span" sx={{textDecoration:'underline',textUnderlineOffset:'2px'}}>{goal.label}</AlexBox>
             <AlexBox component="span" sx={{textDecoration:'none'}}> · {goal.value}</AlexBox>
           </AlexText>
-        </AlexBox>)}
+        </AlexBox>})}
       </AlexBox>
     </AlexSurface>
 
@@ -93,13 +93,11 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
       <AlexBox sx={{display:'flex',alignItems:'center',gap:.75,mb:1.05}}>
         <Flame size={17} color="#475467"/>
         <AlexText component="h2" sx={{fontFamily:'inherit',fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>{streak} week streak</AlexText>
-        <Info size={15} fill="#475467" color="#fff"/>
       </AlexBox>
       <AlexBox sx={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:1,mb:1.45}}>
         <AlexText sx={{fontFamily:'inherit',fontSize:15,lineHeight:1.25,fontWeight:400,color:'#111'}}>
           {daysToWeeklyStreak>0?`${daysToWeeklyStreak} days left to start your weekly streak!`:'Your weekly streak is underway!'}
         </AlexText>
-        <PenLine size={19} color="#111"/>
       </AlexBox>
       <AlexBox sx={{display:'flex',gap:1,alignItems:'center',mb:1.05}}>
         {weekDays.map(day=><AlexBox key={day.key} sx={{
