@@ -1,4 +1,6 @@
 import {useEffect,useRef,useState} from 'react'
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
+import Tooltip from '@mui/material/Tooltip'
 import AlexBox from '../atoms/AlexBox'
 import AlexButton from '../atoms/AlexButton'
 import AlexSurface from '../atoms/AlexSurface'
@@ -204,8 +206,12 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
         value={questionText}
         inputRef={questionTextRef}
         onChange={event=>setQuestionText(event.target.value)}
-        helperText="Math shorthand is allowed: x^2 or x^{2} = power; \\sqrt{37} = square root. The live preview above shows the student-facing result before you save."
       />
+      <AlexBox sx={{display:'flex',justifyContent:'flex-end',mt:-1}}>
+        <Tooltip arrow placement="top-end" title={<AlexBox sx={{fontSize:12,lineHeight:1.6}}><div><b>LaTeX formatting</b></div><div>Variable: $x$</div><div>Power: $x^2$ or $x^&#123;2&#125;$</div><div>Square root: $\\sqrt&#123;37&#125;$</div><div>Fraction: $\\frac&#123;12&#125;&#123;35&#125;$</div><div>Table: put one row on each line and separate cells with |. Example: x | y, then 2 | 5.</div></AlexBox>}>
+          <AlexBox component="span" aria-label="LaTeX formatting help" sx={{display:'inline-flex',alignItems:'center',gap:.5,color:'#667085',fontSize:12,cursor:'help'}}><InfoOutlinedIcon sx={{fontSize:17}}/> LaTeX help</AlexBox>
+        </Tooltip>
+      </AlexBox>
       {visualSpecs.length>1&&<AlexText sx={{fontSize:12,color:'#667085'}}>This question has {visualSpecs.length} source visual regions. The editor below adjusts the first region; the remaining regions are preserved when saving.</AlexText>}
       <VisualCropEditor question={question} bytes={resolvedQuestionsPdf} value={visualSpec} onChange={setVisualSpec} lineCount={toLines(questionText).length}/>
       {error&&<AlexText role="alert" sx={{fontSize:13,color:'#B42318'}}>{error}</AlexText>}
