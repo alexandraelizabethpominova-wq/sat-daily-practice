@@ -504,7 +504,13 @@ export default function App(){
           />
         }
       />
-      <AlexBox sx={{display:'grid',gridTemplateRows:'370px auto',gap:1.25,minWidth:0}}>
+      <AlexBox sx={{
+        display:'grid',
+        gridTemplateRows:'370px auto',
+        gap:1.25,
+        minWidth:0,
+        mx:{md:-1.5,lg:-2},
+      }}>
         <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
         <AlexBox sx={{
           px:2,py:2.5,minHeight:112,
