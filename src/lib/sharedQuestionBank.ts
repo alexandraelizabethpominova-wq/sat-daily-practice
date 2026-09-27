@@ -77,14 +77,14 @@ export async function loadSharedQuestionContent(questionId:string,expectedPracti
   if(!supabase)return null
   const {data,error}=await supabase
     .from('sat_question_bank')
-    .select('id,practice_test_id,question_lines,explanation_lines,needs_visual,content_status,visual_crop,visual_after_line,source_crop,question_mode')
+    .select('id,practice_test_id,question_lines,explanation_lines,needs_visual,content_status,visual_specs,visual_crop,visual_after_line,source_crop,question_mode')
     .eq('id',questionId)
     .maybeSingle()
   if(error)throw error
   if(!data)return null
   if(expectedPracticeTestId&&data.practice_test_id!==expectedPracticeTestId)return null
   if(!idMatchesPracticeTest(data.id,data.practice_test_id))return null
-  const visualSpecs=parseVisualSpecs(data.visual_crop,data.visual_after_line)
+  const visualSpecs=parseVisualSpecs(Array.isArray(data.visual_specs)&&data.visual_specs.length?data.visual_specs:data.visual_crop,data.visual_after_line)
   return {
     questionId:data.id,
     practiceTestId:data.practice_test_id,
@@ -127,6 +127,7 @@ export async function saveSharedQuestionRepair(input:{
     question_lines:input.questionLines,
     question_mode:'text',
     needs_visual:visuals.length>0,
+    visual_specs:visuals.map(visual=>encodeVisual(visual,true)),
     visual_crop:visualCrop,
     visual_after_line:visuals.length===1?visuals[0].afterLine:null,
     content_status:'verified',
