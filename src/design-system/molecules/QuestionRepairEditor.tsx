@@ -140,7 +140,8 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
     const start=input.selectionStart??0,end=input.selectionEnd??0
     const selected=questionText.slice(start,end).trim()
     if(!selected){setError('Select the exponent or radicand in the question text first.');input.focus();return}
-    const replacement=kind==='power'?'^{'+selected+'}':kind==='sqrt'?'\\sqrt{'+selected+'}':kind==='fraction'?'\\frac{'+selected+'}{}':'    setError('');setMessage('');setQuestionText(questionText.slice(0,start)+replacement+questionText.slice(end))
+    const replacement=kind==='power'?'^{'+selected+'}':kind==='sqrt'?'\\sqrt{'+selected+'}':kind==='fraction'?'\\frac{'+selected+'}{}':'$'+selected+'$'
+    setError('');setMessage('');setQuestionText(questionText.slice(0,start)+replacement+questionText.slice(end))
     requestAnimationFrame(()=>{input.focus();input.setSelectionRange(start,start+replacement.length)})
   }
 
