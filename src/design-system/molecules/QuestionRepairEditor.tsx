@@ -246,8 +246,6 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
     </AlexBox>}
   </AlexSurface>
 }
-+selected+'
-    setError('');setMessage('');setQuestionText(questionText.slice(0,start)+replacement+questionText.slice(end))
     requestAnimationFrame(()=>{input.focus();input.setSelectionRange(start,start+replacement.length)})
   }
 
@@ -549,8 +547,6 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
     </AlexBox>}
   </AlexSurface>
 }
-+selected+'
-    setError('');setMessage('');setQuestionText(questionText.slice(0,start)+replacement+questionText.slice(end))
     requestAnimationFrame(()=>{input.focus();input.setSelectionRange(start,start+replacement.length)})
   }
 
@@ -853,8 +849,6 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
     </AlexBox>}
   </AlexSurface>
 }
-+selected+'
-    setError('');setMessage('');setQuestionText(questionText.slice(0,start)+replacement+questionText.slice(end))
     requestAnimationFrame(()=>{input.focus();input.setSelectionRange(start,start+replacement.length)})
   }
 
