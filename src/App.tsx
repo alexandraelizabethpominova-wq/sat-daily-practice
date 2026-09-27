@@ -485,12 +485,12 @@ export default function App(){
       className="dashboard-bottom"
       sx={{
         display:'flex',
-        flexDirection:{xs:'column',md:'row'},
+        flexDirection:{xs:'column',lg:'row'},
         gap:{xs:2,sm:3,lg:4},
         alignItems:'stretch',
         width:'100%',
-        flex:{md:'1 1 0'},
-        minHeight:{md:0},
+        flex:{lg:'1 1 0'},
+        minHeight:{lg:0},
       }}
     >
       <AlexBox
@@ -498,7 +498,7 @@ export default function App(){
         sx={{
           display:'flex',
           flexDirection:'column',
-          flex:'1.37 1 0',
+          flex:{xs:'1 1 auto',lg:'1.37 1 0'},
           minWidth:0,
           minHeight:0,
         }}
@@ -526,14 +526,14 @@ export default function App(){
         sx={{
           display:'flex',
           flexDirection:'column',
-          flex:'.63 1 0',
-          minWidth:{xs:0,md:260},
+          flex:{xs:'1 1 auto',lg:'.63 1 0'},
+          minWidth:{xs:0,lg:260},
           minHeight:0,
           gap:1.25,
           boxSizing:'border-box',
         }}
       >
-        <AlexBox sx={{flex:{xs:'1 1 auto',md:'0 0 clamp(340px,35dvh,360px)'},height:{md:'clamp(340px,35dvh,360px)'},minHeight:0}}>
+        <AlexBox sx={{flex:{xs:'1 1 auto',lg:'0 0 clamp(340px,35dvh,360px)'},height:{lg:'clamp(340px,35dvh,360px)'},minHeight:0}}>
           <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
         </AlexBox>
         <AlexBox sx={{
@@ -545,7 +545,7 @@ export default function App(){
           alignItems:'flex-start',
           justifyContent:'space-between',
           gap:1.5,
-          flex:{xs:'0 0 auto',md:'1 1 0'},
+          flex:{xs:'0 0 auto',lg:'1 1 0'},
           minHeight:0,
         }}>
           <AlexBox>
