@@ -62,7 +62,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
   ]
 
   return <AlexBox sx={{display:'grid',gap:.7,height:'100%',minHeight:0,gridTemplateRows:'1fr 1fr'}}>
-    <AlexSurface component="section" sx={{p:{xs:1,sm:1.1},border:'1px solid #E4E7EC',borderRadius:3,bgcolor:'#fff',minWidth:0}}>
+    <AlexSurface component="section" sx={{py:{xs:1,sm:1.1},px:{xs:1.35,sm:1.55},border:'1px solid #E4E7EC',borderRadius:3,bgcolor:'#fff',minWidth:0}}>
       <AlexText component="h2" sx={{fontSize:13,fontWeight:850,color:'#08275B',mb:.5}}>Today’s goals</AlexText>
       <AlexBox sx={{display:'grid',gap:.3}}>
         {goals.map(goal=><AlexBox key={goal.label} sx={{display:'grid',gridTemplateColumns:'24px minmax(0,1fr) auto',alignItems:'center',gap:.65}}>
@@ -75,7 +75,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
       </AlexBox>
     </AlexSurface>
 
-    <AlexSurface component="section" sx={{p:{xs:1,sm:1.1},border:'1px solid #E4E7EC',borderRadius:3,bgcolor:'#fff',minWidth:0}}>
+    <AlexSurface component="section" sx={{py:{xs:1,sm:1.1},px:{xs:1.35,sm:1.55},border:'1px solid #E4E7EC',borderRadius:3,bgcolor:'#fff',minWidth:0}}>
       <AlexBox sx={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:.7,mb:.35}}>
         <AlexBox sx={{display:'flex',alignItems:'center',gap:.5,minWidth:0}}>
           <Flame size={14} color="#6558F5"/>
