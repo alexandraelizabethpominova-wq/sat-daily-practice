@@ -529,8 +529,9 @@ export default function App(){
           flex:{xs:'1 1 auto',lg:'.63 1 0'},
           minWidth:{xs:0,lg:260},
           minHeight:0,
-          gap:1.25,
+          gap:{xs:1.5,sm:2.5},
           boxSizing:'border-box',
+          px:{lg:4},
         }}
       >
         <AlexBox sx={{flex:{xs:'1 1 auto',lg:'0 0 clamp(340px,35dvh,360px)'},height:{lg:'clamp(340px,35dvh,360px)'},minHeight:0}}>
