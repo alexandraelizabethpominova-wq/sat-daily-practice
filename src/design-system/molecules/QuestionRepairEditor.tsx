@@ -102,8 +102,10 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
     }
     setExtracting(true);setError('');setMessage('')
     try{
-      const lines=await extractQuestionLines(question,resolvedQuestionsPdf)
-      if(!lines.length)throw new Error('No text could be extracted from this question’s verified source crop.')
+      const rawLines=await extractQuestionLines(question,resolvedQuestionsPdf)
+      const verifiedSource=question.practiceTestId==='practice-test-5'&&question.module==='math1'?verifiedPracticeTest5Math1Content(question.number):undefined
+      const lines=verifiedSource?.lines?.length?verifiedSource.lines:rawLines
+      if(!lines.length)throw new Error('No quality-reviewed text could be reconstructed from this question’s source.')
       setQuestionText(stripEmbeddedReadingTableLines(question.id,lines).join('\n'))
       setTextOrigin('source')
       setMessage('Loaded fresh text from the source PDF. Review formatting, then save it to the shared Question Bank.')
