@@ -649,7 +649,7 @@ nav[aria-label="Mobile primary navigation"]{margin:0}
 }
 
 
-@media (min-width:1200px){
+@media (min-width:1536px){
   .dashboard-shell{
     height:100%;
     min-height:0;
