@@ -533,7 +533,7 @@ export default function App(){
           boxSizing:'border-box',
         }}
       >
-        <AlexBox sx={{flex:{xs:'1 1 auto',md:'0 0 clamp(255px,28dvh,290px)'},height:{md:'clamp(255px,28dvh,290px)'},minHeight:0}}>
+        <AlexBox sx={{flex:{xs:'1 1 auto',md:'0 0 clamp(340px,35dvh,360px)'},height:{md:'clamp(340px,35dvh,360px)'},minHeight:0}}>
           <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
         </AlexBox>
         <AlexBox sx={{
