@@ -488,16 +488,39 @@ export default function App(){
         alignItems:'start',
       }}
     >
-      <AlexBox sx={{display:'grid',gap:{xs:1.5,sm:2}}}>
-        <DailyPracticeGoals
-          attempts={attempts}
-          sessions={sessions}
-          dailyQuestions={practiceRecommendation.questionsPerSession*practiceRecommendation.recommendedSessionsPerDay}
-          dailyMinutes={practiceRecommendation.estimatedDailyMinutes}
-          failedQuestionCount={failedQuestionCount}
-          onStartPractice={()=>void beginPractice(settings.mode)}
-        />
-        <PerformanceDashboard summary={performance} hasHistory={attempts.length>0} compact/>
+      <AlexBox sx={{display:'grid',gap:{xs:1.5,sm:2},minWidth:0}}>
+        <PerformanceDashboard summary={performance} hasHistory={attempts.length>0} compact compactMetricsOnly/>
+        <AlexBox sx={{
+          display:'grid',
+          gridTemplateColumns:{xs:'1fr',lg:'minmax(0,3fr) minmax(280px,2fr)'},
+          gap:{xs:1.25,sm:1.5},
+          alignItems:'stretch',
+          minWidth:0,
+        }}>
+          <AlexBox sx={{
+            p:{xs:1.5,sm:1.7},
+            border:'1px solid #D8D2FF',
+            borderRadius:3,
+            bgcolor:'#F7F5FF',
+            display:'flex',
+            flexDirection:'column',
+            justifyContent:'center',
+            minWidth:0,
+          }}>
+            <AlexBox sx={{fontSize:10,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:'#6558F5'}}>Recommended focus</AlexBox>
+            <AlexBox component="h2" sx={{fontSize:18,fontWeight:800,color:'#08275B',mt:.35,mb:0}}>{performance.recommendation?.label??'Keep practicing'}</AlexBox>
+            <AlexBox sx={{color:'#475467',fontSize:11.5,lineHeight:1.4,mt:.35}}>
+              {performance.recommendation?.reason??'Complete a few sessions to identify the best area to focus on next.'}
+            </AlexBox>
+          </AlexBox>
+          <DailyPracticeGoals
+            attempts={attempts}
+            sessions={sessions}
+            dailyQuestions={practiceRecommendation.questionsPerSession*practiceRecommendation.recommendedSessionsPerDay}
+            dailyMinutes={practiceRecommendation.estimatedDailyMinutes}
+            failedQuestionCount={failedQuestionCount}
+          />
+        </AlexBox>
       </AlexBox>
       <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
     </AlexBox>
