@@ -29,6 +29,12 @@ type Props={
 }
 
 const toLines=(value:string)=>value.split(/\r?\n/).map(line=>line.trim()).filter(Boolean)
+const editorMathPreview=(value:string)=>value
+  .replace(/(^|[^\\])\^\{([^}]+)\}/g,'$1^{$2}')
+  .replace(/(^|[^\\])\^([A-Za-z0-9.+-]+)/g,'$1^{$2}')
+  .replace(/\/sqrt\s*\{([^}]+)\}/g,'\\\\sqrt{$1}')
+  .replace(/\/sqrt\s+([^\s]+)/g,'\\\\sqrt{$1}')
+
 const normalizeMathEditorLine=(line:string)=>line
   .replace(/\$\$([^$]+)\$\$/g,'\$1\
   .replace(/\$([A-Za-z])\$/g,'$1')
@@ -186,6 +192,13 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
       {refersToUnderlinedText(questionText)&&!hasUnderlineMarkup(questionText)&&<AlexSurface sx={{p:1.25,border:'1px solid #FEC84B',borderRadius:2,bgcolor:'#FFFAEB'}}>
         <AlexText sx={{fontSize:12.5,color:'#93370D'}}>This question refers to underlined text, but no underlined span is currently defined. Select the matching source text and apply underline before saving.</AlexText>
       </AlexSurface>}
+      <AlexSurface sx={{p:1.25,border:'1px solid #D0D5DD',borderRadius:2,bgcolor:'#FFFFFF'}}>
+        <AlexText sx={{fontSize:12,fontWeight:800,color:'#475467',mb:.75}}>Live math preview</AlexText>
+        <AlexText sx={{fontSize:11.5,color:'#667085',mb:1}}>Edit the plain text below; this preview shows how powers, square roots, fractions, and math delimiters will appear to students.</AlexText>
+        <AlexBox sx={{fontFamily:'Georgia, serif',fontSize:18,lineHeight:1.55,whiteSpace:'pre-wrap'}}>
+          {toLines(editorMathPreview(questionText)).map((line,index)=><AlexBox key={index} sx={{minHeight:'1.55em'}}><AlexRichText text={line}/></AlexBox>)}
+        </AlexBox>
+      </AlexSurface>
       <AlexTextField
         label="Question text"
         multiline
@@ -193,7 +206,7 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
         value={questionText}
         inputRef={questionTextRef}
         onChange={event=>setQuestionText(event.target.value)}
-        helperText="Underline formatting is stored as <u>…</u> in the editable text and renders as an underline in the question."
+        helperText="Math shorthand is allowed: x^2 or x^{2} = power; \\sqrt{37} = square root. The live preview above shows the student-facing result before you save."
       />
       {visualSpecs.length>1&&<AlexText sx={{fontSize:12,color:'#667085'}}>This question has {visualSpecs.length} source visual regions. The editor below adjusts the first region; the remaining regions are preserved when saving.</AlexText>}
       <VisualCropEditor question={question} bytes={resolvedQuestionsPdf} value={visualSpec} onChange={setVisualSpec} lineCount={toLines(questionText).length}/>
