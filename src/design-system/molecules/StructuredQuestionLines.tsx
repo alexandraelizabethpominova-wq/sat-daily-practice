@@ -270,7 +270,12 @@ export default function StructuredQuestionLines({lines,reflowProse=false}:{lines
 
   while(index<sourceLines.length){
     const line=cleanPdfMathArtifacts(sourceLines[index])
-    if(!line||isPdfDecoration(line)){
+    if(!line){
+      output.push(<div key={`blank-line-${index}`} aria-hidden="true" style={{height:'0.9em'}} />)
+      index++
+      continue
+    }
+    if(isPdfDecoration(line)){
       index++
       continue
     }
