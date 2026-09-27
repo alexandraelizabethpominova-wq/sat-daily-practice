@@ -212,7 +212,7 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
             <div><b>LaTeX formatting</b></div>
             <div>Variable: $x$</div><div>Power: $x^2$ or $x^&#123;2&#125;$</div>
             <div>Square root: $\\sqrt&#123;37&#125;$</div><div>Fraction: $\\frac&#123;12&#125;&#123;35&#125;$</div>
-            <div>Table: put one row on each line and separate cells with |. Example: x | y, then 2 | 5.</div>
+            <div>Table: wrap rows in [TABLE] and [/TABLE], and separate cells with |. Example: [TABLE], then x | y, then 2 | 5, then [/TABLE].</div>
           </AlexBox>
         </details>
       </AlexBox>
