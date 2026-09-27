@@ -78,7 +78,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
 
   return <AlexBox sx={{display:'grid',gridTemplateColumns:{xs:'1fr',sm:'repeat(3,minmax(0,1fr))'},gap:1.5,minHeight:0,alignItems:'stretch'}}>
     <AlexSurface component="section" sx={{
-      px:2.25,py:1.7,border:'none',borderRadius:'12px',bgcolor:'#fff',
+      px:2.25,py:1.7,border:'none',borderRadius:'8px',bgcolor:'#fff',
       boxShadow:'none',minWidth:0,overflow:'hidden',
       fontFamily:'Arial, Helvetica, sans-serif',
     }}>
@@ -97,7 +97,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
     </AlexSurface>
 
     <AlexSurface component="section" sx={{
-      px:2.25,py:1.65,border:'none',borderRadius:'12px',bgcolor:'#fff',
+      px:2.25,py:1.65,border:'none',borderRadius:'8px',bgcolor:'#fff',
       boxShadow:'none',minWidth:0,overflow:'hidden',
       fontFamily:'Arial, Helvetica, sans-serif',
     }}>
@@ -128,7 +128,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
     </AlexSurface>
 
     <AlexSurface component="section" title={recommendationReason} sx={{
-      px:2.25,py:1.7,border:'none',borderRadius:'12px',bgcolor:'#F5EEFF',
+      px:2.25,py:1.7,border:'none',borderRadius:'8px',bgcolor:'#F5EEFF',
       boxShadow:'none',minWidth:0,overflow:'hidden',
       fontFamily:'Arial, Helvetica, sans-serif',
     }}>
