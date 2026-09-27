@@ -96,15 +96,16 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
     <AlexBox sx={{
       display:'grid',
       gridTemplateColumns:'repeat(7,minmax(0,1fr))',
-      gridAutoRows:'42px',
+      gridAutoRows:'minmax(34px,1fr)',
       columnGap:.2,
       rowGap:.35,
       width:'92%',
       mx:'auto',
-      flex:'0 0 auto',
+      flex:'1 1 0',
       minHeight:0,
       alignItems:'center',
       alignContent:'stretch',
+      overflow:'hidden',
     }}>
       {Array.from({length:firstWeekday},(_,index)=><AlexBox key={`empty-${index}`} aria-hidden="true"/>)}
       {days.map(day=>{
