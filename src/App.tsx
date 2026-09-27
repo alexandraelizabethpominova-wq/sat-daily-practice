@@ -522,7 +522,7 @@ export default function App(){
         <AlexBox sx={{
           px:2,py:2.5,minHeight:112,
           border:'1px solid #E4E7EC',
-          borderRadius:'18px',
+          borderRadius:'12px',
           bgcolor:'#fff',
           display:'flex',
           alignItems:'center',
