@@ -84,7 +84,7 @@ export default function ParsingIssuesDashboard({questionsPdf,answersPdf}:Props){
         <AlexText component="h2" sx={{fontSize:19,fontWeight:800}}>No matching reports</AlexText>
         <AlexText sx={{color:'#667085',mt:.5}}>Flag a question from practice, review, the Question Bank, or question statistics and it will appear in this shared queue.</AlexText>
       </AlexSurface>:
-      <AlexBox sx={{display:'grid',gridTemplateColumns:{xs:'1fr',lg:'300px minmax(0,1fr)'},gap:2,alignItems:'stretch',height:{lg:'calc(100vh - 32px)'},minHeight:0,overflow:{lg:'hidden'}}}>
+      <AlexBox sx={{display:'grid',gridTemplateColumns:{xs:'1fr',lg:'300px minmax(0,1fr)'},gap:2,alignItems:'stretch',minHeight:{lg:'calc(100vh - 32px)'}}}>
         <AlexSurface sx={{border:'1px solid #E6E2DB',borderRadius:3,overflow:'hidden',position:{lg:'sticky'},top:{lg:16},maxHeight:{lg:'calc(100vh - 32px)'}}}>
           <AlexBox sx={{px:1.75,py:1.5,borderBottom:'1px solid #E6E2DB',bgcolor:'#F7F6F2'}}>
             <AlexText sx={{fontSize:13,fontWeight:850,color:'#08275B'}}>{filtered.length} report{filtered.length===1?'':'s'}</AlexText>
@@ -106,7 +106,7 @@ export default function ParsingIssuesDashboard({questionsPdf,answersPdf}:Props){
           </AlexBox>
         </AlexSurface>
 
-        {selected&&<AlexBox sx={{display:'grid',gap:2,minWidth:0,minHeight:0,height:{lg:'100%'},overflowY:{lg:'auto'},alignContent:'start',pr:{lg:.5}}}>
+        {selected&&<AlexBox sx={{display:'grid',gap:2,minWidth:0,alignContent:'start'}}>
           <AlexSurface sx={{p:{xs:2,md:2.5},border:'1px solid #E6E2DB',borderRadius:3}}>
             <AlexBox sx={{display:'flex',justifyContent:'space-between',gap:2,alignItems:'flex-start',flexWrap:'wrap'}}>
               <AlexBox>
