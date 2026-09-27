@@ -554,7 +554,13 @@ export default function App(){
             <AlexBox sx={{fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>Your practice plan</AlexBox>
             <AlexButton tone="quiet" onClick={()=>navigateTo('settings')} sx={{fontSize:12,fontWeight:800,py:.25}}>Edit plan</AlexButton>
           </AlexBox>
-          <AlexBox sx={{display:'flex',flexDirection:'column',gap:.15}}>
+          <AlexBox sx={{
+            display:'grid',
+            gridTemplateColumns:{xs:'1fr',sm:'repeat(2,minmax(0,1fr))'},
+            columnGap:1.25,
+            rowGap:0,
+            mt:-.35,
+          }}>
             {[
               {label:'Daily time',value:`${practiceRecommendation.estimatedDailyMinutes} min`,icon:<Clock3 size={15}/>},
               {label:'Focus',value:practiceRecommendation.focusLabel??'Balanced',icon:<Target size={15}/>},
@@ -567,8 +573,8 @@ export default function App(){
                 gridTemplateColumns:'28px minmax(0,1fr) auto',
                 alignItems:'center',
                 columnGap:1,
-                py:.72,
-                borderTop:index===0?'none':'1px solid #EEF1F4',
+                py:.58,
+                borderTop:index<2?'none':'1px solid #EEF1F4',
                 minWidth:0,
               }}
             >
