@@ -33,8 +33,41 @@ type Props={
 const toLines=(value:string)=>value.split(/\r?\n/).map(line=>line.trim()).filter(Boolean)
 
 const normalizeMathEditorLine=(line:string)=>line
-  .replace(/\$\$([^$]+)\$\$/g,(_match,math:string)=>`$${math}$`)
-  .replace(/\$([A-Za-z])\$/g,'$1')
+  .replace(/\$\$([^$]+)\$\$/g,(_match,math:string)=>`${math}import {useEffect,useRef,useState} from 'react'
+import AlexBox from '../atoms/AlexBox'
+import AlexButton from '../atoms/AlexButton'
+import AlexSurface from '../atoms/AlexSurface'
+import AlexText from '../atoms/AlexText'
+import StructuredQuestionLines from './StructuredQuestionLines'
+import ReadingQuestionLines from './ReadingQuestionLines'
+import AlexTextField from '../atoms/AlexTextField'
+import VisualCropEditor from './VisualCropEditor'
+import {ensureQuestionText,extractQuestionLines} from '../../lib/pdfStructuredImport'
+import {getQuestionContent} from '../../lib/questionContentStore'
+import {hasUnderlineMarkup,refersToUnderlinedText,underlineSelection} from '../../lib/questionTextMarkup'
+import {readingTableSpec,stripEmbeddedReadingTableLines} from '../../lib/readingTables'
+import {loadSharedQuestionContent,saveSharedQuestionRepair} from '../../lib/sharedQuestionBank'
+import {verifiedMathContent} from '../../lib/verifiedMathQuestions'
+import {verifiedPracticeTest5Math1Content} from '../../lib/verifiedPracticeTest5Math1'
+import {verifiedPracticeTest6Reading1Content} from '../../lib/verifiedPracticeTest6Reading1'
+import {verifiedPracticeTest6Reading2Content} from '../../lib/verifiedPracticeTest6Reading2'
+import {verifiedPracticeTest6Math1Content} from '../../lib/verifiedPracticeTest6Math1'
+import {verifiedPracticeTest6Math2Content} from '../../lib/verifiedPracticeTest6Math2'
+import {verifiedPracticeTest7Math1Content} from '../../lib/verifiedPracticeTest7Math1'
+import {verifiedPracticeTest7Math2Content} from '../../lib/verifiedPracticeTest7Math2'
+import {questionVisualSpecs,type QuestionVisualSpec} from '../../lib/questionVisuals'
+import usePracticeTestPdf from '../../hooks/usePracticeTestPdf'
+import type {PracticeQuestion} from '../../types'
+
+type Props={
+  question:PracticeQuestion
+  questionsPdf:ArrayBuffer|null
+  onSaved?:()=>void
+}
+
+const toLines=(value:string)=>value.split(/\r?\n/).map(line=>line.trim()).filter(Boolean)
+
+)
 type TextOrigin='shared'|'verified'|'browser'|'source'|'empty'
 
 export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Props){
