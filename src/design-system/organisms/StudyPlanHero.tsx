@@ -30,13 +30,13 @@ export default function StudyPlanHero({
     sx={{
       position:'relative',overflow:'hidden',border:'1px solid #D9E7F8',
       bgcolor:'#EAF3FF',boxShadow:'0 10px 30px rgba(9,35,79,.055)',
-      p:{xs:2,sm:2.75,md:3.5,lg:4},display:'grid',gridTemplateColumns:{xs:'1fr',md:'minmax(0,1.37fr) minmax(260px,.63fr)'},
+      p:{xs:2,sm:2.75,md:3.5,lg:4},display:'grid',gridTemplateColumns:{xs:'1fr',lg:'minmax(0,1.37fr) minmax(320px,.63fr)'},
       gap:{xs:2.25,sm:3,lg:4},alignItems:'center',
     }}
   >
     <AlexBox sx={{position:'relative',zIndex:1}}>
       <AlexText sx={{fontSize:12,textTransform:'uppercase',letterSpacing:'.12em',fontWeight:850,color:'#245F9E'}}>Study plan</AlexText>
-      <AlexText component="h1" sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:36,md:50},lineHeight:1.04,letterSpacing:'-.035em',mt:1,mb:1.5,color:'#08275B'}}>
+      <AlexText component="h1" sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:34,sm:40,lg:50},lineHeight:1.04,letterSpacing:'-.035em',mt:1,mb:1.5,color:'#08275B'}}>
         Your SAT practice plan
       </AlexText>
       <AlexText sx={{color:'#3F5E86',fontSize:{xs:14.5,sm:16},lineHeight:1.6,maxWidth:650}}>
