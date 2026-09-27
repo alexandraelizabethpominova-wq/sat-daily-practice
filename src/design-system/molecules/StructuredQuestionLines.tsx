@@ -99,6 +99,18 @@ function ChoiceDataTable({label,headers,rows}:{label:string;headers:string[];row
   </div>
 }
 
+function explicitTableAt(lines:string[],start:number){
+  if(lines[start]?.trim().toUpperCase()!=='[TABLE]')return null
+  const end=lines.findIndex((line,index)=>index>start&&line.trim().toUpperCase()==='[/TABLE]')
+  if(end<0)return null
+  const tableLines=lines.slice(start+1,end).map(line=>line.trim()).filter(Boolean)
+  if(tableLines.length<2)return null
+  const rows=tableLines.map(line=>line.split('|').map(cell=>cell.trim()).filter(Boolean))
+  const width=rows[0]?.length??0
+  if(width<2||rows.some(row=>row.length!==width))return null
+  return {headers:rows[0],rows:rows.slice(1),nextIndex:end+1}
+}
+
 function dataTableAt(lines:string[],start:number){
   const header=tableCells(lines[start])
   if(!header||header.some(isNumericCell))return null
@@ -277,6 +289,13 @@ export default function StructuredQuestionLines({lines,reflowProse=false}:{lines
     }
     if(isPdfDecoration(line)){
       index++
+      continue
+    }
+
+    const explicitTable=explicitTableAt(sourceLines,index)
+    if(explicitTable){
+      output.push(<DataTable key={`explicit-table-${index}`} headers={explicitTable.headers} rows={explicitTable.rows}/>)
+      index=explicitTable.nextIndex
       continue
     }
 
