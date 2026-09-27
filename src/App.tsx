@@ -493,7 +493,16 @@ export default function App(){
         minHeight:{md:0},
       }}
     >
-      <AlexBox sx={{display:'flex',flexDirection:'column',flex:'1.37 1 0',minWidth:0}}>
+      <AlexBox
+        className="dashboard-bottom-left"
+        sx={{
+          display:'flex',
+          flexDirection:'column',
+          flex:'1.37 1 0',
+          minWidth:0,
+          minHeight:0,
+        }}
+      >
         <PerformanceDashboard
           summary={performance}
           hasHistory={attempts.length>0}
@@ -512,15 +521,18 @@ export default function App(){
         />
       </AlexBox>
 
-      <AlexBox sx={{
-        display:'flex',
-        flexDirection:'column',
-        flex:'.63 1 0',
-        minWidth:{xs:0,md:260},
-        gap:1.25,
-        boxSizing:'border-box',
-        mx:{md:'4%'},
-      }}>
+      <AlexBox
+        className="dashboard-bottom-right"
+        sx={{
+          display:'flex',
+          flexDirection:'column',
+          flex:'.63 1 0',
+          minWidth:{xs:0,md:260},
+          minHeight:0,
+          gap:1.25,
+          boxSizing:'border-box',
+        }}
+      >
         <AlexBox sx={{flex:'1 1 auto',minHeight:0}}>
           <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
         </AlexBox>
