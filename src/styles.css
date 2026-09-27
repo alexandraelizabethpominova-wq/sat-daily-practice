@@ -647,3 +647,16 @@ nav[aria-label="Mobile primary navigation"]{margin:0}
   width:auto;
   max-width:100%;
 }
+
+
+@media (min-width:900px){
+  .dashboard-shell{
+    height:100dvh;
+    min-height:0;
+    padding-top:16px;
+    padding-bottom:16px;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+}
