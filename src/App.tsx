@@ -9,6 +9,7 @@ import AccountAuthPanel from './design-system/organisms/AccountAuthPanel'
 import AppSidebarLayout from './design-system/organisms/AppSidebarLayout'
 import ParsingIssuesDashboard from './design-system/organisms/ParsingIssuesDashboard'
 import PerformanceDashboard from './design-system/organisms/PerformanceDashboard'
+import DailyPracticeGoals from './design-system/organisms/DailyPracticeGoals'
 import PracticeAnswerPanel from './design-system/organisms/PracticeAnswerPanel'
 import PracticeSessionHeader from './design-system/organisms/PracticeSessionHeader'
 import PracticeSetupPanel from './design-system/organisms/PracticeSetupPanel'
@@ -480,19 +481,65 @@ export default function App(){
 
     <AlexBox
       sx={{
-        display:'grid',
-        gridTemplateColumns:{xs:'1fr',md:'minmax(0,1.3fr) minmax(280px,.7fr)'},
+        display:'flex',
+        flexDirection:{xs:'column',md:'row'},
         gap:{xs:2,sm:3,lg:4},
         mt:{xs:2.25,md:2.75},
         alignItems:'stretch',
+        width:'100%',
       }}
     >
-      <PerformanceDashboard summary={performance} hasHistory={attempts.length>0} compact/>
-      <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
-    </AlexBox>
+      <AlexBox sx={{display:'flex',flexDirection:'column',flex:'1.37 1 0',minWidth:0}}>
+        <PerformanceDashboard
+          summary={performance}
+          hasHistory={attempts.length>0}
+          compact
+          compactRecommendationExtra={
+            <DailyPracticeGoals
+              attempts={attempts}
+              sessions={sessions}
+              dailyQuestions={practiceRecommendation.questionsPerSession*practiceRecommendation.recommendedSessionsPerDay}
+              dailyMinutes={practiceRecommendation.estimatedDailyMinutes}
+              failedQuestionCount={failedQuestionCount}
+              recommendationLabel={performance.recommendation?.label}
+              recommendationReason={performance.recommendation?.reason}
+            />
+          }
+        />
+      </AlexBox>
 
-    <AlexBox sx={{display:'flex',justifyContent:'flex-end',mt:1.25,pb:{xs:1,md:2}}}>
-      <AlexButton tone="quiet" onClick={()=>navigateTo('settings')}>Edit plan settings</AlexButton>
+      <AlexBox sx={{
+        display:'flex',
+        flexDirection:'column',
+        flex:'.63 1 0',
+        minWidth:{xs:0,md:260},
+        gap:1.25,
+        boxSizing:'border-box',
+        mx:{md:'4%'},
+      }}>
+        <AlexBox sx={{flex:'1 1 auto',minHeight:0}}>
+          <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
+        </AlexBox>
+        <AlexBox sx={{
+          px:2,py:2.5,minHeight:112,
+          border:'1px solid #E4E7EC',
+          borderRadius:'8px',
+          bgcolor:'#fff',
+          display:'flex',
+          alignItems:'flex-start',
+          justifyContent:'space-between',
+          gap:1.5,
+          flex:'0 0 auto',
+        }}>
+          <AlexBox>
+            <AlexBox sx={{fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>Your practice plan</AlexBox>
+            <AlexBox sx={{fontSize:10.5,color:'#667085',mt:.2}}>
+              {practiceRecommendation.recommendedSessionsPerDay} sessions/day · {settings.questionsPerSession} questions/session · {practiceRecommendation.estimatedDailyMinutes} min/day
+            </AlexBox>
+          </AlexBox>
+          <AlexButton tone="quiet" onClick={()=>navigateTo('settings')} sx={{fontSize:12,fontWeight:800}}>Edit plan</AlexButton>
+        </AlexBox>
+      </AlexBox>
     </AlexBox>
   </main>,'#F7F6F2')
 
