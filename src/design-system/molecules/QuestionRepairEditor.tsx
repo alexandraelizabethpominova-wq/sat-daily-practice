@@ -1,6 +1,7 @@
 import {useEffect,useRef,useState} from 'react'
 import AlexBox from '../atoms/AlexBox'
 import AlexButton from '../atoms/AlexButton'
+import AlexInfoTooltipButton from '../atoms/AlexInfoTooltipButton'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
 import StructuredQuestionLines from './StructuredQuestionLines'
@@ -205,16 +206,18 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
         inputRef={questionTextRef}
         onChange={event=>setQuestionText(event.target.value)}
       />
-      <AlexBox sx={{display:'flex',justifyContent:'flex-end',mt:-1}}>
-        <details style={{fontSize:12,color:'#667085'}}>
-          <summary style={{cursor:'pointer',textAlign:'right'}}>ⓘ LaTeX help</summary>
-          <AlexBox sx={{mt:.75,p:1.25,border:'1px solid #D0D5DD',borderRadius:2,lineHeight:1.6}}>
+      <AlexBox sx={{display:'flex',justifyContent:'flex-end',alignItems:'center',mt:-1,color:'#667085'}}>
+        <AlexText sx={{fontSize:12}}>LaTeX help</AlexText>
+        <AlexInfoTooltipButton
+          label="LaTeX formatting help"
+          title={<AlexBox sx={{lineHeight:1.6}}>
             <div><b>LaTeX formatting</b></div>
             <div>Variable: $x$</div><div>Power: $x^2$ or $x^&#123;2&#125;$</div>
             <div>Square root: $\\sqrt&#123;37&#125;$</div><div>Fraction: $\\frac&#123;12&#125;&#123;35&#125;$</div>
-            <div>Table: wrap rows in [TABLE] and [/TABLE], and separate cells with |. Example: [TABLE], then x | y, then 2 | 5, then [/TABLE].</div>
-          </AlexBox>
-        </details>
+            <div>Table: wrap rows in [TABLE] and [/TABLE], with columns separated by |.</div>
+            <div>[TABLE]<br/>x | y<br/>2 | 5<br/>[/TABLE]</div>
+          </AlexBox>}
+        />
       </AlexBox>
       {visualSpecs.length>1&&<AlexText sx={{fontSize:12,color:'#667085'}}>This question has {visualSpecs.length} source visual regions. The editor below adjusts the first region; the remaining regions are preserved when saving.</AlexText>}
       <VisualCropEditor question={question} bytes={resolvedQuestionsPdf} value={visualSpec} onChange={setVisualSpec} lineCount={toLines(questionText).length}/>
