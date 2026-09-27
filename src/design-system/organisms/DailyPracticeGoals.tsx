@@ -103,7 +103,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
             width:'100%',maxWidth:38,aspectRatio:'1',borderRadius:2,
             border:'1px solid',borderColor:day.practiced?'#C9BFFF':day.isToday?'#6558F5':'#D0D5DD',
             bgcolor:day.practiced?'#F2EFFF':'#fff',color:day.practiced?'#6558F5':'#667085',
-            display:'grid',placeItems:'center',opacity:day.isFuture?.72:1,
+            display:'grid',placeItems:'center',opacity:day.isFuture?0.72:1,
           }}>{day.practiced?<Check size={17} strokeWidth={2.5}/>:<AlexText sx={{fontSize:11,fontWeight:800}}>{day.label}</AlexText>}</AlexBox>
           <AlexText sx={{fontSize:9.5,fontWeight:day.isToday?900:700,color:day.isToday?'#6558F5':'#98A2B3'}}>{day.label}</AlexText>
         </AlexBox>)}
