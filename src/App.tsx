@@ -489,7 +489,7 @@ export default function App(){
         width:'100%',
       }}
     >
-      <AlexBox sx={{display:'flex',flexDirection:'column',flex:'1 1 68.5%',minWidth:0}}>
+      <AlexBox sx={{display:'flex',flexDirection:'column',flex:'1.37 1 0',minWidth:0}}>
         <PerformanceDashboard
           summary={performance}
           hasHistory={attempts.length>0}
@@ -511,7 +511,7 @@ export default function App(){
       <AlexBox sx={{
         display:'flex',
         flexDirection:'column',
-        flex:'1 1 31.5%',
+        flex:'.63 1 0',
         minWidth:{xs:0,md:260},
         gap:1.25,
         boxSizing:'border-box',
