@@ -485,12 +485,12 @@ export default function App(){
       className="dashboard-bottom"
       sx={{
         display:'flex',
-        flexDirection:{xs:'column',lg:'row'},
+        flexDirection:{xs:'column',xl:'row'},
         gap:{xs:2,sm:3,lg:1.5},
         alignItems:'stretch',
         width:'100%',
-        flex:{lg:'1 1 0'},
-        minHeight:{lg:0},
+        flex:{xl:'1 1 0'},
+        minHeight:{xl:0},
       }}
     >
       <AlexBox
@@ -498,7 +498,7 @@ export default function App(){
         sx={{
           display:'flex',
           flexDirection:'column',
-          flex:{xs:'1 1 auto',lg:'1.37 1 0'},
+          flex:{xs:'1 1 auto',xl:'1.37 1 0'},
           minWidth:0,
           minHeight:0,
         }}
@@ -526,16 +526,16 @@ export default function App(){
         sx={{
           display:'flex',
           flexDirection:'column',
-          flex:{xs:'1 1 auto',lg:'.63 1 0'},
-          minWidth:{xs:0,lg:260},
+          flex:{xs:'1 1 auto',xl:'.63 1 0'},
+          minWidth:{xs:0,xl:260},
           minHeight:0,
           gap:{xs:1.5,sm:2.5},
           boxSizing:'border-box',
-          pl:{lg:0},
-          pr:{lg:0},
+          pl:{xl:0},
+          pr:{xl:0},
         }}
       >
-        <AlexBox sx={{flex:{xs:'1 1 auto',lg:'0 0 clamp(340px,35dvh,360px)'},height:{lg:'clamp(340px,35dvh,360px)'},minHeight:0}}>
+        <AlexBox sx={{flex:{xs:'1 1 auto',xl:'0 0 clamp(340px,35dvh,360px)'},height:{xl:'clamp(340px,35dvh,360px)'},minHeight:0}}>
           <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
         </AlexBox>
         <AlexBox sx={{
@@ -546,7 +546,7 @@ export default function App(){
           display:'flex',
           flexDirection:'column',
           gap:1.25,
-          flex:{xs:'0 0 auto',lg:'1 1 0'},
+          flex:{xs:'0 0 auto',xl:'1 1 0'},
           minHeight:0,
         }}>
           <AlexBox sx={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:1.5}}>
@@ -555,7 +555,7 @@ export default function App(){
           </AlexBox>
           <AlexBox sx={{
             display:'grid',
-            gridTemplateColumns:{xs:'repeat(2,minmax(0,1fr))',sm:'repeat(4,minmax(0,1fr))',lg:'repeat(2,minmax(0,1fr))'},
+            gridTemplateColumns:{xs:'repeat(2,minmax(0,1fr))',sm:'repeat(4,minmax(0,1fr))',xl:'repeat(2,minmax(0,1fr))'},
             gap:.75,
           }}>
             {[
