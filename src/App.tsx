@@ -488,7 +488,7 @@ export default function App(){
         alignItems:'stretch',
       }}
     >
-      <AlexBox sx={{display:'grid',gridTemplateRows:'minmax(0,2fr) minmax(0,1fr)',gap:{xs:1.5,sm:2},minWidth:0,height:'100%'}}>
+      <AlexBox sx={{display:'grid',gap:{xs:1.5,sm:2},minWidth:0,alignContent:'start'}}>
         <PerformanceDashboard summary={performance} hasHistory={attempts.length>0} compact compactMetricsOnly/>
         <AlexBox sx={{
           display:'grid',
@@ -496,6 +496,7 @@ export default function App(){
           gap:{xs:1.25,sm:1.5},
           alignItems:'stretch',
           minWidth:0,
+          minHeight:{lg:176},
         }}>
           <AlexBox sx={{
             p:{xs:1.5,sm:1.7},
