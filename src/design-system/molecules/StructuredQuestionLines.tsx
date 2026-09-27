@@ -105,9 +105,14 @@ function explicitTableAt(lines:string[],start:number){
   if(end<0)return null
   const tableLines=lines.slice(start+1,end).map(line=>line.trim()).filter(Boolean)
   if(tableLines.length<2)return null
-  const rows=tableLines.map(line=>line.split('|').map(cell=>cell.trim()).filter(Boolean))
+  const rows=tableLines.map(line=>{
+    const cells=line.includes('|')
+      ?line.split('|').map(cell=>cell.trim()).filter(Boolean)
+      :tableCells(line)
+    return cells??[]
+  })
   const width=rows[0]?.length??0
-  if(width<2||rows.some(row=>row.length!==width))return null
+  if(width<2||rows.some(row=>row.length!==width))return {invalid:true,nextIndex:end+1}
   return {headers:rows[0],rows:rows.slice(1),nextIndex:end+1}
 }
 
@@ -294,7 +299,11 @@ export default function StructuredQuestionLines({lines,reflowProse=false}:{lines
 
     const explicitTable=explicitTableAt(sourceLines,index)
     if(explicitTable){
-      output.push(<DataTable key={`explicit-table-${index}`} headers={explicitTable.headers} rows={explicitTable.rows}/>)
+      if('invalid' in explicitTable){
+        output.push(<p key={`invalid-table-${index}`}><strong>Invalid table format.</strong> Use one row per line and separate columns with | (or whitespace).</p>)
+      }else{
+        output.push(<DataTable key={`explicit-table-${index}`} headers={explicitTable.headers} rows={explicitTable.rows}/>)
+      }
       index=explicitTable.nextIndex
       continue
     }
