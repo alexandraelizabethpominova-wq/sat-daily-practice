@@ -10,6 +10,8 @@ type Props={
   dailyQuestions:number
   dailyMinutes:number
   failedQuestionCount:number
+  recommendationLabel?:string
+  recommendationReason?:string
 }
 
 const DAY_LABELS=['Mo','Tu','We','Th','Fr','Sa','Su']
@@ -25,7 +27,7 @@ function startOfWeek(today:Date){
   return date
 }
 
-export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dailyMinutes,failedQuestionCount}:Props){
+export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dailyMinutes,failedQuestionCount,recommendationLabel='Keep practicing',recommendationReason}:Props){
   const today=new Date()
   const todayKey=localDayKey(today)
   const todayAttempts=attempts.filter(attempt=>localDayKey(attempt.createdAt)===todayKey)
@@ -63,7 +65,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
   const weeklyMinutes=Math.round(attempts.filter(attempt=>new Date(attempt.createdAt)>=weekStart).reduce((total,attempt)=>total+attempt.elapsedMs,0)/60000)
   const daysToWeeklyStreak=Math.max(0,2-practicedDays)
 
-  return <AlexBox sx={{display:'grid',gridTemplateColumns:{xs:'1fr',sm:'1fr 1fr'},gap:1.5,minHeight:0,alignItems:'start'}}>
+  return <AlexBox sx={{display:'grid',gridTemplateColumns:{xs:'1fr',sm:'repeat(3,minmax(0,1fr))'},gap:1.5,minHeight:0,alignItems:'stretch'}}>
     <AlexSurface component="section" sx={{
       px:2.25,py:1.7,border:'none',borderRadius:'18px',bgcolor:'#fff',
       boxShadow:'none',minWidth:0,overflow:'hidden',
@@ -114,6 +116,15 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
       <AlexText sx={{fontFamily:'inherit',fontSize:14.5,fontWeight:400,lineHeight:1.25,color:'#667085'}}>
         {weeklyQuestions} items completed · {weeklyMinutes} minutes learned
       </AlexText>
+    </AlexSurface>
+
+    <AlexSurface component="section" title={recommendationReason} sx={{
+      px:2.25,py:1.7,border:'none',borderRadius:'18px',bgcolor:'#F5EEFF',
+      boxShadow:'none',minWidth:0,overflow:'hidden',
+      fontFamily:'Arial, Helvetica, sans-serif',
+    }}>
+      <AlexText component="h2" sx={{fontFamily:'inherit',fontSize:16,fontWeight:700,lineHeight:1.25,color:'#111',mb:1.45}}>Recommended focus</AlexText>
+      <AlexText sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:28,fontWeight:700,lineHeight:1.1,color:'#08275B'}}>{recommendationLabel}</AlexText>
     </AlexSurface>
   </AlexBox>
 }
