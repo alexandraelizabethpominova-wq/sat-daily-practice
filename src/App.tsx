@@ -522,7 +522,6 @@ export default function App(){
         <AlexBox sx={{
           px:2,py:2.5,minHeight:112,
           border:'1px solid #E4E7EC',
-          borderRadius:'8px',
           bgcolor:'#fff',
           display:'flex',
           alignItems:'center',
@@ -531,12 +530,12 @@ export default function App(){
           flex:'0 0 auto',
         }}>
           <AlexBox>
-            <AlexBox sx={{fontSize:11,fontWeight:850,color:'#08275B'}}>Your practice plan</AlexBox>
+            <AlexBox sx={{fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>Your practice plan</AlexBox>
             <AlexBox sx={{fontSize:10.5,color:'#667085',mt:.2}}>
               {practiceRecommendation.recommendedSessionsPerDay} sessions/day · {settings.questionsPerSession} questions/session · {practiceRecommendation.estimatedDailyMinutes} min/day
             </AlexBox>
           </AlexBox>
-          <AlexButton tone="quiet" onClick={()=>navigateTo('settings')}>Edit plan</AlexButton>
+          <AlexButton tone="quiet" onClick={()=>navigateTo('settings')} sx={{fontSize:12,fontWeight:800}}>Edit plan</AlexButton>
         </AlexBox>
       </AlexBox>
     </AlexBox>
