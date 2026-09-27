@@ -220,3 +220,68 @@ Automated tests should protect at least:
 - verified-content precedence over automatic extraction
 
 For questions with known complex visual/layout requirements, keep explicit regression fixtures.
+
+
+## 11. Math token integrity and pre-import linting
+
+Math parsing must distinguish source characters from rendering delimiters. In particular, the dollar sign has two different meanings and must never be handled by a global replacement:
+
+- a source `$` that denotes US currency is literal question text and must render as a currency symbol
+- `$...$` and `$$...$$` are internal LaTeX/KaTeX delimiters only when the enclosed content is intentionally reconstructed math
+- parser output must not expose delimiter characters to the student
+
+Before a Math question can be marked `verified`, compare the reconstructed content with the original source and explicitly check every occurrence of:
+
+- `$` (currency versus math delimiter)
+- `^` / superscripts and exponent grouping
+- radicals and root indices
+- subscripts
+- fractions
+- degree symbols
+- π
+- inequality signs
+- absolute-value bars
+- parentheses/brackets/braces
+- multiplication dots and other operators
+
+### Exponent rules
+
+PDF extraction commonly loses superscript geometry. Never infer that adjacent baseline characters are equivalent to a power.
+
+Examples of distinctions that must survive reconstruction:
+
+- `a^x` must not become `ax`
+- `x^2` must not become `x2`
+- `(1.04)^{6t/4}` must preserve the complete exponent
+- nested powers and powers inside radicals must preserve grouping
+
+Any question containing a superscript in the source must be visually compared with the source PDF after rendering. A syntactically valid expression is not sufficient if its mathematical meaning changed.
+
+### Required automated lint
+
+The import pipeline should fail or leave a question `imported`/unverified when any of these checks fail:
+
+1. structured `text` mode has null or empty `question_lines`
+2. math delimiters are unbalanced
+3. a rendered question exposes raw math delimiters such as stray `$`
+4. a source currency symbol was converted into a math delimiter
+5. a source superscript/exponent has no corresponding exponent structure in reconstructed content
+6. suspicious baseline adjacency appears where the source contains a superscript (for example `ax` versus `a^x`)
+7. braces/parentheses used for exponent grouping are unbalanced
+8. required math tokens disappear during PDF extraction or normalization
+
+The lint result must be stored with the import/audit output so the exact question can be reviewed before repair.
+
+### Verification-state invariant
+
+A question must never be `verified` when `question_mode = 'text'` and `question_lines` is null or empty. Image fallback is allowed only when it is intentional, documented, and visually verified.
+
+For every newly imported practice test, run QA in this order:
+
+1. Math Module 1, Q1 through Q27
+2. Math Module 2, Q1 through Q27
+3. compare each rendered question with its source crop
+4. resolve all math-token lint failures
+5. only then mark the Math modules verified
+
+This audit is required for each of the remaining practice tests rather than assuming that a parser that succeeded on one test will preserve the typography of another.
