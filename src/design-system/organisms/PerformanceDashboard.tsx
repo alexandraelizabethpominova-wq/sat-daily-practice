@@ -59,7 +59,7 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,c
 
   if(compact)return <AlexBox sx={{
     display:'grid',
-    gridTemplateRows:{xs:'auto auto',sm:'1.35fr 1fr'},
+    gridTemplateRows:{xs:'auto auto',sm:'auto auto'},
     gap:1.1,
     minWidth:0,
     height:'100%',
@@ -67,7 +67,7 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,c
   }}>
     <AlexBox sx={{
       display:'grid',
-      gridTemplateColumns:{xs:'repeat(2,minmax(0,1fr))',sm:'repeat(5,minmax(0,1fr))'},
+      gridTemplateColumns:{xs:'repeat(2,minmax(0,1fr))',sm:'repeat(6,minmax(0,1fr))'},
       gap:1,
       minHeight:0,
     }}>
@@ -84,28 +84,28 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,c
         valueColor={progressColor}
         valueFontSize={24}
       />
-    </AlexBox>
-
-    <AlexBox sx={{display:'grid',gridTemplateColumns:compactRecommendationExtra?{xs:'1fr',lg:'minmax(0,3fr) minmax(0,2fr)'}:'1fr',gap:1,minHeight:0,overflow:'hidden'}}>
       <AlexSurface sx={{
-        p:{xs:1.5,sm:1.7},
+        p:1.9,
+        minHeight:160,
+        height:'100%',
         border:'1px solid #D8D2FF',
         borderRadius:3,
         bgcolor:'#F7F5FF',
-        height:'100%',
-        minHeight:0,
         display:'flex',
         flexDirection:'column',
-        justifyContent:'center',
+        alignItems:'flex-start',
+        justifyContent:'flex-start',
       }}>
-        <AlexText sx={{fontSize:10,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:'#6558F5'}}>Recommended focus</AlexText>
-        <AlexText component="h2" sx={{fontSize:18,fontWeight:800,color:'#08275B',mt:.35}}>{summary.recommendation?.label??'Keep practicing'}</AlexText>
-        <AlexText sx={{color:'#475467',fontSize:11.5,lineHeight:1.4,mt:.35}}>
+        <AlexText sx={{fontSize:10.2,lineHeight:1.2,fontWeight:800,textTransform:'uppercase',letterSpacing:'.075em',color:'#6558F5'}}>Recommended focus</AlexText>
+        <AlexText component="b" sx={{display:'block',mt:.6,fontFamily:'Georgia, "Times New Roman", serif',fontSize:24,lineHeight:1,fontWeight:700,color:'#08275B'}}>
+          {summary.recommendation?.label??'Keep practicing'}
+        </AlexText>
+        <AlexText sx={{fontSize:10.5,lineHeight:1.35,color:'#667085',mt:.8}}>
           {summary.recommendation?.reason??'Complete a few sessions to identify the best area to focus on next.'}
         </AlexText>
       </AlexSurface>
-      {compactRecommendationExtra}
     </AlexBox>
+    {compactRecommendationExtra&&<AlexBox sx={{minHeight:0}}>{compactRecommendationExtra}</AlexBox>}
   </AlexBox>
 
   return <AlexBox>
