@@ -463,7 +463,7 @@ export default function App(){
     </section>
   </main>)
 
-  if(view==='study')return withSidebar('dashboard',<main className="shell">
+  if(view==='study')return withSidebar('dashboard',<main className="shell dashboard-shell">
     <StudyPlanHero
       accuracy={attempts.length?performance.accuracy:null}
       estimatedScore={performance.latestScoreEstimate}
@@ -487,6 +487,8 @@ export default function App(){
         mt:{xs:2.25,md:2.75},
         alignItems:'stretch',
         width:'100%',
+        flex:{md:'1 1 0'},
+        minHeight:{md:0},
       }}
     >
       <AlexBox sx={{display:'flex',flexDirection:'column',flex:'1.37 1 0',minWidth:0}}>
