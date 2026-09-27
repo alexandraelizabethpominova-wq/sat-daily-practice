@@ -499,6 +499,8 @@ export default function App(){
             dailyQuestions={practiceRecommendation.questionsPerSession*practiceRecommendation.recommendedSessionsPerDay}
             dailyMinutes={practiceRecommendation.estimatedDailyMinutes}
             failedQuestionCount={failedQuestionCount}
+            recommendationLabel={performance.recommendation?.label}
+            recommendationReason={performance.recommendation?.reason}
           />
         }
       />
