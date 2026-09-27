@@ -42,6 +42,10 @@ export const QUESTION_VISUALS:Record<string,QuestionVisualSpec>={
 }
 
 const QUESTION_VISUAL_GROUPS:Record<string,QuestionVisualSpec[]>={
+  'practice-test-5:math1-16':[
+    {afterLine:-1,crop:{x:.08,y:.02,width:.42,height:.34},exact:true,kind:'figure'},
+    {afterLine:0,crop:{x:.03,y:.49,width:.94,height:.50},exact:true,kind:'choice-grid'},
+  ],
   'practice-test-6:math1-2':[
     {afterLine:0,crop:{x:.17,y:.09,width:.34,height:.27},exact:true,kind:'figure'},
     {afterLine:1,crop:{x:.02,y:.40,width:.96,height:.60},exact:true,kind:'choice-grid'},
