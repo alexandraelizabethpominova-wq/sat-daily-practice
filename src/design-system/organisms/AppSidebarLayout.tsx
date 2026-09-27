@@ -75,9 +75,12 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onD
     data-testid="app-layout"
     sx={{
       minHeight:'100dvh',
+      height:{md:active==='dashboard'?'100dvh':'auto'},
+      maxHeight:{md:active==='dashboard'?'100dvh':'none'},
       width:'100%',
       maxWidth:'100vw',
       overflowX:'clip',
+      overflowY:{md:active==='dashboard'?'hidden':'visible'},
       bgcolor:contentBackground,
       color:'#08275B',
     }}
