@@ -486,7 +486,7 @@ export default function App(){
       sx={{
         display:'flex',
         flexDirection:{xs:'column',lg:'row'},
-        gap:{xs:2,sm:3,lg:4},
+        gap:{xs:2,sm:3,lg:1.5},
         alignItems:'stretch',
         width:'100%',
         flex:{lg:'1 1 0'},
@@ -531,7 +531,8 @@ export default function App(){
           minHeight:0,
           gap:{xs:1.5,sm:2.5},
           boxSizing:'border-box',
-          px:{lg:4},
+          pl:{lg:4},
+          pr:{lg:0},
         }}
       >
         <AlexBox sx={{flex:{xs:'1 1 auto',lg:'0 0 clamp(340px,35dvh,360px)'},height:{lg:'clamp(340px,35dvh,360px)'},minHeight:0}}>
