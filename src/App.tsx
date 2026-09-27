@@ -485,10 +485,10 @@ export default function App(){
         gridTemplateColumns:{xs:'1fr',md:'minmax(0,1.3fr) minmax(280px,.7fr)'},
         gap:{xs:2,sm:3,lg:4},
         mt:{xs:2.25,md:2.75},
-        alignItems:'start',
+        alignItems:'stretch',
       }}
     >
-      <AlexBox sx={{display:'grid',gap:{xs:1.5,sm:2},minWidth:0}}>
+      <AlexBox sx={{display:'grid',gridTemplateRows:'minmax(0,2fr) minmax(0,1fr)',gap:{xs:1.5,sm:2},minWidth:0,height:'100%'}}>
         <PerformanceDashboard summary={performance} hasHistory={attempts.length>0} compact compactMetricsOnly/>
         <AlexBox sx={{
           display:'grid',
