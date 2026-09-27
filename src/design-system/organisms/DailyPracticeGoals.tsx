@@ -62,7 +62,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
   ]
 
   return <AlexBox sx={{display:'grid',gap:.7,height:'100%',minHeight:0,gridTemplateRows:'1fr 1fr'}}>
-    <AlexSurface component="section" sx={{py:{xs:1,sm:1.1},px:{xs:1.35,sm:1.55},border:'1px solid #E4E7EC',borderRadius:3,bgcolor:'#fff',minWidth:0}}>
+    <AlexSurface component="section" sx={{py:{xs:1,sm:1.1},px:{xs:1.35,sm:1.55},border:'1px solid #E4E7EC',borderRadius:2,bgcolor:'#fff',minWidth:0}}>
       <AlexText component="h2" sx={{fontSize:13,fontWeight:850,color:'#08275B',mb:.5}}>Today’s goals</AlexText>
       <AlexBox sx={{display:'grid',gap:.3}}>
         {goals.map(goal=><AlexBox key={goal.label} sx={{display:'grid',gridTemplateColumns:'24px minmax(0,1fr) auto',alignItems:'center',gap:.65}}>
@@ -75,7 +75,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
       </AlexBox>
     </AlexSurface>
 
-    <AlexSurface component="section" sx={{py:{xs:1,sm:1.1},px:{xs:1.35,sm:1.55},border:'1px solid #E4E7EC',borderRadius:3,bgcolor:'#fff',minWidth:0}}>
+    <AlexSurface component="section" sx={{py:{xs:1,sm:1.1},px:{xs:1.35,sm:1.55},border:'1px solid #E4E7EC',borderRadius:2,bgcolor:'#fff',minWidth:0}}>
       <AlexBox sx={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:.7,mb:.35}}>
         <AlexBox sx={{display:'flex',alignItems:'center',gap:.5,minWidth:0}}>
           <Flame size={14} color="#6558F5"/>
@@ -83,15 +83,14 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
         </AlexBox>
         <AlexText sx={{fontSize:9.5,fontWeight:700,color:'#667085',whiteSpace:'nowrap'}}>{practicedDays} days this week</AlexText>
       </AlexBox>
-      <AlexBox sx={{display:'grid',gridTemplateColumns:'repeat(7,minmax(0,1fr))',gap:.45}}>
-        {weekDays.map(day=><AlexBox key={day.key} sx={{display:'grid',justifyItems:'center',gap:.25,minWidth:0}}>
+      <AlexBox sx={{display:'grid',gridTemplateColumns:'repeat(7,30px)',gap:.7,justifyContent:'start'}}>
+        {weekDays.map(day=><AlexBox key={day.key} sx={{minWidth:0}}>
           <AlexBox sx={{
-            width:{xs:23,sm:25},height:{xs:23,sm:25},borderRadius:1,
+            width:30,height:30,borderRadius:1,
             border:'1px solid',borderColor:day.practiced?'#BBA8FF':day.isToday?'#6558F5':'#CBD3DF',
             bgcolor:day.practiced?'#F3EFFF':'#fff',color:day.practiced?'#6558F5':'#667085',
             display:'grid',placeItems:'center',
-          }}>{day.practiced?<Check size={12} strokeWidth={2.3}/>:<AlexText sx={{fontSize:8.5,fontWeight:750}}>{day.label}</AlexText>}</AlexBox>
-          <AlexText sx={{fontSize:7.5,fontWeight:day.isToday?850:650,color:day.isToday?'#6558F5':'#98A2B3'}}>{day.label}</AlexText>
+          }}>{day.practiced?<Check size={14} strokeWidth={2.3}/>:<AlexText sx={{fontSize:10,fontWeight:day.isToday?850:700,color:day.isToday?'#08275B':'inherit'}}>{day.label}</AlexText>}</AlexBox>
         </AlexBox>)}
       </AlexBox>
     </AlexSurface>
