@@ -45,7 +45,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
   }),[view.year,view.month,sessions,recommendation.recommendedSessionsPerDay,recommendation.questionsPerSession,settings.targetExamDate])
 
   const firstWeekday=new Date(view.year,view.month,1).getDay()
-  const targetSessions=Math.max(0,recommendation.recommendedSessionsPerDay)
+  const targetQuestions=Math.max(0,recommendation.recommendedSessionsPerDay*recommendation.questionsPerSession)
   function moveMonth(delta:number){
     const next=new Date(view.year,view.month+delta,1)
     setView({year:next.getFullYear(),month:next.getMonth()})
@@ -70,7 +70,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
         <AlexText sx={{fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>Practice calendar</AlexText>
       </AlexBox>
       <AlexText sx={{fontSize:10.5,fontWeight:800,color:'#667085',whiteSpace:'nowrap'}}>
-        {targetSessions>0?`${targetSessions} session${targetSessions===1?'':'s'}/day`:'Flexible pace'}
+        {targetQuestions>0?`${targetSessions} session${targetSessions===1?'':'s'}/day`:'Flexible pace'}
       </AlexText>
     </AlexBox>
 
@@ -112,12 +112,12 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
         const style=STATUS_STYLE[day.status]
         const isToday=day.date===todayKey
         const isExamDate=Boolean(settings.targetExamDate&&day.date===settings.targetExamDate)
-        const hasTrackedGoal=targetSessions>0&&(day.status==='ahead'||day.status==='on-track'||day.status==='behind')
+        const hasTrackedGoal=targetQuestions>0&&(day.status==='ahead'||day.status==='on-track'||day.status==='behind')
         const title=[
           style.label,
           isExamDate?'Exam date':'',
           day.practiced
-            ?`${targetSessions>0?`${day.sessionCount} of ${targetSessions}`:day.sessionCount} session${targetSessions===1&&day.sessionCount===1?'':'s'} · ${day.questionCount} questions`
+            ?`${targetQuestions>0?`${day.sessionCount} of ${targetSessions}`:day.sessionCount} session${targetSessions===1&&day.sessionCount===1?'':'s'} · ${day.questionCount} questions`
             :hasTrackedGoal?'No practice recorded':'',
         ].filter(Boolean).join(' · ')
         return <AlexTooltip
