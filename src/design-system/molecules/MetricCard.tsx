@@ -22,7 +22,7 @@ export default function MetricCard({icon,label,value,tone='default',compact=fals
     minHeight:compact?275:undefined,
     height:compact?'100%':undefined,
     border:`1px solid ${palette.border}`,
-    borderRadius:3,
+    borderRadius:'12px',
     boxShadow:'0 8px 24px rgba(9,35,79,.035)',
     bgcolor:palette.bg,
     display:'flex',
