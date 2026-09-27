@@ -59,10 +59,11 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,c
 
   if(compact)return <AlexBox sx={{
     display:'grid',
-    gridTemplateRows:{xs:'auto auto',sm:'minmax(0,2fr) minmax(0,1fr)'},
+    gridTemplateRows:{xs:'auto auto',sm:'2fr 1fr'},
     gap:1.1,
     minWidth:0,
     height:'100%',
+    maxHeight:{sm:430},
   }}>
     <AlexBox sx={{
       display:'grid',
