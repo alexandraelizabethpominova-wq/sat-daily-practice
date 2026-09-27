@@ -285,3 +285,220 @@ For every newly imported practice test, run QA in this order:
 5. only then mark the Math modules verified
 
 This audit is required for each of the remaining practice tests rather than assuming that a parser that succeeded on one test will preserve the typography of another.
+
+
+## 12. Canonical structured-content contract
+
+Supabase is the canonical store for reviewed question repairs. Bundled fixtures may bootstrap an import or provide regression coverage, but a saved shared repair must take precedence and must be sufficient to reproduce the student-facing question.
+
+A reviewed question must persist, as applicable:
+
+- ordered `question_lines`
+- response type and official answer metadata
+- `content_status`
+- zero or more visual specifications
+- each visual's normalized crop
+- each visual's placement relative to the structured text
+- each visual's semantic kind
+
+Multiple visuals must be stored as an ordered array. Do not collapse a multi-visual question into one oversized crop. Legacy single-crop fields may be retained for backward compatibility, but new import/repair code must treat the visual array as canonical.
+
+Saving a repair must read back the persisted record and verify that question text, all visual crops, visual kinds, and placements match what the reviewer saved. A UI success state must not be shown merely because the request returned without throwing.
+
+## 13. Question layout classification before extraction
+
+Before reconstructing a question, classify its layout. The parser should not assume every question is plain prose.
+
+Supported cases must include at least:
+
+- text only
+- text with inline/display math
+- semantic data table
+- text plus one source figure
+- text plus multiple independent figures
+- text plus graphical answer choices
+- source figure + text stem + graphical answer choices
+- intentionally documented full-image fallback
+
+Graphical answer choices are a first-class `choice-grid` visual case. Their labels, axes, curves, diagrams, or spatial relationships must not be converted into unreliable extracted prose.
+
+For a question with multiple visual regions, text extraction must exclude **every** registered visual region. Never exclude only the first crop and then allow labels from later graphs/figures to leak into parsed text.
+
+The classification belongs to the parsing model, not to a hard-coded question-number exception. A newly imported practice test should be able to use the same layout cases without adding special logic for a particular test or question.
+
+## 14. Visual specification and placement rules
+
+A visual specification contains:
+
+- normalized `x`, `y`, `width`, and `height` relative to the detected question region
+- `kind` such as `figure` or `choice-grid`
+- `afterLine`, describing placement in structured reading order
+- an exact/safety-crop indicator when applicable
+
+Placement semantics:
+
+- `afterLine = -1`: before all parsed question text
+- non-negative `afterLine`: after that structured text line
+- a placement intended to mean "after all text" must remain correct if a reviewer adds/removes line breaks; do not encode it as a fragile fixed line index
+
+The repair UI must expose **every** visual independently. Reviewers must be able to:
+
+- adjust left/top/width/height for each crop
+- preview each crop from the authoritative source PDF
+- change each visual's placement
+- distinguish a normal figure from graphical answer choices
+- add/remove visual regions
+- save all visual regions atomically
+
+Crop previews and student rendering must use the same normalized crop semantics. A crop that looks correct in the repair editor must not shift, scale, or clip differently in the student view.
+
+## 15. Structured text fidelity
+
+Line boundaries in a reviewed repair are semantic data. Saving or rendering must not silently reflow reviewer-entered lines into paragraphs.
+
+Preserve:
+
+- intentional paragraph breaks
+- list/bullet boundaries
+- equation lines
+- table markers/rows
+- answer-choice boundaries
+- source ordering around visuals
+
+Bulleted source content must render as separate bullets rather than a single run-on line.
+
+Underlined source text must use explicit structured markup understood by the renderer. If a question refers to "the underlined" text, QA must confirm that an underlined span actually exists.
+
+The repair editor's live preview and the final student-facing renderer must share the same structured rendering pipeline. Do not maintain a second approximate preview implementation whose LaTeX, table, underline, or line-break behavior can diverge from production.
+
+## 16. Explicit table repair format
+
+Automatically detected tables may be used during initial extraction, but manual repairs need an unambiguous representation.
+
+The supported repair format is:
+
+```text
+[TABLE]
+x | f(x)
+-4 | 0
+-19/5 | 1
+-18/5 | 2
+[/TABLE]
+```
+
+Rules:
+
+- one row per line
+- `|` is the preferred explicit column separator
+- whitespace-separated legacy rows may be accepted when column structure is unambiguous
+- the first row is the header row unless the question's table model explicitly says otherwise
+- `[TABLE]` and `[/TABLE]` are editor/source markup and must never render to students
+- malformed explicit tables must produce a visible QA error rather than silently falling back to prose
+- semantic tables must size to content and must not introduce unnecessary nested scrollbars
+
+## 17. Math repair and rendering rules
+
+Reviewer-entered LaTeX is authoritative after save. The repair editor must support common transformations without requiring reviewers to memorize syntax:
+
+- variable/math span
+- exponent
+- square root
+- fraction
+- underline
+- table
+
+These controls are conveniences; they must produce the same markup accepted by the production renderer.
+
+Math QA must compare **rendered meaning**, not only source strings. In particular verify that:
+
+- variables intended as math render as math
+- fractions have the correct numerator/denominator
+- radicals include the complete radicand
+- exponents include the complete exponent
+- minus signs and inequality signs are not lost
+- currency remains literal currency
+- no raw LaTeX delimiters are student-visible
+
+## 18. Import pipeline for new practice tests
+
+Use this sequence for every new test:
+
+1. register the source package and practice-test ID
+2. map pages/modules/questions without borrowing mappings from another test
+3. import answer/response metadata from the scoring source
+4. detect question regions using page/column geometry
+5. classify each question's layout before text reconstruction
+6. reconstruct semantic text/math/tables
+7. detect/register all genuinely visual regions
+8. remove all registered visual regions from text extraction
+9. render the reconstructed question through the production renderer
+10. compare it side-by-side with the authoritative source
+11. run automated quality lint
+12. repair any failures using the shared repair editor
+13. persist the canonical result to Supabase
+14. read it back and verify persistence
+15. mark `verified` only after per-question QA passes
+
+Do not bulk-promote a module to `verified` because extraction completed successfully.
+
+For the next four practice tests, complete one module's QA before using its results to tune generalized parser behavior. Parser improvements discovered during QA should be added as reusable layout/token rules and regression fixtures, not question-number-specific exceptions unless the official source is genuinely exceptional.
+
+## 19. Import quality gates
+
+A new practice test is not ready for normal practice while any of these conditions exist:
+
+- missing question text for a text/hybrid question
+- missing or extra answer choices
+- wrong official answer/response type
+- unresolved math lint
+- table rendered as flattened prose
+- graphical choices parsed as text instead of preserved visually
+- missing visual region
+- crop clips meaningful content
+- crop contains adjacent question/page decoration
+- visual appears in the wrong reading-order position
+- raw `[TABLE]` markers or LaTeX delimiters are student-visible
+- repaired content exists only in browser/local state
+- shared repair fails round-trip persistence
+- cross-test fallback supplies any content
+- unresolved parsing issue is marked resolved
+
+The import summary should report counts for total, imported, verified, flagged, visual, multi-visual, table, and lint-failing questions by module.
+
+## 20. Regression fixture matrix
+
+Maintain representative fixtures for parser behavior rather than only testing ordinary prose. At minimum, the suite should contain examples of:
+
+| Fixture | Required assertion |
+| --- | --- |
+| currency + math | currency `$` survives while math delimiters do not leak |
+| exponent | superscript grouping survives reconstruction |
+| radical/fraction | complete mathematical structure renders correctly |
+| bullets | each source bullet remains a distinct item |
+| underline | marked source span renders underlined |
+| semantic table | headers/rows/cells preserve order |
+| explicit repaired table | markers disappear and semantic table renders |
+| one figure | crop and placement match source |
+| multiple figures | every visual persists and renders |
+| graphical choices | choices remain visual and are not extracted as prose |
+| figure + stem + choice grid | reading order is figure → text → choices |
+| manual crop repair | all crop coordinates survive Supabase round trip |
+| line-break repair | saved line boundaries survive reload |
+| source isolation | no text/crop/PDF/answer can come from another test |
+
+When a parsing defect is found during review of a future test, first decide which fixture category it belongs to. Add or extend the regression fixture before marking the generalized fix complete.
+
+## 21. Definition of done for Tests 8–11
+
+For each additional practice test, "parsed" means more than records existing in the database. Completion requires:
+
+- every question reviewed against its official source
+- every Math question checked for mathematical meaning after rendering
+- every Reading & Writing question checked for paragraph, punctuation, underline, bullet, and table fidelity
+- every visual and graphical choice group cropped and placed correctly
+- every official answer verified
+- every shared repair successfully round-tripped through Supabase
+- zero unresolved high-severity parsing issues
+- regression suite and production build passing
+
+Record any intentionally unresolved source ambiguity explicitly; never silently guess and mark it verified.

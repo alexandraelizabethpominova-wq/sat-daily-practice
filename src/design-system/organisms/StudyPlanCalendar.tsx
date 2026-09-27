@@ -45,7 +45,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
   }),[view.year,view.month,sessions,recommendation.recommendedSessionsPerDay,recommendation.questionsPerSession,settings.targetExamDate])
 
   const firstWeekday=new Date(view.year,view.month,1).getDay()
-  const targetSessions=Math.max(0,recommendation.recommendedSessionsPerDay)
+  const targetQuestions=Math.max(0,recommendation.recommendedSessionsPerDay*recommendation.questionsPerSession)
   function moveMonth(delta:number){
     const next=new Date(view.year,view.month+delta,1)
     setView({year:next.getFullYear(),month:next.getMonth()})
@@ -56,11 +56,10 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
     sx={{
       p:{xs:1.6,sm:1.75},
       border:'1px solid #E4E7EC',
-      borderRadius:3,
       bgcolor:'#fff',
       minWidth:0,
       height:'100%',
-      minHeight:{xs:360,md:420,lg:430},
+      minHeight:{xs:340,md:0},
       display:'flex',
       flexDirection:'column',
     }}
@@ -68,10 +67,10 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
     <AlexBox sx={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:1.25,mb:1.15}}>
       <AlexBox sx={{display:'flex',alignItems:'center',gap:.75,minWidth:0}}>
         <CalendarDays size={16} color="#6558F5"/>
-        <AlexText sx={{fontSize:12,fontWeight:850,color:'#08275B'}}>Practice calendar</AlexText>
+        <AlexText sx={{fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>Practice calendar</AlexText>
       </AlexBox>
       <AlexText sx={{fontSize:10.5,fontWeight:800,color:'#667085',whiteSpace:'nowrap'}}>
-        {targetSessions>0?`${targetSessions} session${targetSessions===1?'':'s'}/day`:'Flexible pace'}
+        {targetQuestions>0?`${targetQuestions} questions/day`:'Flexible pace'}
       </AlexText>
     </AlexBox>
 
@@ -97,27 +96,28 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
     <AlexBox sx={{
       display:'grid',
       gridTemplateColumns:'repeat(7,minmax(0,1fr))',
-      gridAutoRows:'minmax(42px,1fr)',
+      gridAutoRows:'minmax(34px,1fr)',
       columnGap:.2,
-      rowGap:.65,
+      rowGap:.35,
       width:'92%',
       mx:'auto',
-      flex:'1 1 auto',
+      flex:'1 1 0',
       minHeight:0,
       alignItems:'center',
       alignContent:'stretch',
+      overflow:'hidden',
     }}>
       {Array.from({length:firstWeekday},(_,index)=><AlexBox key={`empty-${index}`} aria-hidden="true"/>)}
       {days.map(day=>{
         const style=STATUS_STYLE[day.status]
         const isToday=day.date===todayKey
         const isExamDate=Boolean(settings.targetExamDate&&day.date===settings.targetExamDate)
-        const hasTrackedGoal=targetSessions>0&&(day.status==='ahead'||day.status==='on-track'||day.status==='behind')
+        const hasTrackedGoal=targetQuestions>0&&(day.status==='ahead'||day.status==='on-track'||day.status==='behind')
         const title=[
           style.label,
           isExamDate?'Exam date':'',
           day.practiced
-            ?`${targetSessions>0?`${day.sessionCount} of ${targetSessions}`:day.sessionCount} session${targetSessions===1&&day.sessionCount===1?'':'s'} · ${day.questionCount} questions`
+            ?`${day.questionCount}${day.targetQuestionCount>0?` of ${day.targetQuestionCount}`:''} questions`
             :hasTrackedGoal?'No practice recorded':'',
         ].filter(Boolean).join(' · ')
         return <AlexTooltip

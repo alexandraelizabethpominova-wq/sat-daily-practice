@@ -1,4 +1,5 @@
 import {useEffect,useState,type ReactNode} from 'react'
+import {CalendarDays,Clock3,ListChecks,PenLine,Target} from 'lucide-react'
 import AlexBox from './design-system/atoms/AlexBox'
 import AlexButton from './design-system/atoms/AlexButton'
 import AlexStatusChip from './design-system/atoms/AlexStatusChip'
@@ -9,6 +10,7 @@ import AccountAuthPanel from './design-system/organisms/AccountAuthPanel'
 import AppSidebarLayout from './design-system/organisms/AppSidebarLayout'
 import ParsingIssuesDashboard from './design-system/organisms/ParsingIssuesDashboard'
 import PerformanceDashboard from './design-system/organisms/PerformanceDashboard'
+import DailyPracticeGoals from './design-system/organisms/DailyPracticeGoals'
 import PracticeAnswerPanel from './design-system/organisms/PracticeAnswerPanel'
 import PracticeSessionHeader from './design-system/organisms/PracticeSessionHeader'
 import PracticeSetupPanel from './design-system/organisms/PracticeSetupPanel'
@@ -312,7 +314,7 @@ export default function App(){
   }
 
   async function finish(){
-    const session:SessionSummary={id:sid,startedAt:started,endedAt:new Date().toISOString(),mode:settings.mode,questionCount:qs.length,attempts:currentAttempts}
+    const session:SessionSummary={id:sid,startedAt:started,endedAt:new Date().toISOString(),mode:settings.mode,questionCount:qs.length,attempts:currentAttempts,dailyQuestionGoal:practiceRecommendation.questionsPerSession*practiceRecommendation.recommendedSessionsPerDay}
     try{
       await syncSession(session)
       setSessions(previous=>[...previous,session])
@@ -462,37 +464,161 @@ export default function App(){
     </section>
   </main>)
 
-  if(view==='study')return withSidebar('dashboard',<main className="shell">
-    <StudyPlanHero
-      accuracy={attempts.length?performance.accuracy:null}
-      estimatedScore={performance.latestScoreEstimate}
-      nationalMeritChance={nationalMeritOutlook?.qualifyingChance??null}
-      projectedSelectionIndex={nationalMeritOutlook?.projectedSelectionIndex??null}
-      estimateConfidence={performance.scoreEstimateConfidence}
-      targetScore={practiceRecommendation.targetScore}
-      daysRemaining={practiceRecommendation.daysRemaining}
-      dailyMinutes={practiceRecommendation.estimatedDailyMinutes}
-      questionsPerSession={settings.questionsPerSession}
-      focusLabel={practiceRecommendation.focusLabel}
-      onChoosePracticeTest={()=>navigateTo('home')}
-      onStartPractice={()=>void beginPractice(settings.mode)}
-    />
-
-    <AlexBox
-      sx={{
-        display:'grid',
-        gridTemplateColumns:{xs:'1fr',md:'minmax(0,1.3fr) minmax(280px,.7fr)'},
-        gap:{xs:2,sm:3,lg:4},
-        mt:{xs:2.25,md:2.75},
-        alignItems:'stretch',
-      }}
-    >
-      <PerformanceDashboard summary={performance} hasHistory={attempts.length>0} compact/>
-      <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
+  if(view==='study')return withSidebar('dashboard',<main className="shell dashboard-shell">
+    <AlexBox className="dashboard-top" sx={{flex:'0 0 auto',minHeight:0}}>
+      <StudyPlanHero
+        accuracy={attempts.length?performance.accuracy:null}
+        estimatedScore={performance.latestScoreEstimate}
+        nationalMeritChance={nationalMeritOutlook?.qualifyingChance??null}
+        projectedSelectionIndex={nationalMeritOutlook?.projectedSelectionIndex??null}
+        estimateConfidence={performance.scoreEstimateConfidence}
+        targetScore={practiceRecommendation.targetScore}
+        daysRemaining={practiceRecommendation.daysRemaining}
+        questionsPerSession={settings.questionsPerSession}
+        onChoosePracticeTest={()=>navigateTo('home')}
+        onStartPractice={()=>void beginPractice(settings.mode)}
+      />
     </AlexBox>
 
-    <AlexBox sx={{display:'flex',justifyContent:'flex-end',mt:1.25,pb:{xs:1,md:2}}}>
-      <AlexButton tone="quiet" onClick={()=>navigateTo('settings')}>Edit plan settings</AlexButton>
+    <AlexBox
+      className="dashboard-bottom"
+      sx={{
+        display:'flex',
+        flexDirection:{xs:'column',xl:'row'},
+        gap:{xs:2,sm:3,lg:1.5},
+        alignItems:'stretch',
+        width:'100%',
+        flex:{xl:'1 1 0'},
+        minHeight:{xl:0},
+      }}
+    >
+      <AlexBox
+        className="dashboard-bottom-left"
+        sx={{
+          display:'flex',
+          flexDirection:'column',
+          flex:{xs:'1 1 auto',xl:'1.37 1 0'},
+          minWidth:0,
+          minHeight:0,
+        }}
+      >
+        <PerformanceDashboard
+          summary={performance}
+          hasHistory={attempts.length>0}
+          compact
+          compactRecommendationExtra={
+            <DailyPracticeGoals
+              attempts={attempts}
+              sessions={sessions}
+              dailyQuestions={practiceRecommendation.questionsPerSession*practiceRecommendation.recommendedSessionsPerDay}
+              dailyMinutes={practiceRecommendation.estimatedDailyMinutes}
+              failedQuestionCount={failedQuestionCount}
+              recommendationLabel={performance.recommendation?.label}
+              recommendationReason={performance.recommendation?.reason}
+            />
+          }
+        />
+      </AlexBox>
+
+      <AlexBox
+        className="dashboard-bottom-right"
+        sx={{
+          display:'flex',
+          flexDirection:'column',
+          flex:{xs:'1 1 auto',xl:'.63 1 0'},
+          minWidth:{xs:0,xl:260},
+          minHeight:0,
+          gap:{xs:1.5,sm:2.5},
+          boxSizing:'border-box',
+          pl:{xl:0},
+          pr:{xl:0},
+        }}
+      >
+        <AlexBox sx={{flex:{xs:'1 1 auto',xl:'0 0 clamp(340px,35dvh,360px)'},height:{xl:'clamp(340px,35dvh,360px)'},minHeight:0}}>
+          <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
+        </AlexBox>
+        <AlexBox sx={{
+          px:2,py:1.75,
+          border:'1px solid #E4E7EC',
+          borderRadius:'8px',
+          bgcolor:'#fff',
+          display:'flex',
+          flexDirection:'column',
+          gap:1.25,
+          flex:{xs:'0 0 auto',xl:'1 1 0'},
+          minHeight:0,
+        }}>
+          <AlexBox sx={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:1.5}}>
+            <AlexBox sx={{fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>Your practice plan</AlexBox>
+            <AlexButton
+              tone="quiet"
+              aria-label="Edit practice plan"
+              onClick={()=>navigateTo('settings')}
+              sx={{minWidth:32,width:32,height:32,p:0,display:'grid',placeItems:'center'}}
+            >
+              <PenLine size={17}/>
+            </AlexButton>
+          </AlexBox>
+          <AlexBox sx={{
+            display:'grid',
+            gridTemplateColumns:{xs:'1fr',sm:'repeat(2,minmax(0,1fr))'},
+            columnGap:0,
+            rowGap:0,
+            mt:-.5,
+          }}>
+            {[
+              {label:'Daily time',value:`${practiceRecommendation.estimatedDailyMinutes} min`,icon:<Clock3 size={15}/>},
+              {label:'Focus',value:practiceRecommendation.focusLabel??'Balanced',icon:<Target size={15}/>},
+              {label:'Session size',value:`${settings.questionsPerSession} questions`,icon:<ListChecks size={15}/>},
+              {label:'Pace',value:`${practiceRecommendation.recommendedSessionsPerDay}/day`,icon:<CalendarDays size={15}/>},
+            ].map((item,index)=><AlexBox
+              key={item.label}
+              sx={{
+                display:'grid',
+                gridTemplateColumns:'28px minmax(0,1fr) auto',
+                alignItems:'center',
+                columnGap:1,
+                py:.58,
+                pl:index%2===1?1.5:0,
+                pr:index%2===0?1.5:0,
+                borderLeft:index%2===1?'1px solid #EEF1F4':'none',
+                borderTop:index<2?'none':'1px solid #EEF1F4',
+                minWidth:0,
+              }}
+            >
+              <AlexBox sx={{
+                width:28,
+                height:28,
+                borderRadius:'50%',
+                display:'grid',
+                placeItems:'center',
+                bgcolor:'#E8F7EE',
+                color:'#20935A',
+              }}>
+                {item.icon}
+              </AlexBox>
+              <AlexBox sx={{
+                fontSize:12.5,
+                lineHeight:1.25,
+                color:'#344054',
+                minWidth:0,
+              }}>
+                {item.label}
+              </AlexBox>
+              <AlexBox sx={{
+                fontSize:13,
+                lineHeight:1.2,
+                fontWeight:800,
+                color:'#08275B',
+                whiteSpace:'nowrap',
+                pl:1,
+              }}>
+                {item.value}
+              </AlexBox>
+            </AlexBox>)}
+          </AlexBox>
+        </AlexBox>
+      </AlexBox>
     </AlexBox>
   </main>,'#F7F6F2')
 

@@ -10,7 +10,7 @@ import PerformanceChartCard from '../molecules/PerformanceChartCard'
 import QuestionStatsTable from '../molecules/QuestionStatsTable'
 import type {PerformanceAnalytics} from '../../lib/performanceAnalytics'
 
-type Props={summary:PerformanceAnalytics;hasHistory:boolean;compact?:boolean;questionsPdf?:ArrayBuffer|null;answersPdf?:ArrayBuffer|null}
+type Props={summary:PerformanceAnalytics;hasHistory:boolean;compact?:boolean;compactRecommendationExtra?:React.ReactNode;questionsPdf?:ArrayBuffer|null;answersPdf?:ArrayBuffer|null}
 
 const chartTheme={
   text:{fontSize:12,fill:'#475467'},
@@ -19,7 +19,7 @@ const chartTheme={
   tooltip:{container:{fontSize:12,borderRadius:8,boxShadow:'0 8px 30px rgba(16,24,40,.14)'}},
 }
 
-export default function PerformanceDashboard({summary,hasHistory,compact=false,questionsPdf=null,answersPdf=null}:Props){
+export default function PerformanceDashboard({summary,hasHistory,compact=false,compactRecommendationExtra=null,questionsPdf=null,answersPdf=null}:Props){
   const sectionAccuracy=summary.sections.filter(section=>section.attempts>0).map(section=>({section:section.label,success:section.successRate}))
   const sectionTime=summary.sections.filter(section=>section.attempts>0).map(section=>({section:section.label,seconds:Math.round(section.averageMs/1000)}))
   const questionStats=summary.questions.slice(0,18)
@@ -59,14 +59,15 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
 
   if(compact)return <AlexBox sx={{
     display:'grid',
-    gridTemplateRows:{xs:'auto auto',sm:'2fr 1fr'},
-    gap:1.1,
+    gridTemplateRows:{xs:'auto auto',xl:'clamp(340px,35dvh,360px) minmax(0,1fr)'},
+    gap:{xs:1.5,sm:2.5},
     minWidth:0,
     height:'100%',
+
   }}>
     <AlexBox sx={{
       display:'grid',
-      gridTemplateColumns:{xs:'repeat(2,minmax(0,1fr))',sm:'repeat(5,minmax(0,1fr))'},
+      gridTemplateColumns:'repeat(auto-fit,minmax(min(100%,165px),1fr))',
       gap:1,
       minHeight:0,
     }}>
@@ -83,25 +84,9 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,q
         valueColor={progressColor}
         valueFontSize={24}
       />
-    </AlexBox>
 
-    <AlexSurface sx={{
-      p:{xs:1.5,sm:1.7},
-      border:'1px solid #D8D2FF',
-      borderRadius:3,
-      bgcolor:'#F7F5FF',
-      height:'100%',
-      minHeight:0,
-      display:'flex',
-      flexDirection:'column',
-      justifyContent:'center',
-    }}>
-      <AlexText sx={{fontSize:10,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:'#6558F5'}}>Recommended focus</AlexText>
-      <AlexText component="h2" sx={{fontSize:18,fontWeight:800,color:'#08275B',mt:.35}}>{summary.recommendation?.label??'Keep practicing'}</AlexText>
-      <AlexText sx={{color:'#475467',fontSize:11.5,lineHeight:1.4,mt:.35}}>
-        {summary.recommendation?.reason??'Complete a few sessions to identify the best area to focus on next.'}
-      </AlexText>
-    </AlexSurface>
+    </AlexBox>
+    {compactRecommendationExtra&&<AlexBox sx={{minHeight:0}}>{compactRecommendationExtra}</AlexBox>}
   </AlexBox>
 
   return <AlexBox>
