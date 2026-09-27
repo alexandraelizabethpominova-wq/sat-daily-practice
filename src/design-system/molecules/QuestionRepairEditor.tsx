@@ -3,7 +3,8 @@ import AlexBox from '../atoms/AlexBox'
 import AlexButton from '../atoms/AlexButton'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
-import AlexRichText from '../atoms/AlexRichText'
+import StructuredQuestionLines from './StructuredQuestionLines'
+import ReadingQuestionLines from './ReadingQuestionLines'
 import AlexTextField from '../atoms/AlexTextField'
 import VisualCropEditor from './VisualCropEditor'
 import {ensureQuestionText,extractQuestionLines} from '../../lib/pdfStructuredImport'
@@ -192,7 +193,9 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
         <AlexText sx={{fontSize:12,fontWeight:800,color:'#475467',mb:.75}}>Live math preview</AlexText>
         <AlexText sx={{fontSize:11.5,color:'#667085',mb:1}}>Edit the plain text below; this preview shows how powers, square roots, fractions, and math delimiters will appear to students.</AlexText>
         <AlexBox sx={{fontFamily:'Georgia, serif',fontSize:18,lineHeight:1.55,whiteSpace:'pre-wrap'}}>
-          {toLines(questionText).map((line,index)=><AlexBox key={index} sx={{minHeight:'1.55em'}}><AlexRichText text={line}/></AlexBox>)}
+          {question.subject==='english'
+            ?<ReadingQuestionLines lines={toLines(questionText)} questionId={question.id}/>
+            :<StructuredQuestionLines lines={toLines(questionText)}/>}
         </AlexBox>
       </AlexSurface>
       <AlexTextField
