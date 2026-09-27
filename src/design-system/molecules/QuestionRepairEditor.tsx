@@ -147,15 +147,15 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
         <AlexText sx={{fontSize:12.5,fontWeight:800,color:'#1849A9'}}>Structured table preserved separately</AlexText>
         <AlexText sx={{fontSize:12,color:'#475467',mt:.2}}>The table is not part of the editable prose. Editing and saving this text will preserve the structured table without duplicating it into the question body.</AlexText>
       </AlexSurface>}
-      {textOrigin!=='shared'&&<AlexSurface sx={{p:1.4,border:'1px solid #B2CCFF',borderRadius:2,bgcolor:'#F5F8FF'}}>
+      <AlexSurface sx={{p:1.4,border:'1px solid #B2CCFF',borderRadius:2,bgcolor:'#F5F8FF'}}>
         <AlexBox sx={{display:'flex',alignItems:{xs:'flex-start',sm:'center'},justifyContent:'space-between',gap:1,flexWrap:'wrap'}}>
           <AlexBox>
-            <AlexText sx={{fontSize:12.5,fontWeight:800,color:'#1849A9'}}>Not stored as shared parsed text yet</AlexText>
-            <AlexText sx={{fontSize:12,color:'#475467',mt:.2}}>{textOrigin==='source'?'Freshly extracted from the source PDF.':textOrigin==='verified'?'Loaded from bundled verified text.':textOrigin==='browser'?'Loaded from this browser’s extracted cache.':'No parsed text is available yet.'} Saving a repair will persist the edited text to the shared Question Bank.</AlexText>
+            <AlexText sx={{fontSize:12.5,fontWeight:800,color:'#1849A9'}}>{textOrigin==='shared'?'Shared parsed text':'Not stored as shared parsed text yet'}</AlexText>
+            <AlexText sx={{fontSize:12,color:'#475467',mt:.2}}>{textOrigin==='shared'?'This question has a saved shared repair. You can still re-extract from the original source while the parsing issue is open.':textOrigin==='source'?'Freshly extracted from the source PDF.':textOrigin==='verified'?'Loaded from bundled verified text.':textOrigin==='browser'?'Loaded from this browser’s extracted cache.':'No parsed text is available yet.'} {textOrigin!=='shared'&&'Saving a repair will persist the edited text to the shared Question Bank.'}</AlexText>
           </AlexBox>
           {resolvedQuestionsPdf&&<AlexButton size="small" tone="secondary" disabled={extracting} onClick={reloadFromSource}>{extracting?'Extracting…':'Re-extract from source'}</AlexButton>}
         </AlexBox>
-      </AlexSurface>}
+      </AlexSurface>
       <AlexBox sx={{display:'flex',alignItems:{xs:'flex-start',sm:'center'},justifyContent:'space-between',gap:1,flexWrap:'wrap'}}>
         <AlexBox>
           <AlexText sx={{fontSize:13,fontWeight:800,color:'#344054'}}>Text formatting</AlexText>
