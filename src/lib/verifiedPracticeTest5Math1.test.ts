@@ -13,8 +13,9 @@ describe('Practice Test 5 Math Module 1 verified content',()=>{
   })
 
   it('uses structured source visuals only where required',()=>{
-    expect([1,3,6,8,20].map(number=>Boolean(questionVisualSpec(`practice-test-5:math1-${number}`)))).toEqual([true,true,true,true,true])
-    expect(verifiedPracticeTest5Math1Content(16)?.imageFallback).toBe(true)
+    expect([1,3,6,8,16,20].map(number=>Boolean(questionVisualSpec(`practice-test-5:math1-${number}`)))).toEqual([true,true,true,true,true,true])
+    expect(verifiedPracticeTest5Math1Content(16)?.imageFallback).not.toBe(true)
+    expect(verifiedPracticeTest5Math1Content(16)?.lines.join(' ')).toContain('rational function')
   })
 
   it('does not expose Practice Test 4 crop geometry to unverified Practice Test 5 modules',()=>{
