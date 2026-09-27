@@ -32,6 +32,17 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
   const todayKey=localDayKey(today)
   const todayAttempts=attempts.filter(attempt=>localDayKey(attempt.createdAt)===todayKey)
   const questionsDone=todayAttempts.length
+  const todayCompletedSessions=sessions.filter(session=>localDayKey(session.endedAt)===todayKey)
+  const reviewedFailedToday=todayCompletedSessions.some(session=>{
+    if(!session.attempts.length)return false
+    const sessionQuestionIds=new Set(session.attempts.map(attempt=>attempt.questionId))
+    const priorFailedIds=new Set(
+      attempts
+        .filter(attempt=>new Date(attempt.createdAt)<new Date(session.startedAt)&&!attempt.correct)
+        .map(attempt=>attempt.questionId)
+    )
+    return [...sessionQuestionIds].some(questionId=>priorFailedIds.has(questionId))
+  })
   const minutesDone=Math.round(todayAttempts.reduce((total,attempt)=>total+attempt.elapsedMs,0)/60000)
   const questionTarget=Math.max(1,dailyQuestions)
   const minuteTarget=Math.max(1,dailyMinutes)
@@ -73,7 +84,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
     }}>
       <AlexText component="h2" sx={{fontFamily:'inherit',fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575',mb:1.45}}>Today&apos;s goals</AlexText>
       <AlexBox sx={{display:'grid',gap:1.05}}>
-        {goals.map((goal,index)=>{const complete=index===0?questionsDone>=questionTarget:index===1?minutesDone>=minuteTarget:failedQuestionCount===0;return <AlexBox key={goal.label} sx={{display:'grid',gridTemplateColumns:'30px minmax(0,1fr)',alignItems:'center',columnGap:1.15}}>
+        {goals.map((goal,index)=>{const complete=index===0?questionsDone>=questionTarget:index===1?minutesDone>=minuteTarget:reviewedFailedToday;return <AlexBox key={goal.label} sx={{display:'grid',gridTemplateColumns:'30px minmax(0,1fr)',alignItems:'center',columnGap:1.15}}>
           <AlexBox aria-hidden="true" sx={{width:30,height:30,borderRadius:'50%',display:'grid',placeItems:'center',bgcolor:complete?'#E8F7EE':'#EEF2F7',color:complete?'#20935A':'#C7D1DF'}}>
             <Star size={17} fill="currentColor" strokeWidth={1.4}/>
           </AlexBox>
