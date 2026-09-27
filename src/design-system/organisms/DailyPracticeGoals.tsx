@@ -125,6 +125,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
     }}>
       <AlexText component="h2" sx={{fontFamily:'inherit',fontSize:16,fontWeight:700,lineHeight:1.25,color:'#111',mb:1.45}}>Recommended focus</AlexText>
       <AlexText sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:28,fontWeight:700,lineHeight:1.1,color:'#08275B'}}>{recommendationLabel}</AlexText>
+      {recommendationReason&&<AlexText sx={{fontFamily:'inherit',fontSize:14,lineHeight:1.4,fontWeight:400,color:'#475467',mt:1.15}}>{recommendationReason}</AlexText>}
     </AlexSurface>
   </AlexBox>
 }
