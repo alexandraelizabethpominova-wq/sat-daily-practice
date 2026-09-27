@@ -515,6 +515,7 @@ export default function App(){
         minWidth:{xs:0,md:260},
         gap:1.25,
         boxSizing:'border-box',
+        mx:{md:'4%'},
       }}>
         <AlexBox sx={{flex:'1 1 auto',minHeight:0}}>
           <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
@@ -522,6 +523,7 @@ export default function App(){
         <AlexBox sx={{
           px:2,py:2.5,minHeight:112,
           border:'1px solid #E4E7EC',
+          borderRadius:'8px',
           bgcolor:'#fff',
           display:'flex',
           alignItems:'flex-start',
