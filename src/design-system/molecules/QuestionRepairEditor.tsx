@@ -30,11 +30,6 @@ type Props={
 }
 
 const toLines=(value:string)=>value.split(/\r?\n/).map(line=>line.trim()).filter(Boolean)
-const editorMathPreview=(value:string)=>value
-  .replace(/(^|[^\\])\^\{([^}]+)\}/g,'$1^{$2}')
-  .replace(/(^|[^\\])\^([A-Za-z0-9.+-]+)/g,'$1^{$2}')
-  .replace(/\/sqrt\s*\{([^}]+)\}/g,'\\\\sqrt{$1}')
-  .replace(/\/sqrt\s+([^\s]+)/g,'\\\\sqrt{$1}')
 
 const normalizeMathEditorLine=(line:string)=>line
   .replace(/\$\$([^$]+)\$\$/g,(_match,math:string)=>`$${math}$`)
@@ -197,7 +192,7 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
         <AlexText sx={{fontSize:12,fontWeight:800,color:'#475467',mb:.75}}>Live math preview</AlexText>
         <AlexText sx={{fontSize:11.5,color:'#667085',mb:1}}>Edit the plain text below; this preview shows how powers, square roots, fractions, and math delimiters will appear to students.</AlexText>
         <AlexBox sx={{fontFamily:'Georgia, serif',fontSize:18,lineHeight:1.55,whiteSpace:'pre-wrap'}}>
-          {toLines(editorMathPreview(questionText)).map((line,index)=><AlexBox key={index} sx={{minHeight:'1.55em'}}><AlexRichText text={line}/></AlexBox>)}
+          {toLines(questionText).map((line,index)=><AlexBox key={index} sx={{minHeight:'1.55em'}}><AlexRichText text={line}/></AlexBox>)}
         </AlexBox>
       </AlexSurface>
       <AlexTextField
