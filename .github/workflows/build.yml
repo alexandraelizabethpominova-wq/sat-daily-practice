@@ -13,8 +13,10 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages-${{ github.sha }}
-  cancel-in-progress: true
+  # GitHub Pages permits only one active deployment for the environment.
+  # Serialize main deployments across commits instead of giving every SHA its own group.
+  group: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'pages-main' || format('ci-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
 
 jobs:
   freshness:
