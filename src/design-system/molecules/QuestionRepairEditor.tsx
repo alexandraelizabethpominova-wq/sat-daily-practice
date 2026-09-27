@@ -16,6 +16,8 @@ import {verifiedPracticeTest6Reading1Content} from '../../lib/verifiedPracticeTe
 import {verifiedPracticeTest6Reading2Content} from '../../lib/verifiedPracticeTest6Reading2'
 import {verifiedPracticeTest6Math1Content} from '../../lib/verifiedPracticeTest6Math1'
 import {verifiedPracticeTest6Math2Content} from '../../lib/verifiedPracticeTest6Math2'
+import {verifiedPracticeTest7Math1Content} from '../../lib/verifiedPracticeTest7Math1'
+import {verifiedPracticeTest7Math2Content} from '../../lib/verifiedPracticeTest7Math2'
 import {questionVisualSpecs,type QuestionVisualSpec} from '../../lib/questionVisuals'
 import usePracticeTestPdf from '../../hooks/usePracticeTestPdf'
 import type {PracticeQuestion} from '../../types'
@@ -60,6 +62,8 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
               :question.module==='math1'
                 ?verifiedPracticeTest6Math1Content(question.number)
                 :verifiedPracticeTest6Math2Content(question.number)
+          :question.practiceTestId==='practice-test-7'&&(question.module==='math1'||question.module==='math2')
+            ?question.module==='math1'?verifiedPracticeTest7Math1Content(question.number):verifiedPracticeTest7Math2Content(question.number)
           :question.practiceTestId==='practice-test-5'&&question.module==='math1'
             ?verifiedPracticeTest5Math1Content(question.number)
             :question.practiceTestId==='practice-test-4'&&question.subject==='math'?verifiedMathContent(question.id):undefined
@@ -126,6 +130,17 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
     })
   }
 
+  function applyMathSelection(kind:'power'|'sqrt'){
+    const input=questionTextRef.current
+    if(!input)return
+    const start=input.selectionStart??0,end=input.selectionEnd??0
+    const selected=questionText.slice(start,end).trim()
+    if(!selected){setError('Select the exponent or radicand in the question text first.');input.focus();return}
+    const replacement=kind==='power'?`^{${selected}}`:`\\sqrt{${selected}}`
+    setError('');setMessage('');setQuestionText(questionText.slice(0,start)+replacement+questionText.slice(end))
+    requestAnimationFrame(()=>{input.focus();input.setSelectionRange(start,start+replacement.length)})
+  }
+
   async function save(){
     const questionLines=stripEmbeddedReadingTableLines(question.id,toLines(questionText).map(normalizeMathEditorLine))
     if(!questionLines.length){setError('Question text cannot be empty.');return}
@@ -164,7 +179,7 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
           <AlexText sx={{fontSize:13,fontWeight:800,color:'#344054'}}>Text formatting</AlexText>
           <AlexText sx={{fontSize:12,color:'#667085',mt:.2}}>Select the exact words in the question text, then apply underline. The formatting is saved with the shared repair.</AlexText>
         </AlexBox>
-        <AlexButton size="small" tone="secondary" onClick={underlineSelectedText}>Underline selected text</AlexButton>
+        <AlexBox sx={{display:'flex',gap:.75,flexWrap:'wrap'}}><AlexButton size="small" tone="secondary" onClick={()=>applyMathSelection('power')}>Make selected text a power</AlexButton><AlexButton size="small" tone="secondary" onClick={()=>applyMathSelection('sqrt')}>Square root selected text</AlexButton><AlexButton size="small" tone="secondary" onClick={underlineSelectedText}>Underline selected text</AlexButton></AlexBox>
       </AlexBox>
       {refersToUnderlinedText(questionText)&&!hasUnderlineMarkup(questionText)&&<AlexSurface sx={{p:1.25,border:'1px solid #FEC84B',borderRadius:2,bgcolor:'#FFFAEB'}}>
         <AlexText sx={{fontSize:12.5,color:'#93370D'}}>This question refers to underlined text, but no underlined span is currently defined. Select the matching source text and apply underline before saving.</AlexText>
