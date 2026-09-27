@@ -70,7 +70,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
         <AlexText sx={{fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>Practice calendar</AlexText>
       </AlexBox>
       <AlexText sx={{fontSize:10.5,fontWeight:800,color:'#667085',whiteSpace:'nowrap'}}>
-        {targetQuestions>0?`${targetSessions} session${targetSessions===1?'':'s'}/day`:'Flexible pace'}
+        {targetQuestions>0?`${targetQuestions} questions/day`:'Flexible pace'}
       </AlexText>
     </AlexBox>
 
@@ -117,7 +117,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
           style.label,
           isExamDate?'Exam date':'',
           day.practiced
-            ?`${targetQuestions>0?`${day.sessionCount} of ${targetSessions}`:day.sessionCount} session${targetSessions===1&&day.sessionCount===1?'':'s'} · ${day.questionCount} questions`
+            ?`${day.questionCount}${day.targetQuestionCount>0?` of ${day.targetQuestionCount}`:''} questions`
             :hasTrackedGoal?'No practice recorded':'',
         ].filter(Boolean).join(' · ')
         return <AlexTooltip
