@@ -56,7 +56,6 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
     sx={{
       p:{xs:1.6,sm:1.75},
       border:'1px solid #E4E7EC',
-      borderRadius:3,
       bgcolor:'#fff',
       minWidth:0,
       height:'100%',
@@ -68,7 +67,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
     <AlexBox sx={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:1.25,mb:1.15}}>
       <AlexBox sx={{display:'flex',alignItems:'center',gap:.75,minWidth:0}}>
         <CalendarDays size={16} color="#6558F5"/>
-        <AlexText sx={{fontSize:12,fontWeight:850,color:'#08275B'}}>Practice calendar</AlexText>
+        <AlexText sx={{fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>Practice calendar</AlexText>
       </AlexBox>
       <AlexText sx={{fontSize:10.5,fontWeight:800,color:'#667085',whiteSpace:'nowrap'}}>
         {targetSessions>0?`${targetSessions} session${targetSessions===1?'':'s'}/day`:'Flexible pace'}
