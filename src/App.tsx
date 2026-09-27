@@ -531,7 +531,7 @@ export default function App(){
           minHeight:0,
           gap:{xs:1.5,sm:2.5},
           boxSizing:'border-box',
-          pl:{lg:4},
+          pl:{lg:0},
           pr:{lg:0},
         }}
       >
