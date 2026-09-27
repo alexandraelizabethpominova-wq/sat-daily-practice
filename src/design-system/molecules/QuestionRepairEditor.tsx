@@ -42,7 +42,6 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
   const[questionText,setQuestionText]=useState('')
   const[textOrigin,setTextOrigin]=useState<TextOrigin>('empty')
   const questionTextRef=useRef<HTMLInputElement|HTMLTextAreaElement|null>(null)
-  const[visualSpec,setVisualSpec]=useState<QuestionVisualSpec|null>(null)
   const[visualSpecs,setVisualSpecs]=useState<QuestionVisualSpec[]>([])
   const[loading,setLoading]=useState(true)
   const[saving,setSaving]=useState(false)
@@ -90,7 +89,6 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
         setQuestionText(stripEmbeddedReadingTableLines(question.id,questionLines).join('\n'))
         setTextOrigin(origin)
         setVisualSpecs(resolvedVisuals)
-        setVisualSpec(resolvedVisuals[0]?{...resolvedVisuals[0],exact:true}:null)
       }catch(reason){
         if(!cancelled)setError(reason instanceof Error?reason.message:'Unable to prepare this question for editing.')
       }finally{if(!cancelled)setLoading(false)}
@@ -151,9 +149,7 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
     if(!questionLines.length){setError('Question text cannot be empty.');return}
     setSaving(true);setError('');setMessage('')
     try{
-      const nextVisuals=visualSpec?[visualSpec,...visualSpecs.slice(1)]:visualSpecs.slice(1)
-      await saveSharedQuestionRepair({questionId:question.id,questionLines,visualSpecs:nextVisuals})
-      setVisualSpecs(nextVisuals)
+      await saveSharedQuestionRepair({questionId:question.id,questionLines,visualSpecs})
       setTextOrigin('shared')
       setMessage('Fix saved to the shared Question Bank.')
       onSaved?.()
@@ -219,8 +215,23 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
           </AlexBox>}
         />
       </AlexBox>
-      {visualSpecs.length>1&&<AlexText sx={{fontSize:12,color:'#667085'}}>This question has {visualSpecs.length} source visual regions. The editor below adjusts the first region; the remaining regions are preserved when saving.</AlexText>}
-      <VisualCropEditor question={question} bytes={resolvedQuestionsPdf} value={visualSpec} onChange={setVisualSpec} lineCount={toLines(questionText).length}/>
+      <AlexBox sx={{display:'grid',gap:1.25}}>
+        <AlexBox>
+          <AlexText sx={{fontSize:13,fontWeight:800,color:'#344054'}}>Source visuals</AlexText>
+          <AlexText sx={{fontSize:12,color:'#667085',mt:.2}}>Each visual has its own crop and placement. Adjust every figure or graphical answer group independently; placement is relative to the parsed text lines above.</AlexText>
+        </AlexBox>
+        {visualSpecs.map((visual,index)=><AlexSurface key={index} sx={{p:1.25,border:'1px solid #D8D2FF',borderRadius:2.5,bgcolor:'#fff'}}>
+          <AlexText sx={{fontSize:12.5,fontWeight:800,color:'#344054',mb:.75}}>Visual ${index+1} · ${visual.kind==='choice-grid'?'Graphical answer choices':'Figure'}</AlexText>
+          <VisualCropEditor
+            question={question}
+            bytes={resolvedQuestionsPdf}
+            value={visual}
+            onChange={next=>setVisualSpecs(current=>next?current.map((item,itemIndex)=>itemIndex===index?{...next,kind:item.kind}:item):current.filter((_,itemIndex)=>itemIndex!==index))}
+            lineCount={toLines(questionText).length}
+          />
+        </AlexSurface>)}
+        <AlexButton size="small" tone="secondary" onClick={()=>setVisualSpecs(current=>[...current,{afterLine:-1,crop:{x:.05,y:.05,width:.9,height:.4},exact:true,kind:'figure'}])} sx={{justifySelf:'start'}}>Add source visual</AlexButton>
+      </AlexBox>
       {error&&<AlexText role="alert" sx={{fontSize:13,color:'#B42318'}}>{error}</AlexText>}
       {message&&<AlexText role="status" sx={{fontSize:13,color:'#067647'}}>{message}</AlexText>}
       <AlexButton disabled={saving} onClick={save} sx={{justifySelf:'start'}}>{saving?'Saving fix…':'Save shared fix'}</AlexButton>
