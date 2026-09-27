@@ -633,3 +633,17 @@ nav[aria-label="Mobile primary navigation"]{margin:0}
 .parsing-issues-sidebar-scroll{height:100%;max-height:none}
 .question-source-review-pane{height:100%;min-height:0}
 .question-source-review-pane--source{height:100%}
+
+
+/* Structured data tables should size to their content, not become scroll panes. */
+.structured-data-table-wrap{
+  width:fit-content;
+  max-width:100%;
+  margin:16px auto;
+  overflow:visible;
+  max-height:none;
+}
+.structured-data-table{
+  width:auto;
+  max-width:100%;
+}
