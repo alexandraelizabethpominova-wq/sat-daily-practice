@@ -19,7 +19,7 @@ export default function MetricCard({icon,label,value,tone='default',compact=fals
   const palette=TONES[tone]
   return <AlexSurface sx={{
     p:compact?1.9:2.2,
-    minHeight:compact?275:undefined,
+    minHeight:compact?{xs:160,sm:0}:undefined,
     height:compact?'100%':undefined,
     border:`1px solid ${palette.border}`,
     borderRadius:'8px',
