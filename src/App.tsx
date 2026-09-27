@@ -539,24 +539,35 @@ export default function App(){
           <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
         </AlexBox>
         <AlexBox sx={{
-          px:2,py:2.5,minHeight:112,
+          px:2,py:1.75,
           border:'1px solid #E4E7EC',
           borderRadius:'8px',
           bgcolor:'#fff',
           display:'flex',
-          alignItems:'flex-start',
-          justifyContent:'space-between',
-          gap:1.5,
+          flexDirection:'column',
+          gap:1.25,
           flex:{xs:'0 0 auto',lg:'1 1 0'},
           minHeight:0,
         }}>
-          <AlexBox>
+          <AlexBox sx={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:1.5}}>
             <AlexBox sx={{fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>Your practice plan</AlexBox>
-            <AlexBox sx={{fontSize:10.5,color:'#667085',mt:.2}}>
-              {practiceRecommendation.recommendedSessionsPerDay} sessions/day · {settings.questionsPerSession} questions/session · {practiceRecommendation.estimatedDailyMinutes} min/day
-            </AlexBox>
+            <AlexButton tone="quiet" onClick={()=>navigateTo('settings')} sx={{fontSize:12,fontWeight:800,py:.25}}>Edit plan</AlexButton>
           </AlexBox>
-          <AlexButton tone="quiet" onClick={()=>navigateTo('settings')} sx={{fontSize:12,fontWeight:800}}>Edit plan</AlexButton>
+          <AlexBox sx={{
+            display:'grid',
+            gridTemplateColumns:{xs:'repeat(2,minmax(0,1fr))',sm:'repeat(4,minmax(0,1fr))',lg:'repeat(2,minmax(0,1fr))'},
+            gap:.75,
+          }}>
+            {[
+              ['Daily time',`${practiceRecommendation.estimatedDailyMinutes} min`],
+              ['Focus',practiceRecommendation.focusLabel??'Balanced'],
+              ['Session',`${settings.questionsPerSession} questions`],
+              ['Pace',`${practiceRecommendation.recommendedSessionsPerDay}/day`],
+            ].map(([label,value])=><AlexBox key={label} sx={{p:.9,border:'1px solid #E9E7E1',borderRadius:'6px',bgcolor:'#FAFAF8',minWidth:0}}>
+              <AlexBox sx={{fontSize:9,fontWeight:800,textTransform:'uppercase',letterSpacing:'.06em',color:'#7A8495'}}>{label}</AlexBox>
+              <AlexBox sx={{fontSize:12.5,fontWeight:800,color:'#08275B',mt:.2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{value}</AlexBox>
+            </AlexBox>)}
+          </AlexBox>
         </AlexBox>
       </AlexBox>
     </AlexBox>
