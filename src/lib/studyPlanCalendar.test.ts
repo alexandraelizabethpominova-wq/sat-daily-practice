@@ -14,7 +14,7 @@ function session(id:string,date:string,questionCount:number):SessionSummary{
 }
 
 describe('study plan calendar',()=>{
-  it('marks days against the recommended session target, not raw question count',()=>{
+  it('marks days against the daily question target, independent of session count',()=>{
     const days=buildStudyPlanCalendarDays({
       year:2026,
       month:8,
@@ -31,11 +31,25 @@ describe('study plan calendar',()=>{
       today:new Date(2026,8,13,12),
       examDate:'2026-10-19',
     })
-    expect(days[9]).toMatchObject({day:10,sessionCount:1,questionCount:20,practiced:true,status:'behind'})
+    expect(days[9]).toMatchObject({day:10,sessionCount:1,questionCount:20,practiced:true,status:'on-track'})
     expect(days[10]).toMatchObject({day:11,sessionCount:2,practiced:true,status:'on-track'})
     expect(days[11]).toMatchObject({day:12,sessionCount:3,practiced:true,status:'ahead'})
     expect(days[12]).toMatchObject({day:13,sessionCount:0,practiced:false,status:'behind'})
     expect(days[13]).toMatchObject({day:14,status:'planned'})
+  })
+
+
+  it('keeps historical status stable when the current session size changes',()=>{
+    const historical={...session('s1','2026-09-10',20),dailyQuestionGoal:20}
+    const days=buildStudyPlanCalendarDays({
+      year:2026,
+      month:8,
+      sessions:[historical],
+      recommendedSessionsPerDay:4,
+      questionsPerSession:5,
+      today:new Date(2026,8,13,12),
+    })
+    expect(days[9]).toMatchObject({day:10,questionCount:20,targetQuestionCount:20,status:'on-track'})
   })
 
   it('does not label days before the first recorded practice day as behind',()=>{
