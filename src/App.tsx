@@ -502,11 +502,27 @@ export default function App(){
           />
         }
       />
-      <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
-    </AlexBox>
-
-    <AlexBox sx={{display:'flex',justifyContent:'flex-end',mt:1.25,pb:{xs:1,md:2}}}>
-      <AlexButton tone="quiet" onClick={()=>navigateTo('settings')}>Edit plan settings</AlexButton>
+      <AlexBox sx={{display:'grid',gridTemplateRows:'430px auto',gap:1.25,minWidth:0}}>
+        <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
+        <AlexBox sx={{
+          px:1.75,py:1.25,
+          border:'1px solid #E4E7EC',
+          borderRadius:2,
+          bgcolor:'#fff',
+          display:'flex',
+          alignItems:'center',
+          justifyContent:'space-between',
+          gap:1.5,
+        }}>
+          <AlexBox>
+            <AlexBox sx={{fontSize:11,fontWeight:850,color:'#08275B'}}>Your practice plan</AlexBox>
+            <AlexBox sx={{fontSize:10.5,color:'#667085',mt:.2}}>
+              {practiceRecommendation.recommendedSessionsPerDay} sessions/day · {settings.questionsPerSession} questions/session · {practiceRecommendation.estimatedDailyMinutes} min/day
+            </AlexBox>
+          </AlexBox>
+          <AlexButton tone="quiet" onClick={()=>navigateTo('settings')}>Edit plan</AlexButton>
+        </AlexBox>
+      </AlexBox>
     </AlexBox>
   </main>,'#F7F6F2')
 
