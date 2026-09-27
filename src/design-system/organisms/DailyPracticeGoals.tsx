@@ -110,16 +110,16 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
           {daysToWeeklyStreak>0?`${daysToWeeklyStreak} days left to start your weekly streak!`:'Your weekly streak is underway!'}
         </AlexText>
       </AlexBox>
-      <AlexBox sx={{display:'flex',gap:1,alignItems:'center',mb:1.05}}>
+      <AlexBox sx={{display:'flex',gap:.65,alignItems:'center',mb:1.05,width:'100%',minWidth:0}}>
         {weekDays.map(day=><AlexBox key={day.key} sx={{
-          width:40,height:40,flex:'0 0 40px',borderRadius:'5px',
+          width:36,height:36,flex:'0 0 36px',borderRadius:'5px',
           border:'1.5px solid',borderColor:day.practiced?'#B38CFF':day.isToday?'#111':'#C8D1DE',
           bgcolor:day.practiced?'#F7F2FF':'#fff',
           color:day.practiced?'#6F35E8':day.isToday?'#111':'#475467',
           display:'grid',placeItems:'center',
           fontFamily:'Arial, Helvetica, sans-serif',
         }}>
-          {day.practiced?<Check size={20} strokeWidth={2.2}/>:<AlexText sx={{fontFamily:'inherit',fontSize:14.5,fontWeight:day.isToday?700:400,color:'inherit'}}>{day.label}</AlexText>}
+          {day.practiced?<Check size={18} strokeWidth={2.2}/>:<AlexText sx={{fontFamily:'inherit',fontSize:13.5,fontWeight:day.isToday?700:400,color:'inherit'}}>{day.label}</AlexText>}
         </AlexBox>)}
       </AlexBox>
       <AlexText sx={{fontFamily:'inherit',fontSize:14.5,fontWeight:400,lineHeight:1.25,color:'#667085'}}>
