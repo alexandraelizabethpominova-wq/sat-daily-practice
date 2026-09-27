@@ -76,10 +76,10 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
   const weeklyMinutes=Math.round(attempts.filter(attempt=>new Date(attempt.createdAt)>=weekStart).reduce((total,attempt)=>total+attempt.elapsedMs,0)/60000)
   const daysToWeeklyStreak=Math.max(0,2-practicedDays)
 
-  return <AlexBox sx={{display:'grid',gridTemplateColumns:{xs:'1fr',sm:'repeat(2,minmax(0,1fr))',lg:'repeat(3,minmax(0,1fr))'},gap:1.5,minHeight:0,alignItems:'stretch'}}>
+  return <AlexBox sx={{display:'grid',gridTemplateColumns:{xs:'1fr',sm:'repeat(2,minmax(0,1fr))',lg:'repeat(3,minmax(0,1fr))'},gap:1.5,minHeight:0,height:'100%',alignItems:'stretch'}}>
     <AlexSurface component="section" sx={{
       px:2.25,py:1.7,border:'none',borderRadius:'8px',bgcolor:'#fff',
-      boxShadow:'none',minWidth:0,overflow:'hidden',
+      boxShadow:'none',minWidth:0,overflow:'hidden',height:'100%',
       fontFamily:'Arial, Helvetica, sans-serif',
     }}>
       <AlexText component="h2" sx={{fontFamily:'inherit',fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575',mb:1.45}}>Today&apos;s goals</AlexText>
@@ -98,7 +98,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
 
     <AlexSurface component="section" sx={{
       px:2.25,py:1.65,border:'none',borderRadius:'8px',bgcolor:'#fff',
-      boxShadow:'none',minWidth:0,overflow:'hidden',
+      boxShadow:'none',minWidth:0,overflow:'hidden',height:'100%',
       fontFamily:'Arial, Helvetica, sans-serif',
     }}>
       <AlexBox sx={{display:'flex',alignItems:'center',gap:.75,mb:1.05}}>
@@ -129,7 +129,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
 
     <AlexSurface component="section" title={recommendationReason} sx={{
       px:2.25,py:1.7,border:'none',borderRadius:'8px',bgcolor:'#F5EEFF',
-      boxShadow:'none',minWidth:0,overflow:'hidden',
+      boxShadow:'none',minWidth:0,overflow:'hidden',height:'100%',
       fontFamily:'Arial, Helvetica, sans-serif',
     }}>
       <AlexText component="h2" sx={{fontFamily:'inherit',fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575',mb:1.45}}>Recommended focus</AlexText>
