@@ -479,25 +479,26 @@ export default function App(){
       onStartPractice={()=>void beginPractice(settings.mode)}
     />
 
-    <DailyPracticeGoals
-      attempts={attempts}
-      sessions={sessions}
-      dailyQuestions={practiceRecommendation.questionsPerSession*practiceRecommendation.recommendedSessionsPerDay}
-      dailyMinutes={practiceRecommendation.estimatedDailyMinutes}
-      failedQuestionCount={failedQuestionCount}
-      onStartPractice={()=>void beginPractice(settings.mode)}
-    />
-
     <AlexBox
       sx={{
         display:'grid',
         gridTemplateColumns:{xs:'1fr',md:'minmax(0,1.3fr) minmax(280px,.7fr)'},
         gap:{xs:2,sm:3,lg:4},
         mt:{xs:2.25,md:2.75},
-        alignItems:'stretch',
+        alignItems:'start',
       }}
     >
-      <PerformanceDashboard summary={performance} hasHistory={attempts.length>0} compact/>
+      <AlexBox sx={{display:'grid',gap:{xs:1.5,sm:2}}}>
+        <DailyPracticeGoals
+          attempts={attempts}
+          sessions={sessions}
+          dailyQuestions={practiceRecommendation.questionsPerSession*practiceRecommendation.recommendedSessionsPerDay}
+          dailyMinutes={practiceRecommendation.estimatedDailyMinutes}
+          failedQuestionCount={failedQuestionCount}
+          onStartPractice={()=>void beginPractice(settings.mode)}
+        />
+        <PerformanceDashboard summary={performance} hasHistory={attempts.length>0} compact/>
+      </AlexBox>
       <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
     </AlexBox>
 
