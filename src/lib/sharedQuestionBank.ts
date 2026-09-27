@@ -136,8 +136,8 @@ export async function saveSharedQuestionRepair(input:{
   }).eq('id',input.questionId)
     .select('id,question_lines,question_mode,visual_specs,updated_at')
     .maybeSingle()
-  if(error)throw error
-  if(!data)throw new Error('Supabase did not update this question. Reload, sign in again, and make sure shared Question Bank editing is enabled.')
+  if(error)throw new Error(`Supabase save failed: ${error.message}${error.code?` (code ${error.code})`:''}`)
+  if(!data)throw new Error('Supabase returned no updated row. Reload, sign in again, and make sure shared Question Bank editing is enabled.')
   if(data.id!==input.questionId||data.question_mode!=='text'||!questionLinesEqual(data.question_lines,input.questionLines)){
     throw new Error('Supabase did not persist the exact edited question text in text mode. Reload the question before trying again.')
   }
