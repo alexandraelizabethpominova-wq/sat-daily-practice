@@ -66,13 +66,8 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
     {label:'Review failed questions',value:failedQuestionCount?String(failedQuestionCount):'Clear',done:failedQuestionCount===0},
   ]
 
-  return <AlexBox sx={{
-    display:'grid',
-    gridTemplateColumns:{xs:'1fr',md:'minmax(0,1.15fr) minmax(300px,.85fr)'},
-    gap:{xs:1.5,sm:2},
-    mt:{xs:2,md:2.25},
-  }}>
-    <AlexSurface component="section" sx={{p:{xs:2,sm:2.25},border:'1px solid #E4E7EC',borderRadius:3,bgcolor:'#fff'}}>
+  return <AlexBox sx={{display:'grid',gap:{xs:1.25,sm:1.5}}}>
+    <AlexSurface component="section" sx={{p:{xs:1.75,sm:2},border:'1px solid #E4E7EC',borderRadius:3,bgcolor:'#fff'}}>
       <AlexBox sx={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:2,mb:1.35}}>
         <AlexText component="h2" sx={{fontSize:15,fontWeight:850,color:'#08275B'}}>Today’s goals</AlexText>
         <AlexButton tone="quiet" onClick={onStartPractice}>Continue practice</AlexButton>
@@ -89,7 +84,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
       </AlexBox>
     </AlexSurface>
 
-    <AlexSurface component="section" sx={{p:{xs:2,sm:2.25},border:'1px solid #E4E7EC',borderRadius:3,bgcolor:'#fff'}}>
+    <AlexSurface component="section" sx={{p:{xs:1.75,sm:2},border:'1px solid #E4E7EC',borderRadius:3,bgcolor:'#fff'}}>
       <AlexBox sx={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:1,mb:1.35}}>
         <AlexBox sx={{display:'flex',alignItems:'center',gap:.7}}>
           <Flame size={17} color="#6558F5"/>
@@ -97,7 +92,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
         </AlexBox>
         <AlexText sx={{fontSize:11.5,fontWeight:750,color:'#667085'}}>{practicedDays} practice day{practicedDays===1?'':'s'} this week</AlexText>
       </AlexBox>
-      <AlexBox sx={{display:'grid',gridTemplateColumns:'repeat(7,minmax(0,1fr))',gap:.65}}>
+      <AlexBox sx={{display:'grid',gridTemplateColumns:'repeat(7,minmax(0,1fr))',gap:{xs:.4,sm:.65}}}>
         {weekDays.map(day=><AlexBox key={day.key} sx={{display:'grid',gap:.55,justifyItems:'center'}}>
           <AlexBox sx={{
             width:'100%',maxWidth:38,aspectRatio:'1',borderRadius:2,
