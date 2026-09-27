@@ -481,37 +481,44 @@ export default function App(){
 
     <AlexBox
       sx={{
-        display:'grid',
-        gridTemplateColumns:{xs:'1fr',md:'minmax(0,1.37fr) minmax(260px,.63fr)'},
+        display:'flex',
+        flexDirection:{xs:'column',md:'row'},
         gap:{xs:2,sm:3,lg:4},
         mt:{xs:2.25,md:2.75},
         alignItems:'stretch',
+        width:'100%',
       }}
     >
-      <PerformanceDashboard
-        summary={performance}
-        hasHistory={attempts.length>0}
-        compact
-        compactRecommendationExtra={
-          <DailyPracticeGoals
-            attempts={attempts}
-            sessions={sessions}
-            dailyQuestions={practiceRecommendation.questionsPerSession*practiceRecommendation.recommendedSessionsPerDay}
-            dailyMinutes={practiceRecommendation.estimatedDailyMinutes}
-            failedQuestionCount={failedQuestionCount}
-            recommendationLabel={performance.recommendation?.label}
-            recommendationReason={performance.recommendation?.reason}
-          />
-        }
-      />
+      <AlexBox sx={{display:'flex',flexDirection:'column',flex:'1 1 68.5%',minWidth:0}}>
+        <PerformanceDashboard
+          summary={performance}
+          hasHistory={attempts.length>0}
+          compact
+          compactRecommendationExtra={
+            <DailyPracticeGoals
+              attempts={attempts}
+              sessions={sessions}
+              dailyQuestions={practiceRecommendation.questionsPerSession*practiceRecommendation.recommendedSessionsPerDay}
+              dailyMinutes={practiceRecommendation.estimatedDailyMinutes}
+              failedQuestionCount={failedQuestionCount}
+              recommendationLabel={performance.recommendation?.label}
+              recommendationReason={performance.recommendation?.reason}
+            />
+          }
+        />
+      </AlexBox>
+
       <AlexBox sx={{
-        display:'grid',
-        gridTemplateRows:'370px auto',
+        display:'flex',
+        flexDirection:'column',
+        flex:'1 1 31.5%',
+        minWidth:{xs:0,md:260},
         gap:1.25,
-        minWidth:0,
         mx:{md:-1.5,lg:-2},
       }}>
-        <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
+        <AlexBox sx={{flex:'1 1 auto',minHeight:0}}>
+          <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
+        </AlexBox>
         <AlexBox sx={{
           px:2,py:2.5,minHeight:112,
           border:'1px solid #E4E7EC',
@@ -521,6 +528,7 @@ export default function App(){
           alignItems:'center',
           justifyContent:'space-between',
           gap:1.5,
+          flex:'0 0 auto',
         }}>
           <AlexBox>
             <AlexBox sx={{fontSize:11,fontWeight:850,color:'#08275B'}}>Your practice plan</AlexBox>
