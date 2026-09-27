@@ -221,7 +221,7 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
           <AlexText sx={{fontSize:12,color:'#667085',mt:.2}}>Each visual has its own crop and placement. Adjust every figure or graphical answer group independently; placement is relative to the parsed text lines above.</AlexText>
         </AlexBox>
         {visualSpecs.map((visual,index)=><AlexSurface key={index} sx={{p:1.25,border:'1px solid #D8D2FF',borderRadius:2.5,bgcolor:'#fff'}}>
-          <AlexText sx={{fontSize:12.5,fontWeight:800,color:'#344054',mb:.75}}>Visual ${index+1} · ${visual.kind==='choice-grid'?'Graphical answer choices':'Figure'}</AlexText>
+          <AlexText sx={{fontSize:12.5,fontWeight:800,color:'#344054',mb:.75}}>{`Visual ${index+1} · ${visual.kind==='choice-grid'?'Graphical answer choices':'Figure'}`}</AlexText>
           <VisualCropEditor
             question={question}
             bytes={resolvedQuestionsPdf}
