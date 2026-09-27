@@ -86,22 +86,23 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,c
       />
       <AlexSurface sx={{
         p:1.9,
-        minHeight:160,
+        minHeight:178,
         height:'100%',
-        border:'1px solid #D8D2FF',
+        border:'1px solid #E5D8F8',
         borderRadius:3,
-        bgcolor:'#F7F5FF',
+        bgcolor:'#F5EEFF',
+        boxShadow:'0 8px 24px rgba(9,35,79,.035)',
         display:'flex',
         flexDirection:'column',
         alignItems:'flex-start',
         justifyContent:'flex-start',
       }}>
-        <AlexText sx={{fontSize:10.2,lineHeight:1.2,fontWeight:800,textTransform:'uppercase',letterSpacing:'.075em',color:'#6558F5'}}>Recommended focus</AlexText>
-        <AlexText component="b" sx={{display:'block',mt:.6,fontFamily:'Georgia, "Times New Roman", serif',fontSize:24,lineHeight:1,fontWeight:700,color:'#08275B'}}>
+        <AlexBox sx={{display:'grid',placeItems:'center',width:34,height:34,borderRadius:'50%',bgcolor:'rgba(255,255,255,.76)',color:'#7553A4'}}>
+          <Target size={20}/>
+        </AlexBox>
+        <AlexText sx={{mt:1.5,color:'#5B6575',fontSize:10.2,lineHeight:1.2,fontWeight:800,textTransform:'uppercase',letterSpacing:'.075em'}}>Recommended focus</AlexText>
+        <AlexText component="b" title={summary.recommendation?.reason??undefined} sx={{display:'block',mt:.5,fontFamily:'Georgia, "Times New Roman", serif',fontSize:24,lineHeight:1,fontWeight:700,color:'#08275B'}}>
           {summary.recommendation?.label??'Keep practicing'}
-        </AlexText>
-        <AlexText sx={{fontSize:10.5,lineHeight:1.35,color:'#667085',mt:.8}}>
-          {summary.recommendation?.reason??'Complete a few sessions to identify the best area to focus on next.'}
         </AlexText>
       </AlexSurface>
     </AlexBox>
