@@ -65,8 +65,12 @@ export async function signOut(){
 }
 
 async function currentUserId(){
-  const user=await getCurrentAuthUser()
-  return user?.id??null
+  // The browser SDK already keeps the authenticated session locally. Using
+  // getSession() here avoids a network /auth/v1/user request before every
+  // database read or write; RLS still validates the JWT on Supabase.
+  const {data,error}=await supabase.auth.getSession()
+  if(error)throw error
+  return data.session?.user.id??null
 }
 
 export async function loadUserSettings():Promise<Partial<Settings>|null>{

@@ -9,10 +9,10 @@ export type PracticeTestPdfState={
   usingFallback:boolean
 }
 
-export function usePracticeTestPdfState(question:PracticeQuestion,kind:PdfKind,fallback:ArrayBuffer|null=null):PracticeTestPdfState{
+export function usePracticeTestPdfState(question:PracticeQuestion,kind:PdfKind,fallback:ArrayBuffer|null=null,enabled=true):PracticeTestPdfState{
   const testId=question.practiceTestId
   const[source,setSource]=useState<ArrayBuffer|null>(fallback)
-  const[loading,setLoading]=useState(true)
+  const[loading,setLoading]=useState(enabled)
   const[error,setError]=useState('')
   const[usingFallback,setUsingFallback]=useState(Boolean(fallback))
 
@@ -20,8 +20,12 @@ export function usePracticeTestPdfState(question:PracticeQuestion,kind:PdfKind,f
     let cancelled=false
     setSource(fallback)
     setUsingFallback(Boolean(fallback))
-    setLoading(true)
     setError('')
+    if(!enabled){
+      setLoading(false)
+      return
+    }
+    setLoading(true)
 
     void getPracticeTestPdf(testId,kind)
       .then(bytes=>{
@@ -42,7 +46,7 @@ export function usePracticeTestPdfState(question:PracticeQuestion,kind:PdfKind,f
       .finally(()=>{if(!cancelled)setLoading(false)})
 
     return()=>{cancelled=true}
-  },[testId,kind,fallback])
+  },[testId,kind,fallback,enabled])
 
   return {source,loading,error,usingFallback}
 }

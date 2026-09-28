@@ -44,7 +44,7 @@ async function readStored(testId:PracticeTestId,kind:PdfKind):Promise<ArrayBuffe
 }
 
 async function fetchPdf(url:string,expectedTestId?:PracticeTestId,expectedKind?:PdfKind){
-  const response=await fetch(url,{cache:'no-store'})
+  const response=await fetch(url,{cache:'force-cache'})
   if(!response.ok)throw new Error(`PDF source returned ${response.status}.`)
   const contentType=response.headers.get('content-type')??''
   if(contentType&&!contentType.includes('pdf')&&!contentType.includes('octet-stream'))throw new Error(`Unexpected PDF content type: ${contentType}`)
@@ -76,15 +76,14 @@ async function loadCanonicalSource(testId:PracticeTestId,kind:PdfKind){
   return null
 }
 
-async function loadSharedThenCache(testId:PracticeTestId,kind:PdfKind){
-  const shared=await loadCanonicalSource(testId,kind)
-  if(shared)return shared
+async function loadCachedThenShared(testId:PracticeTestId,kind:PdfKind){
   const cached=await readStored(testId,kind)
-  if(cached){
-    console.warn(`Using cached ${testId} ${kind} PDF because the shared source is temporarily unavailable.`)
-    return cached
-  }
-  return null
+  if(cached)return cached
+
+  // Official SAT PDFs are immutable for a given practice-test ID. Once a browser
+  // has a verified copy, reuse it instead of proxying the full PDF through
+  // Supabase on every page load.
+  return loadCanonicalSource(testId,kind)
 }
 
 export async function savePracticeTestPdf(testId:PracticeTestId,kind:PdfKind,file:File){
@@ -98,7 +97,7 @@ export async function getPracticeTestPdf(testId:PracticeTestId,kind:PdfKind):Pro
   const key=memoryKey(testId,kind)
   const existing=inMemorySources.get(key)
   if(existing)return existing
-  const loading=loadSharedThenCache(testId,kind)
+  const loading=loadCachedThenShared(testId,kind)
   inMemorySources.set(key,loading)
   return loading
 }

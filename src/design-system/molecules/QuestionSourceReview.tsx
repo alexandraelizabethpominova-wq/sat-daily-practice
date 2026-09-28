@@ -18,7 +18,7 @@ type Props={
 export default function QuestionSourceReview({question,questionsPdf,answersPdf=null,showExplanation=false,revision=0}:Props){
   const label=`${moduleLabel(question.module)} · Q${question.number}`
   const questionSource=usePracticeTestPdfState(question,'questions',questionsPdf)
-  const answerSource=usePracticeTestPdfState(question,'answers',answersPdf)
+  const answerSource=usePracticeTestPdfState(question,'answers',answersPdf,showExplanation)
   const resolvedQuestionsPdf=questionSource.source
   const resolvedAnswersPdf=answerSource.source
   const hasQuestionSource=Boolean(resolvedQuestionsPdf?.byteLength)
