@@ -700,7 +700,7 @@ nav[aria-label="Mobile primary navigation"]{margin:0}
 /* Desktop: fixed composition by percentages, not fixed pixel heights. */
 @media (min-width:1200px){
   .dashboard-shell{
-    --dashboard-hero:30%;
+    --dashboard-hero:27%;
     --dashboard-gap:clamp(8px,1.1dvh,12px);
     --dashboard-pad-y:clamp(10px,1.5dvh,18px);
     padding:var(--dashboard-pad-y) 0;
@@ -718,13 +718,13 @@ nav[aria-label="Mobile primary navigation"]{margin:0}
   }
   .dashboard-bottom-left>div{
     display:grid!important;
-    grid-template-rows:minmax(0,72%) minmax(0,28%)!important;
+    grid-template-rows:minmax(0,75%) minmax(0,25%)!important;
     gap:clamp(6px,1dvh,10px)!important;
     height:100%;
   }
   .dashboard-bottom-right{
     display:grid!important;
-    grid-template-rows:minmax(0,72%) minmax(0,28%);
+    grid-template-rows:minmax(0,75%) minmax(0,25%);
     gap:clamp(6px,1dvh,10px)!important;
   }
 }
@@ -732,7 +732,7 @@ nav[aria-label="Mobile primary navigation"]{margin:0}
 /* Large desktop: same composition, larger readable type and breathing room. */
 @media (min-width:1536px){
   .dashboard-shell{
-    --dashboard-hero:31%;
+    --dashboard-hero:28%;
     --dashboard-gap:12px;
     --dashboard-pad-y:clamp(14px,2dvh,24px);
     font-size:clamp(13px,.72vw,16px);
