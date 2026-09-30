@@ -6,6 +6,7 @@ import AlexProgressThumbIcon from '../atoms/AlexProgressThumbIcon'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
 import MetricCard from '../molecules/MetricCard'
+import DashboardCard from '../molecules/DashboardCard'
 import PerformanceChartCard from '../molecules/PerformanceChartCard'
 import QuestionStatsTable from '../molecules/QuestionStatsTable'
 import type {PerformanceAnalytics} from '../../lib/performanceAnalytics'
@@ -79,15 +80,15 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,c
 
   if(compact)return <AlexBox sx={{
     display:'grid',
-    gridTemplateRows:{xs:'auto auto',xl:'clamp(340px,35dvh,360px) minmax(0,1fr)'},
-    gap:{xs:1.5,sm:2.5},
+    gridTemplateRows:{xs:'auto auto',xl:'minmax(0,73%) minmax(0,27%)'},
+    gap:{xs:1.5,sm:2.5,xl:1.25},
     minWidth:0,
     height:'100%',
 
   }}>
     <AlexBox sx={{
       display:'grid',
-      gridTemplateColumns:'repeat(auto-fit,minmax(min(100%,165px),1fr))',
+      gridTemplateColumns:{xs:'repeat(2,minmax(0,1fr))',md:'repeat(3,minmax(0,1fr))',lg:'repeat(5,minmax(0,1fr))'},
       gap:1,
       minHeight:0,
     }}>
@@ -102,9 +103,19 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,c
         label="Overall progress"
         value={progressWord}
         valueColor={progressColor}
-        valueFontSize={24}
+        valueFontSize={22}
       />
-
+      {summary.recommendation&&<DashboardCard
+        tone="lavender"
+        variant="support"
+        title="Recommended focus"
+        value={summary.recommendation.label}
+        sx={{display:{xs:'flex',lg:'none'},minHeight:{xs:160,sm:0}}}
+      >
+        <AlexText sx={{fontSize:{xs:11.5,sm:12},lineHeight:1.35,color:'#475467'}}>
+          {summary.recommendation.reason}
+        </AlexText>
+      </DashboardCard>}
     </AlexBox>
     {compactRecommendationExtra&&<AlexBox sx={{minHeight:0}}>{compactRecommendationExtra}</AlexBox>}
   </AlexBox>

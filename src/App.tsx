@@ -5,6 +5,7 @@ import AlexButton from './design-system/atoms/AlexButton'
 import AlexStatusChip from './design-system/atoms/AlexStatusChip'
 import ExplanationContent from './design-system/molecules/ExplanationContent'
 import ParsingIssueReporter from './design-system/molecules/ParsingIssueReporter'
+import DashboardCard from './design-system/molecules/DashboardCard'
 import QuestionContent from './design-system/molecules/QuestionContent'
 import AccountAuthPanel from './design-system/organisms/AccountAuthPanel'
 import AppSidebarLayout from './design-system/organisms/AppSidebarLayout'
@@ -18,6 +19,7 @@ import PracticeTestsDashboard from './design-system/organisms/PracticeTestsDashb
 import StudyPlanCalendar from './design-system/organisms/StudyPlanCalendar'
 import StudyPlanHero from './design-system/organisms/StudyPlanHero'
 import QuestionBankReview from './design-system/organisms/QuestionBankReview'
+import {dashboardTypography} from './design-system/theme'
 import {answerLabel,matchesAnswer} from './lib/answerCompare'
 import {getPdf} from './lib/pdfStore'
 import {availablePracticeTests,moduleLabel,practiceTestLabel,QUESTION_BANK} from './lib/questionBank'
@@ -497,7 +499,7 @@ export default function App(){
         sx={{
           display:'flex',
           flexDirection:'column',
-          flex:{xs:'1 1 auto',xl:'1.37 1 0'},
+          flex:{xs:'1 1 auto',xl:'initial'},
           minWidth:0,
           minHeight:0,
         }}
@@ -525,7 +527,7 @@ export default function App(){
         sx={{
           display:'flex',
           flexDirection:'column',
-          flex:{xs:'1 1 auto',xl:'.63 1 0'},
+          flex:{xs:'1 1 auto',xl:'initial'},
           minWidth:{xs:0,xl:260},
           minHeight:0,
           gap:{xs:1.5,sm:2.5},
@@ -534,61 +536,54 @@ export default function App(){
           pr:{xl:0},
         }}
       >
-        <AlexBox sx={{flex:{xs:'1 1 auto',xl:'0 0 clamp(340px,35dvh,360px)'},height:{xl:'clamp(340px,35dvh,360px)'},minHeight:0}}>
+        <AlexBox sx={{flex:{xs:'0 0 auto',lg:'initial'},height:{xs:'auto',lg:'100%'},minHeight:0}}>
           <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
         </AlexBox>
-        <AlexBox sx={{
-          px:2,py:1.75,
-          border:'1px solid #E4E7EC',
-          borderRadius:'8px',
-          bgcolor:'#fff',
-          display:'flex',
-          flexDirection:'column',
-          gap:1.25,
-          flex:{xs:'0 0 auto',xl:'1 1 0'},
-          minHeight:0,
-        }}>
-          <AlexBox sx={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:1.5}}>
-            <AlexBox sx={{fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>Your practice plan</AlexBox>
-            <AlexButton
-              tone="quiet"
-              aria-label="Edit practice plan"
-              onClick={()=>navigateTo('settings')}
-              sx={{minWidth:32,width:32,height:32,p:0,display:'grid',placeItems:'center'}}
-            >
-              <PenLine size={17}/>
-            </AlexButton>
-          </AlexBox>
+        <DashboardCard
+          tone="white"
+          variant="support"
+          title="Your practice plan"
+          trailing={<AlexButton
+            tone="quiet"
+            aria-label="Edit practice plan"
+            onClick={()=>navigateTo('settings')}
+            sx={{minWidth:20,width:20,height:20,p:0,display:'grid',placeItems:'center',m:0}}
+          >
+            <PenLine size={14}/>
+          </AlexButton>}
+          sx={{flex:{xs:'0 0 auto',xl:'1 1 0'}}}
+        >
           <AlexBox sx={{
             display:'grid',
-            gridTemplateColumns:{xs:'1fr',sm:'repeat(2,minmax(0,1fr))'},
+            gridTemplateColumns:{xs:'minmax(0,1fr)',sm:'repeat(2,minmax(0,1fr))'},
             columnGap:0,
             rowGap:0,
-            mt:-.5,
           }}>
             {[
-              {label:'Daily time',value:`${practiceRecommendation.estimatedDailyMinutes} min`,icon:<Clock3 size={15}/>},
-              {label:'Focus',value:practiceRecommendation.focusLabel??'Balanced',icon:<Target size={15}/>},
-              {label:'Session size',value:`${settings.questionsPerSession} questions`,icon:<ListChecks size={15}/>},
-              {label:'Pace',value:`${practiceRecommendation.recommendedSessionsPerDay}/day`,icon:<CalendarDays size={15}/>},
+              {label:'Daily time',value:`${practiceRecommendation.estimatedDailyMinutes} min`,icon:<Clock3 size={13}/>},
+              {label:'Focus',value:practiceRecommendation.focusLabel??'Balanced',icon:<Target size={13}/>},
+              {label:'Session size',value:`${settings.questionsPerSession} questions`,icon:<ListChecks size={13}/>},
+              {label:'Pace',value:`${practiceRecommendation.recommendedSessionsPerDay}/day`,icon:<CalendarDays size={13}/>},
             ].map((item,index)=><AlexBox
               key={item.label}
               sx={{
                 display:'grid',
-                gridTemplateColumns:'28px minmax(0,1fr) auto',
+                gridTemplateColumns:{xs:'28px minmax(0,1fr)',xl:'24px minmax(0,1fr)'},
                 alignItems:'center',
                 columnGap:1,
-                py:.58,
-                pl:index%2===1?1.5:0,
-                pr:index%2===0?1.5:0,
-                borderLeft:index%2===1?'1px solid #EEF1F4':'none',
+                py:{xs:.65,xl:.38},
+                pl:{xs:0,xl:index%2===1?1.5:0},
+                pr:{xs:0,xl:index%2===0?1.5:0},
+                borderLeft:{xs:'none',xl:index%2===1?'1px solid #EEF1F4':'none'},
                 borderTop:index<2?'none':'1px solid #EEF1F4',
                 minWidth:0,
+                maxWidth:'100%',
+                overflow:'hidden',
               }}
             >
               <AlexBox sx={{
-                width:28,
-                height:28,
+                width:{xs:28,xl:24},
+                height:{xs:28,xl:24},
                 borderRadius:'50%',
                 display:'grid',
                 placeItems:'center',
@@ -598,26 +593,33 @@ export default function App(){
                 {item.icon}
               </AlexBox>
               <AlexBox sx={{
-                fontSize:12.5,
-                lineHeight:1.25,
-                color:'#344054',
                 minWidth:0,
+                display:'flex',
+                alignItems:'center',
+                justifyContent:'space-between',
+                gap:1,
               }}>
-                {item.label}
-              </AlexBox>
-              <AlexBox sx={{
-                fontSize:13,
-                lineHeight:1.2,
-                fontWeight:800,
-                color:'#08275B',
-                whiteSpace:'nowrap',
-                pl:1,
-              }}>
-                {item.value}
+                <AlexBox sx={{fontSize:dashboardTypography.supportBody,lineHeight:1.25,color:'#344054',minWidth:0}}>
+                  {item.label}
+                </AlexBox>
+                <AlexBox sx={{
+                  fontSize:dashboardTypography.supportBody,
+                  lineHeight:1.2,
+                  fontWeight:800,
+                  color:'#08275B',
+                  minWidth:0,
+                  maxWidth:'48%',
+                  overflow:'hidden',
+                  textOverflow:'ellipsis',
+                  whiteSpace:'nowrap',
+                  textAlign:'right',
+                }}>
+                  {item.value}
+                </AlexBox>
               </AlexBox>
             </AlexBox>)}
           </AlexBox>
-        </AlexBox>
+        </DashboardCard>
       </AlexBox>
     </AlexBox>
   </main>,'#F7F6F2')

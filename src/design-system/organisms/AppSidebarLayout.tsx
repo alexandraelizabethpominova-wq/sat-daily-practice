@@ -75,17 +75,17 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onD
     data-testid="app-layout"
     sx={{
       minHeight:'100dvh',
-      height:{md:active==='dashboard'?'100dvh':'auto'},
-      maxHeight:{md:active==='dashboard'?'100dvh':'none'},
+      height:{xl:active==='dashboard'?'100dvh':'auto'},
+      maxHeight:{lg:active==='dashboard'?'100dvh':'none'},
       width:'100%',
       maxWidth:'100vw',
-      overflowX:'clip',
-      overflowY:{md:active==='dashboard'?'hidden':'visible'},
+      overflowX:'hidden',
+      overflowY:{xl:active==='dashboard'?'hidden':'visible'},
       bgcolor:contentBackground,
       color:'#08275B',
     }}
   >
-    <AlexBox sx={{display:{xs:'none',lg:'block'}}}>
+    <AlexBox sx={{display:{xs:'none',xl:'block'}}}>
       <SideNavigation
         variant="desktop"
         collapsed={collapsed}
@@ -99,7 +99,10 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onD
       />
     </AlexBox>
 
-    <AlexBox sx={{display:{xs:'none',sm:'block',lg:'none'}}}>
+    <AlexBox sx={{
+      display:'none',
+      '@media (min-width:768px) and (max-width:1535.98px)':{display:'block'},
+    }}>
       <SideNavigation
         variant="tablet"
         collapsed
@@ -116,7 +119,8 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onD
       component="header"
       data-testid="mobile-header"
       sx={{
-        display:{xs:'flex',sm:'none'},
+        display:'flex',
+        '@media (min-width:768px)':{display:'none'},
         minHeight:56,
         px:1.25,
         alignItems:'center',
@@ -183,26 +187,32 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onD
       data-testid="app-content"
       sx={{
         minWidth:0,
-        width:{xs:'100%',sm:'calc(100% - 72px)',lg:`calc(100% - ${desktopSidebarWidth}px)`},
-        ml:{xs:0,sm:'72px',lg:`${desktopSidebarWidth}px`},
+        width:{xs:'100%',xl:`calc(100% - ${desktopSidebarWidth}px)`},
+        ml:{xs:0,xl:`${desktopSidebarWidth}px`},
+        '@media (min-width:768px) and (max-width:1535.98px)':{
+          width:'calc(100% - 72px)',
+          ml:'72px',
+        },
         minHeight:'100dvh',
-        height:{md:active==='dashboard'?'100dvh':'auto'},
-        overflowY:{md:active==='dashboard'?'hidden':'visible'},
+        height:{lg:active==='dashboard'?'100dvh':'auto'},
+        overflowY:{lg:active==='dashboard'?'hidden':'visible'},
         px:{xs:1.25,sm:2.25,md:3,lg:3.5},
-        pb:{xs:'calc(76px + env(safe-area-inset-bottom))',sm:0},
+        maxWidth:{xs:'100%',xl:'none'},
+        pb:'calc(76px + env(safe-area-inset-bottom))',
+        '@media (min-width:768px)':{pb:0},
         boxSizing:'border-box',
-        overflowX:'clip',
-        transition:{lg:'margin-left .18s ease, width .18s ease'},
+        overflowX:'hidden',
+        transition:{xl:'margin-left .18s ease, width .18s ease'},
       }}
     >
       <AlexBox sx={{
         width:'100%',
         maxWidth:'100%',
         minWidth:0,
-        height:{md:active==='dashboard'?'100%':'auto'},
+        height:{xl:active==='dashboard'?'100%':'auto'},
         mx:'auto',
         overflowX:'clip',
-        '& > *':{width:'100%',maxWidth:'100%',minWidth:0},
+        '& > *':{width:'100%',maxWidth:'100%',minWidth:0,overflowX:'hidden'},
       }}>
         {children}
       </AlexBox>
@@ -213,8 +223,17 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onD
       aria-label="Mobile primary navigation"
       data-testid="mobile-bottom-nav"
       sx={{
-        display:{xs:'grid',sm:'none'},
+        display:'grid',
+        '@media (min-width:768px)':{display:'none'},
         gridTemplateColumns:'repeat(4,minmax(0,1fr))',
+        width:'auto',
+        maxWidth:'none',
+        boxSizing:'border-box',
+        margin:0,
+        gap:0,
+        justifyContent:'stretch',
+        alignItems:'stretch',
+        overflow:'hidden',
         position:'fixed',
         left:0,right:0,bottom:0,
         zIndex:45,
@@ -240,8 +259,12 @@ function MobileNavButton({label,active,icon,onClick}:{label:string;active:boolea
     aria-current={active?'page':undefined}
     sx={{
       minWidth:0,
+      width:'auto',
+      maxWidth:'100%',
       minHeight:64,
-      px:.5,
+      px:.25,
+      overflow:'hidden',
+      justifyContent:'center',
       display:'flex',
       flexDirection:'column',
       gap:.35,
@@ -251,6 +274,6 @@ function MobileNavButton({label,active,icon,onClick}:{label:string;active:boolea
     }}
   >
     {icon}
-    <AlexText component="span" sx={{fontSize:10.5,fontWeight:active?850:650,color:'inherit'}}>{label}</AlexText>
+    <AlexText component="span" sx={{fontSize:10.5,fontWeight:active?850:650,color:'inherit',maxWidth:'100%',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{label}</AlexText>
   </AlexButtonBase>
 }
