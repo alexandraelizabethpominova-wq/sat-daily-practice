@@ -497,7 +497,7 @@ export default function App(){
         sx={{
           display:'flex',
           flexDirection:'column',
-          flex:{xs:'1 1 auto',xl:'1.37 1 0'},
+          flex:{xs:'1 1 auto',xl:'initial'},
           minWidth:0,
           minHeight:0,
         }}
@@ -525,7 +525,7 @@ export default function App(){
         sx={{
           display:'flex',
           flexDirection:'column',
-          flex:{xs:'1 1 auto',xl:'.63 1 0'},
+          flex:{xs:'1 1 auto',xl:'initial'},
           minWidth:{xs:0,xl:260},
           minHeight:0,
           gap:{xs:1.5,sm:2.5},
@@ -534,7 +534,7 @@ export default function App(){
           pr:{xl:0},
         }}
       >
-        <AlexBox sx={{flex:{xs:'1 1 auto',xl:'0 0 var(--dashboard-primary-row)'},height:{xl:'var(--dashboard-primary-row)'},minHeight:0}}>
+        <AlexBox sx={{flex:{xs:'1 1 auto',xl:'initial'},height:{xl:'100%'},minHeight:0}}>
           <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
         </AlexBox>
         <AlexBox sx={{
