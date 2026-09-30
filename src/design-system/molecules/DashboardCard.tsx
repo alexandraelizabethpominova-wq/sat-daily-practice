@@ -18,6 +18,7 @@ type Props={
   trailing?:ReactNode
   decoration?:ReactNode
   valueColor?:string
+  valueFontSize?:number|string|Record<string,number|string>
   sx?:SxProps<Theme>
   children?:ReactNode
 }
@@ -32,7 +33,7 @@ const TONES:Record<DashboardCardTone,{bg:string;border:string;icon:string;title:
   white:{bg:'#FFFFFF',border:'#E4E7EC',icon:'#6558F5',title:'#5B6575'},
 }
 
-export default function DashboardCard({tone,variant='metric',icon,title,value,subtitle,trailing,decoration,valueColor,sx,children}:Props){
+export default function DashboardCard({tone,variant='metric',icon,title,value,subtitle,trailing,decoration,valueColor,valueFontSize,sx,children}:Props){
   const palette=TONES[tone]
   const iconBox=dashboardCardTokens.iconBox[variant]
   const iconSize=dashboardCardTokens.iconSize[variant]
@@ -84,7 +85,7 @@ export default function DashboardCard({tone,variant='metric',icon,title,value,su
 
     {value!==undefined&&<AlexText component="div" sx={{
       fontFamily:'Georgia, "Times New Roman", serif',
-      fontSize:valueSize,
+      fontSize:valueFontSize??valueSize,
       lineHeight:1,
       letterSpacing:'-.02em',
       fontWeight:700,
