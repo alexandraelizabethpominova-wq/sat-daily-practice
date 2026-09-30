@@ -6,6 +6,7 @@ import AlexProgressThumbIcon from '../atoms/AlexProgressThumbIcon'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
 import MetricCard from '../molecules/MetricCard'
+import DashboardCard from '../molecules/DashboardCard'
 import PerformanceChartCard from '../molecules/PerformanceChartCard'
 import QuestionStatsTable from '../molecules/QuestionStatsTable'
 import type {PerformanceAnalytics} from '../../lib/performanceAnalytics'
@@ -104,7 +105,17 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,c
         valueColor={progressColor}
         valueFontSize={22}
       />
-
+      {summary.recommendation&&<DashboardCard
+        tone="lavender"
+        variant="support"
+        title="Recommended focus"
+        value={summary.recommendation.label}
+        sx={{display:{xs:'flex',lg:'none'},minHeight:{xs:160,sm:0}}}
+      >
+        <AlexText sx={{fontSize:{xs:11.5,sm:12},lineHeight:1.35,color:'#475467'}}>
+          {summary.recommendation.reason}
+        </AlexText>
+      </DashboardCard>}
     </AlexBox>
     {compactRecommendationExtra&&<AlexBox sx={{minHeight:0}}>{compactRecommendationExtra}</AlexBox>}
   </AlexBox>
