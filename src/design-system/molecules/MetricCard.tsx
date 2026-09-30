@@ -16,7 +16,7 @@ const toneMap:Record<MetricTone,DashboardCardTone>={
 export default function MetricCard({icon,label,value,tone='default',compact=false,valueColor,valueFontSize}:Props){
   return <DashboardCard
     tone={toneMap[tone]}
-    variant={compact?'metric':'summary'}
+    variant={compact?'metric':'hero'}
     icon={icon}
     title={label}
     value={value}
