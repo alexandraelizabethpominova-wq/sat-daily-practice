@@ -26,28 +26,28 @@ export default function StudyPlanHero({
     sx={{
       position:'relative',overflow:'hidden',border:'1px solid #D9E7F8',
       bgcolor:'#EAF3FF',boxShadow:'0 10px 30px rgba(9,35,79,.055)',
-      p:{xs:1.25,sm:1.5,md:1.75,lg:2},display:'grid',gridTemplateColumns:{xs:'1fr',xl:'minmax(0,1.45fr) minmax(300px,.55fr)'},
+      p:{xs:1.1,sm:1.3,md:1.45,lg:1.6},display:'grid',gridTemplateColumns:{xs:'1fr',xl:'minmax(0,1.45fr) minmax(300px,.55fr)'},
       gap:{xs:1.5,sm:2,lg:2.5},alignItems:'center',height:'100%',minHeight:0,
     }}
   >
     <AlexBox sx={{position:'relative',zIndex:1}}>
       <AlexText sx={{fontSize:12,textTransform:'uppercase',letterSpacing:'.12em',fontWeight:850,color:'#245F9E'}}>Study plan</AlexText>
-      <AlexText component="h1" sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:28,sm:31,md:34,lg:36,xl:'clamp(32px,2.25vw,40px)'},lineHeight:1.04,letterSpacing:'-.035em',mt:1,mb:1.5,color:'#08275B'}}>
+      <AlexText component="h1" sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:27,sm:30,md:32,lg:34,xl:'clamp(30px,2vw,36px)'},lineHeight:1.04,letterSpacing:'-.035em',mt:1,mb:1.5,color:'#08275B'}}>
         Your SAT practice plan
       </AlexText>
-      <AlexText sx={{color:'#3F5E86',fontSize:{xs:12.5,sm:13,lg:14},lineHeight:1.6,maxWidth:650}}>
+      <AlexText sx={{color:'#3F5E86',fontSize:{xs:12,sm:12.5,lg:13.25},lineHeight:1.6,maxWidth:650}}>
         Keep your goal in view, focus on the questions that need attention, and make steady progress without overloading each day.
       </AlexText>
 
-      <AlexBox sx={{display:'flex',gap:1,flexWrap:'wrap',mt:{xs:.8,sm:1,lg:1.1},flexDirection:{xs:'column',sm:'row'}}}>
+      <AlexBox sx={{display:'flex',gap:1,flexWrap:'wrap',mt:{xs:.55,sm:.7,lg:.8},flexDirection:{xs:'column',sm:'row'}}}>
         <AlexButton fullWidth onClick={onChoosePracticeTest} sx={{width:{xs:'100%',sm:'auto'}}}>Choose a practice test</AlexButton>
         <AlexButton fullWidth tone="secondary" onClick={onStartPractice} sx={{width:{xs:'100%',sm:'auto'}}}>Start {questionsPerSession} questions</AlexButton>
       </AlexBox>
 
     </AlexBox>
 
-    <AlexBox sx={{display:'grid',gridTemplateRows:'minmax(0,1fr) minmax(0,.9fr)',gap:{xs:.75,sm:1},position:'relative',zIndex:1,minHeight:0,height:'100%'}}>
-      <AlexSurface sx={{position:'relative',minHeight:0,height:'100%',border:0,bgcolor:'#FFF9DD',overflow:'hidden',p:{xs:1.25,sm:1.5}}}>
+    <AlexBox sx={{display:'grid',gridTemplateRows:'minmax(0,1.05fr) minmax(0,.75fr)',gap:{xs:.75,sm:1},position:'relative',zIndex:1,minHeight:0,height:'100%'}}>
+      <AlexSurface sx={{position:'relative',minHeight:0,height:'100%',border:0,bgcolor:'#FFF9DD',overflow:'hidden',p:{xs:1,sm:1.15}}}>
         <AlexBox sx={{display:'flex',alignItems:'center',gap:.25,color:'#6B5A12'}}>
           <AlexText sx={{fontSize:11,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:'inherit'}}>Current estimate</AlexText>
           <AlexInfoTooltipButton
@@ -58,16 +58,16 @@ export default function StudyPlanHero({
             </>}
           />
         </AlexBox>
-        <AlexText sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:22,sm:24,lg:25},fontWeight:700,color:'#08275B',mt:.45}}>
+        <AlexText sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:21,sm:22,lg:23},fontWeight:700,color:'#08275B',mt:.45}}>
           {estimatedScore??'—'}
         </AlexText>
-        <AlexText sx={{fontSize:12.5,color:'#667085',mt:.3}}>
+        <AlexText sx={{fontSize:11.5,color:'#667085',mt:.2}}>
           {nationalMeritChance!==null
             ?`${nationalMeritChance}% National Merit qualifying outlook${projectedSelectionIndex!==null?` · SI ~${projectedSelectionIndex}`:''}`
             :accuracy!==null?'Calibrating National Merit outlook':'Complete a few questions to calibrate'}
         </AlexText>
         {estimateConfidence&&<AlexBox sx={{display:'flex',alignItems:'center',gap:.25,mt:.25,color:'#667085'}}>
-          <AlexText sx={{fontSize:11.5,fontWeight:750,color:'inherit'}}>
+          <AlexText sx={{fontSize:10.5,fontWeight:750,color:'inherit'}}>
             {estimateConfidence.label} estimate confidence · {estimateConfidence.within80}% within ±80
           </AlexText>
           <AlexInfoTooltipButton
@@ -78,17 +78,17 @@ export default function StudyPlanHero({
             </>}
           />
         </AlexBox>}
-        <AlexBox sx={{position:'absolute',right:{xs:10,sm:14},bottom:6,width:{xs:54,sm:62},height:{xs:54,sm:62},borderRadius:'50%',bgcolor:'#D9ECFF',display:'grid',placeItems:'center',transform:'rotate(-6deg)'}}>
-          <BookOpenCheck size={28} strokeWidth={1.6}/>
+        <AlexBox sx={{position:'absolute',right:{xs:10,sm:14},bottom:6,width:{xs:48,sm:54},height:{xs:48,sm:54},borderRadius:'50%',bgcolor:'#D9ECFF',display:'grid',placeItems:'center',transform:'rotate(-6deg)'}}>
+          <BookOpenCheck size={24} strokeWidth={1.6}/>
         </AlexBox>
         <Sparkles size={20} style={{position:'absolute',right:112,top:24}}/>
       </AlexSurface>
 
       <AlexBox sx={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:{xs:.75,sm:1},minHeight:0}}>
-        <AlexSurface sx={{p:{xs:1,sm:1.2},border:0,bgcolor:'#DFFFD3',minHeight:0}}>
+        <AlexSurface sx={{p:{xs:.8,sm:.9},border:0,bgcolor:'#DFFFD3',minHeight:0}}>
           <Target size={18}/>
-          <AlexText sx={{fontSize:10.5,fontWeight:850,textTransform:'uppercase',letterSpacing:'.08em',mt:.8,color:'#385B2E'}}>Goal score</AlexText>
-          <AlexText sx={{fontSize:{xs:21,sm:23},fontWeight:850,color:'#08275B',mt:.2}}>{targetScore??'—'}</AlexText>
+          <AlexText sx={{fontSize:9.5,fontWeight:850,textTransform:'uppercase',letterSpacing:'.08em',mt:.8,color:'#385B2E'}}>Goal score</AlexText>
+          <AlexText sx={{fontSize:{xs:19,sm:21},fontWeight:850,color:'#08275B',mt:.2}}>{targetScore??'—'}</AlexText>
         </AlexSurface>
         <AlexSurface sx={{p:{xs:1,sm:1.2},border:0,bgcolor:'#F2E7FF',minHeight:0}}>
           <CalendarDays size={18}/>
