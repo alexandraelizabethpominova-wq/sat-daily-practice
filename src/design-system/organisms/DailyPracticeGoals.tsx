@@ -89,7 +89,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
   const weeklyMinutes=Math.round(attempts.filter(attempt=>new Date(attempt.createdAt)>=weekStart).reduce((total,attempt)=>total+attempt.elapsedMs,0)/60000)
   const daysToWeeklyStreak=Math.max(0,2-practicedDays)
 
-  return <AlexBox sx={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(min(100%,260px),1fr))',gap:1.5,minHeight:0,height:'100%',alignItems:'stretch'}}>
+  return <AlexBox sx={{display:'grid',gridTemplateColumns:{xs:'repeat(auto-fit,minmax(min(100%,260px),1fr))',lg:'repeat(3,minmax(0,1fr))'},gap:1.5,minHeight:0,height:'100%',alignItems:'stretch'}}>
     <DashboardCard tone="white" variant="support" title="Today's goals">
       <AlexBox sx={{display:'grid',gap:{xs:1.05,xl:.55}}}>
         {goals.map((goal,index)=>{const complete=index===0?questionsDone>=questionTarget:index===1?minutesDone>=minuteTarget:reviewedFailedToday;return <AlexBox key={goal.label} sx={{display:'grid',gridTemplateColumns:{xs:'30px minmax(0,1fr)',xl:'24px minmax(0,1fr)'},alignItems:'center',columnGap:{xs:1.15,xl:.75}}}>
