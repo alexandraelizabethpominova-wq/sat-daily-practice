@@ -700,7 +700,7 @@ nav[aria-label="Mobile primary navigation"]{margin:0}
 /* Desktop: fixed composition by percentages, not fixed pixel heights. */
 @media (min-width:1200px){
   .dashboard-shell{
-    --dashboard-hero:32%;
+    --dashboard-hero:30%;
     --dashboard-gap:clamp(8px,1.1dvh,12px);
     --dashboard-pad-y:clamp(10px,1.5dvh,18px);
     padding:var(--dashboard-pad-y) 0;
@@ -732,7 +732,7 @@ nav[aria-label="Mobile primary navigation"]{margin:0}
 /* Large desktop: same composition, larger readable type and breathing room. */
 @media (min-width:1536px){
   .dashboard-shell{
-    --dashboard-hero:29%;
+    --dashboard-hero:30%;
     --dashboard-gap:12px;
     --dashboard-pad-y:clamp(14px,2dvh,24px);
     font-size:clamp(13px,.72vw,16px);
