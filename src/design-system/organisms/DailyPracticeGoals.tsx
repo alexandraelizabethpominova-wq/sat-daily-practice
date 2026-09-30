@@ -124,7 +124,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
       </AlexText>
     </DashboardCard>
 
-    <DashboardCard tone="lavender" variant="support" title="Recommended focus" value={recommendationLabel}>
+    <DashboardCard tone="lavender" variant="support" title="Recommended focus" value={recommendationLabel} sx={{display:{xs:'none',lg:'flex'}}}>
       {recommendationReason&&<AlexText sx={{fontSize:dashboardTypography.supportBody,lineHeight:1.4,fontWeight:400,color:'#475467'}}>{recommendationReason}</AlexText>}
     </DashboardCard>
   </AlexBox>
