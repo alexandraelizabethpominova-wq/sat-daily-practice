@@ -139,7 +139,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
             sx={{
               width:'100%',
               aspectRatio:'1 / 1',
-              width:'clamp(27px,3.2dvh,36px)',maxWidth:36,
+              width:'clamp(25px,2.9dvh,34px)',maxWidth:34,
               justifySelf:'center',
               borderRadius:isExamDate?0:'50%',
               border:isExamDate?'none':'1px solid',
