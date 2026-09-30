@@ -1,5 +1,17 @@
 import {createTheme} from '@mui/material/styles'
 
+export const dashboardTypography={
+  eyebrow:{xs:'clamp(9px,2.7vw,11px)',sm:'clamp(10px,1.4vw,11px)',lg:'clamp(10px,.72vw,12px)'},
+  heroTitle:{xs:'clamp(26px,8vw,32px)',sm:'clamp(30px,4.6vw,36px)',lg:'clamp(31px,2.15vw,40px)'},
+  heroBody:{xs:'clamp(12px,3.5vw,14px)',sm:'clamp(12.5px,1.9vw,14.5px)',lg:'clamp(12.5px,.86vw,15px)'},
+  heroScore:{xs:'clamp(20px,6vw,25px)',sm:'clamp(21px,3vw,27px)',lg:'clamp(22px,1.55vw,29px)'},
+  cardTitle:{xs:'clamp(9px,2.8vw,10px)',sm:'clamp(9px,1.35vw,10.5px)',lg:'clamp(9px,.66vw,11px)'},
+  metricValue:{xs:'clamp(25px,7vw,32px)',sm:'clamp(28px,4vw,34px)',lg:'clamp(28px,2vw,36px)'},
+  supportBody:{xs:'clamp(10.5px,3vw,12px)',sm:'clamp(11px,1.6vw,12.5px)',lg:'clamp(11px,.74vw,13px)'},
+  supportTitle:{xs:'clamp(18px,5.5vw,21px)',sm:'clamp(19px,2.8vw,22px)',lg:'clamp(19px,1.35vw,23px)'},
+} as const
+
+
 export const alexTheme=createTheme({
   palette:{
     mode:'light',
