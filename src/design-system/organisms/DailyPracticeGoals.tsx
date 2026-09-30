@@ -108,18 +108,18 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
       <AlexText sx={{fontSize:dashboardTypography.supportBody,lineHeight:1.25,fontWeight:400,color:'#111'}}>
         {daysToWeeklyStreak>0?`${daysToWeeklyStreak} days left to start your weekly streak!`:'Your weekly streak is underway!'}
       </AlexText>
-      <AlexBox sx={{display:'flex',gap:{xs:.65,xl:.45},alignItems:'center',width:'100%',minWidth:0}}>
+      <AlexBox sx={{display:'grid',gridTemplateColumns:'repeat(7,minmax(0,1fr))',gap:{xs:.45,lg:.35,xl:.45},alignItems:'center',width:'100%',minWidth:0}}>
         {weekDays.map(day=><AlexBox key={day.key} sx={{
-          width:{xs:36,xl:28},height:{xs:36,xl:28},flex:{xs:'0 0 36px',xl:'0 0 28px'},borderRadius:'5px',
+          width:'100%',aspectRatio:'1 / 1',maxWidth:{xs:36,lg:30,xl:28},justifySelf:'start',borderRadius:'5px',
           border:'1.5px solid',borderColor:day.practiced?'#B38CFF':day.isToday?'#111':'#C8D1DE',
           bgcolor:day.practiced?'#F7F2FF':'#fff',
           color:day.practiced?'#6F35E8':day.isToday?'#111':'#475467',
           display:'grid',placeItems:'center',
         }}>
-          {day.practiced?<Check size={18} strokeWidth={2.2}/>:<AlexText sx={{fontSize:{xs:13.5,xl:10.5},fontWeight:day.isToday?700:400,color:'inherit'}}>{day.label}</AlexText>}
+          {day.practiced?<Check size={16} strokeWidth={2.2}/>:<AlexText sx={{fontSize:{xs:13.5,lg:11.5,xl:10.5},fontWeight:day.isToday?700:400,color:'inherit'}}>{day.label}</AlexText>}
         </AlexBox>)}
       </AlexBox>
-      <AlexText sx={{fontSize:dashboardTypography.supportSecondary,fontWeight:400,lineHeight:1.25,color:'#667085'}}>
+      <AlexText sx={{fontSize:dashboardTypography.supportSecondary,fontWeight:400,lineHeight:1.2,color:'#667085',whiteSpace:{lg:'nowrap'},overflow:'hidden',textOverflow:'ellipsis'}}>
         {weeklyQuestions} items completed · {weeklyMinutes} minutes learned
       </AlexText>
     </DashboardCard>
