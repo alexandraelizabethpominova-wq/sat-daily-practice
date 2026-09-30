@@ -80,16 +80,17 @@ export default function DashboardCard({tone,variant='metric',icon,title,value,su
     </>:<AlexBox sx={{
       display:'flex',
       alignItems:'center',
+      justifyContent:'space-between',
       gap:.6,
       minWidth:0,
       minHeight:variant==='support'?20:undefined,
-      pr:variant==='support'&&trailing?3.5:0,
+      width:'100%',
     }}>
-      {(variant==='compact'||variant==='support')&&iconNode}
-      <CardTitle>{title}</CardTitle>
-      {variant==='support'&&trailing
-        ?<AlexBox sx={{position:'absolute',top:dashboardCardTokens.padding.support,right:dashboardCardTokens.padding.support,display:'grid',placeItems:'center'}}>{trailing}</AlexBox>
-        :trailing}
+      <AlexBox sx={{display:'flex',alignItems:'center',gap:.6,minWidth:0}}>
+        {(variant==='compact'||variant==='support')&&iconNode}
+        <CardTitle>{title}</CardTitle>
+      </AlexBox>
+      {trailing&&<AlexBox sx={{display:'grid',placeItems:'center',flex:'0 0 auto'}}>{trailing}</AlexBox>}
     </AlexBox>}
 
     {value!==undefined&&<AlexText component="div" sx={{
