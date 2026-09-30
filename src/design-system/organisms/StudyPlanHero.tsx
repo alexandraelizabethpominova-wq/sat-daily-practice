@@ -4,6 +4,7 @@ import AlexButton from '../atoms/AlexButton'
 import AlexInfoTooltipButton from '../atoms/AlexInfoTooltipButton'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
+import {dashboardTypography} from '../theme'
 
 type Props={
   accuracy:number|null
@@ -31,11 +32,11 @@ export default function StudyPlanHero({
     }}
   >
     <AlexBox sx={{position:'relative',zIndex:1}}>
-      <AlexText sx={{fontSize:12,textTransform:'uppercase',letterSpacing:'.12em',fontWeight:850,color:'#245F9E'}}>Study plan</AlexText>
-      <AlexText component="h1" sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:27,sm:30,md:32,lg:34,xl:'clamp(30px,2vw,36px)'},lineHeight:1.04,letterSpacing:'-.035em',mt:1,mb:1.5,color:'#08275B'}}>
+      <AlexText sx={{fontSize:dashboardTypography.eyebrow,textTransform:'uppercase',letterSpacing:'.12em',fontWeight:850,color:'#245F9E'}}>Study plan</AlexText>
+      <AlexText component="h1" sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:dashboardTypography.heroTitle,lineHeight:1.04,letterSpacing:'-.035em',mt:1,mb:1.5,color:'#08275B'}}>
         Your SAT practice plan
       </AlexText>
-      <AlexText sx={{color:'#3F5E86',fontSize:{xs:12,sm:12.5,lg:13.25},lineHeight:1.6,maxWidth:650}}>
+      <AlexText sx={{color:'#3F5E86',fontSize:dashboardTypography.heroBody,lineHeight:1.6,maxWidth:650}}>
         Keep your goal in view, focus on the questions that need attention, and make steady progress without overloading each day.
       </AlexText>
 
@@ -49,7 +50,7 @@ export default function StudyPlanHero({
     <AlexBox sx={{display:'grid',gridTemplateRows:'minmax(0,1.05fr) minmax(0,.75fr)',gap:{xs:.75,sm:1},position:'relative',zIndex:1,minHeight:0,height:'100%'}}>
       <AlexSurface sx={{position:'relative',minHeight:0,height:'100%',border:0,bgcolor:'#FFF9DD',overflow:'hidden',p:{xs:1,sm:1.15}}}>
         <AlexBox sx={{display:'flex',alignItems:'center',gap:.25,color:'#6B5A12'}}>
-          <AlexText sx={{fontSize:11,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:'inherit'}}>Current estimate</AlexText>
+          <AlexText sx={{fontSize:dashboardTypography.cardTitle,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:'inherit'}}>Current estimate</AlexText>
           <AlexInfoTooltipButton
             label="PSAT scholarship score information"
             title={<>
@@ -58,7 +59,7 @@ export default function StudyPlanHero({
             </>}
           />
         </AlexBox>
-        <AlexText sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:21,sm:22,lg:23},fontWeight:700,color:'#08275B',mt:.45}}>
+        <AlexText sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:dashboardTypography.heroScore,fontWeight:700,color:'#08275B',mt:.45}}>
           {estimatedScore??'—'}
         </AlexText>
         <AlexText sx={{fontSize:11.5,color:'#667085',mt:.2}}>
@@ -87,13 +88,13 @@ export default function StudyPlanHero({
       <AlexBox sx={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:{xs:.75,sm:1},minHeight:0}}>
         <AlexSurface sx={{p:{xs:.8,sm:.9},border:0,bgcolor:'#DFFFD3',minHeight:0}}>
           <Target size={18}/>
-          <AlexText sx={{fontSize:9.5,fontWeight:850,textTransform:'uppercase',letterSpacing:'.08em',mt:.8,color:'#385B2E'}}>Goal score</AlexText>
-          <AlexText sx={{fontSize:{xs:19,sm:21},fontWeight:850,color:'#08275B',mt:.2}}>{targetScore??'—'}</AlexText>
+          <AlexText sx={{fontSize:dashboardTypography.cardTitle,fontWeight:850,textTransform:'uppercase',letterSpacing:'.08em',mt:.8,color:'#385B2E'}}>Goal score</AlexText>
+          <AlexText sx={{fontSize:dashboardTypography.supportTitle,fontWeight:850,color:'#08275B',mt:.2}}>{targetScore??'—'}</AlexText>
         </AlexSurface>
         <AlexSurface sx={{p:{xs:1,sm:1.2},border:0,bgcolor:'#F2E7FF',minHeight:0}}>
           <CalendarDays size={18}/>
-          <AlexText sx={{fontSize:10.5,fontWeight:850,textTransform:'uppercase',letterSpacing:'.08em',mt:.8,color:'#66428A'}}>Days until exam</AlexText>
-          <AlexText sx={{fontSize:26,fontWeight:850,color:'#08275B',mt:.2}}>{daysRemaining}</AlexText>
+          <AlexText sx={{fontSize:dashboardTypography.cardTitle,fontWeight:850,textTransform:'uppercase',letterSpacing:'.08em',mt:.8,color:'#66428A'}}>Days until exam</AlexText>
+          <AlexText sx={{fontSize:dashboardTypography.supportTitle,fontWeight:850,color:'#08275B',mt:.2}}>{daysRemaining}</AlexText>
         </AlexSurface>
       </AlexBox>
     </AlexBox>
