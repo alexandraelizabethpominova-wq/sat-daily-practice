@@ -91,8 +91,20 @@ export default function StudyPlanHero({
             </>}
           />
         </AlexBox>
-        <AlexBox sx={{position:'absolute',right:{xs:10,sm:14},bottom:6,width:{xs:48,sm:54},height:{xs:48,sm:54},borderRadius:'50%',bgcolor:'#D9ECFF',display:'grid',placeItems:'center',transform:'rotate(-6deg)'}}>
-          <BookOpenCheck size={24} strokeWidth={1.6}/>
+        <AlexBox sx={{
+          position:'absolute',
+          right:{xs:10,sm:14},
+          top:'50%',
+          bottom:'auto',
+          width:{xs:64,sm:76},
+          height:{xs:64,sm:76},
+          borderRadius:'50%',
+          bgcolor:'#D9ECFF',
+          display:'grid',
+          placeItems:'center',
+          transform:'translateY(-50%) rotate(-6deg)',
+        }}>
+          <BookOpenCheck size={34} strokeWidth={1.6}/>
         </AlexBox>
         <Sparkles size={20} style={{position:'absolute',right:112,top:24}}/>
       </AlexSurface>
