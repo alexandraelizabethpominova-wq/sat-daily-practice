@@ -718,13 +718,13 @@ nav[aria-label="Mobile primary navigation"]{margin:0}
   }
   .dashboard-bottom-left>div{
     display:grid!important;
-    grid-template-rows:minmax(0,58%) minmax(0,42%)!important;
+    grid-template-rows:minmax(0,64%) minmax(0,36%)!important;
     gap:clamp(6px,1dvh,10px)!important;
     height:100%;
   }
   .dashboard-bottom-right{
     display:grid!important;
-    grid-template-rows:minmax(0,58%) minmax(0,42%);
+    grid-template-rows:minmax(0,64%) minmax(0,36%);
     gap:clamp(6px,1dvh,10px)!important;
   }
 }
