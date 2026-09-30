@@ -16,6 +16,7 @@ type Props={
   value?:ReactNode
   subtitle?:ReactNode
   trailing?:ReactNode
+  decoration?:ReactNode
   valueColor?:string
   sx?:SxProps<Theme>
 }
@@ -30,7 +31,7 @@ const TONES:Record<DashboardCardTone,{bg:string;border:string;icon:string;title:
   white:{bg:'#FFFFFF',border:'#E4E7EC',icon:'#6558F5',title:'#5B6575'},
 }
 
-export default function DashboardCard({tone,variant='metric',icon,title,value,subtitle,trailing,valueColor,sx}:Props){
+export default function DashboardCard({tone,variant='metric',icon,title,value,subtitle,trailing,decoration,valueColor,sx}:Props){
   const palette=TONES[tone]
   const iconBox=dashboardCardTokens.iconBox[variant]
   const iconSize=dashboardCardTokens.iconSize[variant]
@@ -98,5 +99,6 @@ export default function DashboardCard({tone,variant='metric',icon,title,value,su
       lineHeight:1.35,
       minWidth:0,
     }}>{subtitle}</AlexText>}
+    {decoration}
   </AlexSurface>
 }
