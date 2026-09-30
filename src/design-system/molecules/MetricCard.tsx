@@ -2,6 +2,7 @@ import type {ReactNode} from 'react'
 import AlexBox from '../atoms/AlexBox'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
+import {dashboardTypography} from '../theme'
 
 type MetricTone='default'|'blue'|'cream'|'lavender'|'green'|'peach'
 type Props={icon:ReactNode;label:string;value:string;tone?:MetricTone;compact?:boolean;valueColor?:string;valueFontSize?:number}
@@ -43,7 +44,7 @@ export default function MetricCard({icon,label,value,tone='default',compact=fals
     <AlexText sx={{
       mt:compact?1.5:1,
       color:compact?'#5B6575':'#667085',
-      fontSize:compact?10.2:14,
+      fontSize:compact?dashboardTypography.cardTitle:14,
       lineHeight:1.2,
       fontWeight:compact?800:400,
       textTransform:compact?'uppercase':'none',
@@ -53,7 +54,7 @@ export default function MetricCard({icon,label,value,tone='default',compact=fals
       display:'block',
       mt:compact?.5:.5,
       fontFamily:compact?'Georgia, "Times New Roman", serif':'inherit',
-      fontSize:valueFontSize??(compact?34:26),
+      fontSize:valueFontSize??(compact?dashboardTypography.metricValue:26),
       lineHeight:1,
       letterSpacing:compact?'-.025em':0,
       fontWeight:compact?700:850,
