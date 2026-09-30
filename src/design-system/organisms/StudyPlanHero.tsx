@@ -28,7 +28,7 @@ export default function StudyPlanHero({
       position:'relative',overflow:'hidden',border:'1px solid #D9E7F8',
       bgcolor:'#EAF3FF',boxShadow:'0 10px 30px rgba(9,35,79,.055)',
       p:0,display:'grid',gridTemplateColumns:{xs:'1fr',xl:'var(--dashboard-columns)'},
-      gap:{xs:1.5,sm:2,xl:'var(--dashboard-column-gap)'},alignItems:'stretch',height:'100%',minHeight:0,
+      gap:{xs:1.25,sm:1.5,xl:'var(--dashboard-column-gap)'},alignItems:'stretch',height:{xs:'auto',xl:'100%'},minHeight:0,
     }}
   >
     <AlexBox sx={{position:'relative',zIndex:1,p:{xs:1.1,sm:1.3,md:1.45,lg:1.6},display:'flex',flexDirection:'column',justifyContent:'center',minWidth:0}}>
@@ -47,8 +47,16 @@ export default function StudyPlanHero({
 
     </AlexBox>
 
-    <AlexBox sx={{display:'grid',gridTemplateRows:'minmax(0,1.05fr) minmax(0,.75fr)',gap:{xs:.75,sm:1},position:'relative',zIndex:1,minHeight:0,height:'100%',py:{xs:.75,sm:1,lg:1.1},pr:0,pl:0}}>
-      <AlexSurface sx={{position:'relative',minHeight:0,height:'100%',border:0,bgcolor:'#FFF9DD',overflow:'hidden',p:{xs:1,sm:1.15}}}>
+    <AlexBox sx={{
+      display:'grid',
+      gridTemplateRows:{xs:'auto auto',xl:'minmax(0,1fr) minmax(0,.78fr)'},
+      gap:{xs:.75,sm:1},
+      position:'relative',zIndex:1,minHeight:0,
+      height:{xs:'auto',xl:'100%'},
+      py:{xs:0,sm:.5,xl:1},
+      pr:0,pl:0,
+    }}>
+      <AlexSurface sx={{position:'relative',minHeight:0,height:{xs:'auto',xl:'100%'},border:0,bgcolor:'#FFF9DD',overflow:'hidden',p:{xs:1.1,sm:1.2,xl:1.05}}}>
         <AlexBox sx={{display:'flex',alignItems:'center',gap:.25,color:'#6B5A12'}}>
           <AlexText sx={{fontSize:dashboardTypography.cardTitle,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:'inherit'}}>Current estimate</AlexText>
           <AlexInfoTooltipButton
@@ -85,15 +93,15 @@ export default function StudyPlanHero({
         <Sparkles size={20} style={{position:'absolute',right:112,top:24}}/>
       </AlexSurface>
 
-      <AlexBox sx={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:{xs:.75,sm:1},minHeight:0}}>
-        <AlexSurface sx={{p:{xs:.8,sm:.9},border:0,bgcolor:'#DFFFD3',minHeight:0}}>
+      <AlexBox sx={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:{xs:.75,sm:1},minHeight:0,height:{xl:'100%'}}}>
+        <AlexSurface sx={{p:{xs:1,sm:1.05,xl:.9},border:0,bgcolor:'#DFFFD3',minHeight:0,display:'flex',flexDirection:'column',justifyContent:'center'}}>
           <Target size={18}/>
-          <AlexText sx={{fontSize:dashboardTypography.cardTitle,fontWeight:850,textTransform:'uppercase',letterSpacing:'.08em',mt:.8,color:'#385B2E'}}>Goal score</AlexText>
+          <AlexText sx={{fontSize:dashboardTypography.cardTitle,fontWeight:850,textTransform:'uppercase',letterSpacing:'.08em',mt:.45,color:'#385B2E'}}>Goal score</AlexText>
           <AlexText sx={{fontSize:dashboardTypography.supportTitle,fontWeight:850,color:'#08275B',mt:.2}}>{targetScore??'—'}</AlexText>
         </AlexSurface>
-        <AlexSurface sx={{p:{xs:1,sm:1.2},border:0,bgcolor:'#F2E7FF',minHeight:0}}>
+        <AlexSurface sx={{p:{xs:1,sm:1.05,xl:.9},border:0,bgcolor:'#F2E7FF',minHeight:0,display:'flex',flexDirection:'column',justifyContent:'center'}}>
           <CalendarDays size={18}/>
-          <AlexText sx={{fontSize:dashboardTypography.cardTitle,fontWeight:850,textTransform:'uppercase',letterSpacing:'.08em',mt:.8,color:'#66428A'}}>Days until exam</AlexText>
+          <AlexText sx={{fontSize:dashboardTypography.cardTitle,fontWeight:850,textTransform:'uppercase',letterSpacing:'.08em',mt:.45,color:'#66428A'}}>Days until exam</AlexText>
           <AlexText sx={{fontSize:dashboardTypography.supportTitle,fontWeight:850,color:'#08275B',mt:.2}}>{daysRemaining}</AlexText>
         </AlexSurface>
       </AlexBox>
