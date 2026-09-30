@@ -75,17 +75,17 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onD
     data-testid="app-layout"
     sx={{
       minHeight:'100dvh',
-      height:{lg:active==='dashboard'?'100dvh':'auto'},
+      height:{xl:active==='dashboard'?'100dvh':'auto'},
       maxHeight:{lg:active==='dashboard'?'100dvh':'none'},
       width:'100%',
       maxWidth:'100vw',
       overflowX:'hidden',
-      overflowY:{lg:active==='dashboard'?'hidden':'visible'},
+      overflowY:{xl:active==='dashboard'?'hidden':'visible'},
       bgcolor:contentBackground,
       color:'#08275B',
     }}
   >
-    <AlexBox sx={{display:{xs:'none',lg:'block'}}}>
+    <AlexBox sx={{display:{xs:'none',xl:'block'}}}>
       <SideNavigation
         variant="desktop"
         collapsed={collapsed}
@@ -101,7 +101,7 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onD
 
     <AlexBox sx={{
       display:'none',
-      '@media (min-width:768px) and (max-width:1199.98px)':{display:'block'},
+      '@media (min-width:768px) and (max-width:1535.98px)':{display:'block'},
     }}>
       <SideNavigation
         variant="tablet"
@@ -187,9 +187,9 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onD
       data-testid="app-content"
       sx={{
         minWidth:0,
-        width:{xs:'100%',lg:`calc(100% - ${desktopSidebarWidth}px)`},
-        ml:{xs:0,lg:`${desktopSidebarWidth}px`},
-        '@media (min-width:768px) and (max-width:1199.98px)':{
+        width:{xs:'100%',xl:`calc(100% - ${desktopSidebarWidth}px)`},
+        ml:{xs:0,xl:`${desktopSidebarWidth}px`},
+        '@media (min-width:768px) and (max-width:1535.98px)':{
           width:'calc(100% - 72px)',
           ml:'72px',
         },
@@ -197,19 +197,19 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onD
         height:{lg:active==='dashboard'?'100dvh':'auto'},
         overflowY:{lg:active==='dashboard'?'hidden':'visible'},
         px:{xs:1.25,sm:2.25,md:3,lg:3.5},
-        maxWidth:{xs:'100%',lg:'none'},
+        maxWidth:{xs:'100%',xl:'none'},
         pb:'calc(76px + env(safe-area-inset-bottom))',
         '@media (min-width:768px)':{pb:0},
         boxSizing:'border-box',
         overflowX:'hidden',
-        transition:{lg:'margin-left .18s ease, width .18s ease'},
+        transition:{xl:'margin-left .18s ease, width .18s ease'},
       }}
     >
       <AlexBox sx={{
         width:'100%',
         maxWidth:'100%',
         minWidth:0,
-        height:{lg:active==='dashboard'?'100%':'auto'},
+        height:{xl:active==='dashboard'?'100%':'auto'},
         mx:'auto',
         overflowX:'clip',
         '& > *':{width:'100%',maxWidth:'100%',minWidth:0,overflowX:'hidden'},
