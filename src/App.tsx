@@ -5,6 +5,7 @@ import AlexButton from './design-system/atoms/AlexButton'
 import AlexStatusChip from './design-system/atoms/AlexStatusChip'
 import ExplanationContent from './design-system/molecules/ExplanationContent'
 import ParsingIssueReporter from './design-system/molecules/ParsingIssueReporter'
+import DashboardCard from './design-system/molecules/DashboardCard'
 import QuestionContent from './design-system/molecules/QuestionContent'
 import AccountAuthPanel from './design-system/organisms/AccountAuthPanel'
 import AppSidebarLayout from './design-system/organisms/AppSidebarLayout'
@@ -538,34 +539,25 @@ export default function App(){
         <AlexBox sx={{flex:{xs:'1 1 auto',xl:'initial'},height:{xl:'100%'},minHeight:0}}>
           <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
         </AlexBox>
-        <AlexBox sx={{
-          px:{xs:2,xl:1.25},py:{xs:1.75,xl:.75},
-          border:'1px solid #E4E7EC',
-          borderRadius:'8px',
-          bgcolor:'#fff',
-          display:'flex',
-          flexDirection:'column',
-          gap:{xs:1.25,xl:.65},
-          flex:{xs:'0 0 auto',xl:'1 1 0'},
-          minHeight:0,
-        }}>
-          <AlexBox sx={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:1.5}}>
-            <AlexBox sx={{fontSize:dashboardTypography.cardTitle,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>Your practice plan</AlexBox>
-            <AlexButton
-              tone="quiet"
-              aria-label="Edit practice plan"
-              onClick={()=>navigateTo('settings')}
-              sx={{minWidth:{xs:32,xl:26},width:{xs:32,xl:26},height:{xs:32,xl:26},p:0,display:'grid',placeItems:'center'}}
-            >
-              <PenLine size={17}/>
-            </AlexButton>
-          </AlexBox>
+        <DashboardCard
+          tone="white"
+          variant="support"
+          title="Your practice plan"
+          trailing={<AlexButton
+            tone="quiet"
+            aria-label="Edit practice plan"
+            onClick={()=>navigateTo('settings')}
+            sx={{minWidth:{xs:32,xl:26},width:{xs:32,xl:26},height:{xs:32,xl:26},p:0,display:'grid',placeItems:'center'}}
+          >
+            <PenLine size={17}/>
+          </AlexButton>}
+          sx={{flex:{xs:'0 0 auto',xl:'1 1 0'}}}
+        >
           <AlexBox sx={{
             display:'grid',
             gridTemplateColumns:{xs:'1fr',sm:'repeat(2,minmax(0,1fr))'},
             columnGap:0,
             rowGap:0,
-            mt:-.5,
           }}>
             {[
               {label:'Daily time',value:`${practiceRecommendation.estimatedDailyMinutes} min`,icon:<Clock3 size={13}/>},
@@ -598,27 +590,15 @@ export default function App(){
               }}>
                 {item.icon}
               </AlexBox>
-              <AlexBox sx={{
-                fontSize:dashboardTypography.supportBody,
-                lineHeight:1.25,
-                color:'#344054',
-                minWidth:0,
-              }}>
+              <AlexBox sx={{fontSize:dashboardTypography.supportBody,lineHeight:1.25,color:'#344054',minWidth:0}}>
                 {item.label}
               </AlexBox>
-              <AlexBox sx={{
-                fontSize:dashboardTypography.supportBody,
-                lineHeight:1.2,
-                fontWeight:800,
-                color:'#08275B',
-                whiteSpace:'nowrap',
-                pl:1,
-              }}>
+              <AlexBox sx={{fontSize:dashboardTypography.supportBody,lineHeight:1.2,fontWeight:800,color:'#08275B',whiteSpace:'nowrap',pl:1}}>
                 {item.value}
               </AlexBox>
             </AlexBox>)}
           </AlexBox>
-        </AlexBox>
+        </DashboardCard>
       </AlexBox>
     </AlexBox>
   </main>,'#F7F6F2')
