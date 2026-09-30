@@ -4,6 +4,7 @@ import AlexButton from '../atoms/AlexButton'
 import AlexInfoTooltipButton from '../atoms/AlexInfoTooltipButton'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
+import DashboardCard from '../molecules/DashboardCard'
 import {dashboardTypography} from '../theme'
 
 type Props={
@@ -51,27 +52,26 @@ export default function StudyPlanHero({
       display:'grid',
       gridTemplateRows:{xs:'auto auto',xl:'minmax(0,1fr) minmax(0,.78fr)'},
       gap:{xs:.75,sm:1},
-      position:'relative',zIndex:1,minHeight:0,
+      position:'relative',
+      zIndex:1,
+      minHeight:0,
       height:{xs:'auto',xl:'100%'},
-      py:{xs:0,sm:.5,xl:1},
-      pr:0,pl:0,
+      p:{xs:1.1,sm:1.3,xl:1.2},
     }}>
-      <AlexSurface sx={{position:'relative',minHeight:0,height:{xs:'auto',xl:'100%'},border:0,bgcolor:'#FFF9DD',overflow:'hidden',p:{xs:1.1,sm:1.2,xl:1.05}}}>
-        <AlexBox sx={{display:'flex',alignItems:'center',gap:.25,color:'#6B5A12'}}>
-          <AlexText sx={{fontSize:dashboardTypography.cardTitle,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:'inherit'}}>Current estimate</AlexText>
-          <AlexInfoTooltipButton
-            label="PSAT scholarship score information"
-            title={<>
-              <b>PSAT/NMSQT scholarship context</b><br/>
-              This is a rough Massachusetts National Merit qualifying outlook, not a scholarship guarantee. National Merit uses Selection Index = (2 × Reading & Writing + Math) ÷ 10, on a 48–228 scale. The current Class of 2028 Massachusetts estimated Semifinalist range is about 220–225, while the actual cutoff can change. A Merit Scholarship still requires advancing beyond Semifinalist status and is not determined by score alone.
-            </>}
-          />
-        </AlexBox>
-        <AlexText sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:dashboardTypography.heroScore,fontWeight:700,color:'#08275B',mt:.45}}>
-          {estimatedScore??'—'}
-        </AlexText>
-        <AlexBox sx={{display:'flex',alignItems:'center',gap:.35,mt:.2,color:'#667085',minWidth:0}}>
-          <AlexText sx={{fontSize:11.5,color:'inherit',minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+      <DashboardCard
+        tone="yellow"
+        variant="summary"
+        title="Current estimate"
+        value={estimatedScore??'—'}
+        trailing={<AlexInfoTooltipButton
+          label="PSAT scholarship score information"
+          title={<>
+            <b>PSAT/NMSQT scholarship context</b><br/>
+            This is a rough Massachusetts National Merit qualifying outlook, not a scholarship guarantee. National Merit uses Selection Index = (2 × Reading & Writing + Math) ÷ 10, on a 48–228 scale. The current Class of 2028 Massachusetts estimated Semifinalist range is about 220–225, while the actual cutoff can change. A Merit Scholarship still requires advancing beyond Semifinalist status and is not determined by score alone.
+          </>}
+        />}
+        subtitle={<AlexBox sx={{display:'flex',alignItems:'center',gap:.35,minWidth:0,pr:{xs:7,sm:8}}}>
+          <AlexText sx={{fontSize:'inherit',color:'inherit',minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
             {nationalMeritChance!==null
               ?`${nationalMeritChance}% National Merit outlook${projectedSelectionIndex!==null?` · SI ~${projectedSelectionIndex}`:''}`
               :accuracy!==null?'Calibrating National Merit outlook':'Complete a few questions to calibrate'}
@@ -90,36 +90,44 @@ export default function StudyPlanHero({
               </>}
             </>}
           />
-        </AlexBox>
-        <AlexBox sx={{
-          position:'absolute',
-          right:{xs:10,sm:14},
-          top:'50%',
-          bottom:'auto',
-          width:{xs:64,sm:76},
-          height:{xs:64,sm:76},
-          borderRadius:'50%',
-          bgcolor:'#D9ECFF',
-          display:'grid',
-          placeItems:'center',
-          transform:'translateY(-50%) rotate(-6deg)',
-        }}>
-          <BookOpenCheck size={34} strokeWidth={1.6}/>
-        </AlexBox>
-        <Sparkles size={20} style={{position:'absolute',right:112,top:24}}/>
-      </AlexSurface>
+        </AlexBox>}
+        decoration={<>
+          <AlexBox sx={{
+            position:'absolute',
+            right:{xs:10,sm:14},
+            top:'50%',
+            width:{xs:64,sm:76},
+            height:{xs:64,sm:76},
+            borderRadius:'50%',
+            bgcolor:'#D9ECFF',
+            display:'grid',
+            placeItems:'center',
+            transform:'translateY(-50%) rotate(-6deg)',
+          }}>
+            <BookOpenCheck size={34} strokeWidth={1.6}/>
+          </AlexBox>
+          <Sparkles size={20} style={{position:'absolute',right:112,top:24}}/>
+        </>}
+        sx={{pr:{xs:9,sm:11}}}
+      />
 
       <AlexBox sx={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:{xs:.75,sm:1},minHeight:0,height:{xl:'100%'}}}>
-        <AlexSurface sx={{p:{xs:1,sm:1.05,xl:.9},border:0,bgcolor:'#DFFFD3',minHeight:0,display:'flex',flexDirection:'column',justifyContent:'center'}}>
-          <Target size={18}/>
-          <AlexText sx={{fontSize:dashboardTypography.cardTitle,fontWeight:850,textTransform:'uppercase',letterSpacing:'.08em',mt:.45,color:'#385B2E'}}>Goal score</AlexText>
-          <AlexText sx={{fontSize:dashboardTypography.supportTitle,fontWeight:850,color:'#08275B',mt:.2}}>{targetScore??'—'}</AlexText>
-        </AlexSurface>
-        <AlexSurface sx={{p:{xs:1,sm:1.05,xl:.9},border:0,bgcolor:'#F2E7FF',minHeight:0,display:'flex',flexDirection:'column',justifyContent:'center'}}>
-          <CalendarDays size={18}/>
-          <AlexText sx={{fontSize:dashboardTypography.cardTitle,fontWeight:850,textTransform:'uppercase',letterSpacing:'.08em',mt:.45,color:'#66428A'}}>Days until exam</AlexText>
-          <AlexText sx={{fontSize:dashboardTypography.supportTitle,fontWeight:850,color:'#08275B',mt:.2}}>{daysRemaining}</AlexText>
-        </AlexSurface>
+        <DashboardCard
+          tone="green"
+          variant="mini"
+          icon={<Target/>}
+          title="Goal score"
+          value={targetScore??'—'}
+          sx={{justifyContent:'center'}}
+        />
+        <DashboardCard
+          tone="lavender"
+          variant="mini"
+          icon={<CalendarDays/>}
+          title="Days until exam"
+          value={daysRemaining}
+          sx={{justifyContent:'center'}}
+        />
       </AlexBox>
     </AlexBox>
 
