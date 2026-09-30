@@ -28,8 +28,8 @@ export default function StudyPlanHero({
     sx={{
       position:'relative',overflow:'hidden',border:'1px solid #D9E7F8',
       bgcolor:'#EAF3FF',boxShadow:'0 10px 30px rgba(9,35,79,.055)',
-      p:0,display:'grid',gridTemplateColumns:{xs:'minmax(0,1fr)',xl:'var(--dashboard-columns)'},
-      gap:{xs:1.25,sm:1.5,xl:'var(--dashboard-column-gap)'},alignItems:'stretch',height:{xs:'auto',xl:'100%'},minHeight:0,
+      p:0,display:'grid',gridTemplateColumns:{xs:'minmax(0,1fr)',lg:'var(--dashboard-columns)'},
+      gap:{xs:1.25,sm:1.5,lg:'var(--dashboard-column-gap)'},alignItems:'stretch',height:{xs:'auto',lg:'100%'},minHeight:0,
     }}
   >
     <AlexBox sx={{position:'relative',zIndex:1,p:{xs:1.1,sm:1.3,md:1.45,lg:1.6},display:'flex',flexDirection:'column',justifyContent:'center',minWidth:0,maxWidth:'100%',overflow:'hidden'}}>
@@ -50,13 +50,13 @@ export default function StudyPlanHero({
 
     <AlexBox sx={{
       display:'grid',
-      gridTemplateRows:{xs:'auto auto',xl:'minmax(0,1fr) minmax(0,.78fr)'},
+      gridTemplateRows:{xs:'auto auto',lg:'minmax(0,1fr) minmax(0,.78fr)'},
       gap:{xs:.75,sm:1},
       position:'relative',
       zIndex:1,
       minHeight:0,
-      height:{xs:'auto',xl:'100%'},
-      p:{xs:1.1,sm:1.3,xl:1.2},
+      height:{xs:'auto',lg:'100%'},
+      p:{xs:1.1,sm:1.3,lg:1.2},
       minWidth:0,maxWidth:'100%',overflow:'hidden',
     }}>
       <DashboardCard
@@ -121,7 +121,7 @@ export default function StudyPlanHero({
         sx={{pr:{xs:9,sm:11}}}
       />
 
-      <AlexBox sx={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:{xs:.75,sm:1},minHeight:0,height:{xl:'100%'},minWidth:0,maxWidth:'100%'}}>
+      <AlexBox sx={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:{xs:.75,sm:1},minHeight:0,height:{lg:'100%'},minWidth:0,maxWidth:'100%'}}>
         <DashboardCard
           tone="green"
           variant="compact"
