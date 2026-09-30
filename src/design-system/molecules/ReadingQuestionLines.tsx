@@ -17,17 +17,14 @@ function isBreak(value:string){return value===READING_PARAGRAPH_BREAK}
 
 function normalizeQuoteMarkers(lines:string[]){
   const output:string[]=[]
-  let inQuote=false
   let hasExplicitQuote=false
   for(const line of lines){
     if(line===READING_QUOTE_START){
       hasExplicitQuote=true
-      inQuote=true
       if(output[output.length-1]!==READING_PARAGRAPH_BREAK)output.push(READING_PARAGRAPH_BREAK)
       continue
     }
     if(line===READING_QUOTE_END){
-      inQuote=false
       if(output[output.length-1]!==READING_PARAGRAPH_BREAK)output.push(READING_PARAGRAPH_BREAK)
       continue
     }
@@ -174,7 +171,7 @@ export function parseReadingQuestion(lines:string[]):ParsedReadingQuestion{
   const stem=source.slice(start,end+1).filter(line=>!isBreak(line)).map(clean).join(' ')
   const choices=structure?.choices??[]
   const isVerse=looksLikeVerse(intro)
-  return {intro,stimulusBlocks,stem,choices,isVerse,isQuote:Boolean(intro.length)||isVerse||explicitlyQuoted(stimulusBlocks)}
+  return {intro,stimulusBlocks,stem,choices,isVerse,isQuote:Boolean(intro.length)||isVerse||explicitlyQuoted(stimulusBlocks)||normalized.hasExplicitQuote}
 }
 
 function canonicalTabTable(lines:string[]){
