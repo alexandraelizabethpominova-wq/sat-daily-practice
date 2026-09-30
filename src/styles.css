@@ -670,3 +670,21 @@ nav[aria-label="Mobile primary navigation"]{margin:0}
     overflow:hidden;
   }
 }
+
+
+/* Wide desktop: restore the roomier dashboard proportions without affecting
+ * smaller laptop widths. The responsive laptop layout stays flexible; once
+ * there is enough horizontal and vertical room, reserve more height for the
+ * study-plan hero so the metric row does not become disproportionately tall. */
+@media (min-width:1700px) and (min-height:850px){
+  .dashboard-top{
+    flex:0 0 320px;
+    height:320px;
+  }
+  .dashboard-top>*{
+    height:100%;
+  }
+  .dashboard-bottom{
+    flex:1 1 0;
+  }
+}
