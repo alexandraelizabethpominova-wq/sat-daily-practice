@@ -2,6 +2,7 @@ import {Check,Flame,Star} from 'lucide-react'
 import AlexBox from '../atoms/AlexBox'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
+import {dashboardTypography} from '../theme'
 import type {Attempt,SessionSummary} from '../../types'
 
 type Props={
@@ -93,13 +94,13 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
       boxShadow:'none',minWidth:0,overflow:'hidden',height:'100%',
       fontFamily:'Arial, Helvetica, sans-serif',
     }}>
-      <AlexText component="h2" sx={{fontFamily:'inherit',fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575',mb:.75}}>Today&apos;s goals</AlexText>
+      <AlexText component="h2" sx={{fontFamily:'inherit',fontSize:dashboardTypography.cardTitle,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575',mb:.75}}>Today&apos;s goals</AlexText>
       <AlexBox sx={{display:'grid',gap:.55}}>
         {goals.map((goal,index)=>{const complete=index===0?questionsDone>=questionTarget:index===1?minutesDone>=minuteTarget:reviewedFailedToday;return <AlexBox key={goal.label} sx={{display:'grid',gridTemplateColumns:'24px minmax(0,1fr)',alignItems:'center',columnGap:.75}}>
           <AlexBox aria-hidden="true" sx={{width:24,height:24,borderRadius:'50%',display:'grid',placeItems:'center',bgcolor:complete?'#E8F7EE':'#EEF2F7',color:complete?'#20935A':'#C7D1DF'}}>
             <Star size={14} fill="currentColor" strokeWidth={1.4}/>
           </AlexBox>
-          <AlexText sx={{fontFamily:'inherit',fontSize:{xs:10.75,lg:11.75},fontWeight:400,lineHeight:1.3,color:'#111',whiteSpace:'nowrap'}}>
+          <AlexText sx={{fontFamily:'inherit',fontSize:dashboardTypography.supportBody,fontWeight:400,lineHeight:1.3,color:'#111',whiteSpace:'nowrap'}}>
             <AlexBox component="span" sx={{textDecoration:'underline',textUnderlineOffset:'2px'}}>{goal.label}</AlexBox>
             <AlexBox component="span" sx={{textDecoration:'none'}}> · {goal.value}</AlexBox>
           </AlexText>
@@ -117,7 +118,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
         <AlexText component="h2" sx={{fontFamily:'inherit',fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>{streak} day streak</AlexText>
       </AlexBox>
       <AlexBox sx={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:1,mb:.65}}>
-        <AlexText sx={{fontFamily:'inherit',fontSize:{xs:12.5,lg:13.5},lineHeight:1.25,fontWeight:400,color:'#111'}}>
+        <AlexText sx={{fontFamily:'inherit',fontSize:dashboardTypography.supportBody,lineHeight:1.25,fontWeight:400,color:'#111'}}>
           {daysToWeeklyStreak>0?`${daysToWeeklyStreak} days left to start your weekly streak!`:'Your weekly streak is underway!'}
         </AlexText>
       </AlexBox>
@@ -133,7 +134,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
           {day.practiced?<Check size={15} strokeWidth={2.2}/>:<AlexText sx={{fontFamily:'inherit',fontSize:10.5,fontWeight:day.isToday?700:400,color:'inherit'}}>{day.label}</AlexText>}
         </AlexBox>)}
       </AlexBox>
-      <AlexText sx={{fontFamily:'inherit',fontSize:{xs:11.5,lg:12.5},fontWeight:400,lineHeight:1.25,color:'#667085'}}>
+      <AlexText sx={{fontFamily:'inherit',fontSize:dashboardTypography.supportBody,fontWeight:400,lineHeight:1.25,color:'#667085'}}>
         {weeklyQuestions} items completed · {weeklyMinutes} minutes learned
       </AlexText>
     </AlexSurface>
@@ -144,7 +145,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
       fontFamily:'Arial, Helvetica, sans-serif',
     }}>
       <AlexText component="h2" sx={{fontFamily:'inherit',fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575',mb:1.45}}>Recommended focus</AlexText>
-      <AlexText sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:19,lg:21},fontWeight:700,lineHeight:1.1,color:'#08275B'}}>{recommendationLabel}</AlexText>
+      <AlexText sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:dashboardTypography.supportTitle,fontWeight:700,lineHeight:1.1,color:'#08275B'}}>{recommendationLabel}</AlexText>
       {recommendationReason&&<AlexText sx={{fontFamily:'inherit',fontSize:{xs:11.5,lg:12.5},lineHeight:1.4,fontWeight:400,color:'#475467',mt:.55}}>{recommendationReason}</AlexText>}
     </AlexSurface>
   </AlexBox>
