@@ -57,6 +57,7 @@ export default function StudyPlanHero({
       minHeight:0,
       height:{xs:'auto',xl:'100%'},
       p:{xs:1.1,sm:1.3,xl:1.2},
+      minWidth:0,maxWidth:'100%',overflow:'hidden',
     }}>
       <DashboardCard
         tone="yellow"
@@ -111,7 +112,7 @@ export default function StudyPlanHero({
         sx={{pr:{xs:9,sm:11}}}
       />
 
-      <AlexBox sx={{display:'grid',gridTemplateColumns:{xs:'minmax(0,1fr)',sm:'repeat(2,minmax(0,1fr))'},gap:{xs:.75,sm:1},minHeight:0,height:{xl:'100%'},minWidth:0,maxWidth:'100%'}}>
+      <AlexBox sx={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:{xs:.75,sm:1},minHeight:0,height:{xl:'100%'},minWidth:0,maxWidth:'100%'}}>
         <DashboardCard
           tone="green"
           variant="compact"
