@@ -79,7 +79,7 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onD
       maxHeight:{lg:active==='dashboard'?'100dvh':'none'},
       width:'100%',
       maxWidth:'100vw',
-      overflowX:'clip',
+      overflowX:'hidden',
       overflowY:{lg:active==='dashboard'?'hidden':'visible'},
       bgcolor:contentBackground,
       color:'#08275B',
@@ -200,7 +200,7 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onD
         pb:'calc(76px + env(safe-area-inset-bottom))',
         '@media (min-width:768px)':{pb:0},
         boxSizing:'border-box',
-        overflowX:'clip',
+        overflowX:'hidden',
         transition:{lg:'margin-left .18s ease, width .18s ease'},
       }}
     >
@@ -211,7 +211,7 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onD
         height:{lg:active==='dashboard'?'100%':'auto'},
         mx:'auto',
         overflowX:'clip',
-        '& > *':{width:'100%',maxWidth:'100%',minWidth:0},
+        '& > *':{width:'100%',maxWidth:'100%',minWidth:0,overflowX:'hidden'},
       }}>
         {children}
       </AlexBox>
