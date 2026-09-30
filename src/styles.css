@@ -750,3 +750,22 @@ nav[aria-label="Mobile primary navigation"]{margin:0}
     font-size:clamp(13px,.72vw,16px);
   }
 }
+
+/* Mobile dashboard: strict single-column width containment. */
+@media (max-width:767.98px){
+  html,body,#root{max-width:100%;overflow-x:hidden}
+  .dashboard-shell,
+  .dashboard-top,
+  .dashboard-bottom,
+  .dashboard-bottom-left,
+  .dashboard-bottom-right{
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    overflow-x:hidden;
+  }
+  .dashboard-bottom{
+    display:flex!important;
+    flex-direction:column!important;
+  }
+}
