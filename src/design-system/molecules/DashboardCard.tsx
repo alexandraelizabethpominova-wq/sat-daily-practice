@@ -14,6 +14,7 @@ type Props={
   icon?:ReactNode
   title:string
   value?:ReactNode
+  valueTrailing?:ReactNode
   subtitle?:ReactNode
   trailing?:ReactNode
   decoration?:ReactNode
@@ -33,7 +34,7 @@ const TONES:Record<DashboardCardTone,{bg:string;border:string;icon:string;title:
   white:{bg:'#FFFFFF',border:'#E4E7EC',icon:'#6558F5',title:'#5B6575'},
 }
 
-export default function DashboardCard({tone,variant='metric',icon,title,value,subtitle,trailing,decoration,valueColor,valueFontSize,sx,children}:Props){
+export default function DashboardCard({tone,variant='metric',icon,title,value,valueTrailing,subtitle,trailing,decoration,valueColor,valueFontSize,sx,children}:Props){
   const palette=TONES[tone]
   const iconBox=dashboardCardTokens.iconBox[variant]
   const iconSize=dashboardCardTokens.iconSize[variant]
@@ -93,15 +94,18 @@ export default function DashboardCard({tone,variant='metric',icon,title,value,su
       {trailing&&<AlexBox sx={{display:'grid',placeItems:'center',flex:'0 0 auto'}}>{trailing}</AlexBox>}
     </AlexBox>}
 
-    {value!==undefined&&<AlexText component="div" sx={{
-      fontFamily:'Georgia, "Times New Roman", serif',
-      fontSize:valueFontSize??valueSize,
-      lineHeight:1,
-      letterSpacing:'-.02em',
-      fontWeight:700,
-      color:valueColor??'#08275B',
-      minWidth:0,
-    }}>{value}</AlexText>}
+    {value!==undefined&&<AlexBox sx={{display:'flex',alignItems:'center',gap:.35,minWidth:0}}>
+      <AlexText component="div" sx={{
+        fontFamily:'Georgia, "Times New Roman", serif',
+        fontSize:valueFontSize??valueSize,
+        lineHeight:1,
+        letterSpacing:'-.02em',
+        fontWeight:700,
+        color:valueColor??'#08275B',
+        minWidth:0,
+      }}>{value}</AlexText>
+      {valueTrailing}
+    </AlexBox>}
 
     {subtitle!==undefined&&<AlexText component="div" sx={{
       color:'#667085',
