@@ -537,7 +537,7 @@ export default function App(){
         }}
       >
         <AlexBox sx={{flex:{xs:'0 0 auto',lg:'initial'},height:{xs:'auto',lg:'100%'},minHeight:0}}>
-          <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
+          <StudyPlanCalendar sessions={sessions} attempts={attempts} settings={settings} recommendation={practiceRecommendation}/>
         </AlexBox>
         <DashboardCard
           tone="white"
