@@ -547,9 +547,9 @@ export default function App(){
             tone="quiet"
             aria-label="Edit practice plan"
             onClick={()=>navigateTo('settings')}
-            sx={{minWidth:{xs:32,xl:26},width:{xs:32,xl:26},height:{xs:32,xl:26},p:0,display:'grid',placeItems:'center'}}
+            sx={{minWidth:20,width:20,height:20,p:0,display:'grid',placeItems:'center'}}
           >
-            <PenLine size={17}/>
+            <PenLine size={15}/>
           </AlexButton>}
           sx={{flex:{xs:'0 0 auto',xl:'1 1 0'}}}
         >
