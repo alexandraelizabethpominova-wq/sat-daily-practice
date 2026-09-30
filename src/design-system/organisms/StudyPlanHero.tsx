@@ -64,34 +64,28 @@ export default function StudyPlanHero({
         variant="hero"
         title="Current estimate"
         value={estimatedScore??'—'}
-        trailing={<AlexInfoTooltipButton
-          label="PSAT scholarship score information"
+        valueTrailing={<AlexInfoTooltipButton
+          label="Score estimate information"
           title={<>
+            <b>National Merit outlook</b><br/>
+            {nationalMeritChance!==null
+              ?`${nationalMeritChance}% estimated qualifying outlook${projectedSelectionIndex!==null?` · projected Selection Index ~${projectedSelectionIndex}`:''}.`
+              :'The National Merit outlook is still calibrating.'}
+            <br/><br/>
+            {estimateConfidence&&<>
+              <b>Estimate confidence</b><br/>
+              {estimateConfidence.label} estimate confidence · {estimateConfidence.within80}% within ±80 points. This combines recent question-pool uncertainty, score stability, and SAT measurement error. It is a model estimate, not a guarantee.
+            </>}
+            <br/><br/>
             <b>PSAT/NMSQT scholarship context</b><br/>
-            This is a rough Massachusetts National Merit qualifying outlook, not a scholarship guarantee. National Merit uses Selection Index = (2 × Reading & Writing + Math) ÷ 10, on a 48–228 scale. The current Class of 2028 Massachusetts estimated Semifinalist range is about 220–225, while the actual cutoff can change. A Merit Scholarship still requires advancing beyond Semifinalist status and is not determined by score alone.
+            National Merit uses Selection Index = (2 × Reading & Writing + Math) ÷ 10, on a 48–228 scale. The Massachusetts cutoff varies by year, and a Merit Scholarship is not determined by score alone.
           </>}
         />}
-        subtitle={<AlexBox sx={{display:'flex',alignItems:'center',gap:.35,minWidth:0,pr:{xs:7,sm:8}}}>
-          <AlexText sx={{fontSize:'inherit',color:'inherit',minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
-            {nationalMeritChance!==null
-              ?`${nationalMeritChance}% National Merit outlook${projectedSelectionIndex!==null?` · SI ~${projectedSelectionIndex}`:''}`
-              :accuracy!==null?'Calibrating National Merit outlook':'Complete a few questions to calibrate'}
-          </AlexText>
-          <AlexInfoTooltipButton
-            label="Score estimate details"
-            title={<>
-              <b>National Merit outlook</b><br/>
-              {nationalMeritChance!==null
-                ?`${nationalMeritChance}% estimated qualifying outlook${projectedSelectionIndex!==null?` · projected Selection Index ~${projectedSelectionIndex}`:''}.`
-                :'The National Merit outlook is still calibrating.'}
-              <br/><br/>
-              {estimateConfidence&&<>
-                <b>Estimate confidence</b><br/>
-                {estimateConfidence.label} estimate confidence · {estimateConfidence.within80}% within ±80 points. This combines recent question-pool uncertainty, score stability, and SAT measurement error. It is a model estimate, not a guarantee.
-              </>}
-            </>}
-          />
-        </AlexBox>}
+        subtitle={<AlexText sx={{fontSize:'inherit',color:'inherit',minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',pr:{xs:7,sm:8}}}>
+          {nationalMeritChance!==null
+            ?`${nationalMeritChance}% National Merit outlook${projectedSelectionIndex!==null?` · SI ~${projectedSelectionIndex}`:''}`
+            :accuracy!==null?'Calibrating National Merit outlook':'Complete a few questions to calibrate'}
+        </AlexText>}
         decoration={<>
           <AlexBox sx={{
             position:'absolute',
