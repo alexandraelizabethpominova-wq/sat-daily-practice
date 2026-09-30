@@ -27,11 +27,11 @@ export default function StudyPlanHero({
     sx={{
       position:'relative',overflow:'hidden',border:'1px solid #D9E7F8',
       bgcolor:'#EAF3FF',boxShadow:'0 10px 30px rgba(9,35,79,.055)',
-      p:{xs:1.1,sm:1.3,md:1.45,lg:1.6},display:'grid',gridTemplateColumns:{xs:'1fr',xl:'minmax(0,1.45fr) minmax(300px,.55fr)'},
-      gap:{xs:1.5,sm:2,lg:2.5},alignItems:'center',height:'100%',minHeight:0,
+      p:0,display:'grid',gridTemplateColumns:{xs:'1fr',xl:'var(--dashboard-columns)'},
+      gap:{xs:1.5,sm:2,xl:'var(--dashboard-column-gap)'},alignItems:'stretch',height:'100%',minHeight:0,
     }}
   >
-    <AlexBox sx={{position:'relative',zIndex:1}}>
+    <AlexBox sx={{position:'relative',zIndex:1,p:{xs:1.1,sm:1.3,md:1.45,lg:1.6},display:'flex',flexDirection:'column',justifyContent:'center',minWidth:0}}>
       <AlexText sx={{fontSize:dashboardTypography.eyebrow,textTransform:'uppercase',letterSpacing:'.12em',fontWeight:850,color:'#245F9E'}}>Study plan</AlexText>
       <AlexText component="h1" sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:dashboardTypography.heroTitle,lineHeight:1.04,letterSpacing:'-.035em',mt:1,mb:1.5,color:'#08275B'}}>
         Your SAT practice plan
@@ -47,7 +47,7 @@ export default function StudyPlanHero({
 
     </AlexBox>
 
-    <AlexBox sx={{display:'grid',gridTemplateRows:'minmax(0,1.05fr) minmax(0,.75fr)',gap:{xs:.75,sm:1},position:'relative',zIndex:1,minHeight:0,height:'100%'}}>
+    <AlexBox sx={{display:'grid',gridTemplateRows:'minmax(0,1.05fr) minmax(0,.75fr)',gap:{xs:.75,sm:1},position:'relative',zIndex:1,minHeight:0,height:'100%',py:{xs:.75,sm:1,lg:1.1},pr:0,pl:0}}>
       <AlexSurface sx={{position:'relative',minHeight:0,height:'100%',border:0,bgcolor:'#FFF9DD',overflow:'hidden',p:{xs:1,sm:1.15}}}>
         <AlexBox sx={{display:'flex',alignItems:'center',gap:.25,color:'#6B5A12'}}>
           <AlexText sx={{fontSize:dashboardTypography.cardTitle,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:'inherit'}}>Current estimate</AlexText>
