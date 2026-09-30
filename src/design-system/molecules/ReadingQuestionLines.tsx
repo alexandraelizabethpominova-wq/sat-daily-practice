@@ -1,6 +1,6 @@
 import AlexRichText from '../atoms/AlexRichText'
 import ReadingDataTable from './ReadingDataTable'
-import {READING_PARAGRAPH_BREAK,READING_QUOTE_END,READING_QUOTE_START} from '../../lib/readingQuestionFormat'
+import {READING_LATEX_QUOTE_END,READING_LATEX_QUOTE_START,READING_PARAGRAPH_BREAK,READING_QUOTE_END,READING_QUOTE_START} from '../../lib/readingQuestionFormat'
 import {readingTableSpec,stripEmbeddedReadingTableLines,type ReadingTableSpec} from '../../lib/readingTables'
 
 const LABELED_CHOICE=/^([A-D])(?:[.)]\s*|\s+)(.+)$/i
@@ -19,12 +19,12 @@ function normalizeQuoteMarkers(lines:string[]){
   const output:string[]=[]
   let hasExplicitQuote=false
   for(const line of lines){
-    if(line===READING_QUOTE_START){
+    if(line===READING_QUOTE_START||line===READING_LATEX_QUOTE_START){
       hasExplicitQuote=true
       if(output[output.length-1]!==READING_PARAGRAPH_BREAK)output.push(READING_PARAGRAPH_BREAK)
       continue
     }
-    if(line===READING_QUOTE_END){
+    if(line===READING_QUOTE_END||line===READING_LATEX_QUOTE_END){
       if(output[output.length-1]!==READING_PARAGRAPH_BREAK)output.push(READING_PARAGRAPH_BREAK)
       continue
     }
