@@ -555,7 +555,7 @@ export default function App(){
         >
           <AlexBox sx={{
             display:'grid',
-            gridTemplateColumns:{xs:'1fr',sm:'repeat(2,minmax(0,1fr))'},
+            gridTemplateColumns:{xs:'minmax(0,1fr)',sm:'repeat(2,minmax(0,1fr))'},
             columnGap:0,
             rowGap:0,
           }}>
@@ -568,7 +568,7 @@ export default function App(){
               key={item.label}
               sx={{
                 display:'grid',
-                gridTemplateColumns:{xs:'28px minmax(0,1fr) auto',xl:'24px minmax(0,1fr) auto'},
+                gridTemplateColumns:{xs:'28px minmax(0,1fr) minmax(0,auto)',xl:'24px minmax(0,1fr) auto'},
                 alignItems:'center',
                 columnGap:1,
                 py:{xs:.58,xl:.38},
