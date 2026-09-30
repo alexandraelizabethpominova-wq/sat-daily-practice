@@ -58,8 +58,8 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
       border:'1px solid #E4E7EC',
       bgcolor:'#fff',
       minWidth:0,
-      height:'100%',
-      minHeight:{xs:340,md:0},
+      height:{xs:'auto',lg:'100%'},
+      minHeight:{xs:420,lg:0},
       display:'flex',
       flexDirection:'column',
     }}
@@ -96,16 +96,16 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
     <AlexBox sx={{
       display:'grid',
       gridTemplateColumns:'repeat(7,minmax(0,1fr))',
-      gridAutoRows:{xs:'minmax(34px,1fr)',xl:'minmax(0,1fr)'},
+      gridAutoRows:{xs:'44px',sm:'46px',lg:'minmax(0,1fr)'},
       columnGap:.2,
       rowGap:{xs:.35,xl:.2},
       width:'92%',
       mx:'auto',
-      flex:'1 1 0',
+      flex:{xs:'0 0 auto',lg:'1 1 0'},
       minHeight:0,
       alignItems:'center',
       alignContent:'stretch',
-      overflow:'hidden',
+      overflow:{xs:'visible',lg:'hidden'},
     }}>
       {Array.from({length:firstWeekday},(_,index)=><AlexBox key={`empty-${index}`} aria-hidden="true"/>)}
       {days.map(day=>{
