@@ -21,11 +21,11 @@ export default function MetricCard({icon,label,value,tone='default',compact=fals
     title={label}
     value={value}
     valueColor={valueColor}
+    valueFontSize={valueFontSize}
     sx={{
       height:compact?'100%':undefined,
       minHeight:compact?{xs:160,sm:0}:undefined,
       boxShadow:'0 8px 24px rgba(9,35,79,.035)',
-      ...(valueFontSize?{'& > div:nth-of-type(2)':{fontSize:valueFontSize}}:{}),
     }}
   />
 }
