@@ -8,10 +8,11 @@ import AlexTooltip from '../atoms/AlexTooltip'
 import AlexCalendarStatusIcon from '../atoms/AlexCalendarStatusIcon'
 import {buildStudyPlanCalendarDays,type StudyPlanDayStatus} from '../../lib/studyPlanCalendar'
 import type {PracticePlanRecommendation} from '../../lib/practicePlan'
-import type {SessionSummary,Settings} from '../../types'
+import type {Attempt,SessionSummary,Settings} from '../../types'
 
 type Props={
   sessions:SessionSummary[]
+  attempts:Attempt[]
   settings:Settings
   recommendation:PracticePlanRecommendation
 }
@@ -30,7 +31,7 @@ function monthTitle(year:number,month:number){
   return new Intl.DateTimeFormat(undefined,{month:'long',year:'numeric'}).format(new Date(year,month,1))
 }
 
-export default function StudyPlanCalendar({sessions,settings,recommendation}:Props){
+export default function StudyPlanCalendar({sessions,attempts,settings,recommendation}:Props){
   const today=new Date()
   const todayKey=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`
   const [view,setView]=useState(()=>({year:today.getFullYear(),month:today.getMonth()}))
@@ -38,11 +39,12 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
     year:view.year,
     month:view.month,
     sessions,
+    attempts,
     recommendedSessionsPerDay:recommendation.recommendedSessionsPerDay,
     questionsPerSession:recommendation.questionsPerSession,
     today,
     examDate:settings.targetExamDate,
-  }),[view.year,view.month,sessions,recommendation.recommendedSessionsPerDay,recommendation.questionsPerSession,settings.targetExamDate])
+  }),[view.year,view.month,sessions,attempts,recommendation.recommendedSessionsPerDay,recommendation.questionsPerSession,settings.targetExamDate])
 
   const firstWeekday=new Date(view.year,view.month,1).getDay()
   const targetQuestions=Math.max(0,recommendation.recommendedSessionsPerDay*recommendation.questionsPerSession)
@@ -181,7 +183,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
               color:isExamDate?'#08275B':'inherit',
               transform:isExamDate?'translateY(-.5px)':'none',
             }}>{day.day}</AlexText>
-            {day.practiced&&<AlexBox
+            {(day.status==='ahead'||day.status==='on-track')&&<AlexBox
               aria-hidden="true"
               sx={{
                 position:'absolute',
@@ -200,7 +202,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
             >
               <AlexCalendarStatusIcon kind="check" sx={{width:10,height:10,color:'#027A48'}}/>
             </AlexBox>}
-            {!day.practiced&&hasTrackedGoal&&day.status==='behind'&&<AlexBox
+            {hasTrackedGoal&&day.status==='behind'&&<AlexBox
               aria-hidden="true"
               sx={{
                 position:'absolute',
