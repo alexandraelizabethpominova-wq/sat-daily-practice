@@ -240,24 +240,32 @@ function PairedTextPassages({sections}:{sections:PairedTextSection[]}){
   </div>
 }
 
+function isSourceAttribution(block:string[]){
+  const text=block.map(clean).filter(Boolean).join(' ')
+  return /^(?:©|Copyright\b|Source:|Excerpted from\b)/i.test(text)
+}
+
 export default function ReadingQuestionLines({lines,questionId}:{lines:string[];questionId?:string}){
   const safeLines=questionId?stripEmbeddedReadingTableLines(questionId,lines):lines
   const canonicalTable=canonicalTabTable(safeLines)
   const parsed=parseReadingQuestion(canonicalTable?.content??safeLines)
   const table=canonicalTable?.table??(questionId?readingTableSpec(questionId):undefined)
-  const pairedTexts=pairedTextSections(parsed.stimulusBlocks)
+  const attributionBlocks=parsed.stimulusBlocks.filter(isSourceAttribution)
+  const stimulusBlocks=parsed.stimulusBlocks.filter(block=>!isSourceAttribution(block))
+  const pairedTexts=pairedTextSections(stimulusBlocks)
   return <div className="reading-question-content">
     {table&&<ReadingDataTable table={table}/>} 
     {parsed.intro.length>0&&<div className="reading-intro">{splitBlocks(parsed.intro).map((block,index)=><JoinedBlock key={`intro-${index}`} lines={block}/>)}</div>}
     {pairedTexts
       ?<PairedTextPassages sections={pairedTexts}/>
-      :parsed.stimulusBlocks.length>0&&(parsed.isQuote
+      :stimulusBlocks.length>0&&(parsed.isQuote
         ?<blockquote role="blockquote" className={`reading-stimulus reading-quote${parsed.isVerse?' reading-verse':''}`}>
           {parsed.isVerse
-            ?parsed.stimulusBlocks.flat().map((line,index)=><span className="reading-verse-line" key={`verse-${index}`}><AlexRichText text={line}/></span>)
-            :parsed.stimulusBlocks.map((block,index)=><JoinedBlock key={`quote-${index}`} lines={block}/>)}
+            ?stimulusBlocks.flat().map((line,index)=><span className="reading-verse-line" key={`verse-${index}`}><AlexRichText text={line}/></span>)
+            :stimulusBlocks.map((block,index)=><JoinedBlock key={`quote-${index}`} lines={block}/>)}
         </blockquote>
-        :<div className="reading-stimulus">{parsed.stimulusBlocks.map((block,index)=><ReadingStimulusBlock key={`stimulus-${index}`} lines={block}/>)}</div>)}
+        :<div className="reading-stimulus">{stimulusBlocks.map((block,index)=><ReadingStimulusBlock key={`stimulus-${index}`} lines={block}/>)}</div>)}
+    {attributionBlocks.length>0&&<div className="reading-source-attribution">{attributionBlocks.map((block,index)=><JoinedBlock key={`attribution-${index}`} lines={block}/>)}</div>}
     {parsed.stem&&<p className="reading-question-stem"><AlexRichText text={parsed.stem}/></p>}
     {parsed.choices.length>0&&<div className="reading-answer-options" role="list" aria-label="Answer choices">
       {parsed.choices.map(choice=><div className="reading-answer-choice" role="listitem" key={choice.label}>
