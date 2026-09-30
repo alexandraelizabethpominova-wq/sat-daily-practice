@@ -75,17 +75,9 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
     return{label,key,practiced,isToday:key===todayKey}
   })
   const practicedDays=weekDays.filter(day=>day.practiced).length
-  const practicedKeys=new Set([
-    ...sessions.map(session=>localDayKey(session.endedAt||session.startedAt)),
-    ...attempts.map(attempt=>localDayKey(attempt.createdAt)),
-  ])
-  let streak=0
-  const cursor=new Date(today.getFullYear(),today.getMonth(),today.getDate())
-  if(!practicedKeys.has(localDayKey(cursor)))cursor.setDate(cursor.getDate()-1)
-  while(practicedKeys.has(localDayKey(cursor))){
-    streak+=1
-    cursor.setDate(cursor.getDate()-1)
-  }
+  // Weekly progress always resets on Monday. Do not carry consecutive
+  // practice days over from the previous week.
+  const streak=practicedDays
   const goals=[
     {label:'Practice questions',value:`${Math.min(questionsDone,questionTarget)}/${questionTarget}`},
     {label:'Practice time',value:`${minutesDone}/${minuteTarget} min`},
@@ -122,7 +114,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
     }}>
       <AlexBox sx={{display:'flex',alignItems:'center',gap:.75,mb:1.05}}>
         <Flame size={17} color="#475467"/>
-        <AlexText component="h2" sx={{fontFamily:'inherit',fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>{streak} week streak</AlexText>
+        <AlexText component="h2" sx={{fontFamily:'inherit',fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>{streak} day streak</AlexText>
       </AlexBox>
       <AlexBox sx={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:1,mb:1.45}}>
         <AlexText sx={{fontFamily:'inherit',fontSize:15,lineHeight:1.25,fontWeight:400,color:'#111'}}>
