@@ -115,7 +115,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
     }}>
       <AlexBox sx={{display:'flex',alignItems:'center',gap:.75,mb:{xs:1.05,xl:.55}}}>
         <Flame size={17} color="#475467"/>
-        <AlexText component="h2" sx={{fontFamily:'inherit',fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>{streak} day streak</AlexText>
+        <AlexText component="h2" sx={{fontFamily:'inherit',fontSize:dashboardTypography.cardTitle,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>{streak} day streak</AlexText>
       </AlexBox>
       <AlexBox sx={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:1,mb:{xs:1.45,xl:.65}}}>
         <AlexText sx={{fontFamily:'inherit',fontSize:{xs:15,xl:dashboardTypography.supportBody},lineHeight:1.25,fontWeight:400,color:'#111'}}>
