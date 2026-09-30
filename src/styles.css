@@ -654,6 +654,8 @@ nav[aria-label="Mobile primary navigation"]{margin:0}
 /* Dashboard alone owns one viewport. Its children receive percentage rows. */
 .dashboard-shell{
   --dashboard-gap:8px;
+  --dashboard-column-gap:8px;
+  --dashboard-columns:minmax(0,1fr);
   --dashboard-pad-y:10px;
   --dashboard-hero:32%;
   --dashboard-primary:38%;
@@ -702,14 +704,16 @@ nav[aria-label="Mobile primary navigation"]{margin:0}
   .dashboard-shell{
     --dashboard-hero:30%;
     --dashboard-gap:clamp(8px,1.1dvh,12px);
+    --dashboard-column-gap:clamp(8px,1vw,16px);
+    --dashboard-columns:minmax(0,1.37fr) minmax(260px,.63fr);
     --dashboard-pad-y:clamp(10px,1.5dvh,18px);
     padding:var(--dashboard-pad-y) 0;
     font-size:clamp(12px,.78vw,15px);
   }
   .dashboard-bottom{
     display:grid!important;
-    grid-template-columns:minmax(0,1.37fr) minmax(260px,.63fr);
-    gap:clamp(8px,1vw,16px)!important;
+    grid-template-columns:var(--dashboard-columns);
+    gap:var(--dashboard-column-gap)!important;
     height:100%;
   }
   .dashboard-bottom-left,
@@ -734,6 +738,8 @@ nav[aria-label="Mobile primary navigation"]{margin:0}
   .dashboard-shell{
     --dashboard-hero:30%;
     --dashboard-gap:12px;
+    --dashboard-column-gap:12px;
+    --dashboard-columns:minmax(0,1.37fr) minmax(260px,.63fr);
     --dashboard-pad-y:clamp(14px,2dvh,24px);
     font-size:clamp(13px,.72vw,16px);
   }
