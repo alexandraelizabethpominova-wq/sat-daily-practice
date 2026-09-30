@@ -46,7 +46,7 @@ export default function StudyPlanHero({
 
     </AlexBox>
 
-    <AlexBox sx={{display:'grid',gridTemplateRows:'minmax(0,1.35fr) minmax(0,.85fr)',gap:{xs:.75,sm:1},position:'relative',zIndex:1,minHeight:0,height:'100%'}}>
+    <AlexBox sx={{display:'grid',gridTemplateRows:'minmax(0,1.15fr) minmax(0,.85fr)',gap:{xs:.75,sm:1},position:'relative',zIndex:1,minHeight:0,height:'100%'}}>
       <AlexSurface sx={{position:'relative',minHeight:0,height:'100%',border:0,bgcolor:'#FFF9DD',overflow:'hidden',p:{xs:1.25,sm:1.5}}}>
         <AlexBox sx={{display:'flex',alignItems:'center',gap:.25,color:'#6B5A12'}}>
           <AlexText sx={{fontSize:11,fontWeight:850,textTransform:'uppercase',letterSpacing:'.1em',color:'inherit'}}>Current estimate</AlexText>
@@ -58,7 +58,7 @@ export default function StudyPlanHero({
             </>}
           />
         </AlexBox>
-        <AlexText sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:26,sm:28,lg:30},fontWeight:700,color:'#08275B',mt:.45}}>
+        <AlexText sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:24,sm:26,lg:28},fontWeight:700,color:'#08275B',mt:.45}}>
           {estimatedScore??'—'}
         </AlexText>
         <AlexText sx={{fontSize:12.5,color:'#667085',mt:.3}}>
@@ -78,8 +78,8 @@ export default function StudyPlanHero({
             </>}
           />
         </AlexBox>}
-        <AlexBox sx={{position:'absolute',right:{xs:12,sm:18},bottom:10,width:{xs:62,sm:72},height:{xs:62,sm:72},borderRadius:'50%',bgcolor:'#D9ECFF',display:'grid',placeItems:'center',transform:'rotate(-6deg)'}}>
-          <BookOpenCheck size={32} strokeWidth={1.6}/>
+        <AlexBox sx={{position:'absolute',right:{xs:10,sm:14},bottom:6,width:{xs:54,sm:62},height:{xs:54,sm:62},borderRadius:'50%',bgcolor:'#D9ECFF',display:'grid',placeItems:'center',transform:'rotate(-6deg)'}}>
+          <BookOpenCheck size={28} strokeWidth={1.6}/>
         </AlexBox>
         <Sparkles size={20} style={{position:'absolute',right:112,top:24}}/>
       </AlexSurface>
