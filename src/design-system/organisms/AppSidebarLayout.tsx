@@ -187,7 +187,7 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onD
       data-testid="app-content"
       sx={{
         minWidth:0,
-        width:{xs:'100%',lg:`calc(100% - ${desktopSidebarWidth}px)`},
+        width:{xs:'100vw',lg:`calc(100% - ${desktopSidebarWidth}px)`},
         ml:{xs:0,lg:`${desktopSidebarWidth}px`},
         '@media (min-width:768px) and (max-width:1199.98px)':{
           width:'calc(100% - 72px)',
@@ -197,6 +197,7 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onD
         height:{lg:active==='dashboard'?'100dvh':'auto'},
         overflowY:{lg:active==='dashboard'?'hidden':'visible'},
         px:{xs:1.25,sm:2.25,md:3,lg:3.5},
+        maxWidth:{xs:'100vw',lg:'none'},
         pb:'calc(76px + env(safe-area-inset-bottom))',
         '@media (min-width:768px)':{pb:0},
         boxSizing:'border-box',
