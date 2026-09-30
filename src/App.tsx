@@ -538,25 +538,25 @@ export default function App(){
           <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
         </AlexBox>
         <AlexBox sx={{
-          px:{xs:1,lg:1.25},py:{xs:.6,lg:.75},
+          px:{xs:2,xl:1.25},py:{xs:1.75,xl:.75},
           border:'1px solid #E4E7EC',
           borderRadius:'8px',
           bgcolor:'#fff',
           display:'flex',
           flexDirection:'column',
-          gap:.65,
+          gap:{xs:1.25,xl:.65},
           flex:{xs:'0 0 auto',xl:'1 1 0'},
           minHeight:0,
         }}>
           <AlexBox sx={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:1.5}}>
-            <AlexBox sx={{fontSize:9.5,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>Your practice plan</AlexBox>
+            <AlexBox sx={{fontSize:{xs:10.2,xl:9.5},fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>Your practice plan</AlexBox>
             <AlexButton
               tone="quiet"
               aria-label="Edit practice plan"
               onClick={()=>navigateTo('settings')}
-              sx={{minWidth:26,width:26,height:26,p:0,display:'grid',placeItems:'center'}}
+              sx={{minWidth:{xs:32,xl:26},width:{xs:32,xl:26},height:{xs:32,xl:26},p:0,display:'grid',placeItems:'center'}}
             >
-              <PenLine size={14}/>
+              <PenLine size={17}/>
             </AlexButton>
           </AlexBox>
           <AlexBox sx={{
@@ -575,10 +575,10 @@ export default function App(){
               key={item.label}
               sx={{
                 display:'grid',
-                gridTemplateColumns:'24px minmax(0,1fr) auto',
+                gridTemplateColumns:{xs:'28px minmax(0,1fr) auto',xl:'24px minmax(0,1fr) auto'},
                 alignItems:'center',
                 columnGap:1,
-                py:.38,
+                py:{xs:.58,xl:.38},
                 pl:index%2===1?1.5:0,
                 pr:index%2===0?1.5:0,
                 borderLeft:index%2===1?'1px solid #EEF1F4':'none',
@@ -587,8 +587,8 @@ export default function App(){
               }}
             >
               <AlexBox sx={{
-                width:24,
-                height:24,
+                width:{xs:28,xl:24},
+                height:{xs:28,xl:24},
                 borderRadius:'50%',
                 display:'grid',
                 placeItems:'center',
@@ -598,7 +598,7 @@ export default function App(){
                 {item.icon}
               </AlexBox>
               <AlexBox sx={{
-                fontSize:11.5,
+                fontSize:{xs:12.5,xl:11.5},
                 lineHeight:1.25,
                 color:'#344054',
                 minWidth:0,
@@ -606,7 +606,7 @@ export default function App(){
                 {item.label}
               </AlexBox>
               <AlexBox sx={{
-                fontSize:12,
+                fontSize:{xs:13,xl:12},
                 lineHeight:1.2,
                 fontWeight:800,
                 color:'#08275B',
