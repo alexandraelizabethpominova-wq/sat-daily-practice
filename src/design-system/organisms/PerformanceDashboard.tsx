@@ -25,13 +25,33 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,c
   const questionStats=summary.questions.slice(0,18)
   const questionAccuracy=questionStats.map(question=>({question:`${question.subject==='math'?'Math':'R&W'} Q${question.questionNumber}`,success:question.successRate}))
   const questionTime=questionStats.map(question=>({question:`${question.subject==='math'?'Math':'R&W'} Q${question.questionNumber}`,seconds:Math.round(question.averageMs/1000)}))
-  const sessionAccuracy=[{id:'Accuracy',data:summary.sessionMetrics.map((session,index)=>({x:`S${index+1}`,y:session.accuracy}))}]
-  const calibratingScoreTrend=summary.scoreTrend
+  const dailySessionMetrics=new Map<string,{date:Date;attempts:number;correct:number}>()
+  summary.sessionMetrics.forEach(session=>{
+    const date=new Date(session.startedAt)
+    const key=localDayKey(date)
+    const current=dailySessionMetrics.get(key)??{date,attempts:0,correct:0}
+    current.attempts+=session.attempts
+    current.correct+=session.correct
+    dailySessionMetrics.set(key,current)
+  })
+  const dailyAccuracy=[...dailySessionMetrics.values()]
+    .sort((a,b)=>a.date.getTime()-b.date.getTime())
+    .map(day=>({x:formatChartDay(day.date),y:day.attempts?Math.round(100*day.correct/day.attempts):0}))
+  const sessionAccuracy=[{id:'Accuracy',data:dailyAccuracy}]
+
+  const dailyScorePoints=new Map<string,(typeof summary.scoreTrend)[number]>()
+  summary.scoreTrend.forEach(point=>{
+    const key=localDayKey(new Date(point.startedAt))
+    dailyScorePoints.set(key,point)
+  })
+  const dailyScoreTrend=[...dailyScorePoints.values()]
+    .sort((a,b)=>new Date(a.startedAt).getTime()-new Date(b.startedAt).getTime())
+  const calibratingScoreTrend=dailyScoreTrend
     .filter(point=>point.sessionNumber<=10)
-    .map(point=>({x:`S${point.sessionNumber}`,y:point.score}))
-  const calibratedScoreTrend=summary.scoreTrend
+    .map(point=>({x:formatChartDay(new Date(point.startedAt)),y:point.score}))
+  const calibratedScoreTrend=dailyScoreTrend
     .filter(point=>point.sessionNumber>=10)
-    .map(point=>({x:`S${point.sessionNumber}`,y:point.score}))
+    .map(point=>({x:formatChartDay(new Date(point.startedAt)),y:point.score}))
   const scoreTrend=[
     {id:'Calibrating',data:calibratingScoreTrend},
     {id:'10-session prediction',data:calibratedScoreTrend},
@@ -160,7 +180,7 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,c
       </AlexBox>
 
       <AlexBox sx={{display:'grid',gridTemplateColumns:{xs:'1fr',xl:'1fr 1fr'},gap:2,mt:2}}>
-        <PerformanceChartCard title="Session success trend" description="Accuracy for each completed practice session.">
+        <PerformanceChartCard title="Daily success trend" description="Accuracy across all practice completed on each day.">
           <AlexLineChart
             data={sessionAccuracy}
             margin={{top:20,right:25,bottom:52,left:54}}
@@ -174,10 +194,10 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,c
             useMesh
             enableArea
             areaOpacity={0.08}
-            axisBottom={{legend:'Session',legendPosition:'middle',legendOffset:40}}
+            axisBottom={{legend:'Day',legendPosition:'middle',legendOffset:40}}
             axisLeft={{legend:'Accuracy %',legendPosition:'middle',legendOffset:-44}}
             theme={chartTheme}
-            ariaLabel="Accuracy trend by practice session"
+            ariaLabel="Accuracy trend by practice day"
           />
         </PerformanceChartCard>
         <PerformanceChartCard title="Practice score prediction" description={summary.latestScoreEstimate?`${scoreCalibrationText}. Latest prediction ${summary.latestScoreEstimate}${latestDelta===0?'':` · ${latestDelta>0?'+':''}${latestDelta} since the prior scored session`}. ${scoreBasisText} Sessions 1–9 are provisional; session 10 starts the full rolling 10-session question-pool prediction. Each unique question is weighted equally by its success rate within that window. This is a practice trend, not an official College Board score.`:'Answer at least 3 unique questions in both sections within your recent completed sessions to begin a score prediction.'}>
@@ -193,7 +213,7 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,c
             pointBorderWidth={2}
             useMesh
             layers={['grid','markers','axes','areas',PredictionPhaseLines,'points','slices','mesh','legends']}
-            axisBottom={{legend:'Session',legendPosition:'middle',legendOffset:40}}
+            axisBottom={{legend:'Day',legendPosition:'middle',legendOffset:40}}
             axisLeft={{legend:'Predicted score',legendPosition:'middle',legendOffset:-48}}
             theme={chartTheme}
             ariaLabel="Practice SAT score prediction trend"
@@ -277,4 +297,12 @@ function EmptyChart({message}:{message:string}){
 function formatMs(ms:number){
   const seconds=Math.round(ms/1000)
   return seconds<60?`${seconds}s`:`${Math.floor(seconds/60)}m ${seconds%60}s`
+}
+
+function localDayKey(date:Date){
+  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`
+}
+
+function formatChartDay(date:Date){
+  return new Intl.DateTimeFormat(undefined,{month:'short',day:'numeric'}).format(date)
 }
