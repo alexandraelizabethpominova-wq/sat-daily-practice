@@ -102,7 +102,7 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,c
         label="Overall progress"
         value={progressWord}
         valueColor={progressColor}
-        valueFontSize={24}
+        valueFontSize={22}
       />
 
     </AlexBox>
