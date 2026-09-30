@@ -568,15 +568,17 @@ export default function App(){
               key={item.label}
               sx={{
                 display:'grid',
-                gridTemplateColumns:{xs:'28px minmax(0,1fr) auto',xl:'24px minmax(0,1fr) auto'},
+                gridTemplateColumns:{xs:'28px minmax(0,1fr)',xl:'24px minmax(0,1fr)'},
                 alignItems:'center',
                 columnGap:1,
-                py:{xs:.58,xl:.38},
-                pl:index%2===1?1.5:0,
-                pr:index%2===0?1.5:0,
-                borderLeft:index%2===1?'1px solid #EEF1F4':'none',
+                py:{xs:.65,xl:.38},
+                pl:{xs:0,xl:index%2===1?1.5:0},
+                pr:{xs:0,xl:index%2===0?1.5:0},
+                borderLeft:{xs:'none',xl:index%2===1?'1px solid #EEF1F4':'none'},
                 borderTop:index<2?'none':'1px solid #EEF1F4',
                 minWidth:0,
+                maxWidth:'100%',
+                overflow:'hidden',
               }}
             >
               <AlexBox sx={{
@@ -590,11 +592,30 @@ export default function App(){
               }}>
                 {item.icon}
               </AlexBox>
-              <AlexBox sx={{fontSize:dashboardTypography.supportBody,lineHeight:1.25,color:'#344054',minWidth:0}}>
-                {item.label}
-              </AlexBox>
-              <AlexBox sx={{fontSize:dashboardTypography.supportBody,lineHeight:1.2,fontWeight:800,color:'#08275B',whiteSpace:{xs:'normal',sm:'nowrap'},maxWidth:'100%',overflowWrap:'anywhere',textAlign:'right',pl:1}}>
-                {item.value}
+              <AlexBox sx={{
+                minWidth:0,
+                display:'flex',
+                alignItems:'center',
+                justifyContent:'space-between',
+                gap:1,
+              }}>
+                <AlexBox sx={{fontSize:dashboardTypography.supportBody,lineHeight:1.25,color:'#344054',minWidth:0}}>
+                  {item.label}
+                </AlexBox>
+                <AlexBox sx={{
+                  fontSize:dashboardTypography.supportBody,
+                  lineHeight:1.2,
+                  fontWeight:800,
+                  color:'#08275B',
+                  minWidth:0,
+                  maxWidth:'48%',
+                  overflow:'hidden',
+                  textOverflow:'ellipsis',
+                  whiteSpace:'nowrap',
+                  textAlign:'right',
+                }}>
+                  {item.value}
+                </AlexBox>
               </AlexBox>
             </AlexBox>)}
           </AlexBox>
