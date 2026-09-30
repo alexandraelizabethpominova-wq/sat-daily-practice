@@ -226,6 +226,14 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onD
         display:'grid',
         '@media (min-width:768px)':{display:'none'},
         gridTemplateColumns:'repeat(4,minmax(0,1fr))',
+        width:'100%',
+        maxWidth:'100vw',
+        boxSizing:'border-box',
+        margin:0,
+        gap:0,
+        justifyContent:'stretch',
+        alignItems:'stretch',
+        overflow:'hidden',
         position:'fixed',
         left:0,right:0,bottom:0,
         zIndex:45,
@@ -251,8 +259,12 @@ function MobileNavButton({label,active,icon,onClick}:{label:string;active:boolea
     aria-current={active?'page':undefined}
     sx={{
       minWidth:0,
+      width:'100%',
+      maxWidth:'100%',
       minHeight:64,
-      px:.5,
+      px:.25,
+      overflow:'hidden',
+      justifyContent:'center',
       display:'flex',
       flexDirection:'column',
       gap:.35,
@@ -262,6 +274,6 @@ function MobileNavButton({label,active,icon,onClick}:{label:string;active:boolea
     }}
   >
     {icon}
-    <AlexText component="span" sx={{fontSize:10.5,fontWeight:active?850:650,color:'inherit'}}>{label}</AlexText>
+    <AlexText component="span" sx={{fontSize:10.5,fontWeight:active?850:650,color:'inherit',maxWidth:'100%',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{label}</AlexText>
   </AlexButtonBase>
 }
