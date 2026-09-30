@@ -99,7 +99,10 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onD
       />
     </AlexBox>
 
-    <AlexBox sx={{display:{xs:'none',sm:'block',lg:'none'}}}>
+    <AlexBox sx={{
+      display:'none',
+      '@media (min-width:768px) and (max-width:1199.98px)':{display:'block'},
+    }}>
       <SideNavigation
         variant="tablet"
         collapsed
@@ -116,7 +119,8 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onD
       component="header"
       data-testid="mobile-header"
       sx={{
-        display:{xs:'flex',sm:'none'},
+        display:'flex',
+        '@media (min-width:768px)':{display:'none'},
         minHeight:56,
         px:1.25,
         alignItems:'center',
@@ -183,13 +187,18 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onD
       data-testid="app-content"
       sx={{
         minWidth:0,
-        width:{xs:'100%',sm:'calc(100% - 72px)',lg:`calc(100% - ${desktopSidebarWidth}px)`},
-        ml:{xs:0,sm:'72px',lg:`${desktopSidebarWidth}px`},
+        width:{xs:'100%',lg:`calc(100% - ${desktopSidebarWidth}px)`},
+        ml:{xs:0,lg:`${desktopSidebarWidth}px`},
+        '@media (min-width:768px) and (max-width:1199.98px)':{
+          width:'calc(100% - 72px)',
+          ml:'72px',
+        },
         minHeight:'100dvh',
         height:{lg:active==='dashboard'?'100dvh':'auto'},
         overflowY:{lg:active==='dashboard'?'hidden':'visible'},
         px:{xs:1.25,sm:2.25,md:3,lg:3.5},
-        pb:{xs:'calc(76px + env(safe-area-inset-bottom))',sm:0},
+        pb:'calc(76px + env(safe-area-inset-bottom))',
+        '@media (min-width:768px)':{pb:0},
         boxSizing:'border-box',
         overflowX:'clip',
         transition:{lg:'margin-left .18s ease, width .18s ease'},
@@ -213,7 +222,8 @@ export default function AppSidebarLayout({active,collapsed,onToggleCollapsed,onD
       aria-label="Mobile primary navigation"
       data-testid="mobile-bottom-nav"
       sx={{
-        display:{xs:'grid',sm:'none'},
+        display:'grid',
+        '@media (min-width:768px)':{display:'none'},
         gridTemplateColumns:'repeat(4,minmax(0,1fr))',
         position:'fixed',
         left:0,right:0,bottom:0,
