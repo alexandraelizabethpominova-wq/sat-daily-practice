@@ -74,7 +74,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
   }
   const goals=[
     {label:'Practice questions',value:`${Math.min(questionsDone,questionTarget)}/${questionTarget}`},
-    {label:'Practice time',value:`${Math.min(minutesDone,minuteTarget)}/${minuteTarget} min`},
+    {label:'Practice time',value:`${minutesDone}/${minuteTarget} min`},
     {label:'Review failed questions',value:failedQuestionCount?`${reviewedFailedCount}/${failedQuestionCount}`:'Clear'},
   ]
   const weeklyQuestions=attempts.filter(attempt=>new Date(attempt.createdAt)>=weekStart).length
