@@ -549,7 +549,7 @@ export default function App(){
           minHeight:0,
         }}>
           <AlexBox sx={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:1.5}}>
-            <AlexBox sx={{fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>Your practice plan</AlexBox>
+            <AlexBox sx={{fontSize:9.5,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>Your practice plan</AlexBox>
             <AlexButton
               tone="quiet"
               aria-label="Edit practice plan"
@@ -567,15 +567,15 @@ export default function App(){
             mt:-.5,
           }}>
             {[
-              {label:'Daily time',value:`${practiceRecommendation.estimatedDailyMinutes} min`,icon:<Clock3 size={15}/>},
-              {label:'Focus',value:practiceRecommendation.focusLabel??'Balanced',icon:<Target size={15}/>},
-              {label:'Session size',value:`${settings.questionsPerSession} questions`,icon:<ListChecks size={15}/>},
-              {label:'Pace',value:`${practiceRecommendation.recommendedSessionsPerDay}/day`,icon:<CalendarDays size={15}/>},
+              {label:'Daily time',value:`${practiceRecommendation.estimatedDailyMinutes} min`,icon:<Clock3 size={13}/>},
+              {label:'Focus',value:practiceRecommendation.focusLabel??'Balanced',icon:<Target size={13}/>},
+              {label:'Session size',value:`${settings.questionsPerSession} questions`,icon:<ListChecks size={13}/>},
+              {label:'Pace',value:`${practiceRecommendation.recommendedSessionsPerDay}/day`,icon:<CalendarDays size={13}/>},
             ].map((item,index)=><AlexBox
               key={item.label}
               sx={{
                 display:'grid',
-                gridTemplateColumns:'28px minmax(0,1fr) auto',
+                gridTemplateColumns:'24px minmax(0,1fr) auto',
                 alignItems:'center',
                 columnGap:1,
                 py:.38,
@@ -587,8 +587,8 @@ export default function App(){
               }}
             >
               <AlexBox sx={{
-                width:28,
-                height:28,
+                width:24,
+                height:24,
                 borderRadius:'50%',
                 display:'grid',
                 placeItems:'center',
@@ -598,7 +598,7 @@ export default function App(){
                 {item.icon}
               </AlexBox>
               <AlexBox sx={{
-                fontSize:12.5,
+                fontSize:11.5,
                 lineHeight:1.25,
                 color:'#344054',
                 minWidth:0,
@@ -606,7 +606,7 @@ export default function App(){
                 {item.label}
               </AlexBox>
               <AlexBox sx={{
-                fontSize:13,
+                fontSize:12,
                 lineHeight:1.2,
                 fontWeight:800,
                 color:'#08275B',
