@@ -1,5 +1,4 @@
-import type {ReactNode} from 'react'
-import type {SxProps,Theme} from '@mui/material/styles'
+import type {ComponentProps,ReactNode} from 'react'
 import AlexBox from '../atoms/AlexBox'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
@@ -20,7 +19,7 @@ type Props={
   decoration?:ReactNode
   valueColor?:string
   valueFontSize?:number|string|Record<string,number|string>
-  sx?:SxProps<Theme>
+  sx?:ComponentProps<typeof AlexSurface>['sx']
   children?:ReactNode
 }
 
@@ -118,7 +117,7 @@ export default function DashboardCard({tone,variant='metric',icon,title,value,va
   </AlexSurface>
 
   function CardTitle({children}:{children:ReactNode}){
-    return <AlexText sx={{
+    return <AlexText component={variant==='support'?'h3':'p'} sx={{
       minWidth:0,
       color:palette.title,
       fontSize:dashboardTypography.cardTitle,
