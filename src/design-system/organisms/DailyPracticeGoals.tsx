@@ -32,20 +32,34 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
   const todayKey=localDayKey(today)
   const todayAttempts=attempts.filter(attempt=>localDayKey(attempt.createdAt)===todayKey)
   const questionsDone=todayAttempts.length
-  const todayCompletedSessions=sessions.filter(session=>localDayKey(session.endedAt)===todayKey)
   const reviewedFailedQuestionIds=new Set<string>()
-  todayCompletedSessions.forEach(session=>{
-    if(!session.attempts.length)return
-    const sessionQuestionIds=new Set(session.attempts.map(attempt=>attempt.questionId))
-    const priorFailedIds=new Set(
-      attempts
-        .filter(attempt=>new Date(attempt.createdAt)<new Date(session.startedAt)&&!attempt.correct)
-        .map(attempt=>attempt.questionId)
-    )
-    sessionQuestionIds.forEach(questionId=>{
-      if(priorFailedIds.has(questionId))reviewedFailedQuestionIds.add(questionId)
-    })
+  const masteryByQuestion=new Map<string,{failed:boolean;correctAfterFailure:number}>()
+  const orderedAttempts=attempts
+    .map((attempt,index)=>({attempt,index}))
+    .sort((a,b)=>a.attempt.createdAt.localeCompare(b.attempt.createdAt)||a.index-b.index)
+
+  orderedAttempts.forEach(({attempt})=>{
+    const mastery=masteryByQuestion.get(attempt.questionId)??{failed:false,correctAfterFailure:0}
+
+    // A failed-question review counts when the question was already in the
+    // failed pool before today's attempt, regardless of whether this retry
+    // is answered correctly.
+    if(localDayKey(attempt.createdAt)===todayKey&&mastery.failed){
+      reviewedFailedQuestionIds.add(attempt.questionId)
+    }
+
+    if(!attempt.correct){
+      mastery.failed=true
+      mastery.correctAfterFailure=0
+    }else if(mastery.failed){
+      mastery.correctAfterFailure+=1
+      if(mastery.correctAfterFailure>=2){
+        mastery.failed=false
+      }
+    }
+    masteryByQuestion.set(attempt.questionId,mastery)
   })
+
   const reviewedFailedCount=reviewedFailedQuestionIds.size
   const reviewedFailedToday=reviewedFailedCount>0
   const minutesDone=Math.round(todayAttempts.reduce((total,attempt)=>total+attempt.elapsedMs,0)/60000)
