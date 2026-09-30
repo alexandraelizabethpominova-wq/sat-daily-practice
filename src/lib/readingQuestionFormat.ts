@@ -1,1 +1,5 @@
 export const READING_PARAGRAPH_BREAK='[[SAT_PARAGRAPH_BREAK]]'
+export const READING_QUOTE_START='[[SAT_QUOTE_START]]'
+export const READING_QUOTE_END='[[SAT_QUOTE_END]]'
+export const READING_LATEX_QUOTE_START='\\begin{quote}'
+export const READING_LATEX_QUOTE_END='\\end{quote}'

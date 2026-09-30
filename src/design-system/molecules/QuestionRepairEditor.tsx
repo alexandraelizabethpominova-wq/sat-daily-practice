@@ -13,6 +13,7 @@ import {ensureQuestionText,extractQuestionLines} from '../../lib/pdfStructuredIm
 import {getQuestionContent} from '../../lib/questionContentStore'
 import {hasUnderlineMarkup,refersToUnderlinedText,underlineSelection} from '../../lib/questionTextMarkup'
 import {readingTableSpec,stripEmbeddedReadingTableLines} from '../../lib/readingTables'
+import {READING_LATEX_QUOTE_END,READING_LATEX_QUOTE_START} from '../../lib/readingQuestionFormat'
 import {loadSharedQuestionContent,saveSharedQuestionRepair} from '../../lib/sharedQuestionBank'
 import {verifiedMathContent} from '../../lib/verifiedMathQuestions'
 import {verifiedPracticeTest5Math1Content} from '../../lib/verifiedPracticeTest5Math1'
@@ -134,6 +135,25 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
     })
   }
 
+  function quoteSelectedText(){
+    const input=questionTextRef.current
+    if(!input)return
+    const start=input.selectionStart??0,end=input.selectionEnd??0
+    const selected=questionText.slice(start,end).trim()
+    if(!selected){
+      setError('Select the passage text that should appear inside the quote block first.')
+      input.focus()
+      return
+    }
+    const replacement=`${READING_LATEX_QUOTE_START}\n${selected}\n${READING_LATEX_QUOTE_END}`
+    setError('');setMessage('')
+    setQuestionText(questionText.slice(0,start)+replacement+questionText.slice(end))
+    requestAnimationFrame(()=>{
+      input.focus()
+      input.setSelectionRange(start,start+replacement.length)
+    })
+  }
+
   function applyMathSelection(kind:'power'|'sqrt'|'fraction'|'variable'){
     const input=questionTextRef.current
     if(!input)return
@@ -187,6 +207,7 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
           <AlexIconButton label="Fraction" onClick={()=>applyMathSelection('fraction')} sx={{border:'1px solid #B2CCFF',borderRadius:1,width:40,height:40}}><span style={{fontFamily:'Georgia, serif',fontSize:15,lineHeight:1}}>x⁄y</span></AlexIconButton>
           <AlexIconButton label="Variable" onClick={()=>applyMathSelection('variable')} sx={{border:'1px solid #B2CCFF',borderRadius:1,width:40,height:40}}><span style={{fontFamily:'Georgia, serif',fontSize:18,fontStyle:'italic'}}>x</span></AlexIconButton>
           <AlexIconButton label="Underline" onClick={underlineSelectedText} sx={{border:'1px solid #B2CCFF',borderRadius:1,width:40,height:40}}><span style={{fontFamily:'Georgia, serif',fontSize:18,textDecoration:'underline'}}>U</span></AlexIconButton>
+          <AlexIconButton label="Quote" onClick={quoteSelectedText} sx={{border:'1px solid #B2CCFF',borderRadius:1,width:40,height:40}}><span style={{fontFamily:'Georgia, serif',fontSize:22,lineHeight:1}}>❝</span></AlexIconButton>
           <AlexIconButton label="Table" onClick={()=>{const input=questionTextRef.current;if(!input)return;const start=input.selectionStart??0,end=input.selectionEnd??0;const selected=questionText.slice(start,end);const replacement='[TABLE]\\n'+(selected||'x | y\\n')+'\\n[/TABLE]';setQuestionText(questionText.slice(0,start)+replacement+questionText.slice(end));requestAnimationFrame(()=>input.focus())}} sx={{border:'1px solid #B2CCFF',borderRadius:1,width:40,height:40}}><span style={{fontSize:17}}>▦</span></AlexIconButton>
         </AlexBox>
       </AlexBox>
@@ -195,7 +216,7 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
       </AlexSurface>}
       <AlexSurface sx={{p:1.25,border:'1px solid #D0D5DD',borderRadius:2,bgcolor:'#FFFFFF'}}>
         <AlexText sx={{fontSize:12,fontWeight:800,color:'#475467',mb:.75}}>Live math preview</AlexText>
-        <AlexText sx={{fontSize:11.5,color:'#667085',mb:1}}>Edit the plain text below; this preview shows how powers, square roots, fractions, and math delimiters will appear to students.</AlexText>
+        <AlexText sx={{fontSize:11.5,color:'#667085',mb:1}}>Edit the plain text below; this preview shows how math formatting, underlines, quote blocks, and tables will appear to students.</AlexText>
         <AlexBox sx={{fontFamily:'Georgia, serif',fontSize:18,lineHeight:1.55,whiteSpace:'pre-wrap'}}>
           {question.subject==='english'
             ?<ReadingQuestionLines lines={toLines(questionText)} questionId={question.id}/>
@@ -218,6 +239,8 @@ export default function QuestionRepairEditor({question,questionsPdf,onSaved}:Pro
             <div><b>LaTeX formatting</b></div>
             <div>Variable: $x$</div><div>Power: $x^2$ or $x^&#123;2&#125;$</div>
             <div>Square root: $\\sqrt&#123;37&#125;$</div><div>Fraction: $\\frac&#123;12&#125;&#123;35&#125;$</div>
+            <div>Quote block: \\begin&#123;quote&#125; ... \\end&#123;quote&#125;</div>
+            <div>Use the Quote tool on only the quoted passage; keep the author/source line outside the quote block.</div>
             <div>Table: wrap rows in [TABLE] and [/TABLE], with columns separated by |.</div>
             <div>[TABLE]<br/>x | y<br/>2 | 5<br/>[/TABLE]</div>
           </AlexBox>}

@@ -23,6 +23,10 @@ function moduleForPage(page:number):ModuleKey|null{
 }
 
 type Marker={n:number;x:number;y:number}
+type CropBounds={left:number;right:number;top:number;bottom:number;viewport:ReturnType<PDFPageProxy['getViewport']>}
+type ExplanationBounds=CropBounds&{currentFound:boolean;nextFound:boolean}
+const MAX_EXPLANATION_PAGES=2
+
 async function pageTextItems(page:PDFPageProxy,scale:number){
   const viewport=page.getViewport({scale});const text=await page.getTextContent()
   const items=text.items.flatMap(raw=>{if(!isTextItem(raw))return[];const [x,y]=viewport.convertToViewportPoint(raw.transform[4],raw.transform[5]);const width=typeof raw.width==='number'?raw.width*scale:Math.max(raw.str.length*4.5*scale,8*scale);return[{text:raw.str.trim(),x,y,width}]})
@@ -83,21 +87,94 @@ async function explanationBounds(page:PDFPageProxy,scale:number,questionNumber:n
     }
   }
 
-  if(!current)return{left:0,right:viewport.width,top:0,bottom:viewport.height,viewport}
+  if(!current)return{left:0,right:viewport.width,top:0,bottom:viewport.height,viewport,currentFound:false,nextFound:false}
 
   // Start just above the current heading and stop just before the next heading.
   // This intentionally excludes adjacent question explanations on the same page.
   const top=Math.max(0,current.y-10*scale)
   const bottom=Math.min(viewport.height,next?next.y-10*scale:viewport.height-12*scale)
   const blockItems=items.filter(item=>item.text&&item.y>=top&&item.y<bottom)
-  if(!blockItems.length)return{left:0,right:viewport.width,top,bottom,viewport}
+  if(!blockItems.length)return{left:0,right:viewport.width,top,bottom,viewport,currentFound:true,nextFound:!!next}
 
   const horizontalItems=blockItems.filter(item=>item.y>=current!.y-2*scale)
   const measured=horizontalItems.length?horizontalItems:blockItems
   const padding=14*scale
   const left=Math.max(0,Math.min(...measured.map(item=>item.x))-padding)
   const right=Math.min(viewport.width,Math.max(...measured.map(item=>item.x+item.width))+padding)
+  return{left,right,top,bottom,viewport,currentFound:true,nextFound:!!next}
+}
+
+async function continuationExplanationBounds(page:PDFPageProxy,scale:number,nextQuestionNumber:number):Promise<CropBounds|null>{
+  const {viewport,items}=await pageTextItems(page,scale)
+  const rowTolerance=4*scale
+  const rows:{y:number;items:typeof items;text:string}[]=[]
+  for(const item of [...items].filter(item=>item.text).sort((a,b)=>a.y-b.y||a.x-b.x)){
+    const row=rows.find(candidate=>Math.abs(candidate.y-item.y)<=rowTolerance)
+    if(row){
+      row.items.push(item)
+      row.items.sort((a,b)=>a.x-b.x)
+      row.text=row.items.map(part=>part.text).join(' ').replace(/\s+/g,' ').trim()
+    }else{
+      rows.push({y:item.y,items:[item],text:item.text.replace(/\s+/g,' ').trim()})
+    }
+  }
+
+  const nextHeading=rows.find(row=>new RegExp(`^QUESTION\\s*${nextQuestionNumber}(?:\\s|$)`,'i').test(row.text))
+  const footerCutoff=viewport.height-52*scale
+  const usable=items.filter(item=>{
+    if(!item.text||item.y<38*scale||item.y>=footerCutoff)return false
+    const normalized=item.text.replace(/\s+/g,' ').trim()
+    if(/^SAT PRACTICE TEST/i.test(normalized))return false
+    return true
+  })
+
+  const stop=nextHeading?nextHeading.y-10*scale:footerCutoff
+  const blockItems=usable.filter(item=>item.y<stop)
+  if(!blockItems.length)return null
+
+  const top=Math.max(0,Math.min(...blockItems.map(item=>item.y))-10*scale)
+  const bottom=Math.min(footerCutoff,Math.max(...blockItems.map(item=>item.y))+22*scale,stop)
+  if(bottom<=top+8*scale)return null
+
+  const padding=14*scale
+  const left=Math.max(0,Math.min(...blockItems.map(item=>item.x))-padding)
+  const right=Math.min(viewport.width,Math.max(...blockItems.map(item=>item.x+item.width))+padding)
   return{left,right,top,bottom,viewport}
+}
+
+async function renderCrop(page:PDFPageProxy,bounds:CropBounds,dpr:number,onTask:(task:{cancel:()=>void;promise:Promise<void>})=>void){
+  const width=Math.max(1,Math.ceil((bounds.right-bounds.left)*dpr))
+  const height=Math.max(1,Math.ceil((bounds.bottom-bounds.top)*dpr))
+  const canvas=document.createElement('canvas')
+  canvas.width=width;canvas.height=height
+  const ctx=canvas.getContext('2d')!
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height)
+  const task=page.render({
+    canvasContext:ctx,
+    viewport:bounds.viewport,
+    transform:[dpr,0,0,dpr,-bounds.left*dpr,-bounds.top*dpr],
+  }) as {cancel:()=>void;promise:Promise<void>}
+  onTask(task)
+  await task.promise
+  return canvas
+}
+
+function stitchCanvases(parts:HTMLCanvasElement[],dpr:number){
+  if(parts.length===1)return parts[0]
+  const gap=Math.max(1,Math.round(14*dpr))
+  const width=Math.max(...parts.map(part=>part.width))
+  const height=parts.reduce((sum,part)=>sum+part.height,0)+gap*(parts.length-1)
+  const canvas=document.createElement('canvas')
+  canvas.width=width;canvas.height=height
+  const ctx=canvas.getContext('2d')!
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height)
+  let y=0
+  for(const part of parts){
+    const x=Math.floor((width-part.width)/2)
+    ctx.drawImage(part,x,y)
+    y+=part.height+gap
+  }
+  return canvas
 }
 
 async function dynamicQuestionBounds(page:PDFPageProxy,scale:number,questionNumber:number){
@@ -124,31 +201,52 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt,zoom=1
   const[src,setSrc]=useState('');const[error,setError]=useState('');const isQuestion=pdfKey==='questions'
   const contentRef=useRef<HTMLDivElement|null>(null)
   useEffect(()=>{
-    let cancelled=false;let objectUrl='';let renderTask:{cancel:()=>void;promise:Promise<void>}|null=null
+    let cancelled=false;let objectUrl='';const renderTasks:{cancel:()=>void;promise:Promise<void>}[]=[]
     const cropKey=sourceCrop?`${sourceCrop.x},${sourceCrop.y},${sourceCrop.width},${sourceCrop.height}`:'auto'
-    const imageKey=`v12:${practiceTestId}:${pdfKey}:${bytes.byteLength}:${page}:${questionNumber}:${cropKey}`
+    const imageKey=`v13:${practiceTestId}:${pdfKey}:${bytes.byteLength}:${page}:${questionNumber}:${cropKey}`
     async function showBlob(blob:Blob){objectUrl=URL.createObjectURL(blob);if(!cancelled)setSrc(objectUrl)}
     async function render(){
       try{
         setError('');setSrc('');const existing=await getQuestionImage(imageKey);if(existing){await showBlob(existing);return}
         const doc=await loadPdf(`${practiceTestId}:${pdfKey}`,bytes);const pdfPage=await doc.getPage(page);const dpr=window.devicePixelRatio||1
-        let scale=1.8,left=0,right=0,top=0,bottom=0,viewport
-        if(isQuestion){
-          scale=2.4
-          const resolvedModule=module??moduleForPage(page)
-          if(!resolvedModule)throw new Error(`Question ${questionNumber} has an unsupported source page.`)
-          const crop=sourceCrop??questionCropForParts(practiceTestId,resolvedModule,questionNumber)
-          if(crop){
-            viewport=pdfPage.getViewport({scale})
-            left=crop.x*scale;right=(crop.x+crop.width)*scale;top=crop.y*scale;bottom=(crop.y+crop.height)*scale
-          }else if(practiceTestId==='practice-test-4'){
-            const bounds=await dynamicQuestionBounds(pdfPage,scale,questionNumber);viewport=bounds.viewport;({left,right,top,bottom}=bounds)
-          }else{
-            throw new Error(`No verified source crop exists for ${practiceTestId} ${resolvedModule} question ${questionNumber}.`)
+
+        if(!isQuestion){
+          const scale=1.8
+          const firstBounds:ExplanationBounds=await explanationBounds(pdfPage,scale,questionNumber)
+          const parts=[await renderCrop(pdfPage,firstBounds,dpr,task=>renderTasks.push(task))]
+          if(cancelled)return
+
+          if(firstBounds.currentFound&&!firstBounds.nextFound&&page<doc.numPages&&MAX_EXPLANATION_PAGES>1){
+            const continuationPage=await doc.getPage(page+1)
+            const continuationBounds=await continuationExplanationBounds(continuationPage,scale,questionNumber+1)
+            if(continuationBounds){
+              parts.push(await renderCrop(continuationPage,continuationBounds,dpr,task=>renderTasks.push(task)))
+              if(cancelled)return
+            }
           }
-        }else{const bounds=await explanationBounds(pdfPage,scale,questionNumber);viewport=bounds.viewport;({left,right,top,bottom}=bounds)}
+
+          const blob=await canvasToBlob(stitchCanvases(parts,dpr))
+          await saveQuestionImage(imageKey,blob)
+          if(!cancelled)await showBlob(blob)
+          return
+        }
+
+        const scale=2.4
+        let left=0,right=0,top=0,bottom=0,viewport
+        const resolvedModule=module??moduleForPage(page)
+        if(!resolvedModule)throw new Error(`Question ${questionNumber} has an unsupported source page.`)
+        const crop=sourceCrop??questionCropForParts(practiceTestId,resolvedModule,questionNumber)
+        if(crop){
+          viewport=pdfPage.getViewport({scale})
+          left=crop.x*scale;right=(crop.x+crop.width)*scale;top=crop.y*scale;bottom=(crop.y+crop.height)*scale
+        }else if(practiceTestId==='practice-test-4'){
+          const bounds=await dynamicQuestionBounds(pdfPage,scale,questionNumber);viewport=bounds.viewport;({left,right,top,bottom}=bounds)
+        }else{
+          throw new Error(`No verified source crop exists for ${practiceTestId} ${resolvedModule} question ${questionNumber}.`)
+        }
         const full=document.createElement('canvas');const fullCtx=full.getContext('2d')!;full.width=Math.ceil(viewport.width*dpr);full.height=Math.ceil(viewport.height*dpr)
-        renderTask=pdfPage.render({canvasContext:fullCtx,viewport,transform:dpr===1?undefined:[dpr,0,0,dpr,0,0]}) as typeof renderTask;await renderTask!.promise;if(cancelled)return
+        const renderTask=pdfPage.render({canvasContext:fullCtx,viewport,transform:dpr===1?undefined:[dpr,0,0,dpr,0,0]}) as {cancel:()=>void;promise:Promise<void>}
+        renderTasks.push(renderTask);await renderTask.promise;if(cancelled)return
         const srcX=Math.max(0,Math.floor(left*dpr)),srcY=Math.max(0,Math.floor(top*dpr)),srcRight=Math.min(full.width,Math.ceil(right*dpr)),srcBottom=Math.min(full.height,Math.ceil(bottom*dpr))
         const srcWidth=Math.max(1,srcRight-srcX),srcHeight=Math.max(1,srcBottom-srcY);const out=document.createElement('canvas');out.width=srcWidth;out.height=srcHeight
         const ctx=out.getContext('2d')!;ctx.fillStyle='#fff';ctx.fillRect(0,0,out.width,out.height);ctx.drawImage(full,srcX,srcY,srcWidth,srcHeight,0,0,out.width,out.height)
@@ -156,7 +254,7 @@ export default function SourceSlice({pdfKey,bytes,page,questionNumber,alt,zoom=1
       }catch(reason){if(!cancelled)setError(reason instanceof Error?reason.message:'Unable to render item.')}
     }
     void render()
-    return()=>{cancelled=true;try{renderTask?.cancel()}catch{};if(objectUrl)URL.revokeObjectURL(objectUrl)}
+    return()=>{cancelled=true;for(const task of renderTasks){try{task.cancel()}catch{}};if(objectUrl)URL.revokeObjectURL(objectUrl)}
   },[pdfKey,bytes,page,questionNumber,isQuestion,practiceTestId,module,sourceCrop])
   useEffect(()=>{
     const node=contentRef.current

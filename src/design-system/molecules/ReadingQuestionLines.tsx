@@ -1,6 +1,6 @@
 import AlexRichText from '../atoms/AlexRichText'
 import ReadingDataTable from './ReadingDataTable'
-import {READING_PARAGRAPH_BREAK} from '../../lib/readingQuestionFormat'
+import {READING_LATEX_QUOTE_END,READING_LATEX_QUOTE_START,READING_PARAGRAPH_BREAK,READING_QUOTE_END,READING_QUOTE_START} from '../../lib/readingQuestionFormat'
 import {readingTableSpec,stripEmbeddedReadingTableLines,type ReadingTableSpec} from '../../lib/readingTables'
 
 const LABELED_CHOICE=/^([A-D])(?:[.)]\s*|\s+)(.+)$/i
@@ -14,6 +14,24 @@ export type ParsedReadingQuestion={intro:string[];stimulusBlocks:string[][];stem
 
 function clean(value:string){return value.replace(/\s+/g,' ').trim()}
 function isBreak(value:string){return value===READING_PARAGRAPH_BREAK}
+
+function normalizeQuoteMarkers(lines:string[]){
+  const output:string[]=[]
+  let hasExplicitQuote=false
+  for(const line of lines){
+    if(line===READING_QUOTE_START||line===READING_LATEX_QUOTE_START){
+      hasExplicitQuote=true
+      if(output[output.length-1]!==READING_PARAGRAPH_BREAK)output.push(READING_PARAGRAPH_BREAK)
+      continue
+    }
+    if(line===READING_QUOTE_END||line===READING_LATEX_QUOTE_END){
+      if(output[output.length-1]!==READING_PARAGRAPH_BREAK)output.push(READING_PARAGRAPH_BREAK)
+      continue
+    }
+    output.push(line)
+  }
+  return {lines:output,hasExplicitQuote}
+}
 
 function choiceParts(value:string){
   const line=clean(value)
@@ -130,7 +148,8 @@ function explicitlyQuoted(blocks:string[][]){
 }
 
 export function parseReadingQuestion(lines:string[]):ParsedReadingQuestion{
-  const source=lines.map(line=>line.trim()).filter(Boolean)
+  const normalized=normalizeQuoteMarkers(lines)
+  const source=normalized.lines.map(line=>line.trim()).filter(Boolean)
   const structure=findQuestionStructure(source)
   const start=structure?.start??Math.max(0,source.length-1)
   const end=structure?.end??start
@@ -152,7 +171,7 @@ export function parseReadingQuestion(lines:string[]):ParsedReadingQuestion{
   const stem=source.slice(start,end+1).filter(line=>!isBreak(line)).map(clean).join(' ')
   const choices=structure?.choices??[]
   const isVerse=looksLikeVerse(intro)
-  return {intro,stimulusBlocks,stem,choices,isVerse,isQuote:Boolean(intro.length)||isVerse||explicitlyQuoted(stimulusBlocks)}
+  return {intro,stimulusBlocks,stem,choices,isVerse,isQuote:Boolean(intro.length)||isVerse||explicitlyQuoted(stimulusBlocks)||normalized.hasExplicitQuote}
 }
 
 function canonicalTabTable(lines:string[]){
@@ -240,24 +259,32 @@ function PairedTextPassages({sections}:{sections:PairedTextSection[]}){
   </div>
 }
 
+function isSourceAttribution(block:string[]){
+  const text=block.map(clean).filter(Boolean).join(' ')
+  return /^(?:©|Copyright\b|Source:|Excerpted from\b|by\s+[A-Z])/i.test(text)
+}
+
 export default function ReadingQuestionLines({lines,questionId}:{lines:string[];questionId?:string}){
   const safeLines=questionId?stripEmbeddedReadingTableLines(questionId,lines):lines
   const canonicalTable=canonicalTabTable(safeLines)
   const parsed=parseReadingQuestion(canonicalTable?.content??safeLines)
   const table=canonicalTable?.table??(questionId?readingTableSpec(questionId):undefined)
-  const pairedTexts=pairedTextSections(parsed.stimulusBlocks)
+  const attributionBlocks=parsed.stimulusBlocks.filter(isSourceAttribution)
+  const stimulusBlocks=parsed.stimulusBlocks.filter(block=>!isSourceAttribution(block))
+  const pairedTexts=pairedTextSections(stimulusBlocks)
   return <div className="reading-question-content">
     {table&&<ReadingDataTable table={table}/>} 
     {parsed.intro.length>0&&<div className="reading-intro">{splitBlocks(parsed.intro).map((block,index)=><JoinedBlock key={`intro-${index}`} lines={block}/>)}</div>}
     {pairedTexts
       ?<PairedTextPassages sections={pairedTexts}/>
-      :parsed.stimulusBlocks.length>0&&(parsed.isQuote
+      :stimulusBlocks.length>0&&(parsed.isQuote
         ?<blockquote role="blockquote" className={`reading-stimulus reading-quote${parsed.isVerse?' reading-verse':''}`}>
           {parsed.isVerse
-            ?parsed.stimulusBlocks.flat().map((line,index)=><span className="reading-verse-line" key={`verse-${index}`}><AlexRichText text={line}/></span>)
-            :parsed.stimulusBlocks.map((block,index)=><JoinedBlock key={`quote-${index}`} lines={block}/>)}
+            ?stimulusBlocks.flat().map((line,index)=><span className="reading-verse-line" key={`verse-${index}`}><AlexRichText text={line}/></span>)
+            :stimulusBlocks.map((block,index)=><JoinedBlock key={`quote-${index}`} lines={block}/>)}
         </blockquote>
-        :<div className="reading-stimulus">{parsed.stimulusBlocks.map((block,index)=><ReadingStimulusBlock key={`stimulus-${index}`} lines={block}/>)}</div>)}
+        :<div className="reading-stimulus">{stimulusBlocks.map((block,index)=><ReadingStimulusBlock key={`stimulus-${index}`} lines={block}/>)}</div>)}
+    {attributionBlocks.length>0&&<div className="reading-source-attribution">{attributionBlocks.map((block,index)=><JoinedBlock key={`attribution-${index}`} lines={block}/>)}</div>}
     {parsed.stem&&<p className="reading-question-stem"><AlexRichText text={parsed.stem}/></p>}
     {parsed.choices.length>0&&<div className="reading-answer-options" role="list" aria-label="Answer choices">
       {parsed.choices.map(choice=><div className="reading-answer-choice" role="listitem" key={choice.label}>
