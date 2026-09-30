@@ -60,7 +60,7 @@ export default function StudyPlanHero({
     }}>
       <DashboardCard
         tone="yellow"
-        variant="summary"
+        variant="hero"
         title="Current estimate"
         value={estimatedScore??'—'}
         trailing={<AlexInfoTooltipButton
@@ -114,7 +114,7 @@ export default function StudyPlanHero({
       <AlexBox sx={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:{xs:.75,sm:1},minHeight:0,height:{xl:'100%'}}}>
         <DashboardCard
           tone="green"
-          variant="mini"
+          variant="compact"
           icon={<Target/>}
           title="Goal score"
           value={targetScore??'—'}
