@@ -18,6 +18,7 @@ import PracticeTestsDashboard from './design-system/organisms/PracticeTestsDashb
 import StudyPlanCalendar from './design-system/organisms/StudyPlanCalendar'
 import StudyPlanHero from './design-system/organisms/StudyPlanHero'
 import QuestionBankReview from './design-system/organisms/QuestionBankReview'
+import {dashboardTypography} from './design-system/theme'
 import {answerLabel,matchesAnswer} from './lib/answerCompare'
 import {getPdf} from './lib/pdfStore'
 import {availablePracticeTests,moduleLabel,practiceTestLabel,QUESTION_BANK} from './lib/questionBank'
@@ -549,7 +550,7 @@ export default function App(){
           minHeight:0,
         }}>
           <AlexBox sx={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:1.5}}>
-            <AlexBox sx={{fontSize:{xs:10.2,xl:9.5},fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>Your practice plan</AlexBox>
+            <AlexBox sx={{fontSize:dashboardTypography.cardTitle,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>Your practice plan</AlexBox>
             <AlexButton
               tone="quiet"
               aria-label="Edit practice plan"
@@ -598,7 +599,7 @@ export default function App(){
                 {item.icon}
               </AlexBox>
               <AlexBox sx={{
-                fontSize:{xs:12.5,xl:11.5},
+                fontSize:dashboardTypography.supportBody,
                 lineHeight:1.25,
                 color:'#344054',
                 minWidth:0,
@@ -606,7 +607,7 @@ export default function App(){
                 {item.label}
               </AlexBox>
               <AlexBox sx={{
-                fontSize:{xs:13,xl:12},
+                fontSize:dashboardTypography.supportBody,
                 lineHeight:1.2,
                 fontWeight:800,
                 color:'#08275B',
