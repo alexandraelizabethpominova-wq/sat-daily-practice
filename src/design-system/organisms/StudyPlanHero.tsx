@@ -28,11 +28,11 @@ export default function StudyPlanHero({
     sx={{
       position:'relative',overflow:'hidden',border:'1px solid #D9E7F8',
       bgcolor:'#EAF3FF',boxShadow:'0 10px 30px rgba(9,35,79,.055)',
-      p:0,display:'grid',gridTemplateColumns:{xs:'1fr',xl:'var(--dashboard-columns)'},
+      p:0,display:'grid',gridTemplateColumns:{xs:'minmax(0,1fr)',xl:'var(--dashboard-columns)'},
       gap:{xs:1.25,sm:1.5,xl:'var(--dashboard-column-gap)'},alignItems:'stretch',height:{xs:'auto',xl:'100%'},minHeight:0,
     }}
   >
-    <AlexBox sx={{position:'relative',zIndex:1,p:{xs:1.1,sm:1.3,md:1.45,lg:1.6},display:'flex',flexDirection:'column',justifyContent:'center',minWidth:0}}>
+    <AlexBox sx={{position:'relative',zIndex:1,p:{xs:1.1,sm:1.3,md:1.45,lg:1.6},display:'flex',flexDirection:'column',justifyContent:'center',minWidth:0,maxWidth:'100%',overflow:'hidden'}}>
       <AlexText sx={{fontSize:dashboardTypography.eyebrow,textTransform:'uppercase',letterSpacing:'.12em',fontWeight:850,color:'#245F9E'}}>Study plan</AlexText>
       <AlexText component="h1" sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:dashboardTypography.heroTitle,lineHeight:1.04,letterSpacing:'-.035em',mt:1,mb:1.5,color:'#08275B'}}>
         Your SAT practice plan
@@ -111,7 +111,7 @@ export default function StudyPlanHero({
         sx={{pr:{xs:9,sm:11}}}
       />
 
-      <AlexBox sx={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:{xs:.75,sm:1},minHeight:0,height:{xl:'100%'}}}>
+      <AlexBox sx={{display:'grid',gridTemplateColumns:{xs:'minmax(0,1fr)',sm:'repeat(2,minmax(0,1fr))'},gap:{xs:.75,sm:1},minHeight:0,height:{xl:'100%'},minWidth:0,maxWidth:'100%'}}>
         <DashboardCard
           tone="green"
           variant="compact"
