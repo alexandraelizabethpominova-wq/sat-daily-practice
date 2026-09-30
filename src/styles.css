@@ -815,3 +815,20 @@ nav[aria-label="Mobile primary navigation"]{margin:0}
     flex:1 1 0;
   }
 }
+
+/* Wide desktop: restore the roomier composition used on large screens. */
+@media (min-width:1600px){
+  .dashboard-shell{
+    --dashboard-hero:35%;
+    --dashboard-gap:12px;
+    --dashboard-column-gap:12px;
+    --dashboard-pad-y:clamp(18px,2.4dvh,28px);
+    font-size:clamp(14px,.78vw,16px);
+  }
+  .dashboard-bottom-left>div{
+    grid-template-rows:minmax(0,68%) minmax(0,32%)!important;
+  }
+  .dashboard-bottom-right{
+    grid-template-rows:minmax(0,68%) minmax(0,32%)!important;
+  }
+}
