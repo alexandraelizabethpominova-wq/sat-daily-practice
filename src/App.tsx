@@ -538,7 +538,7 @@ export default function App(){
           <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
         </AlexBox>
         <AlexBox sx={{
-          px:{xs:1.25,lg:1.5},py:{xs:.8,lg:1},
+          px:{xs:1,lg:1.25},py:{xs:.6,lg:.75},
           border:'1px solid #E4E7EC',
           borderRadius:'8px',
           bgcolor:'#fff',
@@ -578,7 +578,7 @@ export default function App(){
                 gridTemplateColumns:'28px minmax(0,1fr) auto',
                 alignItems:'center',
                 columnGap:1,
-                py:.58,
+                py:.38,
                 pl:index%2===1?1.5:0,
                 pr:index%2===0?1.5:0,
                 borderLeft:index%2===1?'1px solid #EEF1F4':'none',
