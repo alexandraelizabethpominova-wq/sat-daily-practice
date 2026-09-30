@@ -57,4 +57,24 @@ describe('DailyPracticeGoals weekly streak',()=>{
     expect(screen.getByRole('heading',{name:'2 day streak'})).toBeInTheDocument()
     expect(screen.getByText('2 items completed · 2 minutes learned')).toBeInTheDocument()
   })
+  it('shows actual questions completed when today exceeds the goal',()=>{
+    const attemptsToday=Array.from({length:28},(_,index)=>attempt(
+      `today-${index}`,
+      `q-${index}`,
+      `2026-09-29T16:${String(index%60).padStart(2,'0')}:00.000Z`,
+    ))
+
+    render(
+      <DailyPracticeGoals
+        attempts={attemptsToday}
+        sessions={[]}
+        dailyQuestions={20}
+        dailyMinutes={20}
+        failedQuestionCount={0}
+      />,
+    )
+
+    expect(screen.getByText('· 28/20')).toBeInTheDocument()
+  })
+
 })
