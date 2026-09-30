@@ -6,7 +6,7 @@ import AlexText from '../atoms/AlexText'
 import {dashboardCardTokens,dashboardTypography} from '../theme'
 
 export type DashboardCardTone='blue'|'cream'|'green'|'peach'|'lavender'|'yellow'|'white'
-export type DashboardCardVariant='metric'|'summary'|'mini'
+export type DashboardCardVariant='metric'|'hero'|'compact'
 
 type Props={
   tone:DashboardCardTone
@@ -37,9 +37,21 @@ export default function DashboardCard({tone,variant='metric',icon,title,value,su
   const iconSize=dashboardCardTokens.iconSize[variant]
   const valueSize=variant==='metric'
     ?dashboardTypography.metricValue
-    :variant==='summary'
+    :variant==='hero'
       ?dashboardTypography.heroScore
       :dashboardTypography.supportTitle
+
+  const iconNode=icon?<AlexBox sx={{
+    width:iconBox,
+    height:iconBox,
+    flex:'0 0 auto',
+    borderRadius:'50%',
+    display:'grid',
+    placeItems:'center',
+    bgcolor:'rgba(255,255,255,.76)',
+    color:palette.icon,
+    '& svg':{width:iconSize,height:iconSize},
+  }}>{icon}</AlexBox>:null
 
   return <AlexSurface sx={{
     position:'relative',
@@ -57,31 +69,17 @@ export default function DashboardCard({tone,variant='metric',icon,title,value,su
     overflow:'hidden',
     ...sx,
   }}>
-    <AlexBox sx={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:1,minWidth:0}}>
-      <AlexBox sx={{display:'flex',alignItems:'center',gap:.6,minWidth:0}}>
-        {icon&&<AlexBox sx={{
-          width:iconBox,
-          height:iconBox,
-          flex:'0 0 auto',
-          borderRadius:'50%',
-          display:'grid',
-          placeItems:'center',
-          bgcolor:'rgba(255,255,255,.76)',
-          color:palette.icon,
-          '& svg':{width:iconSize,height:iconSize},
-        }}>{icon}</AlexBox>}
-        <AlexText sx={{
-          minWidth:0,
-          color:palette.title,
-          fontSize:dashboardTypography.cardTitle,
-          lineHeight:1.2,
-          fontWeight:850,
-          textTransform:'uppercase',
-          letterSpacing:'.075em',
-        }}>{title}</AlexText>
+    {variant==='metric'?<>
+      {iconNode}
+      <AlexBox sx={{display:'flex',alignItems:'center',gap:.45,minWidth:0}}>
+        <CardTitle>{title}</CardTitle>
+        {trailing}
       </AlexBox>
+    </>:<AlexBox sx={{display:'flex',alignItems:'center',gap:.6,minWidth:0}}>
+      {variant==='compact'&&iconNode}
+      <CardTitle>{title}</CardTitle>
       {trailing}
-    </AlexBox>
+    </AlexBox>}
 
     {value!==undefined&&<AlexText component="div" sx={{
       fontFamily:'Georgia, "Times New Roman", serif',
@@ -101,4 +99,16 @@ export default function DashboardCard({tone,variant='metric',icon,title,value,su
     }}>{subtitle}</AlexText>}
     {decoration}
   </AlexSurface>
+
+  function CardTitle({children}:{children:ReactNode}){
+    return <AlexText sx={{
+      minWidth:0,
+      color:palette.title,
+      fontSize:dashboardTypography.cardTitle,
+      lineHeight:1.2,
+      fontWeight:850,
+      textTransform:'uppercase',
+      letterSpacing:'.075em',
+    }}>{children}</AlexText>
+  }
 }
