@@ -12,6 +12,26 @@ export const dashboardTypography={
 } as const
 
 
+export const dashboardCardTokens={
+  radius:'8px',
+  padding:{
+    metric:{xs:1.5,sm:1.7,xl:1.8},
+    summary:{xs:1.25,sm:1.4,xl:1.5},
+    mini:{xs:1.1,sm:1.25,xl:1.35},
+  },
+  gap:{xs:.55,sm:.65,xl:.7},
+  iconBox:{
+    metric:{xs:34,sm:34,xl:34},
+    summary:{xs:30,sm:32,xl:32},
+    mini:{xs:28,sm:30,xl:30},
+  },
+  iconSize:{
+    metric:20,
+    summary:18,
+    mini:17,
+  },
+} as const
+
 export const alexTheme=createTheme({
   palette:{
     mode:'light',
