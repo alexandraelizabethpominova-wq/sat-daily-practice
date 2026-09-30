@@ -534,7 +534,7 @@ export default function App(){
           pr:{xl:0},
         }}
       >
-        <AlexBox sx={{flex:{xs:'1 1 auto',xl:'0 0 clamp(340px,35dvh,360px)'},height:{xl:'clamp(340px,35dvh,360px)'},minHeight:0}}>
+        <AlexBox sx={{flex:{xs:'1 1 auto',xl:'0 0 var(--dashboard-primary-row)'},height:{xl:'var(--dashboard-primary-row)'},minHeight:0}}>
           <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
         </AlexBox>
         <AlexBox sx={{
