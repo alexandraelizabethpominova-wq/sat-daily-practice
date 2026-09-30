@@ -81,7 +81,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
   // practice days over from the previous week.
   const streak=practicedDays
   const goals=[
-    {label:'Practice questions',value:`${Math.min(questionsDone,questionTarget)}/${questionTarget}`},
+    {label:'Practice questions',value:`${questionsDone}/${questionTarget}`},
     {label:'Practice time',value:`${minutesDone}/${minuteTarget} min`},
     {label:'Review failed questions',value:failedQuestionCount?`${reviewedFailedCount}/${failedQuestionCount}`:'Clear'},
   ]

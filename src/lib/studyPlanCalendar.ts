@@ -1,4 +1,4 @@
-import type {SessionSummary} from '../types'
+import type {Attempt,SessionSummary} from '../types'
 
 export type StudyPlanDayStatus='ahead'|'on-track'|'behind'|'planned'|'neutral'
 
@@ -28,6 +28,7 @@ export function buildStudyPlanCalendarDays({
   year,
   month,
   sessions,
+  attempts,
   recommendedSessionsPerDay,
   questionsPerSession,
   today=new Date(),
@@ -36,14 +37,18 @@ export function buildStudyPlanCalendarDays({
   year:number
   month:number
   sessions:SessionSummary[]
+  attempts:Attempt[]
   recommendedSessionsPerDay:number
   questionsPerSession:number
   today?:Date
   examDate?:string
 }):StudyPlanCalendarDay[]{
   const todayKey=localDateKey(today)
-  const sessionKeys=sessions.map(session=>localDateKey(session.startedAt)).filter(Boolean).sort()
-  const trackingStart=sessionKeys[0]??todayKey
+  const activityKeys=[
+    ...sessions.map(session=>localDateKey(session.startedAt)),
+    ...attempts.map(attempt=>localDateKey(attempt.createdAt)),
+  ].filter(Boolean).sort()
+  const trackingStart=activityKeys[0]??todayKey
   const targetQuestions=Math.max(0,recommendedSessionsPerDay*questionsPerSession)
   const totals=new Map<string,{sessions:number;questions:number;targetQuestions?:number}>()
 
@@ -52,8 +57,15 @@ export function buildStudyPlanCalendarDays({
     if(!key)return
     const current=totals.get(key)??{sessions:0,questions:0,targetQuestions:undefined}
     current.sessions+=1
-    current.questions+=Math.max(0,session.questionCount)
     if(current.targetQuestions===undefined&&typeof session.dailyQuestionGoal==='number'&&session.dailyQuestionGoal>0)current.targetQuestions=session.dailyQuestionGoal
+    totals.set(key,current)
+  })
+
+  attempts.forEach(attempt=>{
+    const key=localDateKey(attempt.createdAt)
+    if(!key)return
+    const current=totals.get(key)??{sessions:0,questions:0,targetQuestions:undefined}
+    current.questions+=1
     totals.set(key,current)
   })
 

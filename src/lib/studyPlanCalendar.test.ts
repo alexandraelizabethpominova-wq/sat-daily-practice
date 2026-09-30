@@ -1,6 +1,6 @@
 import {describe,expect,it} from 'vitest'
 import {buildStudyPlanCalendarDays} from './studyPlanCalendar'
-import type {SessionSummary} from '../types'
+import type {Attempt,SessionSummary} from '../types'
 
 function session(id:string,date:string,questionCount:number):SessionSummary{
   return {
@@ -11,6 +11,23 @@ function session(id:string,date:string,questionCount:number):SessionSummary{
     questionCount,
     attempts:[],
   }
+}
+
+function attempts(date:string,count:number,sessionId='active'):Attempt[]{
+  return Array.from({length:count},(_,index)=>({
+    id:`${sessionId}-a${index}`,
+    sessionId,
+    questionId:`q-${date}-${index}`,
+    practiceTestId:'practice-test-4',
+    subject:'math',
+    module:'math1',
+    questionNumber:index+1,
+    selectedAnswer:'A',
+    correctAnswer:'A',
+    correct:true,
+    elapsedMs:60_000,
+    createdAt:`${date}T16:${String(index%60).padStart(2,'0')}:00.000Z`,
+  }))
 }
 
 describe('study plan calendar',()=>{
@@ -25,6 +42,11 @@ describe('study plan calendar',()=>{
         session('s4','2026-09-12',8),
         session('s5','2026-09-12',8),
         session('s6','2026-09-12',8),
+      ],
+      attempts:[
+        ...attempts('2026-09-10',20,'s1'),
+        ...attempts('2026-09-11',20,'s2'),
+        ...attempts('2026-09-12',24,'s4'),
       ],
       recommendedSessionsPerDay:2,
       questionsPerSession:10,
@@ -45,6 +67,7 @@ describe('study plan calendar',()=>{
       year:2026,
       month:8,
       sessions:[historical],
+      attempts:attempts('2026-09-10',20,'s1'),
       recommendedSessionsPerDay:4,
       questionsPerSession:5,
       today:new Date(2026,8,13,12),
@@ -57,6 +80,7 @@ describe('study plan calendar',()=>{
       year:2026,
       month:8,
       sessions:[session('s1','2026-09-10',10)],
+      attempts:attempts('2026-09-10',10,'s1'),
       recommendedSessionsPerDay:1,
       questionsPerSession:10,
       today:new Date(2026,8,12,12),
@@ -65,4 +89,25 @@ describe('study plan calendar',()=>{
     expect(days[8].status).toBe('neutral')
     expect(days[9].status).toBe('on-track')
   })
+  it('uses submitted attempts, including an active session, for today progress',()=>{
+    const days=buildStudyPlanCalendarDays({
+      year:2026,
+      month:8,
+      sessions:[session('completed','2026-09-30',10)],
+      attempts:attempts('2026-09-30',28,'mixed'),
+      recommendedSessionsPerDay:2,
+      questionsPerSession:10,
+      today:new Date(2026,8,30,12),
+    })
+
+    expect(days[29]).toMatchObject({
+      day:30,
+      sessionCount:1,
+      questionCount:28,
+      practiced:true,
+      targetQuestionCount:20,
+      status:'ahead',
+    })
+  })
+
 })
