@@ -64,28 +64,43 @@ export default function StudyPlanHero({
         variant="hero"
         title="Current estimate"
         value={estimatedScore??'—'}
-        valueTrailing={<AlexInfoTooltipButton
-          label="Score estimate information"
-          title={<>
-            <b>National Merit outlook</b><br/>
-            {nationalMeritChance!==null
-              ?`${nationalMeritChance}% estimated qualifying outlook${projectedSelectionIndex!==null?` · projected Selection Index ~${projectedSelectionIndex}`:''}.`
-              :'The National Merit outlook is still calibrating.'}
-            <br/><br/>
-            {estimateConfidence&&<>
-              <b>Estimate confidence</b><br/>
-              {estimateConfidence.label} estimate confidence · {estimateConfidence.within80}% within ±80 points. This combines recent question-pool uncertainty, score stability, and SAT measurement error. It is a model estimate, not a guarantee.
+        valueTrailing={<AlexBox sx={{display:'inline-flex','@media (min-width:1600px)':{display:'none'}}}>
+          <AlexInfoTooltipButton
+            label="Score estimate information"
+            title={<>
+              <b>National Merit outlook</b><br/>
+              {nationalMeritChance!==null
+                ?`${nationalMeritChance}% estimated qualifying outlook${projectedSelectionIndex!==null?` · projected Selection Index ~${projectedSelectionIndex}`:''}.`
+                :'The National Merit outlook is still calibrating.'}
+              <br/><br/>
+              {estimateConfidence&&<>
+                <b>Estimate confidence</b><br/>
+                {estimateConfidence.label} estimate confidence · {estimateConfidence.within80}% within ±80 points. This combines recent question-pool uncertainty, score stability, and SAT measurement error. It is a model estimate, not a guarantee.
+              </>}
+              <br/><br/>
+              <b>PSAT/NMSQT scholarship context</b><br/>
+              National Merit uses Selection Index = (2 × Reading & Writing + Math) ÷ 10, on a 48–228 scale. The Massachusetts cutoff varies by year, and a Merit Scholarship is not determined by score alone.
             </>}
-            <br/><br/>
-            <b>PSAT/NMSQT scholarship context</b><br/>
-            National Merit uses Selection Index = (2 × Reading & Writing + Math) ÷ 10, on a 48–228 scale. The Massachusetts cutoff varies by year, and a Merit Scholarship is not determined by score alone.
-          </>}
-        />}
-        subtitle={<AlexText sx={{fontSize:'inherit',color:'inherit',minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',pr:{xs:7,sm:8}}}>
-          {nationalMeritChance!==null
-            ?`${nationalMeritChance}% National Merit outlook${projectedSelectionIndex!==null?` · SI ~${projectedSelectionIndex}`:''}`
-            :accuracy!==null?'Calibrating National Merit outlook':'Complete a few questions to calibrate'}
-        </AlexText>}
+          />
+        </AlexBox>}
+        subtitle={<AlexBox sx={{minWidth:0,pr:{xs:7,sm:8}}}>
+          <AlexText sx={{fontSize:'inherit',color:'inherit',minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+            {nationalMeritChance!==null
+              ?`${nationalMeritChance}% National Merit outlook${projectedSelectionIndex!==null?` · SI ~${projectedSelectionIndex}`:''}`
+              :accuracy!==null?'Calibrating National Merit outlook':'Complete a few questions to calibrate'}
+          </AlexText>
+          {estimateConfidence&&<AlexText sx={{
+            display:'none',
+            '@media (min-width:1600px)':{display:'block'},
+            mt:.25,
+            fontSize:'inherit',
+            fontWeight:750,
+            color:'inherit',
+            whiteSpace:'nowrap',
+          }}>
+            {estimateConfidence.label} estimate confidence · {estimateConfidence.within80}% within ±80
+          </AlexText>}
+        </AlexBox>}
         decoration={<>
           <AlexBox sx={{
             position:'absolute',
