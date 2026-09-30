@@ -769,3 +769,32 @@ nav[aria-label="Mobile primary navigation"]{margin:0}
     flex-direction:column!important;
   }
 }
+
+/* Mobile viewport containment: never size app chrome against 100vw. */
+@media (max-width:767.98px){
+  html,body,#root{
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    overflow-x:hidden;
+  }
+  body{position:relative}
+  [data-testid="app-layout"],
+  [data-testid="app-content"]{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    margin-left:0!important;
+    overflow-x:hidden!important;
+  }
+  [data-testid="mobile-bottom-nav"]{
+    width:auto!important;
+    max-width:none!important;
+    left:0!important;
+    right:0!important;
+    margin:0!important;
+    gap:0!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+  }
+}
