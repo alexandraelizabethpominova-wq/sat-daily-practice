@@ -1,64 +1,31 @@
 import type {ReactNode} from 'react'
-import AlexBox from '../atoms/AlexBox'
-import AlexSurface from '../atoms/AlexSurface'
-import AlexText from '../atoms/AlexText'
-import {dashboardTypography} from '../theme'
+import DashboardCard,{type DashboardCardTone} from './DashboardCard'
 
 type MetricTone='default'|'blue'|'cream'|'lavender'|'green'|'peach'
 type Props={icon:ReactNode;label:string;value:string;tone?:MetricTone;compact?:boolean;valueColor?:string;valueFontSize?:number}
 
-const TONES:Record<MetricTone,{bg:string;border:string;icon:string}>={
-  default:{bg:'#fff',border:'#E6E2DB',icon:'#6558F5'},
-  blue:{bg:'#EEF6FF',border:'#D8E9FB',icon:'#286BA9'},
-  cream:{bg:'#FFF9E8',border:'#F2E4B8',icon:'#8A6818'},
-  lavender:{bg:'#F5EEFF',border:'#E5D8F8',icon:'#7553A4'},
-  green:{bg:'#EEFAE9',border:'#D8EDD0',icon:'#4E7C3E'},
-  peach:{bg:'#FFF1E8',border:'#F1DDD0',icon:'#A65D32'},
+const toneMap:Record<MetricTone,DashboardCardTone>={
+  default:'white',
+  blue:'blue',
+  cream:'cream',
+  lavender:'lavender',
+  green:'green',
+  peach:'peach',
 }
 
 export default function MetricCard({icon,label,value,tone='default',compact=false,valueColor,valueFontSize}:Props){
-  const palette=TONES[tone]
-  return <AlexSurface sx={{
-    p:compact?1.9:2.2,
-    minHeight:compact?{xs:160,sm:0}:undefined,
-    height:compact?'100%':undefined,
-    border:`1px solid ${palette.border}`,
-    borderRadius:'8px',
-    boxShadow:'0 8px 24px rgba(9,35,79,.035)',
-    bgcolor:palette.bg,
-    display:'flex',
-    flexDirection:'column',
-    alignItems:'flex-start',
-    justifyContent:compact?'flex-start':undefined,
-  }}>
-    <AlexBox sx={{
-      display:'grid',
-      placeItems:'center',
-      width:compact?34:32,
-      height:compact?34:32,
-      borderRadius:'50%',
-      bgcolor:'rgba(255,255,255,.76)',
-      color:palette.icon,
-      '& svg':{width:compact?20:20,height:compact?20:20},
-    }}>{icon}</AlexBox>
-    <AlexText sx={{
-      mt:compact?1.5:1,
-      color:compact?'#5B6575':'#667085',
-      fontSize:compact?dashboardTypography.cardTitle:14,
-      lineHeight:1.2,
-      fontWeight:compact?800:400,
-      textTransform:compact?'uppercase':'none',
-      letterSpacing:compact?'.075em':0,
-    }}>{label}</AlexText>
-    <AlexText component="b" sx={{
-      display:'block',
-      mt:compact?.5:.5,
-      fontFamily:compact?'Georgia, "Times New Roman", serif':'inherit',
-      fontSize:valueFontSize??(compact?dashboardTypography.metricValue:26),
-      lineHeight:1,
-      letterSpacing:compact?'-.025em':0,
-      fontWeight:compact?700:850,
-      color:valueColor??'#08275B',
-    }}>{value}</AlexText>
-  </AlexSurface>
+  return <DashboardCard
+    tone={toneMap[tone]}
+    variant={compact?'metric':'summary'}
+    icon={icon}
+    title={label}
+    value={value}
+    valueColor={valueColor}
+    sx={{
+      height:compact?'100%':undefined,
+      minHeight:compact?{xs:160,sm:0}:undefined,
+      boxShadow:'0 8px 24px rgba(9,35,79,.035)',
+      ...(valueFontSize?{'& > div:nth-of-type(2)':{fontSize:valueFontSize}}:{}),
+    }}
+  />
 }
