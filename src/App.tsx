@@ -568,7 +568,7 @@ export default function App(){
               key={item.label}
               sx={{
                 display:'grid',
-                gridTemplateColumns:{xs:'28px minmax(0,1fr) minmax(0,auto)',xl:'24px minmax(0,1fr) auto'},
+                gridTemplateColumns:{xs:'28px minmax(0,1fr) auto',xl:'24px minmax(0,1fr) auto'},
                 alignItems:'center',
                 columnGap:1,
                 py:{xs:.58,xl:.38},
@@ -593,7 +593,7 @@ export default function App(){
               <AlexBox sx={{fontSize:dashboardTypography.supportBody,lineHeight:1.25,color:'#344054',minWidth:0}}>
                 {item.label}
               </AlexBox>
-              <AlexBox sx={{fontSize:dashboardTypography.supportBody,lineHeight:1.2,fontWeight:800,color:'#08275B',whiteSpace:'nowrap',pl:1}}>
+              <AlexBox sx={{fontSize:dashboardTypography.supportBody,lineHeight:1.2,fontWeight:800,color:'#08275B',whiteSpace:{xs:'normal',sm:'nowrap'},maxWidth:'100%',overflowWrap:'anywhere',textAlign:'right',pl:1}}>
                 {item.value}
               </AlexBox>
             </AlexBox>)}
