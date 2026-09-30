@@ -122,7 +122,7 @@ export default function StudyPlanHero({
         />
         <DashboardCard
           tone="lavender"
-          variant="mini"
+          variant="compact"
           icon={<CalendarDays/>}
           title="Days until exam"
           value={daysRemaining}
