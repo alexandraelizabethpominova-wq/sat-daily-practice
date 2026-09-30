@@ -538,13 +538,13 @@ export default function App(){
           <StudyPlanCalendar sessions={sessions} settings={settings} recommendation={practiceRecommendation}/>
         </AlexBox>
         <AlexBox sx={{
-          px:2,py:1.75,
+          px:{xs:1.25,lg:1.5},py:{xs:.8,lg:1},
           border:'1px solid #E4E7EC',
           borderRadius:'8px',
           bgcolor:'#fff',
           display:'flex',
           flexDirection:'column',
-          gap:1.25,
+          gap:.65,
           flex:{xs:'0 0 auto',xl:'1 1 0'},
           minHeight:0,
         }}>
@@ -554,9 +554,9 @@ export default function App(){
               tone="quiet"
               aria-label="Edit practice plan"
               onClick={()=>navigateTo('settings')}
-              sx={{minWidth:32,width:32,height:32,p:0,display:'grid',placeItems:'center'}}
+              sx={{minWidth:26,width:26,height:26,p:0,display:'grid',placeItems:'center'}}
             >
-              <PenLine size={17}/>
+              <PenLine size={14}/>
             </AlexButton>
           </AlexBox>
           <AlexBox sx={{
