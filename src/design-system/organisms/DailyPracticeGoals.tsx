@@ -33,16 +33,21 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
   const todayAttempts=attempts.filter(attempt=>localDayKey(attempt.createdAt)===todayKey)
   const questionsDone=todayAttempts.length
   const todayCompletedSessions=sessions.filter(session=>localDayKey(session.endedAt)===todayKey)
-  const reviewedFailedToday=todayCompletedSessions.some(session=>{
-    if(!session.attempts.length)return false
+  const reviewedFailedQuestionIds=new Set<string>()
+  todayCompletedSessions.forEach(session=>{
+    if(!session.attempts.length)return
     const sessionQuestionIds=new Set(session.attempts.map(attempt=>attempt.questionId))
     const priorFailedIds=new Set(
       attempts
         .filter(attempt=>new Date(attempt.createdAt)<new Date(session.startedAt)&&!attempt.correct)
         .map(attempt=>attempt.questionId)
     )
-    return [...sessionQuestionIds].some(questionId=>priorFailedIds.has(questionId))
+    sessionQuestionIds.forEach(questionId=>{
+      if(priorFailedIds.has(questionId))reviewedFailedQuestionIds.add(questionId)
+    })
   })
+  const reviewedFailedCount=reviewedFailedQuestionIds.size
+  const reviewedFailedToday=reviewedFailedCount>0
   const minutesDone=Math.round(todayAttempts.reduce((total,attempt)=>total+attempt.elapsedMs,0)/60000)
   const questionTarget=Math.max(1,dailyQuestions)
   const minuteTarget=Math.max(1,dailyMinutes)
@@ -70,7 +75,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
   const goals=[
     {label:'Practice questions',value:`${Math.min(questionsDone,questionTarget)}/${questionTarget}`},
     {label:'Practice time',value:`${Math.min(minutesDone,minuteTarget)}/${minuteTarget} min`},
-    {label:'Review failed questions',value:failedQuestionCount?String(failedQuestionCount):'Clear'},
+    {label:'Review failed questions',value:failedQuestionCount?`${reviewedFailedCount}/${failedQuestionCount}`:'Clear'},
   ]
   const weeklyQuestions=attempts.filter(attempt=>new Date(attempt.createdAt)>=weekStart).length
   const weeklyMinutes=Math.round(attempts.filter(attempt=>new Date(attempt.createdAt)>=weekStart).reduce((total,attempt)=>total+attempt.elapsedMs,0)/60000)
