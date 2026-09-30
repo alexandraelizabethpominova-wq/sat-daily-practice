@@ -6,7 +6,7 @@ import AlexText from '../atoms/AlexText'
 import {dashboardCardTokens,dashboardTypography} from '../theme'
 
 export type DashboardCardTone='blue'|'cream'|'green'|'peach'|'lavender'|'yellow'|'white'
-export type DashboardCardVariant='metric'|'hero'|'compact'
+export type DashboardCardVariant='metric'|'hero'|'compact'|'support'
 
 type Props={
   tone:DashboardCardTone
@@ -19,6 +19,7 @@ type Props={
   decoration?:ReactNode
   valueColor?:string
   sx?:SxProps<Theme>
+  children?:ReactNode
 }
 
 const TONES:Record<DashboardCardTone,{bg:string;border:string;icon:string;title:string}>={
@@ -31,7 +32,7 @@ const TONES:Record<DashboardCardTone,{bg:string;border:string;icon:string;title:
   white:{bg:'#FFFFFF',border:'#E4E7EC',icon:'#6558F5',title:'#5B6575'},
 }
 
-export default function DashboardCard({tone,variant='metric',icon,title,value,subtitle,trailing,decoration,valueColor,sx}:Props){
+export default function DashboardCard({tone,variant='metric',icon,title,value,subtitle,trailing,decoration,valueColor,sx,children}:Props){
   const palette=TONES[tone]
   const iconBox=dashboardCardTokens.iconBox[variant]
   const iconSize=dashboardCardTokens.iconSize[variant]
@@ -76,7 +77,7 @@ export default function DashboardCard({tone,variant='metric',icon,title,value,su
         {trailing}
       </AlexBox>
     </>:<AlexBox sx={{display:'flex',alignItems:'center',gap:.6,minWidth:0}}>
-      {variant==='compact'&&iconNode}
+      {(variant==='compact'||variant==='support')&&iconNode}
       <CardTitle>{title}</CardTitle>
       {trailing}
     </AlexBox>}
@@ -97,6 +98,7 @@ export default function DashboardCard({tone,variant='metric',icon,title,value,su
       lineHeight:1.35,
       minWidth:0,
     }}>{subtitle}</AlexText>}
+    {children}
     {decoration}
   </AlexSurface>
 
