@@ -1,6 +1,6 @@
 import AlexRichText from '../atoms/AlexRichText'
 import ReadingDataTable from './ReadingDataTable'
-import {READING_PARAGRAPH_BREAK} from '../../lib/readingQuestionFormat'
+import {READING_PARAGRAPH_BREAK,READING_QUOTE_END,READING_QUOTE_START} from '../../lib/readingQuestionFormat'
 import {readingTableSpec,stripEmbeddedReadingTableLines,type ReadingTableSpec} from '../../lib/readingTables'
 
 const LABELED_CHOICE=/^([A-D])(?:[.)]\s*|\s+)(.+)$/i
@@ -14,6 +14,27 @@ export type ParsedReadingQuestion={intro:string[];stimulusBlocks:string[][];stem
 
 function clean(value:string){return value.replace(/\s+/g,' ').trim()}
 function isBreak(value:string){return value===READING_PARAGRAPH_BREAK}
+
+function normalizeQuoteMarkers(lines:string[]){
+  const output:string[]=[]
+  let inQuote=false
+  let hasExplicitQuote=false
+  for(const line of lines){
+    if(line===READING_QUOTE_START){
+      hasExplicitQuote=true
+      inQuote=true
+      if(output[output.length-1]!==READING_PARAGRAPH_BREAK)output.push(READING_PARAGRAPH_BREAK)
+      continue
+    }
+    if(line===READING_QUOTE_END){
+      inQuote=false
+      if(output[output.length-1]!==READING_PARAGRAPH_BREAK)output.push(READING_PARAGRAPH_BREAK)
+      continue
+    }
+    output.push(line)
+  }
+  return {lines:output,hasExplicitQuote}
+}
 
 function choiceParts(value:string){
   const line=clean(value)
@@ -130,7 +151,8 @@ function explicitlyQuoted(blocks:string[][]){
 }
 
 export function parseReadingQuestion(lines:string[]):ParsedReadingQuestion{
-  const source=lines.map(line=>line.trim()).filter(Boolean)
+  const normalized=normalizeQuoteMarkers(lines)
+  const source=normalized.lines.map(line=>line.trim()).filter(Boolean)
   const structure=findQuestionStructure(source)
   const start=structure?.start??Math.max(0,source.length-1)
   const end=structure?.end??start
@@ -242,7 +264,7 @@ function PairedTextPassages({sections}:{sections:PairedTextSection[]}){
 
 function isSourceAttribution(block:string[]){
   const text=block.map(clean).filter(Boolean).join(' ')
-  return /^(?:©|Copyright\b|Source:|Excerpted from\b)/i.test(text)
+  return /^(?:©|Copyright\b|Source:|Excerpted from\b|by\s+[A-Z])/i.test(text)
 }
 
 export default function ReadingQuestionLines({lines,questionId}:{lines:string[];questionId?:string}){
