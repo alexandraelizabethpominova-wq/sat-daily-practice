@@ -70,23 +70,27 @@ export default function StudyPlanHero({
         <AlexText sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:dashboardTypography.heroScore,fontWeight:700,color:'#08275B',mt:.45}}>
           {estimatedScore??'—'}
         </AlexText>
-        <AlexText sx={{fontSize:11.5,color:'#667085',mt:.2}}>
-          {nationalMeritChance!==null
-            ?`${nationalMeritChance}% National Merit qualifying outlook${projectedSelectionIndex!==null?` · SI ~${projectedSelectionIndex}`:''}`
-            :accuracy!==null?'Calibrating National Merit outlook':'Complete a few questions to calibrate'}
-        </AlexText>
-        {estimateConfidence&&<AlexBox sx={{display:'flex',alignItems:'center',gap:.25,mt:.25,color:'#667085'}}>
-          <AlexText sx={{fontSize:10.5,fontWeight:750,color:'inherit'}}>
-            {estimateConfidence.label} estimate confidence · {estimateConfidence.within80}% within ±80
+        <AlexBox sx={{display:'flex',alignItems:'center',gap:.35,mt:.2,color:'#667085',minWidth:0}}>
+          <AlexText sx={{fontSize:11.5,color:'inherit',minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+            {nationalMeritChance!==null
+              ?`${nationalMeritChance}% National Merit outlook${projectedSelectionIndex!==null?` · SI ~${projectedSelectionIndex}`:''}`
+              :accuracy!==null?'Calibrating National Merit outlook':'Complete a few questions to calibrate'}
           </AlexText>
           <AlexInfoTooltipButton
-            label="Score estimate confidence information"
+            label="Score estimate details"
             title={<>
-              <b>Estimate confidence</b><br/>
-              This estimates how likely an actual SAT score is to fall within ±80 points of the practice estimate. It combines recent question-pool uncertainty, recent score stability, and the SAT's published ±40-point total-score measurement error. It is a model estimate, not a guarantee.
+              <b>National Merit outlook</b><br/>
+              {nationalMeritChance!==null
+                ?`${nationalMeritChance}% estimated qualifying outlook${projectedSelectionIndex!==null?` · projected Selection Index ~${projectedSelectionIndex}`:''}.`
+                :'The National Merit outlook is still calibrating.'}
+              <br/><br/>
+              {estimateConfidence&&<>
+                <b>Estimate confidence</b><br/>
+                {estimateConfidence.label} estimate confidence · {estimateConfidence.within80}% within ±80 points. This combines recent question-pool uncertainty, score stability, and SAT measurement error. It is a model estimate, not a guarantee.
+              </>}
             </>}
           />
-        </AlexBox>}
+        </AlexBox>
         <AlexBox sx={{position:'absolute',right:{xs:10,sm:14},bottom:6,width:{xs:48,sm:54},height:{xs:48,sm:54},borderRadius:'50%',bgcolor:'#D9ECFF',display:'grid',placeItems:'center',transform:'rotate(-6deg)'}}>
           <BookOpenCheck size={24} strokeWidth={1.6}/>
         </AlexBox>
