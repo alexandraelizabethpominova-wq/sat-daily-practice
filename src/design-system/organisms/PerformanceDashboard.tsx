@@ -79,7 +79,7 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,c
 
   if(compact)return <AlexBox sx={{
     display:'grid',
-    gridTemplateRows:{xs:'auto auto',xl:'clamp(340px,35dvh,360px) minmax(0,1fr)'},
+    gridTemplateRows:{xs:'auto auto',xl:'var(--dashboard-primary-row) minmax(0,1fr)'},
     gap:{xs:1.5,sm:2.5},
     minWidth:0,
     height:'100%',
@@ -87,7 +87,7 @@ export default function PerformanceDashboard({summary,hasHistory,compact=false,c
   }}>
     <AlexBox sx={{
       display:'grid',
-      gridTemplateColumns:'repeat(auto-fit,minmax(min(100%,165px),1fr))',
+      gridTemplateColumns:{xs:'repeat(auto-fit,minmax(min(100%,165px),1fr))',xl:'repeat(5,minmax(0,1fr))'},
       gap:1,
       minHeight:0,
     }}>
