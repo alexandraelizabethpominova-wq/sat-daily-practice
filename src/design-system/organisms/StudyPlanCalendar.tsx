@@ -54,7 +54,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
   return <AlexSurface
     component="section"
     sx={{
-      p:{xs:1.25,sm:1.4},
+      p:{xs:1.6,sm:1.75,xl:1.25},
       border:'1px solid #E4E7EC',
       bgcolor:'#fff',
       minWidth:0,
@@ -64,7 +64,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
       flexDirection:'column',
     }}
   >
-    <AlexBox sx={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:1.25,mb:.65}}>
+    <AlexBox sx={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:1.25,mb:{xs:1.15,xl:.65}}}>
       <AlexBox sx={{display:'flex',alignItems:'center',gap:.75,minWidth:0}}>
         <CalendarDays size={16} color="#6558F5"/>
         <AlexText sx={{fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575'}}>Practice calendar</AlexText>
@@ -74,7 +74,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
       </AlexText>
     </AlexBox>
 
-    <AlexBox sx={{display:'flex',alignItems:'center',justifyContent:'space-between',mb:.55}}>
+    <AlexBox sx={{display:'flex',alignItems:'center',justifyContent:'space-between',mb:{xs:1,xl:.55}}}>
       <AlexIconButton label="Previous month" onClick={()=>moveMonth(-1)}><ChevronLeft size={16}/></AlexIconButton>
       <AlexText sx={{fontSize:11.5,fontWeight:900,letterSpacing:'.045em',color:'#08275B',textTransform:'uppercase'}}>
         {monthTitle(view.year,view.month)}
@@ -88,7 +88,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
       columnGap:.2,
       width:'92%',
       mx:'auto',
-      mb:.35,
+      mb:{xs:.7,xl:.35},
     }}>
       {WEEKDAYS.map((day,index)=><AlexText key={`${day}-${index}`} sx={{textAlign:'center',fontSize:9,fontWeight:850,color:'#667085'}}>{day}</AlexText>)}
     </AlexBox>
@@ -96,9 +96,9 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
     <AlexBox sx={{
       display:'grid',
       gridTemplateColumns:'repeat(7,minmax(0,1fr))',
-      gridAutoRows:'minmax(0,1fr)',
+      gridAutoRows:{xs:'minmax(34px,1fr)',xl:'minmax(0,1fr)'},
       columnGap:.2,
-      rowGap:.2,
+      rowGap:{xs:.35,xl:.2},
       width:'92%',
       mx:'auto',
       flex:'1 1 0',
@@ -139,7 +139,7 @@ export default function StudyPlanCalendar({sessions,settings,recommendation}:Pro
             sx={{
               width:'100%',
               aspectRatio:'1 / 1',
-              width:'clamp(25px,2.9dvh,34px)',maxWidth:34,
+              maxWidth:{xs:38,xl:34},
               justifySelf:'center',
               borderRadius:isExamDate?0:'50%',
               border:isExamDate?'none':'1px solid',
