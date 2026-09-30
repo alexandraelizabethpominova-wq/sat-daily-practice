@@ -64,6 +64,7 @@ export default function StudyPlanHero({
         variant="hero"
         title="Current estimate"
         value={estimatedScore??'—'}
+        valueFontSize={dashboardTypography.metricValue}
         valueTrailing={<AlexBox sx={{display:'inline-flex','@media (min-width:1600px)':{display:'none'}}}>
           <AlexInfoTooltipButton
             label="Score estimate information"
@@ -128,6 +129,7 @@ export default function StudyPlanHero({
           icon={<Target/>}
           title="Goal score"
           value={targetScore??'—'}
+          valueFontSize={dashboardTypography.metricValue}
           sx={{justifyContent:'center'}}
         />
         <DashboardCard
@@ -136,6 +138,7 @@ export default function StudyPlanHero({
           icon={<CalendarDays/>}
           title="Days until exam"
           value={daysRemaining}
+          valueFontSize={dashboardTypography.metricValue}
           sx={{justifyContent:'center'}}
         />
       </AlexBox>
