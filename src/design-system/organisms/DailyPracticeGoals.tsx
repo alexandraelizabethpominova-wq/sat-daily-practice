@@ -99,7 +99,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
           <AlexBox aria-hidden="true" sx={{width:24,height:24,borderRadius:'50%',display:'grid',placeItems:'center',bgcolor:complete?'#E8F7EE':'#EEF2F7',color:complete?'#20935A':'#C7D1DF'}}>
             <Star size={14} fill="currentColor" strokeWidth={1.4}/>
           </AlexBox>
-          <AlexText sx={{fontFamily:'inherit',fontSize:{xs:12.5,lg:13.5},fontWeight:400,lineHeight:1.3,color:'#111',whiteSpace:'nowrap'}}>
+          <AlexText sx={{fontFamily:'inherit',fontSize:{xs:10.75,lg:11.75},fontWeight:400,lineHeight:1.3,color:'#111',whiteSpace:'nowrap'}}>
             <AlexBox component="span" sx={{textDecoration:'underline',textUnderlineOffset:'2px'}}>{goal.label}</AlexBox>
             <AlexBox component="span" sx={{textDecoration:'none'}}> · {goal.value}</AlexBox>
           </AlexText>
@@ -123,14 +123,14 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
       </AlexBox>
       <AlexBox sx={{display:'flex',gap:.45,alignItems:'center',mb:.55,width:'100%',minWidth:0}}>
         {weekDays.map(day=><AlexBox key={day.key} sx={{
-          width:30,height:30,flex:'0 0 30px',borderRadius:'5px',
+          width:28,height:28,flex:'0 0 28px',borderRadius:'5px',
           border:'1.5px solid',borderColor:day.practiced?'#B38CFF':day.isToday?'#111':'#C8D1DE',
           bgcolor:day.practiced?'#F7F2FF':'#fff',
           color:day.practiced?'#6F35E8':day.isToday?'#111':'#475467',
           display:'grid',placeItems:'center',
           fontFamily:'Arial, Helvetica, sans-serif',
         }}>
-          {day.practiced?<Check size={15} strokeWidth={2.2}/>:<AlexText sx={{fontFamily:'inherit',fontSize:11.5,fontWeight:day.isToday?700:400,color:'inherit'}}>{day.label}</AlexText>}
+          {day.practiced?<Check size={15} strokeWidth={2.2}/>:<AlexText sx={{fontFamily:'inherit',fontSize:10.5,fontWeight:day.isToday?700:400,color:'inherit'}}>{day.label}</AlexText>}
         </AlexBox>)}
       </AlexBox>
       <AlexText sx={{fontFamily:'inherit',fontSize:{xs:11.5,lg:12.5},fontWeight:400,lineHeight:1.25,color:'#667085'}}>
@@ -144,7 +144,7 @@ export default function DailyPracticeGoals({attempts,sessions,dailyQuestions,dai
       fontFamily:'Arial, Helvetica, sans-serif',
     }}>
       <AlexText component="h2" sx={{fontFamily:'inherit',fontSize:10.2,fontWeight:800,lineHeight:1.2,textTransform:'uppercase',letterSpacing:'.075em',color:'#5B6575',mb:1.45}}>Recommended focus</AlexText>
-      <AlexText sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:21,lg:23},fontWeight:700,lineHeight:1.1,color:'#08275B'}}>{recommendationLabel}</AlexText>
+      <AlexText sx={{fontFamily:'Georgia, "Times New Roman", serif',fontSize:{xs:19,lg:21},fontWeight:700,lineHeight:1.1,color:'#08275B'}}>{recommendationLabel}</AlexText>
       {recommendationReason&&<AlexText sx={{fontFamily:'inherit',fontSize:{xs:11.5,lg:12.5},lineHeight:1.4,fontWeight:400,color:'#475467',mt:.55}}>{recommendationReason}</AlexText>}
     </AlexSurface>
   </AlexBox>
