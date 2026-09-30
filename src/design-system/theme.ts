@@ -19,7 +19,7 @@ export const dashboardCardTokens={
     metric:{xs:1.5,sm:1.7,xl:1.8},
     hero:{xs:1.25,sm:1.4,xl:1.5},
     compact:{xs:1.1,sm:1.25,xl:1.35},
-    support:{xs:1.35,sm:1.5,xl:1.5},
+    support:{xs:1.6,sm:1.7,xl:1.7},
   },
   gap:{xs:.55,sm:.65,xl:.7},
   iconBox:{
