@@ -5,7 +5,7 @@ import AlexCalendarStatusIcon from './AlexCalendarStatusIcon'
 export type AlexCalendarDayVariant='circle'|'star'
 export type AlexCalendarDayMarker='check'|'close'
 
-type Props=Omit<BoxProps,'children'>&{
+type Props=Omit<BoxProps,'children'|'sx'>&{
   day:number
   variant?:AlexCalendarDayVariant
   backgroundColor?:string
@@ -23,7 +23,6 @@ export default function AlexCalendarDay({
   textColor='#08275B',
   isToday=false,
   marker,
-  sx,
   ...props
 }:Props){
   const isStar=variant==='star'
@@ -48,7 +47,6 @@ export default function AlexCalendarDay({
       cursor:'help',
       outline:'none',
       '&:focus-visible':{boxShadow:'0 0 0 2px #6558F5'},
-      ...sx,
     }}
     {...props}
   >
