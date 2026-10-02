@@ -54,9 +54,13 @@ export default function AlexCalendarDay({
       aria-hidden="true"
       sx={{
         position:'absolute',
-        inset:-4,
+        left:'50%',
+        top:'50%',
+        width:44,
+        height:44,
         display:'grid',
         placeItems:'center',
+        transform:'translate(-50%,-53%)',
         zIndex:0,
       }}
     >
@@ -75,7 +79,7 @@ export default function AlexCalendarDay({
       fontWeight:isStar||isToday?900:700,
       lineHeight:1,
       color:isStar?'#08275B':'inherit',
-      transform:isStar?'translateY(-.5px)':'none',
+      transform:isStar?'translateY(-1.5px)':'none',
     }}>{day}</Typography>
 
     {marker&&<Box
