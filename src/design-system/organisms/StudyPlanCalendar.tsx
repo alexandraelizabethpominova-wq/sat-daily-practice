@@ -1,11 +1,11 @@
 import {useMemo,useState} from 'react'
-import {CalendarDays,ChevronLeft,ChevronRight,Star} from 'lucide-react'
+import {CalendarDays,ChevronLeft,ChevronRight} from 'lucide-react'
 import AlexBox from '../atoms/AlexBox'
+import AlexCalendarDay from '../atoms/AlexCalendarDay'
 import AlexIconButton from '../atoms/AlexIconButton'
 import AlexSurface from '../atoms/AlexSurface'
 import AlexText from '../atoms/AlexText'
 import AlexTooltip from '../atoms/AlexTooltip'
-import AlexCalendarStatusIcon from '../atoms/AlexCalendarStatusIcon'
 import {buildStudyPlanCalendarDays,type StudyPlanDayStatus} from '../../lib/studyPlanCalendar'
 import type {PracticePlanRecommendation} from '../../lib/practicePlan'
 import type {Attempt,SessionSummary,Settings} from '../../types'
@@ -133,95 +133,24 @@ export default function StudyPlanCalendar({sessions,attempts,settings,recommenda
           describeChild
           slotProps={{popper:{sx:{zIndex:1600}}}}
         >
-          <AlexBox
-            component="span"
+          <AlexCalendarDay
+            day={day.day}
+            variant={isExamDate?'star':'circle'}
+            backgroundColor={style.bg}
+            borderColor={style.border}
+            textColor={day.status==='neutral'?'#7A8495':'#08275B'}
+            isToday={isToday}
+            marker={
+              day.status==='ahead'||day.status==='on-track'
+                ?'check'
+                :hasTrackedGoal&&day.status==='behind'
+                  ?'close'
+                  :undefined
+            }
             tabIndex={0}
             title={title}
             aria-label={`${day.date}: ${title}`}
-            sx={{
-              width:'100%',
-              aspectRatio:'1 / 1',
-              maxWidth:{xs:38,xl:34},
-              justifySelf:'center',
-              borderRadius:isExamDate?0:'50%',
-              border:isExamDate?'none':'1px solid',
-              borderColor:isToday?'#6558F5':style.border,
-              bgcolor:isExamDate?'transparent':style.bg,
-              color:day.status==='neutral'?'#7A8495':'#08275B',
-              display:'grid',
-              placeItems:'center',
-              position:'relative',
-              boxShadow:!isExamDate&&isToday?'0 0 0 1px #6558F5 inset':'none',
-              cursor:'help',
-              outline:'none',
-              '&:focus-visible':{boxShadow:'0 0 0 2px #6558F5'},
-            }}
-          >
-            {isExamDate&&<AlexBox
-              aria-hidden="true"
-              sx={{
-                position:'absolute',
-                inset:-4,
-                display:'grid',
-                placeItems:'center',
-                zIndex:0,
-              }}
-            >
-              <Star
-                size={44}
-                strokeWidth={1.7}
-                fill="#F5C451"
-                color={isToday?'#6558F5':'#9B6A00'}
-              />
-            </AlexBox>}
-            <AlexText sx={{
-              position:'relative',
-              zIndex:2,
-              fontSize:{xs:10,sm:11.5},
-              fontWeight:isExamDate||isToday?900:700,
-              lineHeight:1,
-              color:isExamDate?'#08275B':'inherit',
-              transform:isExamDate?'translateY(-.5px)':'none',
-            }}>{day.day}</AlexText>
-            {(day.status==='ahead'||day.status==='on-track')&&<AlexBox
-              aria-hidden="true"
-              sx={{
-                position:'absolute',
-                zIndex:3,
-                top:-2.5,
-                right:-2.5,
-                width:14,
-                height:14,
-                borderRadius:'50%',
-                bgcolor:'#fff',
-                border:'1px solid #A6D8BE',
-                boxShadow:'0 1px 3px rgba(16,24,40,.14)',
-                display:'grid',
-                placeItems:'center',
-              }}
-            >
-              <AlexCalendarStatusIcon kind="check" sx={{width:10,height:10,color:'#027A48'}}/>
-            </AlexBox>}
-            {hasTrackedGoal&&day.status==='behind'&&<AlexBox
-              aria-hidden="true"
-              sx={{
-                position:'absolute',
-                zIndex:3,
-                top:-2.5,
-                right:-2.5,
-                width:13,
-                height:13,
-                borderRadius:'50%',
-                bgcolor:'#fff',
-                border:'1px solid #F1B5B0',
-                boxShadow:'0 1px 3px rgba(16,24,40,.14)',
-                display:'grid',
-                placeItems:'center',
-              }}
-            >
-              <AlexCalendarStatusIcon kind="close" sx={{width:9.5,height:9.5,color:'#B42318'}}/>
-            </AlexBox>}
-          </AlexBox>
+          />
         </AlexTooltip>
       })}
     </AlexBox>
