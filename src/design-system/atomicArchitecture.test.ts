@@ -47,4 +47,10 @@ describe('atomic design boundaries',()=>{
     }
   })
 
+  it('renders Study Plan dates through the shared calendar day atom',()=>{
+    const source=readFileSync(resolve(process.cwd(),'src/design-system/organisms/StudyPlanCalendar.tsx'),'utf8')
+    expect(source).toContain("../atoms/AlexCalendarDay")
+    expect(source).toContain("variant={isExamDate?'star':'circle'}")
+  })
+
 })
